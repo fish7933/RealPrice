@@ -1,0 +1,236 @@
+import { useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useFreight } from '@/contexts/FreightContext';
+import { TruckAgent } from '@/types/freight';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Pencil, Trash2, Plus, Truck } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+
+export default function TruckAgentTable() {
+  const { user } = useAuth();
+  const { truckAgents, addTruckAgent, updateTruckAgent, deleteTruckAgent } = useFreight();
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingAgent, setEditingAgent] = useState<TruckAgent | null>(null);
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+  });
+
+  const isAdmin = user?.role === 'admin';
+
+  const handleAdd = () => {
+    if (!formData.name.trim()) return;
+
+    addTruckAgent({
+      name: formData.name.trim(),
+      description: formData.description.trim() || undefined,
+    });
+
+    setFormData({ name: '', description: '' });
+    setIsAddDialogOpen(false);
+  };
+
+  const handleEdit = (agent: TruckAgent) => {
+    setEditingAgent(agent);
+    setFormData({
+      name: agent.name,
+      description: agent.description || '',
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  const handleUpdate = () => {
+    if (!editingAgent || !formData.name.trim()) return;
+
+    updateTruckAgent(editingAgent.id, {
+      name: formData.name.trim(),
+      description: formData.description.trim() || undefined,
+    });
+
+    setFormData({ name: '', description: '' });
+    setIsEditDialogOpen(false);
+    setEditingAgent(null);
+  };
+
+  const handleDelete = (id: string, name: string) => {
+    if (confirm(`"${name}" 트럭 운송사를 삭제하시겠습니까?\n\n관련된 모든 데이터(국경목적지운임, 중량할증)도 함께 삭제됩니다.`)) {
+      deleteTruckAgent(id);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-2xl font-bold flex items-center gap-2">
+            <Truck className="h-6 w-6" />
+            트럭 운송사 관리
+          </h2>
+          <p className="text-gray-600 mt-1">트럭 운송을 담당하는 업체를 관리합니다</p>
+        </div>
+        {isAdmin && (
+          <Button onClick={() => setIsAddDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            운송사 추가
+          </Button>
+        )}
+      </div>
+
+      <Alert>
+        <Truck className="h-4 w-4" />
+        <AlertDescription>
+          <strong>트럭 운송사:</strong> KASHGAR 국경에서 최종 목적지까지 트럭 운송을 담당하는 업체입니다.
+          <br />
+          <span className="text-sm text-gray-600 mt-1 block">
+            운송사를 삭제하면 해당 운송사와 관련된 모든 운임 데이터(국경목적지운임, 중량할증)가 함께 삭제됩니다.
+          </span>
+        </AlertDescription>
+      </Alert>
+
+      <div className="border rounded-lg overflow-hidden bg-white">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>운송사명</TableHead>
+              <TableHead>설명</TableHead>
+              <TableHead>등록일</TableHead>
+              {isAdmin && <TableHead className="text-right">작업</TableHead>}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {truckAgents.length > 0 ? (
+              truckAgents.map((agent) => (
+                <TableRow key={agent.id}>
+                  <TableCell className="font-medium">
+                    <div className="flex items-center gap-2">
+                      <Truck className="h-4 w-4 text-green-600" />
+                      {agent.name}
+                    </div>
+                  </TableCell>
+                  <TableCell>{agent.description || '-'}</TableCell>
+                  <TableCell>{new Date(agent.createdAt).toLocaleDateString('ko-KR')}</TableCell>
+                  {isAdmin && (
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleEdit(agent)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDelete(agent.id, agent.name)}
+                        >
+                          <Trash2 className="h-4 w-4 text-red-600" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  )}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={isAdmin ? 4 : 3} className="text-center text-gray-500">
+                  등록된 트럭 운송사가 없습니다
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Add Dialog */}
+      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>트럭 운송사 추가</DialogTitle>
+            <DialogDescription>새로운 트럭 운송사 정보를 입력하세요.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>운송사명 *</Label>
+              <Input
+                placeholder="예: COWIN"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>설명</Label>
+              <Textarea
+                placeholder="운송사에 대한 설명을 입력하세요"
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+              취소
+            </Button>
+            <Button onClick={handleAdd} disabled={!formData.name.trim()}>
+              추가
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>트럭 운송사 수정</DialogTitle>
+            <DialogDescription>운송사 정보를 수정하세요.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>운송사명 *</Label>
+              <Input
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>설명</Label>
+              <Textarea
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+              취소
+            </Button>
+            <Button onClick={handleUpdate} disabled={!formData.name.trim()}>
+              수정
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}

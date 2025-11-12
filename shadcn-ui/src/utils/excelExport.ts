@@ -1,0 +1,289 @@
+import * as XLSX from 'xlsx-js-style';
+import { AgentCostBreakdown, CostCalculationInput } from '@/types/freight';
+import type { ExcludedCosts } from '@/components/calculator/CostCalculatorWithTabs';
+
+export interface ExcelExportData {
+  breakdown: AgentCostBreakdown;
+  input: CostCalculationInput;
+  destinationName: string;
+  costTotal: number;
+  sellingPrice: number;
+  profit: number;
+  profitRate: number;
+  createdByUsername: string;
+  createdAt: string;
+  excludedCosts: ExcludedCosts;
+  carrier?: string;
+}
+
+export const exportQuotationToExcel = (data: ExcelExportData) => {
+  // Create workbook
+  const wb = XLSX.utils.book_new();
+
+  // Build route title
+  const routeTitle = `${data.input.pol}-${data.input.pod}-${data.destinationName}`;
+
+  // Format date for display
+  const quotationDate = new Date(data.createdAt).toLocaleDateString('ko-KR', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  });
+
+  // Build header row dynamically based on excluded costs
+  const headers: string[] = [routeTitle, 'CARRIER', 'CNTR SIZE'];
+  
+  if (!data.excludedCosts.seaFreight) {
+    headers.push(`${data.input.pol}-${data.input.pod}`);
+  }
+  
+  if (!data.excludedCosts.dthc) {
+    headers.push('D/O FEE');
+  }
+  
+  if (data.breakdown.isCombinedFreight) {
+    if (!data.excludedCosts.combinedFreight) {
+      headers.push(`${data.input.pod}-${data.destinationName}`);
+    }
+  } else {
+    if (!data.excludedCosts.portBorder) {
+      headers.push(`${data.input.pod}-국경`);
+    }
+    if (!data.excludedCosts.borderDestination) {
+      headers.push(`국경-${data.destinationName}`);
+    }
+  }
+  
+  if (!data.excludedCosts.weightSurcharge && data.breakdown.weightSurcharge > 0) {
+    headers.push('중량할증');
+  }
+  
+  if (!data.excludedCosts.dp && data.breakdown.dp > 0) {
+    headers.push('DP');
+  }
+  
+  if (!data.excludedCosts.domesticTransport && data.breakdown.domesticTransport > 0) {
+    headers.push('국내운송');
+  }
+  
+  // Add other cost items
+  data.breakdown.otherCosts.forEach((item, index) => {
+    if (!data.excludedCosts[`other_${index}`]) {
+      headers.push(item.category);
+    }
+  });
+  
+  headers.push('TOTAL', 'SELLING', 'PROFIT');
+
+  // Build data row
+  const dataRow: (string | number)[] = [
+    data.destinationName,
+    data.carrier || '',
+    "40'HQ"
+  ];
+  
+  if (!data.excludedCosts.seaFreight) {
+    dataRow.push(data.breakdown.seaFreight);
+  }
+  
+  if (!data.excludedCosts.dthc) {
+    dataRow.push(data.breakdown.dthc);
+  }
+  
+  if (data.breakdown.isCombinedFreight) {
+    if (!data.excludedCosts.combinedFreight) {
+      dataRow.push(data.breakdown.combinedFreight);
+    }
+  } else {
+    if (!data.excludedCosts.portBorder) {
+      dataRow.push(data.breakdown.portBorder);
+    }
+    if (!data.excludedCosts.borderDestination) {
+      dataRow.push(data.breakdown.borderDestination);
+    }
+  }
+  
+  if (!data.excludedCosts.weightSurcharge && data.breakdown.weightSurcharge > 0) {
+    dataRow.push(data.breakdown.weightSurcharge);
+  }
+  
+  if (!data.excludedCosts.dp && data.breakdown.dp > 0) {
+    dataRow.push(data.breakdown.dp);
+  }
+  
+  if (!data.excludedCosts.domesticTransport && data.breakdown.domesticTransport > 0) {
+    dataRow.push(data.breakdown.domesticTransport);
+  }
+  
+  // Add other cost items
+  data.breakdown.otherCosts.forEach((item, index) => {
+    if (!data.excludedCosts[`other_${index}`]) {
+      dataRow.push(item.amount);
+    }
+  });
+  
+  dataRow.push(data.costTotal, data.sellingPrice, data.profit);
+
+  // Create worksheet data with title and date rows
+  const wsData = [
+    ['운임견적서'],  // Title row
+    [`견적일자: ${quotationDate} | 작성자: ${data.createdByUsername}`],  // Date and author row
+    headers,
+    dataRow
+  ];
+
+  // Create worksheet
+  const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+  // Calculate the number of columns
+  const numCols = headers.length;
+
+  // Set column widths
+  const colWidths = Array(numCols).fill({ wch: 15 });
+  ws['!cols'] = colWidths;
+
+  // Merge cells for title row (row 0)
+  if (!ws['!merges']) ws['!merges'] = [];
+  ws['!merges'].push({
+    s: { r: 0, c: 0 },
+    e: { r: 0, c: numCols - 1 }
+  });
+
+  // Merge cells for date/author row (row 1)
+  ws['!merges'].push({
+    s: { r: 1, c: 0 },
+    e: { r: 1, c: numCols - 1 }
+  });
+
+  // Define border style
+  const borderStyle = {
+    top: { style: 'thin', color: { rgb: '000000' } },
+    bottom: { style: 'thin', color: { rgb: '000000' } },
+    left: { style: 'thin', color: { rgb: '000000' } },
+    right: { style: 'thin', color: { rgb: '000000' } }
+  };
+
+  // Style for title row (row 0)
+  const titleCell = ws['A1'];
+  if (titleCell) {
+    titleCell.s = {
+      font: { 
+        bold: true, 
+        sz: 14,
+        underline: true
+      },
+      alignment: { 
+        horizontal: 'center', 
+        vertical: 'center' 
+      }
+    };
+  }
+
+  // Style for date/author row (row 1)
+  const dateCell = ws['A2'];
+  if (dateCell) {
+    dateCell.s = {
+      font: { 
+        sz: 10
+      },
+      alignment: { 
+        horizontal: 'center', 
+        vertical: 'center' 
+      }
+    };
+  }
+
+  // Apply styles to header row (row 2)
+  for (let col = 0; col < numCols; col++) {
+    const cellRef = XLSX.utils.encode_cell({ r: 2, c: col });
+    if (ws[cellRef]) {
+      ws[cellRef].s = {
+        font: { 
+          bold: true, 
+          sz: 10,
+          color: { rgb: 'FFFFFF' }
+        },
+        fill: { 
+          fgColor: { rgb: '404040' }
+        },
+        alignment: { 
+          horizontal: 'center', 
+          vertical: 'center' 
+        },
+        border: borderStyle
+      };
+    }
+  }
+
+  // Apply styles to data row (row 3)
+  for (let col = 0; col < numCols; col++) {
+    const cellRef = XLSX.utils.encode_cell({ r: 3, c: col });
+    if (ws[cellRef]) {
+      // Base style for all data cells
+      const cellStyle = {
+        font: { sz: 10 },
+        alignment: { 
+          horizontal: 'center', 
+          vertical: 'center' 
+        },
+        border: borderStyle
+      };
+
+      // Special styling for PROFIT column
+      const profitColIdx = headers.indexOf('PROFIT');
+      if (col === profitColIdx) {
+        cellStyle.font = {
+          sz: 10,
+          color: { rgb: data.profit >= 0 ? '006600' : 'CC0000' },
+          bold: true
+        };
+      }
+
+      ws[cellRef].s = cellStyle;
+    }
+  }
+
+  // Add worksheet to workbook
+  XLSX.utils.book_append_sheet(wb, ws, '운임 견적서');
+
+  // Generate filename
+  const dateStr = new Date().toISOString().split('T')[0].replace(/-/g, '');
+  const filename = `운임견적서_${data.breakdown.agent}_${data.destinationName}_${dateStr}.xlsx`;
+
+  // Write file with cellStyles option
+  XLSX.writeFile(wb, filename, { cellStyles: true });
+};
+
+interface QuotationData {
+  breakdown: AgentCostBreakdown;
+  input: CostCalculationInput;
+  costTotal: number;
+  sellingPrice: number;
+  profit: number;
+  profitRate: number;
+  createdByUsername: string;
+  createdAt: string;
+}
+
+export const exportQuotation = (
+  quotation: QuotationData, 
+  destinationName: string, 
+  excludedCosts: ExcludedCosts,
+  carrier?: string
+) => {
+  const data: ExcelExportData = {
+    breakdown: quotation.breakdown,
+    input: quotation.input,
+    destinationName,
+    costTotal: quotation.costTotal,
+    sellingPrice: quotation.sellingPrice,
+    profit: quotation.profit,
+    profitRate: quotation.profitRate,
+    createdByUsername: quotation.createdByUsername,
+    createdAt: quotation.createdAt,
+    excludedCosts,
+    carrier,
+  };
+
+  exportQuotationToExcel(data);
+};

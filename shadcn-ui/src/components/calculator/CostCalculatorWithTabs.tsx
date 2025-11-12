@@ -344,6 +344,16 @@ export default function CostCalculatorWithTabs() {
     }
   }, [cellExclusions, user?.id]);
 
+  // Auto-exclude combinedFreight when DP is included
+  useEffect(() => {
+    if (input.includeDP) {
+      setExcludedCosts(prev => ({
+        ...prev,
+        combinedFreight: true
+      }));
+    }
+  }, [input.includeDP]);
+
   const handleCalculate = () => {
     setError('');
     
@@ -383,7 +393,7 @@ export default function CostCalculatorWithTabs() {
       dthc: false,
       portBorder: false,
       borderDestination: false,
-      combinedFreight: false,
+      combinedFreight: input.includeDP, // Auto-exclude if DP is included
       weightSurcharge: false,
       dp: false,
       domesticTransport: false,
@@ -420,7 +430,7 @@ export default function CostCalculatorWithTabs() {
           dthc: false,
           portBorder: false,
           borderDestination: false,
-          combinedFreight: false,
+          combinedFreight: input.includeDP, // Auto-exclude if DP is included
           weightSurcharge: false,
           dp: false,
           domesticTransport: false,
@@ -517,7 +527,7 @@ export default function CostCalculatorWithTabs() {
       dthc: false,
       portBorder: false,
       borderDestination: false,
-      combinedFreight: false,
+      combinedFreight: history.result.input.includeDP, // Auto-exclude if DP was included
       weightSurcharge: false,
       dp: false,
       domesticTransport: false,
@@ -975,6 +985,9 @@ export default function CostCalculatorWithTabs() {
               <p className="text-xs text-gray-500">
                 {input.pol ? `${input.pol} DP: $${dpCost}` : '출발항을 먼저 선택하세요'}
               </p>
+              <p className="text-xs text-blue-600 font-medium">
+                ※ DP 포함시 통합 운임은 조회에서 제외
+              </p>
             </div>
 
             <div className="space-y-2">
@@ -1127,6 +1140,11 @@ export default function CostCalculatorWithTabs() {
               <div className="text-xs text-blue-700 mt-2">
                 * "조합", "선사", "철도", "트럭" 또는 "총액" 헤더를 클릭하면 해당 기준으로 정렬됩니다
               </div>
+              {input.includeDP && (
+                <div className="text-xs text-blue-700 mt-2 font-semibold">
+                  * DP 포함 시 통합 운임은 자동으로 제외됩니다
+                </div>
+              )}
             </div>
 
             {result.breakdown.some(b => b.hasExpiredRates) && (

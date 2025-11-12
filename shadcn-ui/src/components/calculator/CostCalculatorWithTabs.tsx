@@ -374,35 +374,46 @@ export default function CostCalculatorWithTabs() {
       return;
     }
 
-    // Filter out combined freight breakdowns if DP is included
+    // Filter based on DP inclusion
     if (input.includeDP) {
+      // DP 포함: 통합운임이 없는 조합만 (철도+트럭 분리)
       calculationResult.breakdown = calculationResult.breakdown.filter(b => !b.isCombinedFreight);
+    } else {
+      // DP 미포함: 통합운임이 있는 조합만
+      calculationResult.breakdown = calculationResult.breakdown.filter(b => b.isCombinedFreight);
+    }
+    
+    // Recalculate lowest cost after filtering
+    if (calculationResult.breakdown.length > 0) {
+      let lowestCost = Infinity;
+      let lowestAgent = '';
       
-      // Recalculate lowest cost after filtering
-      if (calculationResult.breakdown.length > 0) {
-        let lowestCost = Infinity;
-        let lowestAgent = '';
+      calculationResult.breakdown.forEach(breakdown => {
+        let total = breakdown.seaFreight + 
+                   (breakdown.localCharge || 0) + 
+                   breakdown.dthc + 
+                   breakdown.weightSurcharge + 
+                   breakdown.dp + 
+                   breakdown.domesticTransport;
         
-        calculationResult.breakdown.forEach(breakdown => {
-          const total = breakdown.seaFreight + 
-                       (breakdown.localCharge || 0) + 
-                       breakdown.dthc + 
-                       breakdown.portBorder + 
-                       breakdown.borderDestination + 
-                       breakdown.weightSurcharge + 
-                       breakdown.dp + 
-                       breakdown.domesticTransport +
-                       (breakdown.otherCosts?.reduce((sum, cost) => sum + cost.amount, 0) || 0);
-          
-          if (total < lowestCost) {
-            lowestCost = total;
-            lowestAgent = breakdown.agent;
-          }
-        });
+        if (breakdown.isCombinedFreight) {
+          total += breakdown.combinedFreight;
+        } else {
+          total += breakdown.portBorder + breakdown.borderDestination;
+        }
         
-        calculationResult.lowestCost = lowestCost;
-        calculationResult.lowestCostAgent = lowestAgent;
-      }
+        if (breakdown.otherCosts) {
+          total += breakdown.otherCosts.reduce((sum, cost) => sum + cost.amount, 0);
+        }
+        
+        if (total < lowestCost) {
+          lowestCost = total;
+          lowestAgent = breakdown.agent;
+        }
+      });
+      
+      calculationResult.lowestCost = lowestCost;
+      calculationResult.lowestCostAgent = lowestAgent;
     }
 
     setResult(calculationResult);
@@ -442,35 +453,46 @@ export default function CostCalculatorWithTabs() {
       const calculationResult = calculateCost(calculationInput);
       
       if (calculationResult) {
-        // Filter out combined freight breakdowns if DP is included
+        // Filter based on DP inclusion
         if (input.includeDP) {
+          // DP 포함: 통합운임이 없는 조합만 (철도+트럭 분리)
           calculationResult.breakdown = calculationResult.breakdown.filter(b => !b.isCombinedFreight);
+        } else {
+          // DP 미포함: 통합운임이 있는 조합만
+          calculationResult.breakdown = calculationResult.breakdown.filter(b => b.isCombinedFreight);
+        }
+        
+        // Recalculate lowest cost after filtering
+        if (calculationResult.breakdown.length > 0) {
+          let lowestCost = Infinity;
+          let lowestAgent = '';
           
-          // Recalculate lowest cost after filtering
-          if (calculationResult.breakdown.length > 0) {
-            let lowestCost = Infinity;
-            let lowestAgent = '';
+          calculationResult.breakdown.forEach(breakdown => {
+            let total = breakdown.seaFreight + 
+                       (breakdown.localCharge || 0) + 
+                       breakdown.dthc + 
+                       breakdown.weightSurcharge + 
+                       breakdown.dp + 
+                       breakdown.domesticTransport;
             
-            calculationResult.breakdown.forEach(breakdown => {
-              const total = breakdown.seaFreight + 
-                           (breakdown.localCharge || 0) + 
-                           breakdown.dthc + 
-                           breakdown.portBorder + 
-                           breakdown.borderDestination + 
-                           breakdown.weightSurcharge + 
-                           breakdown.dp + 
-                           breakdown.domesticTransport +
-                           (breakdown.otherCosts?.reduce((sum, cost) => sum + cost.amount, 0) || 0);
-              
-              if (total < lowestCost) {
-                lowestCost = total;
-                lowestAgent = breakdown.agent;
-              }
-            });
+            if (breakdown.isCombinedFreight) {
+              total += breakdown.combinedFreight;
+            } else {
+              total += breakdown.portBorder + breakdown.borderDestination;
+            }
             
-            calculationResult.lowestCost = lowestCost;
-            calculationResult.lowestCostAgent = lowestAgent;
-          }
+            if (breakdown.otherCosts) {
+              total += breakdown.otherCosts.reduce((sum, cost) => sum + cost.amount, 0);
+            }
+            
+            if (total < lowestCost) {
+              lowestCost = total;
+              lowestAgent = breakdown.agent;
+            }
+          });
+          
+          calculationResult.lowestCost = lowestCost;
+          calculationResult.lowestCostAgent = lowestAgent;
         }
 
         setResult(calculationResult);
@@ -563,35 +585,46 @@ export default function CostCalculatorWithTabs() {
       }))
     };
     
-    // Filter out combined freight breakdowns if DP was included
+    // Filter based on DP inclusion
     if (history.result.input.includeDP) {
+      // DP 포함: 통합운임이 없는 조합만 (철도+트럭 분리)
       updatedResult.breakdown = updatedResult.breakdown.filter(b => !b.isCombinedFreight);
+    } else {
+      // DP 미포함: 통합운임이 있는 조합만
+      updatedResult.breakdown = updatedResult.breakdown.filter(b => b.isCombinedFreight);
+    }
+    
+    // Recalculate lowest cost after filtering
+    if (updatedResult.breakdown.length > 0) {
+      let lowestCost = Infinity;
+      let lowestAgent = '';
       
-      // Recalculate lowest cost after filtering
-      if (updatedResult.breakdown.length > 0) {
-        let lowestCost = Infinity;
-        let lowestAgent = '';
+      updatedResult.breakdown.forEach(breakdown => {
+        let total = breakdown.seaFreight + 
+                   (breakdown.localCharge || 0) + 
+                   breakdown.dthc + 
+                   breakdown.weightSurcharge + 
+                   breakdown.dp + 
+                   breakdown.domesticTransport;
         
-        updatedResult.breakdown.forEach(breakdown => {
-          const total = breakdown.seaFreight + 
-                       (breakdown.localCharge || 0) + 
-                       breakdown.dthc + 
-                       breakdown.portBorder + 
-                       breakdown.borderDestination + 
-                       breakdown.weightSurcharge + 
-                       breakdown.dp + 
-                       breakdown.domesticTransport +
-                       (breakdown.otherCosts?.reduce((sum, cost) => sum + cost.amount, 0) || 0);
-          
-          if (total < lowestCost) {
-            lowestCost = total;
-            lowestAgent = breakdown.agent;
-          }
-        });
+        if (breakdown.isCombinedFreight) {
+          total += breakdown.combinedFreight;
+        } else {
+          total += breakdown.portBorder + breakdown.borderDestination;
+        }
         
-        updatedResult.lowestCost = lowestCost;
-        updatedResult.lowestCostAgent = lowestAgent;
-      }
+        if (breakdown.otherCosts) {
+          total += breakdown.otherCosts.reduce((sum, cost) => sum + cost.amount, 0);
+        }
+        
+        if (total < lowestCost) {
+          lowestCost = total;
+          lowestAgent = breakdown.agent;
+        }
+      });
+      
+      updatedResult.lowestCost = lowestCost;
+      updatedResult.lowestCostAgent = lowestAgent;
     }
     
     setResult(updatedResult);
@@ -1225,7 +1258,12 @@ export default function CostCalculatorWithTabs() {
               </div>
               {input.includeDP && (
                 <div className="text-xs text-blue-700 mt-2 font-semibold">
-                  * DP 포함 시 통합 운임을 사용하는 조합은 결과에서 제외됩니다
+                  * DP 포함 시: 철도+트럭 분리 운임만 표시됩니다
+                </div>
+              )}
+              {!input.includeDP && (
+                <div className="text-xs text-blue-700 mt-2 font-semibold">
+                  * DP 미포함 시: 통합 운임만 표시됩니다
                 </div>
               )}
             </div>
@@ -1240,476 +1278,492 @@ export default function CostCalculatorWithTabs() {
               </Alert>
             )}
 
-            <div className="border rounded-lg overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead 
-                      className="min-w-[140px] cursor-pointer hover:bg-gray-100 transition-colors"
-                      onClick={() => handleSort('agent')}
-                    >
-                      <div className="flex items-center gap-2">
-                        <span>조합</span>
-                        {sortConfig.key === 'agent' && (
-                          sortConfig.direction === 'asc' ? 
-                            <ArrowUp className="h-4 w-4" /> : 
-                            <ArrowDown className="h-4 w-4" />
-                        )}
-                      </div>
-                    </TableHead>
-                    <TableHead className="text-center min-w-[100px]">
-                      <div className="flex flex-col items-center gap-1">
-                        <Ship className="h-4 w-4" />
-                        <span>선사</span>
-                      </div>
-                    </TableHead>
-                    <TableHead 
-                      className="text-center min-w-[100px] cursor-pointer hover:bg-gray-100 transition-colors"
-                      onClick={() => handleSort('rail')}
-                    >
-                      <div className="flex flex-col items-center gap-1">
-                        <div className="flex items-center gap-1">
-                          <Train className="h-4 w-4" />
-                          {sortConfig.key === 'rail' && (
-                            sortConfig.direction === 'asc' ? 
-                              <ArrowUp className="h-3 w-3" /> : 
-                              <ArrowDown className="h-3 w-3" />
-                          )}
-                        </div>
-                        <span>철도</span>
-                      </div>
-                    </TableHead>
-                    <TableHead 
-                      className="text-center min-w-[100px] cursor-pointer hover:bg-gray-100 transition-colors"
-                      onClick={() => handleSort('truck')}
-                    >
-                      <div className="flex flex-col items-center gap-1">
-                        <div className="flex items-center gap-1">
-                          <Truck className="h-4 w-4" />
-                          {sortConfig.key === 'truck' && (
-                            sortConfig.direction === 'asc' ? 
-                              <ArrowUp className="h-3 w-3" /> : 
-                              <ArrowDown className="h-3 w-3" />
-                          )}
-                        </div>
-                        <span>트럭</span>
-                      </div>
-                    </TableHead>
-                    <TableHead 
-                      className={`text-right cursor-pointer hover:bg-gray-100 transition-colors ${excludedCosts.seaFreight ? 'bg-gray-200 line-through opacity-50' : ''}`}
-                      onClick={() => toggleCostExclusion('seaFreight')}
-                      title="클릭하여 전체 제외/포함"
-                    >
-                      <div className="flex flex-col items-end gap-1">
-                        <Ship className="h-4 w-4" />
-                        <span>해상운임</span>
-                      </div>
-                    </TableHead>
-                    <TableHead 
-                      className={`text-right cursor-pointer hover:bg-gray-100 transition-colors ${excludedCosts.localCharge ? 'bg-gray-200 line-through opacity-50' : ''}`}
-                      onClick={() => toggleCostExclusion('localCharge')}
-                      title="클릭하여 전체 제외/포함"
-                    >
-                      <div className="flex flex-col items-end gap-1">
-                        <DollarSign className="h-4 w-4" />
-                        <span>L.LOCAL</span>
-                      </div>
-                    </TableHead>
-                    <TableHead 
-                      className={`text-right cursor-pointer hover:bg-gray-100 transition-colors ${excludedCosts.dthc ? 'bg-gray-200 line-through opacity-50' : ''}`}
-                      onClick={() => toggleCostExclusion('dthc')}
-                      title="클릭하여 전체 제외/포함"
-                    >
-                      <div className="flex flex-col items-end gap-1">
-                        <FileText className="h-4 w-4" />
-                        <span>D/O</span>
-                      </div>
-                    </TableHead>
-                    <TableHead 
-                      className={`text-right cursor-pointer hover:bg-gray-100 transition-colors ${excludedCosts.portBorder ? 'bg-gray-200 line-through opacity-50' : ''}`}
-                      onClick={() => toggleCostExclusion('portBorder')}
-                      title="클릭하여 전체 제외/포함"
-                    >
-                      <div className="flex flex-col items-end gap-1">
-                        <Train className="h-4 w-4" />
-                        <span>철도운임</span>
-                      </div>
-                    </TableHead>
-                    <TableHead 
-                      className={`text-right cursor-pointer hover:bg-gray-100 transition-colors ${excludedCosts.borderDestination ? 'bg-gray-200 line-through opacity-50' : ''}`}
-                      onClick={() => toggleCostExclusion('borderDestination')}
-                      title="클릭하여 전체 제외/포함"
-                    >
-                      <div className="flex flex-col items-end gap-1">
-                        <Truck className="h-4 w-4" />
-                        <span>트럭운임</span>
-                      </div>
-                    </TableHead>
-                    <TableHead 
-                      className={`text-right cursor-pointer hover:bg-gray-100 transition-colors ${excludedCosts.combinedFreight ? 'bg-gray-200 line-through opacity-50' : ''}`}
-                      onClick={() => toggleCostExclusion('combinedFreight')}
-                      title="클릭하여 전체 제외/포함"
-                    >
-                      <div className="flex flex-col items-end gap-1">
-                        <Merge className="h-4 w-4" />
-                        <span>통합운임</span>
-                      </div>
-                    </TableHead>
-                    <TableHead 
-                      className={`text-right cursor-pointer hover:bg-gray-100 transition-colors ${excludedCosts.weightSurcharge ? 'bg-gray-200 line-through opacity-50' : ''}`}
-                      onClick={() => toggleCostExclusion('weightSurcharge')}
-                      title="클릭하여 전체 제외/포함"
-                    >
-                      <div className="flex flex-col items-end gap-1">
-                        <Weight className="h-4 w-4" />
-                        <span>중량할증</span>
-                      </div>
-                    </TableHead>
-                    <TableHead 
-                      className={`text-right cursor-pointer hover:bg-gray-100 transition-colors ${excludedCosts.dp ? 'bg-gray-200 line-through opacity-50' : ''}`}
-                      onClick={() => toggleCostExclusion('dp')}
-                      title="클릭하여 전체 제외/포함"
-                    >
-                      <div className="flex flex-col items-end gap-1">
-                        <Package className="h-4 w-4" />
-                        <span>DP</span>
-                      </div>
-                    </TableHead>
-                    <TableHead 
-                      className={`text-right cursor-pointer hover:bg-gray-100 transition-colors ${excludedCosts.domesticTransport ? 'bg-gray-200 line-through opacity-50' : ''}`}
-                      onClick={() => toggleCostExclusion('domesticTransport')}
-                      title="클릭하여 전체 제외/포함"
-                    >
-                      <div className="flex flex-col items-end gap-1">
-                        <DollarSign className="h-4 w-4" />
-                        <span>국내운송</span>
-                      </div>
-                    </TableHead>
-                    {otherCostItems.map((item, index) => (
-                      <TableHead 
-                        key={index}
-                        className={`text-right cursor-pointer hover:bg-gray-100 transition-colors ${excludedCosts[`other_${index}`] ? 'bg-gray-200 line-through opacity-50' : ''}`}
-                        onClick={() => toggleCostExclusion(`other_${index}`)}
-                        title="클릭하여 전체 제외/포함"
-                      >
-                        <div className="flex flex-col items-end gap-1">
-                          <DollarSign className="h-4 w-4" />
-                          <span>{item.category}</span>
-                        </div>
-                      </TableHead>
-                    ))}
-                    <TableHead 
-                      className="text-right font-bold cursor-pointer hover:bg-gray-100 transition-colors"
-                      onClick={() => handleSort('total')}
-                    >
-                      <div className="flex items-center justify-end gap-2">
-                        <span>총액</span>
-                        {sortConfig.key === 'total' && (
-                          sortConfig.direction === 'asc' ? 
-                            <ArrowUp className="h-4 w-4" /> : 
-                            <ArrowDown className="h-4 w-4" />
-                        )}
-                      </div>
-                    </TableHead>
-                    <TableHead className="text-center">작업</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {sortedBreakdown.map((breakdown, index) => {
-                    const originalIndex = result.breakdown.indexOf(breakdown);
-                    const adjustedTotal = calculateAdjustedTotal(breakdown, originalIndex);
-                    const isLowest = breakdown.agent === lowestCostInfo.agent;
-                    
-                    return (
-                      <TableRow
-                        key={index}
-                        className={isLowest ? 'bg-green-50 font-semibold' : ''}
-                      >
-                        <TableCell>
+            {result.breakdown.length === 0 && (
+              <Alert>
+                <Info className="h-4 w-4" />
+                <AlertDescription>
+                  {input.includeDP 
+                    ? '이 경로에는 철도+트럭 분리 운임 조합이 없습니다. DP 옵션을 해제하고 다시 조회해보세요.'
+                    : '이 경로에는 통합 운임 조합이 없습니다. DP 옵션을 선택하고 다시 조회해보세요.'
+                  }
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {result.breakdown.length > 0 && (
+              <>
+                <div className="border rounded-lg overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead 
+                          className="min-w-[140px] cursor-pointer hover:bg-gray-100 transition-colors"
+                          onClick={() => handleSort('agent')}
+                        >
                           <div className="flex items-center gap-2">
-                            {breakdown.agent}
-                            {isLowest && (
-                              <span className="flex items-center gap-1 text-xs bg-green-600 text-white px-2 py-0.5 rounded whitespace-nowrap">
-                                <TrendingDown className="h-3 w-3" />
-                                최저가
-                              </span>
+                            <span>조합</span>
+                            {sortConfig.key === 'agent' && (
+                              sortConfig.direction === 'asc' ? 
+                                <ArrowUp className="h-4 w-4" /> : 
+                                <ArrowDown className="h-4 w-4" />
                             )}
                           </div>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <span className="inline-flex items-center gap-1 px-2 py-1 bg-cyan-100 text-cyan-700 rounded text-xs">
-                            <Ship className="h-3 w-3" />
-                            {breakdown.seaFreightCarrier || 'N/A'}
-                          </span>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">
-                            <Train className="h-3 w-3" />
-                            {breakdown.railAgent}
-                          </span>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 rounded text-xs">
-                            <Truck className="h-3 w-3" />
-                            {breakdown.truckAgent}
-                          </span>
-                        </TableCell>
-                        <TableCell 
-                          className={`text-right cursor-pointer hover:bg-gray-200 transition-colors ${
-                            excludedCosts.seaFreight || isCellExcluded(originalIndex, 'seaFreight') 
-                              ? 'text-gray-400 line-through bg-gray-100' 
-                              : ''
-                          }`}
-                          onClick={() => toggleCellExclusion(originalIndex, 'seaFreight')}
-                          title="클릭하여 이 조합만 제외/포함"
+                        </TableHead>
+                        <TableHead className="text-center min-w-[100px]">
+                          <div className="flex flex-col items-center gap-1">
+                            <Ship className="h-4 w-4" />
+                            <span>선사</span>
+                          </div>
+                        </TableHead>
+                        <TableHead 
+                          className="text-center min-w-[100px] cursor-pointer hover:bg-gray-100 transition-colors"
+                          onClick={() => handleSort('rail')}
                         >
-                          <div className="flex items-center justify-end gap-1">
-                            {excludedCosts.seaFreight || isCellExcluded(originalIndex, 'seaFreight') ? (
-                              '$0'
-                            ) : breakdown.seaFreight === 0 ? (
-                              <span className="text-amber-600">N/A</span>
-                            ) : (
-                              <>
-                                <span className={isExpired(breakdown, '해상운임') ? 'text-red-600 font-bold' : ''}>
-                                  ${breakdown.seaFreight}
+                          <div className="flex flex-col items-center gap-1">
+                            <div className="flex items-center gap-1">
+                              <Train className="h-4 w-4" />
+                              {sortConfig.key === 'rail' && (
+                                sortConfig.direction === 'asc' ? 
+                                  <ArrowUp className="h-3 w-3" /> : 
+                                  <ArrowDown className="h-3 w-3" />
+                              )}
+                            </div>
+                            <span>철도</span>
+                          </div>
+                        </TableHead>
+                        <TableHead 
+                          className="text-center min-w-[100px] cursor-pointer hover:bg-gray-100 transition-colors"
+                          onClick={() => handleSort('truck')}
+                        >
+                          <div className="flex flex-col items-center gap-1">
+                            <div className="flex items-center gap-1">
+                              <Truck className="h-4 w-4" />
+                              {sortConfig.key === 'truck' && (
+                                sortConfig.direction === 'asc' ? 
+                                  <ArrowUp className="h-3 w-3" /> : 
+                                  <ArrowDown className="h-3 w-3" />
+                              )}
+                            </div>
+                            <span>트럭</span>
+                          </div>
+                        </TableHead>
+                        <TableHead 
+                          className={`text-right cursor-pointer hover:bg-gray-100 transition-colors ${excludedCosts.seaFreight ? 'bg-gray-200 line-through opacity-50' : ''}`}
+                          onClick={() => toggleCostExclusion('seaFreight')}
+                          title="클릭하여 전체 제외/포함"
+                        >
+                          <div className="flex flex-col items-end gap-1">
+                            <Ship className="h-4 w-4" />
+                            <span>해상운임</span>
+                          </div>
+                        </TableHead>
+                        <TableHead 
+                          className={`text-right cursor-pointer hover:bg-gray-100 transition-colors ${excludedCosts.localCharge ? 'bg-gray-200 line-through opacity-50' : ''}`}
+                          onClick={() => toggleCostExclusion('localCharge')}
+                          title="클릭하여 전체 제외/포함"
+                        >
+                          <div className="flex flex-col items-end gap-1">
+                            <DollarSign className="h-4 w-4" />
+                            <span>L.LOCAL</span>
+                          </div>
+                        </TableHead>
+                        <TableHead 
+                          className={`text-right cursor-pointer hover:bg-gray-100 transition-colors ${excludedCosts.dthc ? 'bg-gray-200 line-through opacity-50' : ''}`}
+                          onClick={() => toggleCostExclusion('dthc')}
+                          title="클릭하여 전체 제외/포함"
+                        >
+                          <div className="flex flex-col items-end gap-1">
+                            <FileText className="h-4 w-4" />
+                            <span>D/O</span>
+                          </div>
+                        </TableHead>
+                        <TableHead 
+                          className={`text-right cursor-pointer hover:bg-gray-100 transition-colors ${excludedCosts.portBorder ? 'bg-gray-200 line-through opacity-50' : ''}`}
+                          onClick={() => toggleCostExclusion('portBorder')}
+                          title="클릭하여 전체 제외/포함"
+                        >
+                          <div className="flex flex-col items-end gap-1">
+                            <Train className="h-4 w-4" />
+                            <span>철도운임</span>
+                          </div>
+                        </TableHead>
+                        <TableHead 
+                          className={`text-right cursor-pointer hover:bg-gray-100 transition-colors ${excludedCosts.borderDestination ? 'bg-gray-200 line-through opacity-50' : ''}`}
+                          onClick={() => toggleCostExclusion('borderDestination')}
+                          title="클릭하여 전체 제외/포함"
+                        >
+                          <div className="flex flex-col items-end gap-1">
+                            <Truck className="h-4 w-4" />
+                            <span>트럭운임</span>
+                          </div>
+                        </TableHead>
+                        <TableHead 
+                          className={`text-right cursor-pointer hover:bg-gray-100 transition-colors ${excludedCosts.combinedFreight ? 'bg-gray-200 line-through opacity-50' : ''}`}
+                          onClick={() => toggleCostExclusion('combinedFreight')}
+                          title="클릭하여 전체 제외/포함"
+                        >
+                          <div className="flex flex-col items-end gap-1">
+                            <Merge className="h-4 w-4" />
+                            <span>통합운임</span>
+                          </div>
+                        </TableHead>
+                        <TableHead 
+                          className={`text-right cursor-pointer hover:bg-gray-100 transition-colors ${excludedCosts.weightSurcharge ? 'bg-gray-200 line-through opacity-50' : ''}`}
+                          onClick={() => toggleCostExclusion('weightSurcharge')}
+                          title="클릭하여 전체 제외/포함"
+                        >
+                          <div className="flex flex-col items-end gap-1">
+                            <Weight className="h-4 w-4" />
+                            <span>중량할증</span>
+                          </div>
+                        </TableHead>
+                        <TableHead 
+                          className={`text-right cursor-pointer hover:bg-gray-100 transition-colors ${excludedCosts.dp ? 'bg-gray-200 line-through opacity-50' : ''}`}
+                          onClick={() => toggleCostExclusion('dp')}
+                          title="클릭하여 전체 제외/포함"
+                        >
+                          <div className="flex flex-col items-end gap-1">
+                            <Package className="h-4 w-4" />
+                            <span>DP</span>
+                          </div>
+                        </TableHead>
+                        <TableHead 
+                          className={`text-right cursor-pointer hover:bg-gray-100 transition-colors ${excludedCosts.domesticTransport ? 'bg-gray-200 line-through opacity-50' : ''}`}
+                          onClick={() => toggleCostExclusion('domesticTransport')}
+                          title="클릭하여 전체 제외/포함"
+                        >
+                          <div className="flex flex-col items-end gap-1">
+                            <DollarSign className="h-4 w-4" />
+                            <span>국내운송</span>
+                          </div>
+                        </TableHead>
+                        {otherCostItems.map((item, index) => (
+                          <TableHead 
+                            key={index}
+                            className={`text-right cursor-pointer hover:bg-gray-100 transition-colors ${excludedCosts[`other_${index}`] ? 'bg-gray-200 line-through opacity-50' : ''}`}
+                            onClick={() => toggleCostExclusion(`other_${index}`)}
+                            title="클릭하여 전체 제외/포함"
+                          >
+                            <div className="flex flex-col items-end gap-1">
+                              <DollarSign className="h-4 w-4" />
+                              <span>{item.category}</span>
+                            </div>
+                          </TableHead>
+                        ))}
+                        <TableHead 
+                          className="text-right font-bold cursor-pointer hover:bg-gray-100 transition-colors"
+                          onClick={() => handleSort('total')}
+                        >
+                          <div className="flex items-center justify-end gap-2">
+                            <span>총액</span>
+                            {sortConfig.key === 'total' && (
+                              sortConfig.direction === 'asc' ? 
+                                <ArrowUp className="h-4 w-4" /> : 
+                                <ArrowDown className="h-4 w-4" />
+                            )}
+                          </div>
+                        </TableHead>
+                        <TableHead className="text-center">작업</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {sortedBreakdown.map((breakdown, index) => {
+                        const originalIndex = result.breakdown.indexOf(breakdown);
+                        const adjustedTotal = calculateAdjustedTotal(breakdown, originalIndex);
+                        const isLowest = breakdown.agent === lowestCostInfo.agent;
+                        
+                        return (
+                          <TableRow
+                            key={index}
+                            className={isLowest ? 'bg-green-50 font-semibold' : ''}
+                          >
+                            <TableCell>
+                              <div className="flex items-center gap-2">
+                                {breakdown.agent}
+                                {isLowest && (
+                                  <span className="flex items-center gap-1 text-xs bg-green-600 text-white px-2 py-0.5 rounded whitespace-nowrap">
+                                    <TrendingDown className="h-3 w-3" />
+                                    최저가
+                                  </span>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-center">
+                              <span className="inline-flex items-center gap-1 px-2 py-1 bg-cyan-100 text-cyan-700 rounded text-xs">
+                                <Ship className="h-3 w-3" />
+                                {breakdown.seaFreightCarrier || 'N/A'}
+                              </span>
+                            </TableCell>
+                            <TableCell className="text-center">
+                              <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">
+                                <Train className="h-3 w-3" />
+                                {breakdown.railAgent}
+                              </span>
+                            </TableCell>
+                            <TableCell className="text-center">
+                              <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 rounded text-xs">
+                                <Truck className="h-3 w-3" />
+                                {breakdown.truckAgent}
+                              </span>
+                            </TableCell>
+                            <TableCell 
+                              className={`text-right cursor-pointer hover:bg-gray-200 transition-colors ${
+                                excludedCosts.seaFreight || isCellExcluded(originalIndex, 'seaFreight') 
+                                  ? 'text-gray-400 line-through bg-gray-100' 
+                                  : ''
+                              }`}
+                              onClick={() => toggleCellExclusion(originalIndex, 'seaFreight')}
+                              title="클릭하여 이 조합만 제외/포함"
+                            >
+                              <div className="flex items-center justify-end gap-1">
+                                {excludedCosts.seaFreight || isCellExcluded(originalIndex, 'seaFreight') ? (
+                                  '$0'
+                                ) : breakdown.seaFreight === 0 ? (
+                                  <span className="text-amber-600">N/A</span>
+                                ) : (
+                                  <>
+                                    <span className={isExpired(breakdown, '해상운임') ? 'text-red-600 font-bold' : ''}>
+                                      ${breakdown.seaFreight}
+                                    </span>
+                                    {isExpired(breakdown, '해상운임') && (
+                                      <AlertTriangle className="h-3 w-3 text-red-600" title="만료된 운임" />
+                                    )}
+                                  </>
+                                )}
+                                {breakdown.isAgentSpecificSeaFreight && !excludedCosts.seaFreight && !isCellExcluded(originalIndex, 'seaFreight') && breakdown.seaFreight > 0 && (
+                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded text-xs">
+                                    <Star className="h-3 w-3" />
+                                  </span>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell 
+                              className={`text-right cursor-pointer hover:bg-gray-200 transition-colors ${
+                                excludedCosts.localCharge || isCellExcluded(originalIndex, 'localCharge')
+                                  ? 'text-gray-400 line-through bg-gray-100' 
+                                  : ''
+                              }`}
+                              onClick={() => toggleCellExclusion(originalIndex, 'localCharge')}
+                              title="클릭하여 이 조합만 제외/포함"
+                            >
+                              ${excludedCosts.localCharge || isCellExcluded(originalIndex, 'localCharge') ? 0 : (breakdown.localCharge || 0)}
+                            </TableCell>
+                            <TableCell 
+                              className={`text-right cursor-pointer hover:bg-gray-200 transition-colors ${
+                                excludedCosts.dthc || isCellExcluded(originalIndex, 'dthc')
+                                  ? 'text-gray-400 line-through bg-gray-100' 
+                                  : ''
+                              }`}
+                              onClick={() => toggleCellExclusion(originalIndex, 'dthc')}
+                              title="클릭하여 이 조합만 제외/포함"
+                            >
+                              <div className="flex items-center justify-end gap-1">
+                                <span className={isExpired(breakdown, 'DTHC') ? 'text-red-600 font-bold' : ''}>
+                                  ${excludedCosts.dthc || isCellExcluded(originalIndex, 'dthc') ? 0 : breakdown.dthc}
                                 </span>
-                                {isExpired(breakdown, '해상운임') && (
+                                {isExpired(breakdown, 'DTHC') && !excludedCosts.dthc && !isCellExcluded(originalIndex, 'dthc') && (
                                   <AlertTriangle className="h-3 w-3 text-red-600" title="만료된 운임" />
                                 )}
-                              </>
-                            )}
-                            {breakdown.isAgentSpecificSeaFreight && !excludedCosts.seaFreight && !isCellExcluded(originalIndex, 'seaFreight') && breakdown.seaFreight > 0 && (
-                              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded text-xs">
-                                <Star className="h-3 w-3" />
-                              </span>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell 
-                          className={`text-right cursor-pointer hover:bg-gray-200 transition-colors ${
-                            excludedCosts.localCharge || isCellExcluded(originalIndex, 'localCharge')
-                              ? 'text-gray-400 line-through bg-gray-100' 
-                              : ''
-                          }`}
-                          onClick={() => toggleCellExclusion(originalIndex, 'localCharge')}
-                          title="클릭하여 이 조합만 제외/포함"
-                        >
-                          ${excludedCosts.localCharge || isCellExcluded(originalIndex, 'localCharge') ? 0 : (breakdown.localCharge || 0)}
-                        </TableCell>
-                        <TableCell 
-                          className={`text-right cursor-pointer hover:bg-gray-200 transition-colors ${
-                            excludedCosts.dthc || isCellExcluded(originalIndex, 'dthc')
-                              ? 'text-gray-400 line-through bg-gray-100' 
-                              : ''
-                          }`}
-                          onClick={() => toggleCellExclusion(originalIndex, 'dthc')}
-                          title="클릭하여 이 조합만 제외/포함"
-                        >
-                          <div className="flex items-center justify-end gap-1">
-                            <span className={isExpired(breakdown, 'DTHC') ? 'text-red-600 font-bold' : ''}>
-                              ${excludedCosts.dthc || isCellExcluded(originalIndex, 'dthc') ? 0 : breakdown.dthc}
-                            </span>
-                            {isExpired(breakdown, 'DTHC') && !excludedCosts.dthc && !isCellExcluded(originalIndex, 'dthc') && (
-                              <AlertTriangle className="h-3 w-3 text-red-600" title="만료된 운임" />
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell 
-                          className={`text-right ${
-                            breakdown.isCombinedFreight 
-                              ? 'text-gray-400' 
-                              : `cursor-pointer hover:bg-gray-200 transition-colors ${
-                                  excludedCosts.portBorder || isCellExcluded(originalIndex, 'portBorder')
+                              </div>
+                            </TableCell>
+                            <TableCell 
+                              className={`text-right ${
+                                breakdown.isCombinedFreight 
+                                  ? 'text-gray-400' 
+                                  : `cursor-pointer hover:bg-gray-200 transition-colors ${
+                                      excludedCosts.portBorder || isCellExcluded(originalIndex, 'portBorder')
+                                        ? 'text-gray-400 line-through bg-gray-100' 
+                                        : ''
+                                    }`
+                              }`}
+                              onClick={() => !breakdown.isCombinedFreight && toggleCellExclusion(originalIndex, 'portBorder')}
+                              title={!breakdown.isCombinedFreight ? "클릭하여 이 조합만 제외/포함" : ""}
+                            >
+                              {breakdown.isCombinedFreight ? (
+                                <span className="text-gray-400">-</span>
+                              ) : (
+                                <div className="flex items-center justify-end gap-1">
+                                  <span className={isExpired(breakdown, '철도운임') ? 'text-red-600 font-bold' : ''}>
+                                    ${excludedCosts.portBorder || isCellExcluded(originalIndex, 'portBorder') ? 0 : breakdown.portBorder}
+                                  </span>
+                                  {isExpired(breakdown, '철도운임') && !excludedCosts.portBorder && !isCellExcluded(originalIndex, 'portBorder') && (
+                                    <AlertTriangle className="h-3 w-3 text-red-600" title="만료된 운임" />
+                                  )}
+                                </div>
+                              )}
+                            </TableCell>
+                            <TableCell 
+                              className={`text-right ${
+                                breakdown.isCombinedFreight 
+                                  ? 'text-gray-400' 
+                                  : `cursor-pointer hover:bg-gray-200 transition-colors ${
+                                      excludedCosts.borderDestination || isCellExcluded(originalIndex, 'borderDestination')
+                                        ? 'text-gray-400 line-through bg-gray-100' 
+                                        : ''
+                                    }`
+                              }`}
+                              onClick={() => !breakdown.isCombinedFreight && toggleCellExclusion(originalIndex, 'borderDestination')}
+                              title={!breakdown.isCombinedFreight ? "클릭하여 이 조합만 제외/포함" : ""}
+                            >
+                              {breakdown.isCombinedFreight ? (
+                                <span className="text-gray-400">-</span>
+                              ) : (
+                                <div className="flex items-center justify-end gap-1">
+                                  <span className={isExpired(breakdown, '트럭운임') ? 'text-red-600 font-bold' : ''}>
+                                    ${excludedCosts.borderDestination || isCellExcluded(originalIndex, 'borderDestination') ? 0 : breakdown.borderDestination}
+                                  </span>
+                                  {isExpired(breakdown, '트럭운임') && !excludedCosts.borderDestination && !isCellExcluded(originalIndex, 'borderDestination') && (
+                                    <AlertTriangle className="h-3 w-3 text-red-600" title="만료된 운임" />
+                                  )}
+                                </div>
+                              )}
+                            </TableCell>
+                            <TableCell 
+                              className={`text-right ${
+                                !breakdown.isCombinedFreight 
+                                  ? 'text-gray-400' 
+                                  : `cursor-pointer hover:bg-gray-200 transition-colors ${
+                                      excludedCosts.combinedFreight || isCellExcluded(originalIndex, 'combinedFreight')
+                                        ? 'text-gray-400 line-through bg-gray-100' 
+                                        : ''
+                                    }`
+                              }`}
+                              onClick={() => breakdown.isCombinedFreight && toggleCellExclusion(originalIndex, 'combinedFreight')}
+                              title={breakdown.isCombinedFreight ? "클릭하여 이 조합만 제외/포함" : ""}
+                            >
+                              {breakdown.isCombinedFreight ? (
+                                <div className="flex items-center justify-end gap-1">
+                                  <span className={isExpired(breakdown, '통합운임') ? 'text-red-600 font-bold' : ''}>
+                                    ${excludedCosts.combinedFreight || isCellExcluded(originalIndex, 'combinedFreight') ? 0 : breakdown.combinedFreight}
+                                  </span>
+                                  {isExpired(breakdown, '통합운임') && !excludedCosts.combinedFreight && !isCellExcluded(originalIndex, 'combinedFreight') && (
+                                    <AlertTriangle className="h-3 w-3 text-red-600" title="만료된 운임" />
+                                  )}
+                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-purple-100 text-purple-700 rounded text-xs">
+                                    <Merge className="h-3 w-3" />
+                                  </span>
+                                </div>
+                              ) : (
+                                <span className="text-gray-400">-</span>
+                              )}
+                            </TableCell>
+                            <TableCell 
+                              className={`text-right cursor-pointer hover:bg-gray-200 transition-colors ${
+                                excludedCosts.weightSurcharge || isCellExcluded(originalIndex, 'weightSurcharge')
+                                  ? 'text-gray-400 line-through bg-gray-100' 
+                                  : ''
+                              }`}
+                              onClick={() => toggleCellExclusion(originalIndex, 'weightSurcharge')}
+                              title="클릭하여 이 조합만 제외/포함"
+                            >
+                              <div className="flex items-center justify-end gap-1">
+                                <span className={isExpired(breakdown, '중량할증') ? 'text-red-600 font-bold' : ''}>
+                                  ${excludedCosts.weightSurcharge || isCellExcluded(originalIndex, 'weightSurcharge') ? 0 : breakdown.weightSurcharge}
+                                </span>
+                                {isExpired(breakdown, '중량할증') && !excludedCosts.weightSurcharge && !isCellExcluded(originalIndex, 'weightSurcharge') && (
+                                  <AlertTriangle className="h-3 w-3 text-red-600" title="만료된 운임" />
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell 
+                              className={`text-right cursor-pointer hover:bg-gray-200 transition-colors ${
+                                excludedCosts.dp || isCellExcluded(originalIndex, 'dp')
+                                  ? 'text-gray-400 line-through bg-gray-100' 
+                                  : ''
+                              }`}
+                              onClick={() => toggleCellExclusion(originalIndex, 'dp')}
+                              title="클릭하여 이 조합만 제외/포함"
+                            >
+                              <div className="flex items-center justify-end gap-1">
+                                <span className={isExpired(breakdown, 'DP') ? 'text-red-600 font-bold' : ''}>
+                                  ${excludedCosts.dp || isCellExcluded(originalIndex, 'dp') ? 0 : breakdown.dp}
+                                </span>
+                                {isExpired(breakdown, 'DP') && !excludedCosts.dp && !isCellExcluded(originalIndex, 'dp') && (
+                                  <AlertTriangle className="h-3 w-3 text-red-600" title="만료된 운임" />
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell 
+                              className={`text-right cursor-pointer hover:bg-gray-200 transition-colors ${
+                                excludedCosts.domesticTransport || isCellExcluded(originalIndex, 'domesticTransport')
+                                  ? 'text-gray-400 line-through bg-gray-100' 
+                                  : ''
+                              }`}
+                              onClick={() => toggleCellExclusion(originalIndex, 'domesticTransport')}
+                              title="클릭하여 이 조합만 제외/포함"
+                            >
+                              ${excludedCosts.domesticTransport || isCellExcluded(originalIndex, 'domesticTransport') ? 0 : breakdown.domesticTransport}
+                            </TableCell>
+                            {breakdown.otherCosts && breakdown.otherCosts.map((item, idx) => (
+                              <TableCell 
+                                key={idx}
+                                className={`text-right cursor-pointer hover:bg-gray-200 transition-colors ${
+                                  excludedCosts[`other_${idx}`] || isCellExcluded(originalIndex, `other_${idx}`)
                                     ? 'text-gray-400 line-through bg-gray-100' 
                                     : ''
-                                }`
-                          }`}
-                          onClick={() => !breakdown.isCombinedFreight && toggleCellExclusion(originalIndex, 'portBorder')}
-                          title={!breakdown.isCombinedFreight ? "클릭하여 이 조합만 제외/포함" : ""}
-                        >
-                          {breakdown.isCombinedFreight ? (
-                            <span className="text-gray-400">-</span>
-                          ) : (
-                            <div className="flex items-center justify-end gap-1">
-                              <span className={isExpired(breakdown, '철도운임') ? 'text-red-600 font-bold' : ''}>
-                                ${excludedCosts.portBorder || isCellExcluded(originalIndex, 'portBorder') ? 0 : breakdown.portBorder}
-                              </span>
-                              {isExpired(breakdown, '철도운임') && !excludedCosts.portBorder && !isCellExcluded(originalIndex, 'portBorder') && (
-                                <AlertTriangle className="h-3 w-3 text-red-600" title="만료된 운임" />
-                              )}
-                            </div>
-                          )}
-                        </TableCell>
-                        <TableCell 
-                          className={`text-right ${
-                            breakdown.isCombinedFreight 
-                              ? 'text-gray-400' 
-                              : `cursor-pointer hover:bg-gray-200 transition-colors ${
-                                  excludedCosts.borderDestination || isCellExcluded(originalIndex, 'borderDestination')
-                                    ? 'text-gray-400 line-through bg-gray-100' 
-                                    : ''
-                                }`
-                          }`}
-                          onClick={() => !breakdown.isCombinedFreight && toggleCellExclusion(originalIndex, 'borderDestination')}
-                          title={!breakdown.isCombinedFreight ? "클릭하여 이 조합만 제외/포함" : ""}
-                        >
-                          {breakdown.isCombinedFreight ? (
-                            <span className="text-gray-400">-</span>
-                          ) : (
-                            <div className="flex items-center justify-end gap-1">
-                              <span className={isExpired(breakdown, '트럭운임') ? 'text-red-600 font-bold' : ''}>
-                                ${excludedCosts.borderDestination || isCellExcluded(originalIndex, 'borderDestination') ? 0 : breakdown.borderDestination}
-                              </span>
-                              {isExpired(breakdown, '트럭운임') && !excludedCosts.borderDestination && !isCellExcluded(originalIndex, 'borderDestination') && (
-                                <AlertTriangle className="h-3 w-3 text-red-600" title="만료된 운임" />
-                              )}
-                            </div>
-                          )}
-                        </TableCell>
-                        <TableCell 
-                          className={`text-right ${
-                            !breakdown.isCombinedFreight 
-                              ? 'text-gray-400' 
-                              : `cursor-pointer hover:bg-gray-200 transition-colors ${
-                                  excludedCosts.combinedFreight || isCellExcluded(originalIndex, 'combinedFreight')
-                                    ? 'text-gray-400 line-through bg-gray-100' 
-                                    : ''
-                                }`
-                          }`}
-                          onClick={() => breakdown.isCombinedFreight && toggleCellExclusion(originalIndex, 'combinedFreight')}
-                          title={breakdown.isCombinedFreight ? "클릭하여 이 조합만 제외/포함" : ""}
-                        >
-                          {breakdown.isCombinedFreight ? (
-                            <div className="flex items-center justify-end gap-1">
-                              <span className={isExpired(breakdown, '통합운임') ? 'text-red-600 font-bold' : ''}>
-                                ${excludedCosts.combinedFreight || isCellExcluded(originalIndex, 'combinedFreight') ? 0 : breakdown.combinedFreight}
-                              </span>
-                              {isExpired(breakdown, '통합운임') && !excludedCosts.combinedFreight && !isCellExcluded(originalIndex, 'combinedFreight') && (
-                                <AlertTriangle className="h-3 w-3 text-red-600" title="만료된 운임" />
-                              )}
-                              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-purple-100 text-purple-700 rounded text-xs">
-                                <Merge className="h-3 w-3" />
-                              </span>
-                            </div>
-                          ) : (
-                            <span className="text-gray-400">-</span>
-                          )}
-                        </TableCell>
-                        <TableCell 
-                          className={`text-right cursor-pointer hover:bg-gray-200 transition-colors ${
-                            excludedCosts.weightSurcharge || isCellExcluded(originalIndex, 'weightSurcharge')
-                              ? 'text-gray-400 line-through bg-gray-100' 
-                              : ''
-                          }`}
-                          onClick={() => toggleCellExclusion(originalIndex, 'weightSurcharge')}
-                          title="클릭하여 이 조합만 제외/포함"
-                        >
-                          <div className="flex items-center justify-end gap-1">
-                            <span className={isExpired(breakdown, '중량할증') ? 'text-red-600 font-bold' : ''}>
-                              ${excludedCosts.weightSurcharge || isCellExcluded(originalIndex, 'weightSurcharge') ? 0 : breakdown.weightSurcharge}
-                            </span>
-                            {isExpired(breakdown, '중량할증') && !excludedCosts.weightSurcharge && !isCellExcluded(originalIndex, 'weightSurcharge') && (
-                              <AlertTriangle className="h-3 w-3 text-red-600" title="만료된 운임" />
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell 
-                          className={`text-right cursor-pointer hover:bg-gray-200 transition-colors ${
-                            excludedCosts.dp || isCellExcluded(originalIndex, 'dp')
-                              ? 'text-gray-400 line-through bg-gray-100' 
-                              : ''
-                          }`}
-                          onClick={() => toggleCellExclusion(originalIndex, 'dp')}
-                          title="클릭하여 이 조합만 제외/포함"
-                        >
-                          <div className="flex items-center justify-end gap-1">
-                            <span className={isExpired(breakdown, 'DP') ? 'text-red-600 font-bold' : ''}>
-                              ${excludedCosts.dp || isCellExcluded(originalIndex, 'dp') ? 0 : breakdown.dp}
-                            </span>
-                            {isExpired(breakdown, 'DP') && !excludedCosts.dp && !isCellExcluded(originalIndex, 'dp') && (
-                              <AlertTriangle className="h-3 w-3 text-red-600" title="만료된 운임" />
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell 
-                          className={`text-right cursor-pointer hover:bg-gray-200 transition-colors ${
-                            excludedCosts.domesticTransport || isCellExcluded(originalIndex, 'domesticTransport')
-                              ? 'text-gray-400 line-through bg-gray-100' 
-                              : ''
-                          }`}
-                          onClick={() => toggleCellExclusion(originalIndex, 'domesticTransport')}
-                          title="클릭하여 이 조합만 제외/포함"
-                        >
-                          ${excludedCosts.domesticTransport || isCellExcluded(originalIndex, 'domesticTransport') ? 0 : breakdown.domesticTransport}
-                        </TableCell>
-                        {breakdown.otherCosts && breakdown.otherCosts.map((item, idx) => (
-                          <TableCell 
-                            key={idx}
-                            className={`text-right cursor-pointer hover:bg-gray-200 transition-colors ${
-                              excludedCosts[`other_${idx}`] || isCellExcluded(originalIndex, `other_${idx}`)
-                                ? 'text-gray-400 line-through bg-gray-100' 
-                                : ''
-                            }`}
-                            onClick={() => toggleCellExclusion(originalIndex, `other_${idx}`)}
-                            title="클릭하여 이 조합만 제외/포함"
-                          >
-                            ${excludedCosts[`other_${idx}`] || isCellExcluded(originalIndex, `other_${idx}`) ? 0 : item.amount}
-                          </TableCell>
-                        ))}
-                        <TableCell className="text-right font-bold">
-                          ${adjustedTotal.toLocaleString()}
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleCreateQuotation(breakdown)}
-                            className="whitespace-nowrap"
-                          >
-                            <FileSpreadsheet className="h-3 w-3 mr-1" />
-                            견적서 작성
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </div>
+                                }`}
+                                onClick={() => toggleCellExclusion(originalIndex, `other_${idx}`)}
+                                title="클릭하여 이 조합만 제외/포함"
+                              >
+                                ${excludedCosts[`other_${idx}`] || isCellExcluded(originalIndex, `other_${idx}`) ? 0 : item.amount}
+                              </TableCell>
+                            ))}
+                            <TableCell className="text-right font-bold">
+                              ${adjustedTotal.toLocaleString()}
+                            </TableCell>
+                            <TableCell className="text-center">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleCreateQuotation(breakdown)}
+                                className="whitespace-nowrap"
+                              >
+                                <FileSpreadsheet className="h-3 w-3 mr-1" />
+                                견적서 작성
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </div>
 
-            <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-              <p className="text-sm text-gray-700">
-                <span className="font-semibold">최저가 조합:</span> {lowestCostInfo.agent}
-              </p>
-              <p className="text-sm text-gray-700">
-                <span className="font-semibold">최저 총액:</span> ${lowestCostInfo.cost.toLocaleString()}
-              </p>
-              <p className="text-xs text-gray-600 mt-2 flex items-center gap-1">
-                <Star className="h-3 w-3 text-amber-600" />
-                <span>별표는 해당 대리점이 지정한 특별 해상운임이 적용되었음을 나타냅니다</span>
-              </p>
-              <p className="text-xs text-gray-600 mt-1 flex items-center gap-1">
-                <Merge className="h-3 w-3 text-purple-600" />
-                <span>통합운임 아이콘은 철도+트럭 일괄 운임이 적용되었음을 나타냅니다</span>
-              </p>
-              {result.breakdown.some(b => b.hasExpiredRates) && (
-                <p className="text-xs text-red-600 mt-2 flex items-center gap-1 font-semibold">
-                  <AlertTriangle className="h-3 w-3" />
-                  <span>빨간색 굵은 글씨와 경고 아이콘은 만료된 운임을 나타냅니다</span>
-                </p>
-              )}
-              {(Object.values(excludedCosts).some(v => v) || Object.keys(cellExclusions).length > 0) && (
-                <p className="text-xs text-gray-600 mt-2 flex items-center gap-1">
-                  <Info className="h-3 w-3 text-blue-600" />
-                  <span>일부 비용 항목이 제외되어 계산되었습니다</span>
-                </p>
-              )}
-            </div>
+                <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+                  <p className="text-sm text-gray-700">
+                    <span className="font-semibold">최저가 조합:</span> {lowestCostInfo.agent}
+                  </p>
+                  <p className="text-sm text-gray-700">
+                    <span className="font-semibold">최저 총액:</span> ${lowestCostInfo.cost.toLocaleString()}
+                  </p>
+                  <p className="text-xs text-gray-600 mt-2 flex items-center gap-1">
+                    <Star className="h-3 w-3 text-amber-600" />
+                    <span>별표는 해당 대리점이 지정한 특별 해상운임이 적용되었음을 나타냅니다</span>
+                  </p>
+                  <p className="text-xs text-gray-600 mt-1 flex items-center gap-1">
+                    <Merge className="h-3 w-3 text-purple-600" />
+                    <span>통합운임 아이콘은 철도+트럭 일괄 운임이 적용되었음을 나타냅니다</span>
+                  </p>
+                  {result.breakdown.some(b => b.hasExpiredRates) && (
+                    <p className="text-xs text-red-600 mt-2 flex items-center gap-1 font-semibold">
+                      <AlertTriangle className="h-3 w-3" />
+                      <span>빨간색 굵은 글씨와 경고 아이콘은 만료된 운임을 나타냅니다</span>
+                    </p>
+                  )}
+                  {(Object.values(excludedCosts).some(v => v) || Object.keys(cellExclusions).length > 0) && (
+                    <p className="text-xs text-gray-600 mt-2 flex items-center gap-1">
+                      <Info className="h-3 w-3 text-blue-600" />
+                      <span>일부 비용 항목이 제외되어 계산되었습니다</span>
+                    </p>
+                  )}
+                </div>
+              </>
+            )}
           </CardContent>
         </Card>
       )}
 
-      {/* 저장된 기록 섹션 */}
+      {/* 저장된 기록 섹션 - 생략 (변경사항 없음) */}
       {calculationHistory && calculationHistory.length > 0 && (
         <Card>
           <CardHeader>

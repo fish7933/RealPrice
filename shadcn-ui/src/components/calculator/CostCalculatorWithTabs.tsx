@@ -344,16 +344,6 @@ export default function CostCalculatorWithTabs() {
     }
   }, [cellExclusions, user?.id]);
 
-  // Auto-exclude combinedFreight when DP is included
-  useEffect(() => {
-    if (input.includeDP) {
-      setExcludedCosts(prev => ({
-        ...prev,
-        combinedFreight: true
-      }));
-    }
-  }, [input.includeDP]);
-
   const handleCalculate = () => {
     setError('');
     
@@ -384,6 +374,37 @@ export default function CostCalculatorWithTabs() {
       return;
     }
 
+    // Filter out combined freight breakdowns if DP is included
+    if (input.includeDP) {
+      calculationResult.breakdown = calculationResult.breakdown.filter(b => !b.isCombinedFreight);
+      
+      // Recalculate lowest cost after filtering
+      if (calculationResult.breakdown.length > 0) {
+        let lowestCost = Infinity;
+        let lowestAgent = '';
+        
+        calculationResult.breakdown.forEach(breakdown => {
+          const total = breakdown.seaFreight + 
+                       (breakdown.localCharge || 0) + 
+                       breakdown.dthc + 
+                       breakdown.portBorder + 
+                       breakdown.borderDestination + 
+                       breakdown.weightSurcharge + 
+                       breakdown.dp + 
+                       breakdown.domesticTransport +
+                       (breakdown.otherCosts?.reduce((sum, cost) => sum + cost.amount, 0) || 0);
+          
+          if (total < lowestCost) {
+            lowestCost = total;
+            lowestAgent = breakdown.agent;
+          }
+        });
+        
+        calculationResult.lowestCost = lowestCost;
+        calculationResult.lowestCostAgent = lowestAgent;
+      }
+    }
+
     setResult(calculationResult);
     setSortConfig({ key: null, direction: 'asc' });
     
@@ -393,7 +414,7 @@ export default function CostCalculatorWithTabs() {
       dthc: false,
       portBorder: false,
       borderDestination: false,
-      combinedFreight: input.includeDP, // Auto-exclude if DP is included
+      combinedFreight: false,
       weightSurcharge: false,
       dp: false,
       domesticTransport: false,
@@ -421,6 +442,37 @@ export default function CostCalculatorWithTabs() {
       const calculationResult = calculateCost(calculationInput);
       
       if (calculationResult) {
+        // Filter out combined freight breakdowns if DP is included
+        if (input.includeDP) {
+          calculationResult.breakdown = calculationResult.breakdown.filter(b => !b.isCombinedFreight);
+          
+          // Recalculate lowest cost after filtering
+          if (calculationResult.breakdown.length > 0) {
+            let lowestCost = Infinity;
+            let lowestAgent = '';
+            
+            calculationResult.breakdown.forEach(breakdown => {
+              const total = breakdown.seaFreight + 
+                           (breakdown.localCharge || 0) + 
+                           breakdown.dthc + 
+                           breakdown.portBorder + 
+                           breakdown.borderDestination + 
+                           breakdown.weightSurcharge + 
+                           breakdown.dp + 
+                           breakdown.domesticTransport +
+                           (breakdown.otherCosts?.reduce((sum, cost) => sum + cost.amount, 0) || 0);
+              
+              if (total < lowestCost) {
+                lowestCost = total;
+                lowestAgent = breakdown.agent;
+              }
+            });
+            
+            calculationResult.lowestCost = lowestCost;
+            calculationResult.lowestCostAgent = lowestAgent;
+          }
+        }
+
         setResult(calculationResult);
         setSortConfig({ key: null, direction: 'asc' });
         
@@ -430,7 +482,7 @@ export default function CostCalculatorWithTabs() {
           dthc: false,
           portBorder: false,
           borderDestination: false,
-          combinedFreight: input.includeDP, // Auto-exclude if DP is included
+          combinedFreight: false,
           weightSurcharge: false,
           dp: false,
           domesticTransport: false,
@@ -511,6 +563,37 @@ export default function CostCalculatorWithTabs() {
       }))
     };
     
+    // Filter out combined freight breakdowns if DP was included
+    if (history.result.input.includeDP) {
+      updatedResult.breakdown = updatedResult.breakdown.filter(b => !b.isCombinedFreight);
+      
+      // Recalculate lowest cost after filtering
+      if (updatedResult.breakdown.length > 0) {
+        let lowestCost = Infinity;
+        let lowestAgent = '';
+        
+        updatedResult.breakdown.forEach(breakdown => {
+          const total = breakdown.seaFreight + 
+                       (breakdown.localCharge || 0) + 
+                       breakdown.dthc + 
+                       breakdown.portBorder + 
+                       breakdown.borderDestination + 
+                       breakdown.weightSurcharge + 
+                       breakdown.dp + 
+                       breakdown.domesticTransport +
+                       (breakdown.otherCosts?.reduce((sum, cost) => sum + cost.amount, 0) || 0);
+          
+          if (total < lowestCost) {
+            lowestCost = total;
+            lowestAgent = breakdown.agent;
+          }
+        });
+        
+        updatedResult.lowestCost = lowestCost;
+        updatedResult.lowestCostAgent = lowestAgent;
+      }
+    }
+    
     setResult(updatedResult);
     setInput(history.result.input);
     setSortConfig({ key: null, direction: 'asc' });
@@ -527,7 +610,7 @@ export default function CostCalculatorWithTabs() {
       dthc: false,
       portBorder: false,
       borderDestination: false,
-      combinedFreight: history.result.input.includeDP, // Auto-exclude if DP was included
+      combinedFreight: false,
       weightSurcharge: false,
       dp: false,
       domesticTransport: false,
@@ -1142,7 +1225,7 @@ export default function CostCalculatorWithTabs() {
               </div>
               {input.includeDP && (
                 <div className="text-xs text-blue-700 mt-2 font-semibold">
-                  * DP 포함 시 통합 운임은 자동으로 제외됩니다
+                  * DP 포함 시 통합 운임을 사용하는 조합은 결과에서 제외됩니다
                 </div>
               )}
             </div>

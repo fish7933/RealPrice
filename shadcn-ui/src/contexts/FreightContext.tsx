@@ -606,7 +606,7 @@ const loadSystemSettings = useCallback(async () => {
 }, []);
 
 
-  // Helper function to create audit log - REMOVED loadAuditLogs from dependencies
+  // Helper function to create audit log with enhanced debugging
   const createAuditLog = useCallback(async (
     entityType: FreightAuditLog['entityType'],
     entityId: string,
@@ -615,7 +615,20 @@ const loadSystemSettings = useCallback(async () => {
     entitySnapshot: Record<string, unknown>,
     version?: number
   ) => {
-    if (!user) return;
+    console.log('🔍 [AUDIT LOG] createAuditLog called with:', {
+      entityType,
+      entityId,
+      action,
+      changes,
+      entitySnapshot,
+      version,
+      user
+    });
+
+    if (!user) {
+      console.warn('⚠️ [AUDIT LOG] No user found, skipping audit log creation');
+      return;
+    }
 
     try {
       const log = {
@@ -630,24 +643,21 @@ const loadSystemSettings = useCallback(async () => {
         version,
       };
 
-      const { error } = await supabase
+      console.log('📝 [AUDIT LOG] Inserting log into database:', log);
+
+      const { data, error } = await supabase
         .from(TABLES.AUDIT_LOGS)
-        .insert(log);
+        .insert(log)
+        .select()
+        .single();
 
       if (error) {
+        console.error('❌ [AUDIT LOG] Error inserting audit log:', error);
         handleError(error, 'Audit Log 생성');
         return;
       }
 
-      // Directly update the audit logs state instead of reloading
-      const { data } = await supabase
-        .from(TABLES.AUDIT_LOGS)
-        .select('*')
-        .eq('entity_id', entityId)
-        .eq('action', action)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
+      console.log('✅ [AUDIT LOG] Successfully inserted audit log:', data);
 
       if (data) {
         const newLog: FreightAuditLog = {
@@ -663,12 +673,14 @@ const loadSystemSettings = useCallback(async () => {
           timestamp: data.created_at,
           version: data.version,
         };
+        console.log('📊 [AUDIT LOG] Adding to state:', newLog);
         setAuditLogs(prev => [newLog, ...prev]);
       }
     } catch (error) {
+      console.error('💥 [AUDIT LOG] Exception in createAuditLog:', error);
       handleError(error, 'Audit Log 생성');
     }
-  }, [user]); // Only depend on user
+  }, [user]);
 
   // Helper function to detect changes between old and new entity
   const detectChanges = (oldEntity: Record<string, unknown> | null, newEntity: Record<string, unknown>): FreightAuditLog['changes'] => {

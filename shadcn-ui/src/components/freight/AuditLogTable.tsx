@@ -50,7 +50,7 @@ interface GroupedLog {
   entityType: string;
 }
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 5;
 
 export default function AuditLogTable({ logs, title = '운임 변경 기록', description = '운임 정보의 모든 변경 내역이 자동으로 기록됩니다' }: AuditLogTableProps) {
   const { user } = useAuth();

@@ -1,5 +1,5 @@
 {
-  "timeline_index": 44,
+  "timeline_index": 45,
   "planner": {},
   "gallery_last_file": {},
   "timeline_status": {
@@ -45,7 +45,8 @@
     "41": 1,
     "42": 1,
     "43": 1,
-    "44": 0
+    "44": 1,
+    "45": 1
   },
   "preview_servers": {},
   "preview_server": {

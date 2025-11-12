@@ -938,7 +938,7 @@ export default function CostCalculatorWithTabs() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label className="flex items-center gap-2">
                 <Weight className="h-4 w-4" />
@@ -976,22 +976,22 @@ export default function CostCalculatorWithTabs() {
                 {input.pol ? `${input.pol} DP: $${dpCost}` : '출발항을 먼저 선택하세요'}
               </p>
             </div>
-          </div>
 
-          <div className="space-y-2">
-            <Label className="flex items-center gap-2">
-              <DollarSign className="h-4 w-4" />
-              국내운송료 (USD)
-            </Label>
-            <Input
-              type="number"
-              placeholder="0"
-              value={input.domesticTransport || ''}
-              onChange={(e) => setInput({ ...input, domesticTransport: Number(e.target.value) })}
-            />
-            <p className="text-xs text-gray-500">
-              국내 운송비용을 입력하세요
-            </p>
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <DollarSign className="h-4 w-4" />
+                국내운송료 (USD)
+              </Label>
+              <Input
+                type="number"
+                placeholder="0"
+                value={input.domesticTransport || ''}
+                onChange={(e) => setInput({ ...input, domesticTransport: Number(e.target.value) })}
+              />
+              <p className="text-xs text-gray-500">
+                국내 운송비용을 입력하세요
+              </p>
+            </div>
           </div>
 
           <div className="space-y-2">

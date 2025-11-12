@@ -374,10 +374,12 @@ export default function CostCalculatorWithTabs() {
       return;
     }
 
-    // DP 포함 시 철도+트럭 분리 운임만 표시 / DP 미포함 시 통합 운임만 표시
+    // Filter based on DP inclusion
     if (input.includeDP) {
+      // DP 포함: 통합운임이 없는 조합만 (철도+트럭 분리)
       calculationResult.breakdown = calculationResult.breakdown.filter(b => !b.isCombinedFreight);
     } else {
+      // DP 미포함: 통합운임이 있는 조합만
       calculationResult.breakdown = calculationResult.breakdown.filter(b => b.isCombinedFreight);
     }
     
@@ -451,10 +453,12 @@ export default function CostCalculatorWithTabs() {
       const calculationResult = calculateCost(calculationInput);
       
       if (calculationResult) {
-        // DP 포함 시 철도+트럭 분리 운임만 표시 / DP 미포함 시 통합 운임만 표시
+        // Filter based on DP inclusion
         if (input.includeDP) {
+          // DP 포함: 통합운임이 없는 조합만 (철도+트럭 분리)
           calculationResult.breakdown = calculationResult.breakdown.filter(b => !b.isCombinedFreight);
         } else {
+          // DP 미포함: 통합운임이 있는 조합만
           calculationResult.breakdown = calculationResult.breakdown.filter(b => b.isCombinedFreight);
         }
         
@@ -581,10 +585,12 @@ export default function CostCalculatorWithTabs() {
       }))
     };
     
-    // DP 포함 시 철도+트럭 분리 운임만 표시 / DP 미포함 시 통합 운임만 표시
+    // Filter based on DP inclusion
     if (history.result.input.includeDP) {
+      // DP 포함: 통합운임이 없는 조합만 (철도+트럭 분리)
       updatedResult.breakdown = updatedResult.breakdown.filter(b => !b.isCombinedFreight);
     } else {
+      // DP 미포함: 통합운임이 있는 조합만
       updatedResult.breakdown = updatedResult.breakdown.filter(b => b.isCombinedFreight);
     }
     
@@ -1096,7 +1102,7 @@ export default function CostCalculatorWithTabs() {
                 {input.pol ? `${input.pol} DP: $${dpCost}` : '출발항을 먼저 선택하세요'}
               </p>
               <p className="text-xs text-blue-600 font-medium">
-                ※ DP 포함 시 철도+트럭 분리 운임만 표시 / DP 미포함 시 통합 운임만 표시
+                ※ DP 포함시 통합 운임은 조회에서 제외
               </p>
             </div>
 
@@ -1757,6 +1763,7 @@ export default function CostCalculatorWithTabs() {
         </Card>
       )}
 
+      {/* 저장된 기록 섹션 - 생략 (변경사항 없음) */}
       {calculationHistory && calculationHistory.length > 0 && (
         <Card>
           <CardHeader>
@@ -1769,6 +1776,7 @@ export default function CostCalculatorWithTabs() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            {/* 검색 필터 */}
             <div className="p-4 bg-gray-50 rounded-lg border">
               <div className="flex items-center gap-2 mb-3">
                 <Search className="h-4 w-4 text-gray-600" />
@@ -1881,6 +1889,7 @@ export default function CostCalculatorWithTabs() {
               </div>
             </div>
 
+            {/* 검색 결과 */}
             {filteredHistory.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
                 <History className="h-12 w-12 mx-auto mb-2 opacity-50" />
@@ -1970,6 +1979,7 @@ export default function CostCalculatorWithTabs() {
                   })}
                 </div>
 
+                {/* 페이지네이션 */}
                 {totalPages > 1 && (
                   <div className="flex items-center justify-between pt-4 border-t">
                     <div className="text-sm text-gray-600">

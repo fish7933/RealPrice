@@ -58,10 +58,25 @@ const clearCache = async () => {
   }
 };
 
-// Protected Route Component
+// Loading spinner component
+function LoadingSpinner() {
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+    </div>
+  );
+}
+
+// Protected Route Component - 로딩 중에는 스피너 표시, 인증 완료 후 리다이렉트 결정
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
   
+  // 인증 상태 확인 중이면 로딩 스피너 표시
+  if (loading) {
+    return <LoadingSpinner />;
+  }
+  
+  // 인증되지 않은 경우에만 로그인 페이지로 리다이렉트
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
@@ -71,7 +86,12 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 // Admin/Superadmin Only Route
 function AdminRoute({ children }: { children: React.ReactNode }) {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, loading } = useAuth();
+  
+  // 인증 상태 확인 중이면 로딩 스피너 표시
+  if (loading) {
+    return <LoadingSpinner />;
+  }
   
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
@@ -86,7 +106,12 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
 
 // Dashboard Route - redirects based on role
 function DashboardRoute() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+  
+  // 인증 상태 확인 중이면 로딩 스피너 표시
+  if (loading) {
+    return <LoadingSpinner />;
+  }
   
   if (!user) {
     return <Navigate to="/login" replace />;

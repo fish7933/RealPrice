@@ -1,5 +1,5 @@
 {
-  "timeline_index": 100,
+  "timeline_index": 105,
   "planner": {},
   "gallery_last_file": {},
   "timeline_status": {
@@ -101,7 +101,12 @@
     "97": 1,
     "98": 1,
     "99": 1,
-    "100": 1
+    "100": 1,
+    "101": 1,
+    "102": 1,
+    "103": 1,
+    "104": 1,
+    "105": 0
   },
   "preview_servers": {},
   "preview_server": {

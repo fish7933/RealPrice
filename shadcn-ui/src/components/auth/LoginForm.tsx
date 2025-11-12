@@ -1,56 +1,77 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2 } from 'lucide-react';
+import { Ship } from 'lucide-react';
 
-export function LoginForm() {
+export default function LoginForm() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    setIsLoading(true);
 
+    if (!username || !password) {
+      setError('사용자명과 비밀번호를 입력해주세요.');
+      return;
+    }
+
+    setIsLoading(true);
     try {
-      const success = await login(username, password);
-      if (!success) {
-        setError('아이디 또는 비밀번호가 올바르지 않습니다.');
+      const result = await login(username, password);
+      
+      if (result.success) {
+        navigate('/dashboard');
+      } else {
+        // Display specific error messages based on error type
+        switch (result.error) {
+          case 'user_not_found':
+            setError('존재하지 않는 사용자명입니다.');
+            break;
+          case 'invalid_password':
+            setError('비밀번호가 올바르지 않습니다.');
+            break;
+          default:
+            setError('로그인에 실패했습니다. 다시 시도해주세요.');
+        }
       }
-    } catch (err) {
-      setError('로그인 중 오류가 발생했습니다.');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50 p-4">
       <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">물류 운송 관리 시스템</CardTitle>
-          <CardDescription className="text-center">
-            계정 정보를 입력하여 로그인하세요
-          </CardDescription>
+        <CardHeader className="space-y-1 text-center">
+          <div className="flex justify-center mb-4">
+            <div className="p-3 bg-blue-600 rounded-full">
+              <Ship className="h-8 w-8 text-white" />
+            </div>
+          </div>
+          <CardTitle className="text-2xl font-bold">운임 관리 시스템</CardTitle>
+          <CardDescription>중앙아시아 컨테이너 운임 계산</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="username">아이디</Label>
+              <Label htmlFor="username">사용자명</Label>
               <Input
                 id="username"
                 type="text"
-                placeholder="아이디를 입력하세요"
+                placeholder="사용자명을 입력하세요"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                required
+                autoComplete="username"
                 disabled={isLoading}
               />
             </div>
@@ -62,7 +83,7 @@ export function LoginForm() {
                 placeholder="비밀번호를 입력하세요"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                required
+                autoComplete="current-password"
                 disabled={isLoading}
               />
             </div>
@@ -72,14 +93,7 @@ export function LoginForm() {
               </Alert>
             )}
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  로그인 중...
-                </>
-              ) : (
-                '로그인'
-              )}
+              {isLoading ? '로그인 중...' : '로그인'}
             </Button>
           </form>
 

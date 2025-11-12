@@ -2,7 +2,7 @@
     "tabs": {
         "00": {
             "tab_id": "00",
-            "cwd": "/workspace/shadcn-ui",
+            "cwd": "/workspace",
             "observer": {
                 "block": "Terminal",
                 "uuid": "7fbbfad6-b692-404b-a844-e297cab80218",

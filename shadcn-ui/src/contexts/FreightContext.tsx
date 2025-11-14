@@ -2780,7 +2780,6 @@ const getSystemSettingValue = (key: string, defaultValue: string = ''): string =
       const relevantLogs = auditLogs
         .filter(log => log.entityType === entityType && new Date(log.timestamp).getTime() <= targetTime)
         .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
-
       const entityMap = new Map<string, T>();
 
       currentEntities.forEach(entity => {
@@ -2888,17 +2887,19 @@ const getSystemSettingValue = (key: string, defaultValue: string = ''): string =
       return { value: filtered[0].rate, expired: true, carrier: filtered[0].carrier };
     };
 
-    const getDTHCByAgentAndRouteWithExpiry = (agent: string, pol: string, pod: string): { value: number; expired: boolean } => {
+    const getDTHCByAgentAndRouteWithExpiry = (agent: string, pol: string, pod: string, isAgentSpecificSeaFreight: boolean): { value: number; expired: boolean } => {
       const filtered = currentDthcList.filter((d) => d.agent === agent && d.pol === pol && d.pod === pod);
       if (filtered.length === 0) return { value: 0, expired: false };
       
       const validDTHC = filtered.filter(d => isValidOnDate(d.validFrom, d.validTo, calculationDate));
       if (validDTHC.length > 0) {
-        return { value: validDTHC[0].amount, expired: false };
+        // CRITICAL FIX: If using agent-specific sea freight, D/O should be 0 (already included in agent sea freight)
+        return { value: isAgentSpecificSeaFreight ? 0 : validDTHC[0].amount, expired: false };
       }
       
       // Use expired rate if no valid one exists
-      return { value: filtered[0].amount, expired: true };
+      // CRITICAL FIX: If using agent-specific sea freight, D/O should be 0 (already included in agent sea freight)
+      return { value: isAgentSpecificSeaFreight ? 0 : filtered[0].amount, expired: true };
     };
 
     const getCombinedFreightWithExpiry = (agent: string, pod: string, destinationId: string): { value: number | null; expired: boolean } => {
@@ -3039,7 +3040,8 @@ const getSystemSettingValue = (key: string, defaultValue: string = ''): string =
         }
       }
       
-      const dthcResult = getDTHCByAgentAndRouteWithExpiry(agentName, input.pol, input.pod);
+      // CRITICAL FIX: Pass isAgentSpecific flag to getDTHCByAgentAndRouteWithExpiry
+      const dthcResult = getDTHCByAgentAndRouteWithExpiry(agentName, input.pol, input.pod, isAgentSpecific);
       if (dthcResult.expired) expiredDetails.push('DTHC');
       
       const combinedResult = getCombinedFreightWithExpiry(agentName, input.pod, input.destinationId);
@@ -3152,10 +3154,13 @@ const getSystemSettingValue = (key: string, defaultValue: string = ''): string =
         
         if (dpResult.expired && !cowinExpiredDetails.includes('DP')) cowinExpiredDetails.push('DP');
         
+        // CRITICAL FIX: For COWIN combination, check if using agent-specific sea freight
+        const cowinDthcResult = getDTHCByAgentAndRouteWithExpiry(agentName, input.pol, input.pod, isAgentSpecific);
+        
         const total =
           seaFreightRate +
           seaFreightLocalCharge +
-          dthcResult.value +
+          cowinDthcResult.value +
           railResult.value +
           cowinTruck.rate +
           weightSurchargeResult.value +
@@ -3172,7 +3177,7 @@ const getSystemSettingValue = (key: string, defaultValue: string = ''): string =
           seaFreightId,
           seaFreightCarrier,
           isAgentSpecificSeaFreight: isAgentSpecific,
-          dthc: dthcResult.value,
+          dthc: cowinDthcResult.value,
           portBorder: railResult.value,
           borderDestination: cowinTruck.rate,
           combinedFreight: 0,

@@ -1060,7 +1060,7 @@ export default function CostCalculatorWithTabs() {
     }));
   };
 
-  const renderResultTable = (resultData: CostCalculationResult) => {
+  const renderResultTable = (resultData: CostCalculationResult, showDpColumn: boolean = false) => {
     const lowestCostInfo = getLowestCostAgent(resultData.breakdown);
     const otherCostItems = resultData.breakdown.length > 0 && resultData.breakdown[0].otherCosts ? resultData.breakdown[0].otherCosts : [];
     const sortedBreakdown = getSortedBreakdown(resultData.breakdown);
@@ -1124,6 +1124,14 @@ export default function CostCalculatorWithTabs() {
                         )}
                       </div>
                     </TableHead>
+                    {showDpColumn && (
+                      <TableHead className="text-center min-w-[100px]">
+                        <div className="flex flex-col items-center gap-1">
+                          <Package className="h-4 w-4" />
+                          <span>DP 적용</span>
+                        </div>
+                      </TableHead>
+                    )}
                     <TableHead className="text-center min-w-[100px]">
                       <div className="flex flex-col items-center gap-1">
                         <Ship className="h-4 w-4" />
@@ -1303,6 +1311,21 @@ export default function CostCalculatorWithTabs() {
                             )}
                           </div>
                         </TableCell>
+                        {showDpColumn && (
+                          <TableCell className="text-center">
+                            {breakdown.isCombinedFreight ? (
+                              <span className="inline-flex items-center gap-1 px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs">
+                                <Merge className="h-3 w-3" />
+                                통합운임
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">
+                                <Package className="h-3 w-3" />
+                                DP 포함
+                              </span>
+                            )}
+                          </TableCell>
+                        )}
                         <TableCell className="text-center">
                           <span className="inline-flex items-center gap-1 px-2 py-1 bg-cyan-100 text-cyan-700 rounded text-xs">
                             <Ship className="h-3 w-3" />
@@ -1914,7 +1937,7 @@ export default function CostCalculatorWithTabs() {
                         }
                       </AlertDescription>
                     </Alert>
-                    {renderResultTable(result)}
+                    {renderResultTable(result, false)}
                   </>
                 )}
               </TabsContent>
@@ -1925,10 +1948,10 @@ export default function CostCalculatorWithTabs() {
                     <Alert className="bg-purple-50 border-purple-200">
                       <Sparkles className="h-4 w-4 text-purple-600" />
                       <AlertDescription className="text-purple-900">
-                        <strong>✨ 제약 없이 보기:</strong> DP 필터를 무시하고 모든 운임 조합(통합 운임 + 분리 운임)을 표시합니다.
+                        <strong>✨ 제약 없이 보기:</strong> DP 필터를 무시하고 모든 운임 조합(통합 운임 + 분리 운임)을 표시합니다. "DP 적용" 컬럼에서 각 조합의 유형을 확인할 수 있습니다.
                       </AlertDescription>
                     </Alert>
-                    {renderResultTable(allFreightsResult)}
+                    {renderResultTable(allFreightsResult, true)}
                   </>
                 )}
               </TabsContent>

@@ -157,6 +157,8 @@ export default function CostCalculatorWithTabs() {
   const [selectedBreakdown, setSelectedBreakdown] = useState<AgentCostBreakdown | null>(null);
   const [timeMachineOpen, setTimeMachineOpen] = useState(false);
   const [historicalDate, setHistoricalDate] = useState<string>('');
+  // Store the full unfiltered breakdown for "제약 없이 보기"
+  const [fullBreakdown, setFullBreakdown] = useState<AgentCostBreakdown[]>([]);
 
   // History pagination and search states
   const [currentPage, setCurrentPage] = useState(1);
@@ -300,6 +302,7 @@ export default function CostCalculatorWithTabs() {
       setCellExclusions({});
       setHistoricalDate('');
       setActiveTab('filtered');
+      setFullBreakdown([]);
 
       localStorage.removeItem(STORAGE_KEY_RESULT);
       localStorage.removeItem(STORAGE_KEY_EXCLUDED);
@@ -435,12 +438,8 @@ export default function CostCalculatorWithTabs() {
       const calculationResult = calculateCost(calculationInput);
       
       if (calculationResult) {
-        // DP 포함 시 철도+트럭 분리 운임만 / DP 미포함 시 통합 운임만
-        const filteredBreakdown = input.includeDP
-          ? calculationResult.breakdown.filter(b => !b.isCombinedFreight)
-          : calculationResult.breakdown.filter(b => b.isCombinedFreight);
-        
-        allBreakdowns.push(...filteredBreakdown);
+        // Store ALL breakdowns (both combined and separate) for "제약 없이 보기"
+        allBreakdowns.push(...calculationResult.breakdown);
       }
     });
 
@@ -449,14 +448,22 @@ export default function CostCalculatorWithTabs() {
       return;
     }
 
-    // CRITICAL FIX: Deduplicate breakdowns to remove identical combinations
-    const uniqueBreakdowns = deduplicateBreakdowns(allBreakdowns);
+    // Deduplicate all breakdowns
+    const uniqueAllBreakdowns = deduplicateBreakdowns(allBreakdowns);
+    
+    // Store the full breakdown for "제약 없이 보기"
+    setFullBreakdown(uniqueAllBreakdowns);
 
-    // Recalculate lowest cost
+    // Filter based on DP setting for the main result
+    const filteredBreakdown = input.includeDP
+      ? uniqueAllBreakdowns.filter(b => !b.isCombinedFreight)
+      : uniqueAllBreakdowns.filter(b => b.isCombinedFreight);
+
+    // Recalculate lowest cost for filtered breakdown
     let lowestCost = Infinity;
     let lowestAgent = '';
     
-    uniqueBreakdowns.forEach(breakdown => {
+    filteredBreakdown.forEach(breakdown => {
       let total = breakdown.seaFreight + 
                  (breakdown.localCharge || 0) + 
                  breakdown.dthc + 
@@ -482,7 +489,7 @@ export default function CostCalculatorWithTabs() {
 
     const combinedResult: CostCalculationResult = {
       input,
-      breakdown: uniqueBreakdowns,
+      breakdown: filteredBreakdown,
       lowestCost,
       lowestCostAgent: lowestAgent,
       isHistorical: !!historicalDate,
@@ -506,8 +513,8 @@ export default function CostCalculatorWithTabs() {
       domesticTransport: false,
     };
     
-    if (uniqueBreakdowns.length > 0 && uniqueBreakdowns[0].otherCosts) {
-      uniqueBreakdowns[0].otherCosts.forEach((item, index) => {
+    if (filteredBreakdown.length > 0 && filteredBreakdown[0].otherCosts) {
+      filteredBreakdown[0].otherCosts.forEach((item, index) => {
         resetExcluded[`other_${index}`] = false;
       });
     }
@@ -516,111 +523,68 @@ export default function CostCalculatorWithTabs() {
 
     toast({
       title: '계산 완료',
-      description: `${selectedSeaFreightIds.size}개의 선사 운임으로 ${uniqueBreakdowns.length}개의 고유 조합이 계산되었습니다.`,
+      description: `${selectedSeaFreightIds.size}개의 선사 운임으로 ${filteredBreakdown.length}개의 고유 조합이 계산되었습니다.`,
     });
   };
 
   const handleViewAllFreights = () => {
-    setError('');
-    
-    if (!input.pol || !input.pod || !input.destinationId) {
-      setError('출발항, 중국항, 최종목적지를 모두 선택해주세요.');
-      return;
-    }
+    // If result already exists, use the stored fullBreakdown
+    if (result && fullBreakdown.length > 0) {
+      // Recalculate lowest cost for all breakdowns
+      let lowestCost = Infinity;
+      let lowestAgent = '';
+      
+      fullBreakdown.forEach(breakdown => {
+        let total = breakdown.seaFreight + 
+                   (breakdown.localCharge || 0) + 
+                   breakdown.dthc + 
+                   breakdown.weightSurcharge + 
+                   breakdown.dp + 
+                   breakdown.domesticTransport;
+        
+        if (breakdown.isCombinedFreight) {
+          total += breakdown.combinedFreight;
+        } else {
+          total += breakdown.portBorder + breakdown.borderDestination;
+        }
+        
+        if (breakdown.otherCosts) {
+          total += breakdown.otherCosts.reduce((sum, cost) => sum + cost.amount, 0);
+        }
+        
+        if (total < lowestCost) {
+          lowestCost = total;
+          lowestAgent = breakdown.agent;
+        }
+      });
 
-    if (input.weight <= 0) {
-      setError('중량을 입력해주세요.');
-      return;
-    }
-
-    // If multiple sea freight options exist and none are selected, show dialog
-    if (seaFreightOptions.length > 1 && selectedSeaFreightIds.size === 0) {
-      setShowSeaFreightDialog(true);
-      return;
-    }
-
-    // Calculate for all selected sea freights (or default if only one option)
-    const seaFreightIdsToCalculate = selectedSeaFreightIds.size > 0 
-      ? Array.from(selectedSeaFreightIds)
-      : seaFreightOptions.length === 1 
-        ? [seaFreightOptions[0].id]
-        : [];
-
-    if (seaFreightIdsToCalculate.length === 0) {
-      setError('해상 운임을 선택해주세요.');
-      return;
-    }
-
-    // Collect all breakdowns from all selected sea freights (without DP filtering)
-    const allBreakdowns: AgentCostBreakdown[] = [];
-    
-    seaFreightIdsToCalculate.forEach(seaFreightId => {
-      const calculationInput = {
-        ...input,
-        selectedSeaFreightId: seaFreightId,
-        historicalDate: historicalDate || undefined,
+      const allFreightsResult: CostCalculationResult = {
+        input: result.input,
+        breakdown: fullBreakdown,
+        lowestCost,
+        lowestCostAgent: lowestAgent,
+        isHistorical: result.isHistorical,
+        historicalDate: result.historicalDate,
       };
 
-      const calculationResult = calculateCost(calculationInput);
+      setAllFreightsResult(allFreightsResult);
+      setActiveTab('all');
+      setSortConfig({ key: null, direction: 'asc' });
       
-      if (calculationResult) {
-        // 제약 없이 모든 운임 표시
-        allBreakdowns.push(...calculationResult.breakdown);
-      }
-    });
-
-    if (allBreakdowns.length === 0) {
-      setError('선택한 경로에 대한 운임 정보를 찾을 수 없습니다.');
+      toast({
+        title: '✨ 제약 없이 보기',
+        description: `총 ${fullBreakdown.length}개의 고유 운임 조합(통합 + 분리)이 표시됩니다.`,
+      });
+      
       return;
     }
 
-    // CRITICAL FIX: Deduplicate breakdowns to remove identical combinations
-    const uniqueBreakdowns = deduplicateBreakdowns(allBreakdowns);
-
-    // Recalculate lowest cost
-    let lowestCost = Infinity;
-    let lowestAgent = '';
-    
-    uniqueBreakdowns.forEach(breakdown => {
-      let total = breakdown.seaFreight + 
-                 (breakdown.localCharge || 0) + 
-                 breakdown.dthc + 
-                 breakdown.weightSurcharge + 
-                 breakdown.dp + 
-                 breakdown.domesticTransport;
-      
-      if (breakdown.isCombinedFreight) {
-        total += breakdown.combinedFreight;
-      } else {
-        total += breakdown.portBorder + breakdown.borderDestination;
-      }
-      
-      if (breakdown.otherCosts) {
-        total += breakdown.otherCosts.reduce((sum, cost) => sum + cost.amount, 0);
-      }
-      
-      if (total < lowestCost) {
-        lowestCost = total;
-        lowestAgent = breakdown.agent;
-      }
-    });
-
-    const combinedResult: CostCalculationResult = {
-      input,
-      breakdown: uniqueBreakdowns,
-      lowestCost,
-      lowestCostAgent: lowestAgent,
-      isHistorical: !!historicalDate,
-      historicalDate: historicalDate || undefined,
-    };
-
-    setAllFreightsResult(combinedResult);
-    setActiveTab('all');
-    setSortConfig({ key: null, direction: 'asc' });
-    
+    // If no result exists, show error
+    setError('먼저 "계산하기" 버튼을 클릭하여 운임을 계산해주세요.');
     toast({
-      title: '✨ 제약 없이 보기',
-      description: `${selectedSeaFreightIds.size}개의 선사 운임으로 총 ${uniqueBreakdowns.length}개의 고유 운임 조합이 표시됩니다.`,
+      title: '계산 필요',
+      description: '먼저 "계산하기"를 실행한 후 "제약 없이 보기"를 사용할 수 있습니다.',
+      variant: 'destructive',
     });
   };
 
@@ -703,6 +667,7 @@ export default function CostCalculatorWithTabs() {
     setHistoricalDate('');
     setActiveTab('filtered');
     setSelectedSeaFreightIds(new Set());
+    setFullBreakdown([]);
     const resetExcluded: ExcludedCosts = {
       seaFreight: false,
       localCharge: false,
@@ -730,6 +695,9 @@ export default function CostCalculatorWithTabs() {
         otherCosts: b.otherCosts || []
       }))
     };
+    
+    // Store full breakdown for "제약 없이 보기"
+    setFullBreakdown(updatedResult.breakdown);
     
     // DP 포함 시 철도+트럭 분리 운임만 표시 / DP 미포함 시 통합 운임만 표시
     if (history.result.input.includeDP) {
@@ -1877,6 +1845,7 @@ export default function CostCalculatorWithTabs() {
               onClick={handleViewAllFreights} 
               variant="outline"
               className="flex items-center gap-2 bg-gradient-to-r from-purple-50 to-pink-50 hover:from-purple-100 hover:to-pink-100 border-purple-300"
+              disabled={!result}
             >
               <Sparkles className="h-4 w-4 text-purple-600" />
               제약 없이 보기

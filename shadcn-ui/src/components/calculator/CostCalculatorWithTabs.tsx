@@ -38,6 +38,7 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from '@/components/ui/dialog';
 import {
   Tabs,
@@ -117,6 +118,7 @@ export default function CostCalculatorWithTabs() {
   const [sortConfig, setSortConfig] = useState<SortConfig>({ key: null, direction: 'asc' });
   const [seaFreightOptions, setSeaFreightOptions] = useState<SeaFreight[]>([]);
   const [showSeaFreightDialog, setShowSeaFreightDialog] = useState(false);
+  const [selectedSeaFreightIds, setSelectedSeaFreightIds] = useState<Set<string>>(new Set());
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [historyToDelete, setHistoryToDelete] = useState<string | null>(null);
   const [quotationDialogOpen, setQuotationDialogOpen] = useState(false);
@@ -331,8 +333,11 @@ export default function CostCalculatorWithTabs() {
     if (input.pol && input.pod) {
       const options = getSeaFreightOptions(input.pol, input.pod);
       setSeaFreightOptions(options);
+      // Reset selected sea freight IDs when route changes
+      setSelectedSeaFreightIds(new Set());
     } else {
       setSeaFreightOptions([]);
+      setSelectedSeaFreightIds(new Set());
     }
   }, [input.pol, input.pod, getSeaFreightOptions]);
 
@@ -367,64 +372,89 @@ export default function CostCalculatorWithTabs() {
       return;
     }
 
-    if (seaFreightOptions.length > 1 && !input.selectedSeaFreightId) {
+    // If multiple sea freight options exist and none are selected, show dialog
+    if (seaFreightOptions.length > 1 && selectedSeaFreightIds.size === 0) {
       setShowSeaFreightDialog(true);
       return;
     }
 
-    const calculationInput = {
-      ...input,
-      historicalDate: historicalDate || undefined,
-    };
+    // Calculate for all selected sea freights (or default if only one option)
+    const seaFreightIdsToCalculate = selectedSeaFreightIds.size > 0 
+      ? Array.from(selectedSeaFreightIds)
+      : seaFreightOptions.length === 1 
+        ? [seaFreightOptions[0].id]
+        : [];
 
-    const calculationResult = calculateCost(calculationInput);
+    if (seaFreightIdsToCalculate.length === 0) {
+      setError('해상 운임을 선택해주세요.');
+      return;
+    }
+
+    // Collect all breakdowns from all selected sea freights
+    const allBreakdowns: AgentCostBreakdown[] = [];
     
-    if (!calculationResult) {
+    seaFreightIdsToCalculate.forEach(seaFreightId => {
+      const calculationInput = {
+        ...input,
+        selectedSeaFreightId: seaFreightId,
+        historicalDate: historicalDate || undefined,
+      };
+
+      const calculationResult = calculateCost(calculationInput);
+      
+      if (calculationResult) {
+        // DP 포함 시 철도+트럭 분리 운임만 / DP 미포함 시 통합 운임만
+        const filteredBreakdown = input.includeDP
+          ? calculationResult.breakdown.filter(b => !b.isCombinedFreight)
+          : calculationResult.breakdown.filter(b => b.isCombinedFreight);
+        
+        allBreakdowns.push(...filteredBreakdown);
+      }
+    });
+
+    if (allBreakdowns.length === 0) {
       setError('선택한 경로에 대한 운임 정보를 찾을 수 없습니다.');
       return;
     }
 
-    // DP 포함 시 철도+트럭 분리 운임만 표시 / DP 미포함 시 통합 운임만 표시
-    if (input.includeDP) {
-      calculationResult.breakdown = calculationResult.breakdown.filter(b => !b.isCombinedFreight);
-    } else {
-      calculationResult.breakdown = calculationResult.breakdown.filter(b => b.isCombinedFreight);
-    }
+    // Recalculate lowest cost
+    let lowestCost = Infinity;
+    let lowestAgent = '';
     
-    // Recalculate lowest cost after filtering
-    if (calculationResult.breakdown.length > 0) {
-      let lowestCost = Infinity;
-      let lowestAgent = '';
+    allBreakdowns.forEach(breakdown => {
+      let total = breakdown.seaFreight + 
+                 (breakdown.localCharge || 0) + 
+                 breakdown.dthc + 
+                 breakdown.weightSurcharge + 
+                 breakdown.dp + 
+                 breakdown.domesticTransport;
       
-      calculationResult.breakdown.forEach(breakdown => {
-        let total = breakdown.seaFreight + 
-                   (breakdown.localCharge || 0) + 
-                   breakdown.dthc + 
-                   breakdown.weightSurcharge + 
-                   breakdown.dp + 
-                   breakdown.domesticTransport;
-        
-        if (breakdown.isCombinedFreight) {
-          total += breakdown.combinedFreight;
-        } else {
-          total += breakdown.portBorder + breakdown.borderDestination;
-        }
-        
-        if (breakdown.otherCosts) {
-          total += breakdown.otherCosts.reduce((sum, cost) => sum + cost.amount, 0);
-        }
-        
-        if (total < lowestCost) {
-          lowestCost = total;
-          lowestAgent = breakdown.agent;
-        }
-      });
+      if (breakdown.isCombinedFreight) {
+        total += breakdown.combinedFreight;
+      } else {
+        total += breakdown.portBorder + breakdown.borderDestination;
+      }
       
-      calculationResult.lowestCost = lowestCost;
-      calculationResult.lowestCostAgent = lowestAgent;
-    }
+      if (breakdown.otherCosts) {
+        total += breakdown.otherCosts.reduce((sum, cost) => sum + cost.amount, 0);
+      }
+      
+      if (total < lowestCost) {
+        lowestCost = total;
+        lowestAgent = breakdown.agent;
+      }
+    });
 
-    setResult(calculationResult);
+    const combinedResult: CostCalculationResult = {
+      input,
+      breakdown: allBreakdowns,
+      lowestCost,
+      lowestCostAgent: lowestAgent,
+      isHistorical: !!historicalDate,
+      historicalDate: historicalDate || undefined,
+    };
+
+    setResult(combinedResult);
     setAllFreightsResult(null);
     setActiveTab('filtered');
     setSortConfig({ key: null, direction: 'asc' });
@@ -441,13 +471,18 @@ export default function CostCalculatorWithTabs() {
       domesticTransport: false,
     };
     
-    if (calculationResult.breakdown.length > 0 && calculationResult.breakdown[0].otherCosts) {
-      calculationResult.breakdown[0].otherCosts.forEach((item, index) => {
+    if (allBreakdowns.length > 0 && allBreakdowns[0].otherCosts) {
+      allBreakdowns[0].otherCosts.forEach((item, index) => {
         resetExcluded[`other_${index}`] = false;
       });
     }
     setExcludedCosts(resetExcluded);
     setCellExclusions({});
+
+    toast({
+      title: '계산 완료',
+      description: `${selectedSeaFreightIds.size}개의 선사 운임으로 ${allBreakdowns.length}개의 조합이 계산되었습니다.`,
+    });
   };
 
   const handleViewAllFreights = () => {
@@ -463,145 +498,131 @@ export default function CostCalculatorWithTabs() {
       return;
     }
 
-    if (seaFreightOptions.length > 1 && !input.selectedSeaFreightId) {
+    // If multiple sea freight options exist and none are selected, show dialog
+    if (seaFreightOptions.length > 1 && selectedSeaFreightIds.size === 0) {
       setShowSeaFreightDialog(true);
       return;
     }
 
-    const calculationInput = {
-      ...input,
-      historicalDate: historicalDate || undefined,
-    };
+    // Calculate for all selected sea freights (or default if only one option)
+    const seaFreightIdsToCalculate = selectedSeaFreightIds.size > 0 
+      ? Array.from(selectedSeaFreightIds)
+      : seaFreightOptions.length === 1 
+        ? [seaFreightOptions[0].id]
+        : [];
 
-    const calculationResult = calculateCost(calculationInput);
-    
-    if (!calculationResult) {
-      setError('선택한 경로에 대한 운임 정보를 찾을 수 없습니다.');
+    if (seaFreightIdsToCalculate.length === 0) {
+      setError('해상 운임을 선택해주세요.');
       return;
     }
 
-    // 제약 없이 모든 운임 표시 (필터링 없음)
-    // Recalculate lowest cost for all freights
-    if (calculationResult.breakdown.length > 0) {
-      let lowestCost = Infinity;
-      let lowestAgent = '';
-      
-      calculationResult.breakdown.forEach(breakdown => {
-        let total = breakdown.seaFreight + 
-                   (breakdown.localCharge || 0) + 
-                   breakdown.dthc + 
-                   breakdown.weightSurcharge + 
-                   breakdown.dp + 
-                   breakdown.domesticTransport;
-        
-        if (breakdown.isCombinedFreight) {
-          total += breakdown.combinedFreight;
-        } else {
-          total += breakdown.portBorder + breakdown.borderDestination;
-        }
-        
-        if (breakdown.otherCosts) {
-          total += breakdown.otherCosts.reduce((sum, cost) => sum + cost.amount, 0);
-        }
-        
-        if (total < lowestCost) {
-          lowestCost = total;
-          lowestAgent = breakdown.agent;
-        }
-      });
-      
-      calculationResult.lowestCost = lowestCost;
-      calculationResult.lowestCostAgent = lowestAgent;
-    }
-
-    setAllFreightsResult(calculationResult);
-    setActiveTab('all');
-    setSortConfig({ key: null, direction: 'asc' });
+    // Collect all breakdowns from all selected sea freights (without DP filtering)
+    const allBreakdowns: AgentCostBreakdown[] = [];
     
-    toast({
-      title: '✨ 제약 없이 보기',
-      description: `총 ${calculationResult.breakdown.length}개의 운임 조합이 표시됩니다.`,
-    });
-  };
-
-  const handleSeaFreightSelect = (seaFreightId: string) => {
-    setInput({ ...input, selectedSeaFreightId: seaFreightId });
-    setShowSeaFreightDialog(false);
-    
-    setTimeout(() => {
+    seaFreightIdsToCalculate.forEach(seaFreightId => {
       const calculationInput = {
         ...input,
         selectedSeaFreightId: seaFreightId,
         historicalDate: historicalDate || undefined,
       };
+
       const calculationResult = calculateCost(calculationInput);
       
       if (calculationResult) {
-        // DP 포함 시 철도+트럭 분리 운임만 표시 / DP 미포함 시 통합 운임만 표시
-        if (input.includeDP) {
-          calculationResult.breakdown = calculationResult.breakdown.filter(b => !b.isCombinedFreight);
-        } else {
-          calculationResult.breakdown = calculationResult.breakdown.filter(b => b.isCombinedFreight);
-        }
-        
-        // Recalculate lowest cost after filtering
-        if (calculationResult.breakdown.length > 0) {
-          let lowestCost = Infinity;
-          let lowestAgent = '';
-          
-          calculationResult.breakdown.forEach(breakdown => {
-            let total = breakdown.seaFreight + 
-                       (breakdown.localCharge || 0) + 
-                       breakdown.dthc + 
-                       breakdown.weightSurcharge + 
-                       breakdown.dp + 
-                       breakdown.domesticTransport;
-            
-            if (breakdown.isCombinedFreight) {
-              total += breakdown.combinedFreight;
-            } else {
-              total += breakdown.portBorder + breakdown.borderDestination;
-            }
-            
-            if (breakdown.otherCosts) {
-              total += breakdown.otherCosts.reduce((sum, cost) => sum + cost.amount, 0);
-            }
-            
-            if (total < lowestCost) {
-              lowestCost = total;
-              lowestAgent = breakdown.agent;
-            }
-          });
-          
-          calculationResult.lowestCost = lowestCost;
-          calculationResult.lowestCostAgent = lowestAgent;
-        }
-
-        setResult(calculationResult);
-        setAllFreightsResult(null);
-        setActiveTab('filtered');
-        setSortConfig({ key: null, direction: 'asc' });
-        
-        const resetExcluded: ExcludedCosts = {
-          seaFreight: false,
-          localCharge: false,
-          dthc: false,
-          portBorder: false,
-          borderDestination: false,
-          combinedFreight: false,
-          weightSurcharge: false,
-          dp: false,
-          domesticTransport: false,
-        };
-        
-        if (calculationResult.breakdown.length > 0 && calculationResult.breakdown[0].otherCosts) {
-          calculationResult.breakdown[0].otherCosts.forEach((item, index) => {
-            resetExcluded[`other_${index}`] = false;
-          });
-        }
-        setExcludedCosts(resetExcluded);
-        setCellExclusions({});
+        // 제약 없이 모든 운임 표시
+        allBreakdowns.push(...calculationResult.breakdown);
       }
+    });
+
+    if (allBreakdowns.length === 0) {
+      setError('선택한 경로에 대한 운임 정보를 찾을 수 없습니다.');
+      return;
+    }
+
+    // Recalculate lowest cost
+    let lowestCost = Infinity;
+    let lowestAgent = '';
+    
+    allBreakdowns.forEach(breakdown => {
+      let total = breakdown.seaFreight + 
+                 (breakdown.localCharge || 0) + 
+                 breakdown.dthc + 
+                 breakdown.weightSurcharge + 
+                 breakdown.dp + 
+                 breakdown.domesticTransport;
+      
+      if (breakdown.isCombinedFreight) {
+        total += breakdown.combinedFreight;
+      } else {
+        total += breakdown.portBorder + breakdown.borderDestination;
+      }
+      
+      if (breakdown.otherCosts) {
+        total += breakdown.otherCosts.reduce((sum, cost) => sum + cost.amount, 0);
+      }
+      
+      if (total < lowestCost) {
+        lowestCost = total;
+        lowestAgent = breakdown.agent;
+      }
+    });
+
+    const combinedResult: CostCalculationResult = {
+      input,
+      breakdown: allBreakdowns,
+      lowestCost,
+      lowestCostAgent: lowestAgent,
+      isHistorical: !!historicalDate,
+      historicalDate: historicalDate || undefined,
+    };
+
+    setAllFreightsResult(combinedResult);
+    setActiveTab('all');
+    setSortConfig({ key: null, direction: 'asc' });
+    
+    toast({
+      title: '✨ 제약 없이 보기',
+      description: `${selectedSeaFreightIds.size}개의 선사 운임으로 총 ${allBreakdowns.length}개의 운임 조합이 표시됩니다.`,
+    });
+  };
+
+  const toggleSeaFreightSelection = (freightId: string) => {
+    setSelectedSeaFreightIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(freightId)) {
+        newSet.delete(freightId);
+      } else {
+        newSet.add(freightId);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleSelectAllSeaFreights = () => {
+    if (selectedSeaFreightIds.size === seaFreightOptions.length) {
+      // Deselect all
+      setSelectedSeaFreightIds(new Set());
+    } else {
+      // Select all
+      setSelectedSeaFreightIds(new Set(seaFreightOptions.map(f => f.id)));
+    }
+  };
+
+  const handleSeaFreightDialogConfirm = () => {
+    if (selectedSeaFreightIds.size === 0) {
+      toast({
+        title: '선택 필요',
+        description: '최소 1개 이상의 해상 운임을 선택해주세요.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setShowSeaFreightDialog(false);
+    
+    // Trigger calculation after dialog closes
+    setTimeout(() => {
+      handleCalculate();
     }, 0);
   };
 
@@ -643,6 +664,7 @@ export default function CostCalculatorWithTabs() {
     setSortConfig({ key: null, direction: 'asc' });
     setHistoricalDate('');
     setActiveTab('filtered');
+    setSelectedSeaFreightIds(new Set());
     const resetExcluded: ExcludedCosts = {
       seaFreight: false,
       localCharge: false,
@@ -1555,6 +1577,10 @@ export default function CostCalculatorWithTabs() {
   const allPageSelected = deletableOnPage.length > 0 && deletableOnPage.every(h => selectedHistoryIds.has(h.id));
   const somePageSelected = deletableOnPage.some(h => selectedHistoryIds.has(h.id)) && !allPageSelected;
 
+  // Check if all sea freights are selected
+  const allSeaFreightsSelected = seaFreightOptions.length > 0 && selectedSeaFreightIds.size === seaFreightOptions.length;
+  const someSeaFreightsSelected = selectedSeaFreightIds.size > 0 && !allSeaFreightsSelected;
+
   return (
     <div className="space-y-6">
       <div>
@@ -1599,7 +1625,7 @@ export default function CostCalculatorWithTabs() {
             <div className="space-y-2">
               <Label>출발항 (POL)</Label>
               {polPorts.length > 0 ? (
-                <Select value={input.pol} onValueChange={(value) => setInput({ ...input, pol: value, selectedSeaFreightId: undefined })}>
+                <Select value={input.pol} onValueChange={(value) => setInput({ ...input, pol: value })}>
                   <SelectTrigger>
                     <SelectValue placeholder="출발항 선택" />
                   </SelectTrigger>
@@ -1621,7 +1647,7 @@ export default function CostCalculatorWithTabs() {
             <div className="space-y-2">
               <Label>중국항 (POD)</Label>
               {podPorts.length > 0 ? (
-                <Select value={input.pod} onValueChange={(value) => setInput({ ...input, pod: value, selectedSeaFreightId: undefined })}>
+                <Select value={input.pod} onValueChange={(value) => setInput({ ...input, pod: value })}>
                   <SelectTrigger>
                     <SelectValue placeholder="중국항 선택" />
                   </SelectTrigger>
@@ -1639,9 +1665,20 @@ export default function CostCalculatorWithTabs() {
                 </div>
               )}
               {seaFreightOptions.length > 1 && (
-                <p className="text-xs text-amber-600">
-                  ⚠️ 이 항로에 {seaFreightOptions.length}개의 해상운임 옵션이 있습니다
-                </p>
+                <div className="flex items-center justify-between">
+                  <p className="text-xs text-amber-600">
+                    ⚠️ 이 항로에 {seaFreightOptions.length}개의 해상운임 옵션이 있습니다
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowSeaFreightDialog(true)}
+                    className="h-7 text-xs"
+                  >
+                    <Ship className="h-3 w-3 mr-1" />
+                    선택 ({selectedSeaFreightIds.size}/{seaFreightOptions.length})
+                  </Button>
+                </div>
               )}
             </div>
 
@@ -1781,7 +1818,7 @@ export default function CostCalculatorWithTabs() {
                 <li>• <strong>D/O(DTHC):</strong> 대리점별로 설정된 금액이 자동 적용됩니다</li>
                 <li>• <strong>통합 운임:</strong> 설정된 경우 철도+트럭 분리 운임 대신 통합 운임이 적용됩니다</li>
                 <li>• <strong>중량할증:</strong> 입력한 중량에 따라 자동 계산됩니다</li>
-                <li>• <strong>해상운임:</strong> 같은 항로에 여러 운임이 있는 경우 선택할 수 있습니다</li>
+                <li>• <strong>해상운임:</strong> 같은 항로에 여러 운임이 있는 경우 복수 선택할 수 있습니다</li>
                 <li>• <strong>DP:</strong> 관리자 대시보드에서 설정한 부산/인천 DP 금액이 자동 적용됩니다</li>
               </ul>
             </AlertDescription>
@@ -2153,37 +2190,83 @@ export default function CostCalculatorWithTabs() {
       )}
 
       <Dialog open={showSeaFreightDialog} onOpenChange={setShowSeaFreightDialog}>
-        <DialogContent>
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>해상운임 선택</DialogTitle>
             <DialogDescription>
-              {input.pol} → {input.pod} 항로에 여러 해상운임 옵션이 있습니다. 사용할 운임을 선택하세요.
+              {input.pol} → {input.pod} 항로에 {seaFreightOptions.length}개의 해상운임 옵션이 있습니다. 
+              원하는 운임을 선택하세요. (복수 선택 가능)
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-2 py-4">
-            {seaFreightOptions.map((freight) => (
-              <Button
-                key={freight.id}
-                variant="outline"
-                className="w-full justify-start text-left h-auto py-3"
-                onClick={() => handleSeaFreightSelect(freight.id)}
-              >
-                <div className="flex flex-col gap-1 w-full">
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold">${freight.rate}</span>
-                    {freight.carrier && (
-                      <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">
-                        {freight.carrier}
+          <div className="space-y-3 py-4">
+            <div className="flex items-center gap-2 p-3 bg-blue-50 rounded border border-blue-200">
+              <Checkbox
+                checked={allSeaFreightsSelected}
+                onCheckedChange={toggleSelectAllSeaFreights}
+                className={someSeaFreightsSelected ? 'data-[state=checked]:bg-gray-400' : ''}
+              />
+              <span className="text-sm font-semibold text-blue-900">
+                전체 선택 ({selectedSeaFreightIds.size}/{seaFreightOptions.length})
+              </span>
+            </div>
+            
+            {seaFreightOptions.map((freight) => {
+              const isSelected = selectedSeaFreightIds.has(freight.id);
+              
+              return (
+                <div
+                  key={freight.id}
+                  className={`flex items-center gap-3 p-4 border rounded-lg transition-colors cursor-pointer ${
+                    isSelected ? 'bg-blue-50 border-blue-300' : 'hover:bg-gray-50'
+                  }`}
+                  onClick={() => toggleSeaFreightSelection(freight.id)}
+                >
+                  <Checkbox
+                    checked={isSelected}
+                    onCheckedChange={() => toggleSeaFreightSelection(freight.id)}
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                  <div className="flex flex-col gap-1 flex-1">
+                    <div className="flex items-center justify-between">
+                      <span className="font-semibold text-lg">${freight.rate}</span>
+                      {freight.carrier && (
+                        <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded flex items-center gap-1">
+                          <Ship className="h-3 w-3" />
+                          {freight.carrier}
+                        </span>
+                      )}
+                    </div>
+                    {freight.localCharge && freight.localCharge > 0 && (
+                      <span className="text-xs text-gray-600">
+                        L.LOCAL: ${freight.localCharge}
                       </span>
                     )}
+                    {freight.note && (
+                      <span className="text-xs text-gray-600">{freight.note}</span>
+                    )}
+                    <div className="flex items-center gap-2 text-xs text-gray-500">
+                      <span>유효기간: {freight.validFrom} ~ {freight.validTo}</span>
+                    </div>
                   </div>
-                  {freight.note && (
-                    <span className="text-xs text-gray-600">{freight.note}</span>
-                  )}
                 </div>
-              </Button>
-            ))}
+              );
+            })}
           </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowSeaFreightDialog(false)}
+            >
+              취소
+            </Button>
+            <Button
+              onClick={handleSeaFreightDialogConfirm}
+              disabled={selectedSeaFreightIds.size === 0}
+            >
+              <Calculator className="h-4 w-4 mr-2" />
+              선택 완료 ({selectedSeaFreightIds.size}개)
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 

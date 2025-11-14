@@ -999,20 +999,20 @@ export default function CostCalculatorWithTabs() {
   };
 
   const getLowestCostAgent = (breakdown: AgentCostBreakdown[]) => {
-    if (breakdown.length === 0) return { agent: '', cost: 0 };
+    if (breakdown.length === 0) return { agent: '', cost: 0, index: -1 };
     
-    let lowestAgent = breakdown[0].agent;
+    let lowestIndex = 0;
     let lowestCost = calculateAdjustedTotal(breakdown[0], 0);
 
     breakdown.forEach((b, index) => {
       const adjustedTotal = calculateAdjustedTotal(b, index);
       if (adjustedTotal < lowestCost) {
         lowestCost = adjustedTotal;
-        lowestAgent = b.agent;
+        lowestIndex = index;
       }
     });
 
-    return { agent: lowestAgent, cost: lowestCost };
+    return { agent: breakdown[lowestIndex].agent, cost: lowestCost, index: lowestIndex };
   };
 
   const formatDate = (dateString: string) => {
@@ -1279,7 +1279,7 @@ export default function CostCalculatorWithTabs() {
                   {sortedBreakdown.map((breakdown, index) => {
                     const originalIndex = resultData.breakdown.indexOf(breakdown);
                     const adjustedTotal = calculateAdjustedTotal(breakdown, originalIndex);
-                    const isLowest = breakdown.agent === lowestCostInfo.agent;
+                    const isLowest = originalIndex === lowestCostInfo.index;
                     
                     return (
                       <TableRow

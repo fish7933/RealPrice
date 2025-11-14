@@ -147,7 +147,7 @@ export default function CostCalculatorWithTabs() {
     domesticTransport: false,
   });
   const [cellExclusions, setCellExclusions] = useState<CellExclusions>({});
-  const [sortConfig, setSortConfig] = useState<SortConfig>({ key: null, direction: 'asc' });
+  const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'agent', direction: 'asc' });
   const [seaFreightOptions, setSeaFreightOptions] = useState<SeaFreight[]>([]);
   const [showSeaFreightDialog, setShowSeaFreightDialog] = useState(false);
   const [selectedSeaFreightIds, setSelectedSeaFreightIds] = useState<Set<string>>(new Set());
@@ -287,7 +287,7 @@ export default function CostCalculatorWithTabs() {
       setResult(null);
       setAllFreightsResult(null);
       setError('');
-      setSortConfig({ key: null, direction: 'asc' });
+      setSortConfig({ key: 'agent', direction: 'asc' });
       setExcludedCosts({
         seaFreight: false,
         localCharge: false,
@@ -499,7 +499,7 @@ export default function CostCalculatorWithTabs() {
     setResult(combinedResult);
     setAllFreightsResult(null);
     setActiveTab('filtered');
-    setSortConfig({ key: null, direction: 'asc' });
+    setSortConfig({ key: 'agent', direction: 'asc' });
     
     const resetExcluded: ExcludedCosts = {
       seaFreight: false,
@@ -569,7 +569,7 @@ export default function CostCalculatorWithTabs() {
 
       setAllFreightsResult(allFreightsResult);
       setActiveTab('all');
-      setSortConfig({ key: null, direction: 'asc' });
+      setSortConfig({ key: 'agent', direction: 'asc' });
       
       toast({
         title: '✨ 제약 없이 보기',
@@ -663,7 +663,7 @@ export default function CostCalculatorWithTabs() {
     setResult(null);
     setAllFreightsResult(null);
     setError('');
-    setSortConfig({ key: null, direction: 'asc' });
+    setSortConfig({ key: 'agent', direction: 'asc' });
     setHistoricalDate('');
     setActiveTab('filtered');
     setSelectedSeaFreightIds(new Set());
@@ -742,7 +742,7 @@ export default function CostCalculatorWithTabs() {
     setResult(updatedResult);
     setAllFreightsResult(null);
     setInput(history.result.input);
-    setSortConfig({ key: null, direction: 'asc' });
+    setSortConfig({ key: 'agent', direction: 'asc' });
     setActiveTab('filtered');
     
     if (history.result.historicalDate) {

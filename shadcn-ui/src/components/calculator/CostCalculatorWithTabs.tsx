@@ -1128,7 +1128,7 @@ export default function CostCalculatorWithTabs() {
                       <TableHead className="text-center min-w-[100px]">
                         <div className="flex flex-col items-center gap-1">
                           <Package className="h-4 w-4" />
-                          <span>DP 적용</span>
+                          <span>운임 유형</span>
                         </div>
                       </TableHead>
                     )}
@@ -1582,6 +1582,12 @@ export default function CostCalculatorWithTabs() {
                 <Merge className="h-3 w-3 text-purple-600" />
                 <span>통합운임 아이콘은 철도+트럭 일괄 운임이 적용되었음을 나타냅니다</span>
               </p>
+              {showDpColumn && (
+                <p className="text-xs text-blue-600 mt-2 flex items-center gap-1 font-semibold">
+                  <Info className="h-3 w-3" />
+                  <span>DP 포함 조합은 실제 DP 값이 표시되며, 통합운임 조합은 DP가 0입니다</span>
+                </p>
+              )}
               {resultData.breakdown.some(b => b.hasExpiredRates) && (
                 <p className="text-xs text-red-600 mt-2 flex items-center gap-1 font-semibold">
                   <AlertTriangle className="h-3 w-3" />
@@ -1948,7 +1954,7 @@ export default function CostCalculatorWithTabs() {
                     <Alert className="bg-purple-50 border-purple-200">
                       <Sparkles className="h-4 w-4 text-purple-600" />
                       <AlertDescription className="text-purple-900">
-                        <strong>✨ 제약 없이 보기:</strong> DP 필터를 무시하고 모든 운임 조합(통합 운임 + 분리 운임)을 표시합니다. "DP 적용" 컬럼에서 각 조합의 유형을 확인할 수 있습니다.
+                        <strong>✨ 제약 없이 보기:</strong> DP 필터를 무시하고 모든 운임 조합(통합 운임 + 분리 운임)을 표시합니다. "운임 유형" 컬럼에서 각 조합이 통합운임인지 DP 포함 분리운임인지 확인할 수 있으며, DP 컬럼에서 실제 DP 값을 확인할 수 있습니다.
                       </AlertDescription>
                     </Alert>
                     {renderResultTable(allFreightsResult, true)}

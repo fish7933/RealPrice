@@ -85,6 +85,38 @@ const STORAGE_KEY_USER = 'freight_calculator_user';
 const ITEMS_PER_PAGE = 5;
 const FILTER_ALL_VALUE = '__all__';
 
+// Helper function to deduplicate breakdowns
+const deduplicateBreakdowns = (breakdowns: AgentCostBreakdown[]): AgentCostBreakdown[] => {
+  const uniqueMap = new Map<string, AgentCostBreakdown>();
+  
+  breakdowns.forEach(breakdown => {
+    // Create a unique key based on all relevant properties
+    const key = [
+      breakdown.agent,
+      breakdown.railAgent,
+      breakdown.truckAgent,
+      breakdown.seaFreightCarrier || '',
+      breakdown.isCombinedFreight ? 'combined' : 'separate',
+      breakdown.seaFreight,
+      breakdown.localCharge || 0,
+      breakdown.dthc,
+      breakdown.portBorder,
+      breakdown.borderDestination,
+      breakdown.combinedFreight,
+      breakdown.weightSurcharge,
+      breakdown.dp,
+      breakdown.domesticTransport,
+    ].join('|');
+    
+    // Only keep the first occurrence of each unique combination
+    if (!uniqueMap.has(key)) {
+      uniqueMap.set(key, breakdown);
+    }
+  });
+  
+  return Array.from(uniqueMap.values());
+};
+
 export default function CostCalculatorWithTabs() {
   const { destinations, calculateCost, getDPCost, getDestinationById, calculationHistory, addCalculationHistory, deleteCalculationHistory, getSeaFreightOptions, dpCosts, ports } = useFreight();
   const { user, canDeleteCalculation } = useAuth();
@@ -417,11 +449,14 @@ export default function CostCalculatorWithTabs() {
       return;
     }
 
+    // CRITICAL FIX: Deduplicate breakdowns to remove identical combinations
+    const uniqueBreakdowns = deduplicateBreakdowns(allBreakdowns);
+
     // Recalculate lowest cost
     let lowestCost = Infinity;
     let lowestAgent = '';
     
-    allBreakdowns.forEach(breakdown => {
+    uniqueBreakdowns.forEach(breakdown => {
       let total = breakdown.seaFreight + 
                  (breakdown.localCharge || 0) + 
                  breakdown.dthc + 
@@ -447,7 +482,7 @@ export default function CostCalculatorWithTabs() {
 
     const combinedResult: CostCalculationResult = {
       input,
-      breakdown: allBreakdowns,
+      breakdown: uniqueBreakdowns,
       lowestCost,
       lowestCostAgent: lowestAgent,
       isHistorical: !!historicalDate,
@@ -471,8 +506,8 @@ export default function CostCalculatorWithTabs() {
       domesticTransport: false,
     };
     
-    if (allBreakdowns.length > 0 && allBreakdowns[0].otherCosts) {
-      allBreakdowns[0].otherCosts.forEach((item, index) => {
+    if (uniqueBreakdowns.length > 0 && uniqueBreakdowns[0].otherCosts) {
+      uniqueBreakdowns[0].otherCosts.forEach((item, index) => {
         resetExcluded[`other_${index}`] = false;
       });
     }
@@ -481,7 +516,7 @@ export default function CostCalculatorWithTabs() {
 
     toast({
       title: '계산 완료',
-      description: `${selectedSeaFreightIds.size}개의 선사 운임으로 ${allBreakdowns.length}개의 조합이 계산되었습니다.`,
+      description: `${selectedSeaFreightIds.size}개의 선사 운임으로 ${uniqueBreakdowns.length}개의 고유 조합이 계산되었습니다.`,
     });
   };
 
@@ -539,11 +574,14 @@ export default function CostCalculatorWithTabs() {
       return;
     }
 
+    // CRITICAL FIX: Deduplicate breakdowns to remove identical combinations
+    const uniqueBreakdowns = deduplicateBreakdowns(allBreakdowns);
+
     // Recalculate lowest cost
     let lowestCost = Infinity;
     let lowestAgent = '';
     
-    allBreakdowns.forEach(breakdown => {
+    uniqueBreakdowns.forEach(breakdown => {
       let total = breakdown.seaFreight + 
                  (breakdown.localCharge || 0) + 
                  breakdown.dthc + 
@@ -569,7 +607,7 @@ export default function CostCalculatorWithTabs() {
 
     const combinedResult: CostCalculationResult = {
       input,
-      breakdown: allBreakdowns,
+      breakdown: uniqueBreakdowns,
       lowestCost,
       lowestCostAgent: lowestAgent,
       isHistorical: !!historicalDate,
@@ -582,7 +620,7 @@ export default function CostCalculatorWithTabs() {
     
     toast({
       title: '✨ 제약 없이 보기',
-      description: `${selectedSeaFreightIds.size}개의 선사 운임으로 총 ${allBreakdowns.length}개의 운임 조합이 표시됩니다.`,
+      description: `${selectedSeaFreightIds.size}개의 선사 운임으로 총 ${uniqueBreakdowns.length}개의 고유 운임 조합이 표시됩니다.`,
     });
   };
 

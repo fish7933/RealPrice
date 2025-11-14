@@ -734,7 +734,7 @@ const loadSystemSettings = useCallback(async () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty dependency array - only run once on mount
 
-  // [Rest of the CRUD operations remain the same - keeping the file structure but showing key calculation history operations]
+  // [Continuing with all CRUD operations - abbreviated for length but maintaining exact structure]
   
   // Shipping Line Operations
   const addShippingLine = async (line: Omit<ShippingLine, 'id' | 'createdAt' | 'updatedAt'>) => {
@@ -1379,9 +1379,9 @@ const getSystemSettingValue = (key: string, defaultValue: string = ''): string =
   return setting ? setting.settingValue : defaultValue;
 };
 
-  // [Continuing with Sea Freight, Agent Sea Freight, DTHC, DP Cost, Combined Freight, Port Border Freight, Border Destination Freight, Weight Surcharge operations - keeping the same structure as original but abbreviated for space]
+  // [Due to length limits, I'll include only the key parts of remaining CRUD operations and the critical calculateCost function]
   
-  // Sea Freight Operations
+  // Sea Freight Operations (abbreviated)
   const addSeaFreight = async (freight: Omit<SeaFreight, 'id' | 'createdAt' | 'updatedAt' | 'version'>) => {
     try {
       const version = getSeaFreightVersion(freight.carrier || '', freight.pol, freight.pod);
@@ -1537,7 +1537,7 @@ const getSystemSettingValue = (key: string, defaultValue: string = ''): string =
     return filtered;
   };
 
-  // Agent Sea Freight Operations
+  // Agent Sea Freight Operations (abbreviated)
   const addAgentSeaFreight = async (freight: Omit<AgentSeaFreight, 'id' | 'createdAt' | 'updatedAt' | 'version'>) => {
     try {
       const version = getAgentSeaFreightVersion(freight.agent, freight.pol, freight.pod);
@@ -1696,7 +1696,7 @@ const getSystemSettingValue = (key: string, defaultValue: string = ''): string =
     return filtered.length > 0 ? filtered[0].rate : null;
   };
 
-  // DTHC Operations
+  // DTHC Operations (abbreviated)
   const addDTHC = async (dthc: Omit<DTHC, 'id' | 'createdAt' | 'updatedAt' | 'version'>) => {
     try {
       const { data, error } = await supabase
@@ -1847,7 +1847,7 @@ const getSystemSettingValue = (key: string, defaultValue: string = ''): string =
     return filtered.length > 0 ? filtered[0].amount : 0;
   };
 
-  // DP Cost Operations
+  // DP Cost Operations (abbreviated)
   const addDPCost = async (dp: Omit<DPCost, 'id' | 'createdAt' | 'updatedAt' | 'version'>) => {
     try {
       const { data, error } = await supabase
@@ -1990,7 +1990,7 @@ const getSystemSettingValue = (key: string, defaultValue: string = ''): string =
     return filtered.length > 0 ? filtered[0].amount : 0;
   };
 
-  // Combined Freight Operations
+  // Combined Freight Operations (abbreviated)
   const addCombinedFreight = async (freight: Omit<CombinedFreight, 'id' | 'createdAt' | 'updatedAt' | 'version'>) => {
     try {
       const { data, error } = await supabase
@@ -2143,7 +2143,7 @@ const getSystemSettingValue = (key: string, defaultValue: string = ''): string =
     return filtered.length > 0 ? filtered[0].rate : null;
   };
 
-  // Port Border Freight Operations
+  // Port Border Freight Operations (abbreviated)
   const addPortBorderFreight = async (freight: Omit<PortBorderFreight, 'id' | 'createdAt' | 'updatedAt' | 'version'>) => {
     try {
       const { data, error } = await supabase
@@ -2301,7 +2301,7 @@ const getSystemSettingValue = (key: string, defaultValue: string = ''): string =
     return filtered.length > 0 ? filtered[0].rate : 0;
   };
 
-  // Border Destination Freight Operations
+  // Border Destination Freight Operations (abbreviated)
   const addBorderDestinationFreight = async (freight: Omit<BorderDestinationFreight, 'id' | 'createdAt' | 'updatedAt' | 'version'>) => {
     try {
       const { data, error } = await supabase
@@ -2459,7 +2459,7 @@ const getSystemSettingValue = (key: string, defaultValue: string = ''): string =
     return filtered.length > 0 ? filtered[0].rate : 0;
   };
 
-  // Weight Surcharge Operations
+  // Weight Surcharge Operations (abbreviated)
   const addWeightSurchargeRule = async (rule: Omit<WeightSurchargeRule, 'id' | 'createdAt' | 'updatedAt' | 'version'>) => {
     try {
       const { data, error } = await supabase
@@ -2962,7 +2962,8 @@ const getSystemSettingValue = (key: string, defaultValue: string = ''): string =
       return { value: filtered[0].rate, expired: true };
     };
 
-    const dpResult = input.includeDP ? getDPCostWithExpiry(input.pol) : { value: 0, expired: false };
+    // CRITICAL FIX: Get DP cost once, will be used differently for combined vs separate freight
+    const dpCostData = getDPCostWithExpiry(input.pol);
     const totalOtherCosts = input.otherCosts.reduce((sum, item) => sum + item.amount, 0);
 
     // FIXED: Collect agents from BOTH rail freight AND combined freight
@@ -3060,7 +3061,8 @@ const getSystemSettingValue = (key: string, defaultValue: string = ''): string =
         const weightSurchargeResult = getWeightSurchargeWithExpiry(agentName, input.weight);
         if (weightSurchargeResult.expired) combinedExpiredDetails.push('중량할증');
         
-        if (dpResult.expired) combinedExpiredDetails.push('DP');
+        // CRITICAL FIX: For combined freight, DP is always 0
+        const combinedDpValue = 0;
         
         const total =
           seaFreightRate +
@@ -3068,7 +3070,7 @@ const getSystemSettingValue = (key: string, defaultValue: string = ''): string =
           dthcResult.value +
           combinedResult.value +
           weightSurchargeResult.value +
-          dpResult.value +
+          combinedDpValue +
           totalOtherCosts +
           input.domesticTransport;
 
@@ -3087,7 +3089,7 @@ const getSystemSettingValue = (key: string, defaultValue: string = ''): string =
           combinedFreight: combinedResult.value,
           isCombinedFreight: true,
           weightSurcharge: weightSurchargeResult.value,
-          dp: dpResult.value,
+          dp: combinedDpValue, // Always 0 for combined freight
           domesticTransport: input.domesticTransport,
           otherCosts: input.otherCosts,
           total,
@@ -3105,7 +3107,9 @@ const getSystemSettingValue = (key: string, defaultValue: string = ''): string =
         const weightSurchargeResult = getWeightSurchargeWithExpiry(agentName, input.weight);
         if (weightSurchargeResult.expired) separateExpiredDetails.push('중량할증');
         
-        if (dpResult.expired) separateExpiredDetails.push('DP');
+        // CRITICAL FIX: For separate freight, use actual DP value
+        const separateDpValue = dpCostData.value;
+        if (dpCostData.expired) separateExpiredDetails.push('DP');
         
         const total =
           seaFreightRate +
@@ -3114,7 +3118,7 @@ const getSystemSettingValue = (key: string, defaultValue: string = ''): string =
           railResult.value +
           ownTruckResult.value +
           weightSurchargeResult.value +
-          dpResult.value +
+          separateDpValue +
           totalOtherCosts +
           input.domesticTransport;
 
@@ -3133,7 +3137,7 @@ const getSystemSettingValue = (key: string, defaultValue: string = ''): string =
           combinedFreight: 0,
           isCombinedFreight: false,
           weightSurcharge: weightSurchargeResult.value,
-          dp: dpResult.value,
+          dp: separateDpValue, // Actual DP value for separate freight
           domesticTransport: input.domesticTransport,
           otherCosts: input.otherCosts,
           total,
@@ -3152,7 +3156,9 @@ const getSystemSettingValue = (key: string, defaultValue: string = ''): string =
         const weightSurchargeResult = getWeightSurchargeWithExpiry('COWIN', input.weight);
         if (weightSurchargeResult.expired) cowinExpiredDetails.push('중량할증');
         
-        if (dpResult.expired && !cowinExpiredDetails.includes('DP')) cowinExpiredDetails.push('DP');
+        // CRITICAL FIX: For COWIN combination (separate freight), use actual DP value
+        const cowinDpValue = dpCostData.value;
+        if (dpCostData.expired && !cowinExpiredDetails.includes('DP')) cowinExpiredDetails.push('DP');
         
         // CRITICAL FIX: For COWIN combination, check if using agent-specific sea freight
         const cowinDthcResult = getDTHCByAgentAndRouteWithExpiry(agentName, input.pol, input.pod, isAgentSpecific);
@@ -3164,7 +3170,7 @@ const getSystemSettingValue = (key: string, defaultValue: string = ''): string =
           railResult.value +
           cowinTruck.rate +
           weightSurchargeResult.value +
-          dpResult.value +
+          cowinDpValue +
           totalOtherCosts +
           input.domesticTransport;
 
@@ -3183,7 +3189,7 @@ const getSystemSettingValue = (key: string, defaultValue: string = ''): string =
           combinedFreight: 0,
           isCombinedFreight: false,
           weightSurcharge: weightSurchargeResult.value,
-          dp: dpResult.value,
+          dp: cowinDpValue, // Actual DP value for COWIN combination (separate freight)
           domesticTransport: input.domesticTransport,
           otherCosts: input.otherCosts,
           total,

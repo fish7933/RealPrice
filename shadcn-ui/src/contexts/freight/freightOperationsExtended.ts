@@ -21,6 +21,7 @@ export const addDTHC = async (dthc: Omit<DTHC, 'id' | 'createdAt' | 'updatedAt' 
         agent: dthc.agent,
         pol: dthc.pol,
         pod: dthc.pod,
+        carrier: dthc.carrier,
         amount: dthc.amount,
         description: dthc.description,
         version: 1,
@@ -41,6 +42,7 @@ export const addDTHC = async (dthc: Omit<DTHC, 'id' | 'createdAt' | 'updatedAt' 
         agent: data.agent,
         pol: data.pol,
         pod: data.pod,
+        carrier: data.carrier,
         amount: data.amount,
         description: data.description,
         version: data.version,
@@ -71,12 +73,13 @@ export const updateDTHC = async (id: string, dthc: Partial<DTHC>, dthcList: DTHC
     if (!oldDTHC) return;
 
     const amountChanged = dthc.amount !== undefined && dthc.amount !== oldDTHC.amount;
+    const carrierChanged = dthc.carrier !== undefined && dthc.carrier !== oldDTHC.carrier;
     const validFromChanged = dthc.validFrom !== undefined && dthc.validFrom !== oldDTHC.validFrom;
     const validToChanged = dthc.validTo !== undefined && dthc.validTo !== oldDTHC.validTo;
     const validityChanged = validFromChanged || validToChanged;
 
     let newVersion = oldDTHC.version;
-    if (amountChanged || validityChanged) {
+    if (amountChanged || carrierChanged || validityChanged) {
       newVersion = (oldDTHC.version || 1) + 1;
     }
 
@@ -86,6 +89,7 @@ export const updateDTHC = async (id: string, dthc: Partial<DTHC>, dthcList: DTHC
         agent: dthc.agent,
         pol: dthc.pol,
         pod: dthc.pod,
+        carrier: dthc.carrier,
         amount: dthc.amount,
         description: dthc.description,
         version: newVersion,
@@ -102,12 +106,13 @@ export const updateDTHC = async (id: string, dthc: Partial<DTHC>, dthcList: DTHC
       return;
     }
 
-    if (data && (amountChanged || validityChanged)) {
+    if (data && (amountChanged || carrierChanged || validityChanged)) {
       const updatedDTHC: DTHC = {
         id: data.id,
         agent: data.agent,
         pol: data.pol,
         pod: data.pod,
+        carrier: data.carrier,
         amount: data.amount,
         description: data.description,
         version: data.version,

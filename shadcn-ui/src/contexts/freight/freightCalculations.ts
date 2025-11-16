@@ -57,7 +57,7 @@ export const calculateCost = (
     return { value: filtered[0].amount, expired: true };
   };
 
-  const getAgentSeaFreightWithExpiry = (agent: string, pol: string, pod: string): { value: number | null; expired: boolean; carrier?: string } => {
+  const getAgentSeaFreightWithExpiry = (agent: string, pol: string, pod: string): { value: number | null; expired: boolean; carrier?: string; llocal?: number } => {
     const filtered = currentAgentSeaFreights.filter(
       (f) => f.agent === agent && f.pol === pol && f.pod === pod
     );
@@ -65,10 +65,20 @@ export const calculateCost = (
     
     const validFreights = filtered.filter(f => isValidOnDate(f.validFrom, f.validTo, calculationDate));
     if (validFreights.length > 0) {
-      return { value: validFreights[0].rate, expired: false, carrier: validFreights[0].carrier };
+      return { 
+        value: validFreights[0].rate, 
+        expired: false, 
+        carrier: validFreights[0].carrier,
+        llocal: validFreights[0].llocal 
+      };
     }
     
-    return { value: filtered[0].rate, expired: true, carrier: filtered[0].carrier };
+    return { 
+      value: filtered[0].rate, 
+      expired: true, 
+      carrier: filtered[0].carrier,
+      llocal: filtered[0].llocal 
+    };
   };
 
   const getDTHCByAgentAndRouteWithExpiry = (agent: string, pol: string, pod: string, isAgentSpecificSeaFreight: boolean): { value: number; expired: boolean } => {
@@ -174,6 +184,7 @@ export const calculateCost = (
     
     let seaFreightRate = 0;
     let seaFreightLocalCharge = 0;
+    let seaFreightLLocal = 0;
     let seaFreightId: string | undefined;
     let seaFreightCarrier: string | undefined;
     let isAgentSpecific = false;
@@ -181,6 +192,7 @@ export const calculateCost = (
 
     if (agentSeaResult.value !== null) {
       seaFreightRate = agentSeaResult.value;
+      seaFreightLLocal = agentSeaResult.llocal || 0;
       seaFreightCarrier = agentSeaResult.carrier;
       isAgentSpecific = true;
       seaFreightExpired = agentSeaResult.expired;
@@ -246,7 +258,8 @@ export const calculateCost = (
         weightSurchargeResult.value +
         combinedDpValue +
         totalOtherCosts +
-        input.domesticTransport;
+        input.domesticTransport -
+        seaFreightLLocal; // Subtract L.LOCAL from total
 
       breakdown.push({
         agent: agentName,
@@ -254,6 +267,7 @@ export const calculateCost = (
         truckAgent: agentName,
         seaFreight: seaFreightRate,
         localCharge: seaFreightLocalCharge,
+        llocal: seaFreightLLocal,
         seaFreightId,
         seaFreightCarrier,
         isAgentSpecificSeaFreight: isAgentSpecific,
@@ -294,7 +308,8 @@ export const calculateCost = (
         weightSurchargeResult.value +
         separateDpValue +
         totalOtherCosts +
-        input.domesticTransport;
+        input.domesticTransport -
+        seaFreightLLocal; // Subtract L.LOCAL from total
 
       breakdown.push({
         agent: agentName,
@@ -302,6 +317,7 @@ export const calculateCost = (
         truckAgent: agentName,
         seaFreight: seaFreightRate,
         localCharge: seaFreightLocalCharge,
+        llocal: seaFreightLLocal,
         seaFreightId,
         seaFreightCarrier,
         isAgentSpecificSeaFreight: isAgentSpecific,
@@ -345,7 +361,8 @@ export const calculateCost = (
         weightSurchargeResult.value +
         cowinDpValue +
         totalOtherCosts +
-        input.domesticTransport;
+        input.domesticTransport -
+        seaFreightLLocal; // Subtract L.LOCAL from total
 
       breakdown.push({
         agent: `${agentName} + COWIN`,
@@ -353,6 +370,7 @@ export const calculateCost = (
         truckAgent: 'COWIN',
         seaFreight: seaFreightRate,
         localCharge: seaFreightLocalCharge,
+        llocal: seaFreightLLocal,
         seaFreightId,
         seaFreightCarrier,
         isAgentSpecificSeaFreight: isAgentSpecific,

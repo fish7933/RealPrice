@@ -66,6 +66,7 @@ export interface AgentSeaFreight {
   pol: string;
   pod: string;
   rate: number;
+  llocal?: number; // L.LOCAL charge that will be deducted from total
   carrier?: string;
   note?: string;
   validFrom: string;
@@ -165,6 +166,7 @@ export interface AgentCostBreakdown {
   borderDestinationFreight?: number;
   weightSurcharge?: number;
   localCharge?: number;
+  llocal?: number; // L.LOCAL deduction (negative value)
   otherCosts?: OtherCost[];
   totalCost: number;
   carrier?: string;
@@ -264,6 +266,7 @@ export interface CalculationResult {
     borderDestinationFreight?: number;
     weightSurcharge?: number;
     localCharge?: number;
+    llocal?: number; // L.LOCAL deduction
     carrier?: string;
     [key: string]: number | string | undefined;
   };

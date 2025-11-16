@@ -41,6 +41,7 @@ interface VersionChangeData {
   pol: string;
   pod: string;
   rate: number;
+  llocal?: number;
   carrier?: string;
   note?: string;
   validFrom: string;
@@ -65,6 +66,7 @@ export default function AgentSeaFreightTable() {
     pol: '',
     pod: '',
     rate: '',
+    llocal: '',
     carrier: '',
     note: '',
     validFrom: '',
@@ -183,13 +185,14 @@ export default function AgentSeaFreightTable() {
       pol: formData.pol,
       pod: formData.pod,
       rate: Number(formData.rate),
+      llocal: formData.llocal ? Number(formData.llocal) : undefined,
       carrier: formData.carrier || undefined,
       note: formData.note || undefined,
       validFrom: formData.validFrom,
       validTo: formData.validTo,
     });
 
-    setFormData({ agent: '', pol: '', pod: '', rate: '', carrier: '', note: '', validFrom: '', validTo: '' });
+    setFormData({ agent: '', pol: '', pod: '', rate: '', llocal: '', carrier: '', note: '', validFrom: '', validTo: '' });
     setValidationWarning(null);
     setIsAddDialogOpen(false);
   };
@@ -202,13 +205,14 @@ export default function AgentSeaFreightTable() {
       pol: formData.pol,
       pod: formData.pod,
       rate: Number(formData.rate),
+      llocal: formData.llocal ? Number(formData.llocal) : undefined,
       carrier: formData.carrier || undefined,
       note: formData.note || undefined,
       validFrom: formData.validFrom,
       validTo: formData.validTo,
     });
 
-    setFormData({ agent: '', pol: '', pod: '', rate: '', carrier: '', note: '', validFrom: '', validTo: '' });
+    setFormData({ agent: '', pol: '', pod: '', rate: '', llocal: '', carrier: '', note: '', validFrom: '', validTo: '' });
     setValidationWarning(null);
     setIsAddDialogOpen(false);
   };
@@ -255,6 +259,7 @@ export default function AgentSeaFreightTable() {
       pol: freight.pol,
       pod: freight.pod,
       rate: freight.rate,
+      llocal: freight.llocal,
       carrier: freight.carrier,
       note: freight.note,
       validFrom,
@@ -277,6 +282,7 @@ export default function AgentSeaFreightTable() {
 
     updateAgentSeaFreight(originalFreightId, {
       rate: versionChangeData.rate,
+      llocal: versionChangeData.llocal,
       carrier: versionChangeData.carrier,
       note: versionChangeData.note,
       validFrom: versionChangeData.validFrom,
@@ -341,6 +347,10 @@ export default function AgentSeaFreightTable() {
           <br />
           <span className="text-sm text-gray-600 mt-1 block">
             D/O(DTHC)는 별도의 "D/O(DTHC) 관리" 페이지에서 대리점별로 설정됩니다.
+          </span>
+          <br />
+          <span className="text-sm text-blue-600 mt-1 block font-medium">
+            💡 L.LOCAL: 대리점이 회사로 돌려주는 금액으로, 총액에서 차감됩니다.
           </span>
         </AlertDescription>
       </Alert>
@@ -476,6 +486,7 @@ export default function AgentSeaFreightTable() {
               <TableHead>선적포트 (POL)</TableHead>
               <TableHead>양하포트 (POD)</TableHead>
               <TableHead>운임 (USD)</TableHead>
+              <TableHead>L.LOCAL (USD)</TableHead>
               <TableHead>선사</TableHead>
               <TableHead>유효기간</TableHead>
               <TableHead>상태</TableHead>
@@ -486,7 +497,7 @@ export default function AgentSeaFreightTable() {
           <TableBody>
             {paginatedFreights.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={isAdmin ? 10 : 9} className="text-center py-8 text-gray-500">
+                <TableCell colSpan={isAdmin ? 11 : 10} className="text-center py-8 text-gray-500">
                   {agentSeaFreights.length === 0 ? '설정된 대리점별 해상운임이 없습니다' : '검색 결과가 없습니다'}
                 </TableCell>
               </TableRow>
@@ -508,6 +519,13 @@ export default function AgentSeaFreightTable() {
                     <TableCell>{freight.pol}</TableCell>
                     <TableCell>{freight.pod}</TableCell>
                     <TableCell>${freight.rate}</TableCell>
+                    <TableCell>
+                      {freight.llocal ? (
+                        <span className="text-red-600 font-medium">-${freight.llocal}</span>
+                      ) : (
+                        <span className="text-gray-400">-</span>
+                      )}
+                    </TableCell>
                     <TableCell>{freight.carrier || '-'}</TableCell>
                     <TableCell>
                       <div className="text-sm">
@@ -733,6 +751,16 @@ export default function AgentSeaFreightTable() {
                 </div>
               )}
             </div>
+            <div className="space-y-2">
+              <Label>L.LOCAL (USD) <span className="text-xs text-gray-500">(선택)</span></Label>
+              <Input
+                type="number"
+                placeholder="예: 50"
+                value={formData.llocal}
+                onChange={(e) => setFormData({ ...formData, llocal: e.target.value })}
+              />
+              <p className="text-xs text-blue-600">대리점이 회사로 돌려주는 금액 (총액에서 차감됨)</p>
+            </div>
             <div className="col-span-2 space-y-2">
               <Label>유효기간 *</Label>
               <ValidityPeriodInput
@@ -835,29 +863,46 @@ export default function AgentSeaFreightTable() {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label>선사</Label>
-                <Select 
-                  value={versionChangeData.carrier || 'NONE'} 
-                  onValueChange={(value) => {
-                    setVersionChangeData({
-                      ...versionChangeData,
-                      carrier: value === 'NONE' ? undefined : value
-                    });
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="선사 선택" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="NONE">-</SelectItem>
-                    {shippingLines.map((line) => (
-                      <SelectItem key={line.id} value={line.name}>
-                        {line.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>선사</Label>
+                  <Select 
+                    value={versionChangeData.carrier || 'NONE'} 
+                    onValueChange={(value) => {
+                      setVersionChangeData({
+                        ...versionChangeData,
+                        carrier: value === 'NONE' ? undefined : value
+                      });
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="선사 선택" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="NONE">-</SelectItem>
+                      {shippingLines.map((line) => (
+                        <SelectItem key={line.id} value={line.name}>
+                          {line.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>L.LOCAL (USD)</Label>
+                  <Input
+                    type="number"
+                    placeholder="예: 50"
+                    value={versionChangeData.llocal || ''}
+                    onChange={(e) => {
+                      setVersionChangeData({
+                        ...versionChangeData,
+                        llocal: e.target.value ? Number(e.target.value) : undefined
+                      });
+                    }}
+                  />
+                  <p className="text-xs text-blue-600">대리점이 회사로 돌려주는 금액</p>
+                </div>
               </div>
 
               <div className="space-y-2">

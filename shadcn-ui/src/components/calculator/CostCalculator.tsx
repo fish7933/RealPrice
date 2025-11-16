@@ -22,7 +22,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Calculator, TrendingDown, Train, Truck, Weight, Package, Star, FileText, DollarSign, Info, Ship, Clock, AlertTriangle } from 'lucide-react';
+import { Calculator, TrendingDown, Train, Truck, Weight, Package, Star, FileText, DollarSign, Info, Ship, Clock, AlertTriangle, Minus } from 'lucide-react';
 
 export default function CostCalculator() {
   const { destinations, calculateCost, getDPCost, getDestinationById, getTotalOtherCosts, ports, getAvailableHistoricalDates } = useFreight();
@@ -147,6 +147,7 @@ export default function CostCalculator() {
     if (!excludedSet.has('dthc')) total += breakdown.dthc;
     if (!excludedSet.has('otherCosts')) total += breakdown.otherCosts;
     if (!excludedSet.has('domesticTransport')) total += breakdown.domesticTransport;
+    if (!excludedSet.has('llocal')) total -= (breakdown.llocal || 0);
     return total;
   };
   
@@ -335,6 +336,7 @@ export default function CostCalculator() {
                 <li>• <strong>D/O(DTHC):</strong> 대리점별로 설정된 금액이 자동 적용됩니다</li>
                 <li>• <strong>기타비용:</strong> 기타비용 메뉴에서 설정한 항목(DP 제외)이 자동 합산됩니다</li>
                 <li>• <strong>중량할증:</strong> 입력한 중량에 따라 자동 계산됩니다</li>
+                <li>• <strong>L.LOCAL:</strong> 대리점별 해상운임에 설정된 경우 총액에서 차감됩니다</li>
               </ul>
             </AlertDescription>
           </Alert>
@@ -423,10 +425,15 @@ export default function CostCalculator() {
                 <span className="font-semibold">DP:</span>
                 <span>Disposal Container - 컨테이너 재산권 이전 비용</span>
               </div>
-              <div className="flex items-center gap-2 text-sm text-blue-900">
+              <div className="flex items-center gap-2 text-sm text-blue-900 mb-2">
                 <Star className="h-4 w-4" />
                 <span className="font-semibold">대리점별 해상운임:</span>
                 <span>철도 대리점이 지정한 해상운임이 우선 적용됩니다</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-blue-900">
+                <Minus className="h-4 w-4 text-red-600" />
+                <span className="font-semibold">L.LOCAL:</span>
+                <span>대리점이 회사로 돌려주는 금액 (총액에서 차감)</span>
               </div>
               <div className="mt-2 text-xs text-blue-700">
                 * 각 철도 대리점은 자체 트럭 또는 COWIN 트럭을 선택할 수 있습니다
@@ -457,6 +464,12 @@ export default function CostCalculator() {
                       </div>
                     </TableHead>
                     <TableHead className="text-right">해상운임</TableHead>
+                    <TableHead className="text-right">
+                      <div className="flex flex-col items-end gap-1">
+                        <Minus className="h-4 w-4 text-red-600" />
+                        <span>L.LOCAL</span>
+                      </div>
+                    </TableHead>
                     <TableHead className="text-right">철도운임</TableHead>
                     <TableHead className="text-right">트럭운임</TableHead>
                     <TableHead className="text-right">
@@ -543,6 +556,19 @@ export default function CostCalculator() {
                           </div>
                         </TableCell>
                         <TableCell 
+                          className="text-right cursor-pointer hover:bg-red-50 active:bg-red-100 transition-colors select-none border-l-2 border-transparent hover:border-l-red-500"
+                          onClick={() => toggleCostItem(index, 'llocal')}
+                          title="클릭하여 계산에서 제외/포함"
+                        >
+                          {breakdown.llocal && breakdown.llocal > 0 ? (
+                            <span className={`text-red-600 font-medium ${isCostExcluded(index, 'llocal') ? 'line-through text-gray-400' : ''}`}>
+                              -${breakdown.llocal}
+                            </span>
+                          ) : (
+                            <span className="text-gray-400">-</span>
+                          )}
+                        </TableCell>
+                        <TableCell 
                           className="text-right cursor-pointer hover:bg-blue-100 active:bg-blue-200 transition-colors select-none border-l-2 border-transparent hover:border-l-blue-500"
                           onClick={() => toggleCostItem(index, 'portBorder')}
                           title="클릭하여 계산에서 제외/포함"
@@ -627,6 +653,10 @@ export default function CostCalculator() {
               <p className="text-xs text-gray-600 mt-2 flex items-center gap-1">
                 <Star className="h-3 w-3 text-amber-600" />
                 <span>별표는 해당 대리점이 지정한 특별 해상운임이 적용되었음을 나타냅니다</span>
+              </p>
+              <p className="text-xs text-gray-600 mt-1 flex items-center gap-1">
+                <Minus className="h-3 w-3 text-red-600" />
+                <span>L.LOCAL은 대리점이 회사로 돌려주는 금액으로 총액에서 차감됩니다</span>
               </p>
             </div>
           </CardContent>

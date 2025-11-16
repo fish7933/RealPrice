@@ -29,7 +29,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Trash2, Plus, FileText, AlertTriangle, RefreshCw } from 'lucide-react';
+import { Trash2, Plus, FileText, AlertTriangle, RefreshCw, Ship } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import AuditLogTable from './AuditLogTable';
 import { ValidityPeriodInput } from '@/components/ui/validity-period-input';
@@ -40,6 +40,7 @@ interface VersionChangeData {
   agent: string;
   pol: string;
   pod: string;
+  carrier: string;
   amount: number;
   description?: string;
   validFrom: string;
@@ -50,7 +51,7 @@ interface VersionChangeData {
 
 export default function DTHCTable() {
   const { user } = useAuth();
-  const { railAgents, dthcList, addDTHC, updateDTHC, deleteDTHC, getAuditLogsByType, ports } = useFreight();
+  const { railAgents, shippingLines, dthcList, addDTHC, updateDTHC, deleteDTHC, getAuditLogsByType, ports } = useFreight();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isVersionChangeDialogOpen, setIsVersionChangeDialogOpen] = useState(false);
   const [versionChangeData, setVersionChangeData] = useState<VersionChangeData | null>(null);
@@ -60,6 +61,7 @@ export default function DTHCTable() {
     agent: '',
     pol: '',
     pod: '',
+    carrier: '',
     amount: '',
     description: '',
     validFrom: '',
@@ -74,7 +76,7 @@ export default function DTHCTable() {
 
   // Group DTHC by agent, then by route (filter out invalid entries)
   const dthcByAgent = dthcList
-    .filter(dthc => dthc && dthc.agent && dthc.pol && dthc.pod && dthc.amount !== undefined)
+    .filter(dthc => dthc && dthc.agent && dthc.pol && dthc.pod && dthc.carrier && dthc.amount !== undefined)
     .reduce((acc, dthc) => {
       if (!acc[dthc.agent]) {
         acc[dthc.agent] = [];
@@ -84,14 +86,17 @@ export default function DTHCTable() {
     }, {} as Record<string, DTHC[]>);
 
   const handleAdd = () => {
-    if (!formData.agent || !formData.pol || !formData.pod || !formData.amount || !formData.validFrom || !formData.validTo) return;
+    if (!formData.agent || !formData.pol || !formData.pod || !formData.carrier || !formData.amount || !formData.validFrom || !formData.validTo) {
+      setValidationError('❌ 모든 필수 항목을 입력해주세요.');
+      return;
+    }
 
     const error = validateNoOverlap(
       formData.validFrom,
       formData.validTo,
       '',
       dthcList,
-      (item) => item.agent === formData.agent && item.pol === formData.pol && item.pod === formData.pod
+      (item) => item.agent === formData.agent && item.pol === formData.pol && item.pod === formData.pod && item.carrier === formData.carrier
     );
 
     if (error) {
@@ -103,20 +108,21 @@ export default function DTHCTable() {
       agent: formData.agent,
       pol: formData.pol,
       pod: formData.pod,
+      carrier: formData.carrier,
       amount: Number(formData.amount),
       description: formData.description || undefined,
       validFrom: formData.validFrom,
       validTo: formData.validTo,
     });
 
-    setFormData({ agent: '', pol: '', pod: '', amount: '', description: '', validFrom: '', validTo: '' });
+    setFormData({ agent: '', pol: '', pod: '', carrier: '', amount: '', description: '', validFrom: '', validTo: '' });
     setValidationError(null);
     setIsAddDialogOpen(false);
   };
 
   const handleVersionChangeClick = (dthc: DTHC) => {
     const relevantItems = dthcList.filter(
-      (item) => item.agent === dthc.agent && item.pol === dthc.pol && item.pod === dthc.pod
+      (item) => item.agent === dthc.agent && item.pol === dthc.pol && item.pod === dthc.pod && item.carrier === dthc.carrier
     );
     const maxVersion = Math.max(...relevantItems.map(item => item.version || 1), 0);
     const nextVersion = maxVersion + 1;
@@ -155,6 +161,7 @@ export default function DTHCTable() {
       agent: dthc.agent,
       pol: dthc.pol,
       pod: dthc.pod,
+      carrier: dthc.carrier,
       amount: dthc.amount,
       description: dthc.description,
       validFrom,
@@ -210,7 +217,7 @@ export default function DTHCTable() {
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold">D/O(DTHC) 관리</h2>
-          <p className="text-gray-600 mt-1">대리점, 출발항 및 도착항별 D/O(DTHC) 비용 설정</p>
+          <p className="text-gray-600 mt-1">대리점, 출발항, 도착항 및 선사별 D/O(DTHC) 비용 설정</p>
         </div>
         {isAdmin && (
           <Button onClick={() => setIsAddDialogOpen(true)}>
@@ -223,10 +230,10 @@ export default function DTHCTable() {
       <Alert>
         <FileText className="h-4 w-4" />
         <AlertDescription>
-          <strong>D/O(DTHC):</strong> Document Only - Destination Terminal Handling Charge. 철도 대리점, 출발항 및 도착항별로 설정되며, 원가 계산 시 자동으로 적용됩니다.
+          <strong>D/O(DTHC):</strong> Document Only - Destination Terminal Handling Charge. 철도 대리점, 출발항, 도착항 및 선사별로 설정되며, 원가 계산 시 자동으로 적용됩니다.
           <br />
           <span className="text-sm text-gray-600 mt-1 block">
-            각 철도 대리점마다 경로(출발항→도착항)에 따라 다른 D/O(DTHC) 금액을 설정할 수 있습니다.
+            각 철도 대리점마다 경로(출발항→도착항) 및 선사에 따라 다른 D/O(DTHC) 금액을 설정할 수 있습니다.
           </span>
         </AlertDescription>
       </Alert>
@@ -260,6 +267,7 @@ export default function DTHCTable() {
                 <TableRow>
                   <TableHead>버전</TableHead>
                   <TableHead>경로 (POL → POD)</TableHead>
+                  <TableHead>선사</TableHead>
                   <TableHead>D/O(DTHC) (USD)</TableHead>
                   <TableHead>유효기간</TableHead>
                   <TableHead>상태</TableHead>
@@ -278,6 +286,12 @@ export default function DTHCTable() {
                       </TableCell>
                       <TableCell className="font-medium">
                         {dthc.pol || '-'} → {dthc.pod || '-'}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Ship className="h-4 w-4 text-cyan-600" />
+                          <span className="font-medium">{dthc.carrier || '-'}</span>
+                        </div>
                       </TableCell>
                       <TableCell>${dthc.amount ?? 0}</TableCell>
                       <TableCell>
@@ -329,7 +343,7 @@ export default function DTHCTable() {
         <div className="border rounded-lg bg-white p-8 text-center text-gray-500">
           <FileText className="h-12 w-12 mx-auto mb-3 text-gray-400" />
           <p>설정된 D/O(DTHC)가 없습니다</p>
-          <p className="text-sm mt-1">대리점 및 경로별로 D/O(DTHC)를 추가해보세요</p>
+          <p className="text-sm mt-1">대리점, 경로 및 선사별로 D/O(DTHC)를 추가해보세요</p>
         </div>
       )}
 
@@ -347,7 +361,7 @@ export default function DTHCTable() {
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>D/O(DTHC) 추가</DialogTitle>
-            <DialogDescription>철도 대리점 및 경로별 D/O(DTHC) 비용을 입력하세요.</DialogDescription>
+            <DialogDescription>철도 대리점, 경로 및 선사별 D/O(DTHC) 비용을 입력하세요.</DialogDescription>
           </DialogHeader>
           <div className="grid grid-cols-2 gap-4 py-4">
             {validationError && (
@@ -424,6 +438,33 @@ export default function DTHCTable() {
               ) : (
                 <div className="text-sm text-gray-500 p-3 bg-gray-50 rounded border">
                   도착항(POD)을 먼저 등록해주세요. (운송사 탭 → 포트 관리)
+                </div>
+              )}
+            </div>
+            <div className="col-span-2 space-y-2">
+              <Label className="flex items-center gap-2">
+                <Ship className="h-4 w-4" />
+                선사 *
+              </Label>
+              {shippingLines.length > 0 ? (
+                <Select value={formData.carrier} onValueChange={(value) => {
+                  setFormData({ ...formData, carrier: value });
+                  setValidationError(null);
+                }}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="선사 선택" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {shippingLines.map((line) => (
+                      <SelectItem key={line.id} value={line.name}>
+                        {line.name} ({line.code})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <div className="text-sm text-gray-500 p-3 bg-gray-50 rounded border">
+                  선사를 먼저 등록해주세요. (운송사 탭 → 선사 관리)
                 </div>
               )}
             </div>
@@ -518,6 +559,14 @@ export default function DTHCTable() {
                   <Label>경로</Label>
                   <Input value={`${versionChangeData.pol} → ${versionChangeData.pod}`} disabled className="bg-gray-50" />
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <Ship className="h-4 w-4" />
+                  선사
+                </Label>
+                <Input value={versionChangeData.carrier} disabled className="bg-gray-50" />
               </div>
 
               <div className="space-y-2">

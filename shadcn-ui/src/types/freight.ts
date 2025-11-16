@@ -77,10 +77,12 @@ export interface DTHC {
   agent: string;
   pol: string;
   pod: string;
+  carrier: string; // Added carrier field - REQUIRED
   amount: number;
   description?: string;
   validFrom: string;
   validTo: string;
+  version?: number;
 }
 
 export interface DPCost {

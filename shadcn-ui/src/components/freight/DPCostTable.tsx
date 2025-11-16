@@ -198,7 +198,7 @@ export default function DPCostTable() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold">DP 비용 관리</h2>
+          <h2 className="text-2xl font-bold flex items-center gap-2"><Package className="h-6 w-6" />DP 비용 관리</h2>
           <p className="text-gray-600 mt-1">항구별 DP(Delivery Point) 비용 설정</p>
         </div>
         {isAdmin && (

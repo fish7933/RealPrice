@@ -96,11 +96,11 @@ export default function PortTable() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold flex items-center gap-2">
-            <Anchor className="h-5 w-5" />
+          <h2 className="text-2xl font-bold flex items-center gap-2">
+            <Anchor className="h-6 w-6" />
             포트 관리
-          </h3>
-          <p className="text-sm text-gray-600 mt-1">
+          </h2>
+          <p className="text-gray-600 mt-1">
             선적포트(POL)와 양하포트(POD)를 관리합니다
           </p>
         </div>

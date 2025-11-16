@@ -199,7 +199,7 @@ export default function WeightSurchargeTable() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold">중량할증 관리</h2>
+          <h2 className="text-2xl font-bold flex items-center gap-2"><Weight className="h-6 w-6" />중량할증 관리</h2>
           <p className="text-gray-600 mt-1">트럭 대리점별 중량 구간에 따른 할증 요율 설정</p>
         </div>
         {isAdmin && (

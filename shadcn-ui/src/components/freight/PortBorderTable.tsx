@@ -327,7 +327,7 @@ export default function PortBorderTable() {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold">철도운임 관리</h2>
+          <h2 className="text-2xl font-bold flex items-center gap-2"><Train className="h-6 w-6" />철도운임 관리</h2>
           <p className="text-gray-600 mt-1">중국항 → {borderCityName} 철도 운임</p>
         </div>
         {isAdmin && (

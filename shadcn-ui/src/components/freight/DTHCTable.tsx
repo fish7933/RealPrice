@@ -313,7 +313,7 @@ export default function DTHCTable() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold">D/O(DTHC) 관리</h2>
+          <h2 className="text-2xl font-bold flex items-center gap-2"><FileText className="h-6 w-6" />D/O(DTHC) 관리</h2>
           <p className="text-gray-600 mt-1">대리점, 출발항, 도착항 및 선사별 D/O(DTHC) 비용 설정</p>
         </div>
         {isAdmin && (

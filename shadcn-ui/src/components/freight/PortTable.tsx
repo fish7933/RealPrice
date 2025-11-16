@@ -58,7 +58,7 @@ export default function PortTable() {
     await deletePort(id);
     toast({
       title: '삭제 완료',
-      description: '항구가 삭제되었습니다.',
+      description: '포트가 삭제되었습니다.',
     });
   };
 
@@ -66,7 +66,7 @@ export default function PortTable() {
     if (!formData.name || !formData.country) {
       toast({
         title: '입력 오류',
-        description: '항구명과 국가를 입력해주세요.',
+        description: '포트명과 국가를 입력해주세요.',
         variant: 'destructive',
       });
       return;
@@ -76,13 +76,13 @@ export default function PortTable() {
       await updatePort(editingPort.id, formData);
       toast({
         title: '수정 완료',
-        description: '항구 정보가 수정되었습니다.',
+        description: '포트 정보가 수정되었습니다.',
       });
     } else {
       await addPort(formData);
       toast({
         title: '추가 완료',
-        description: '새 항구가 추가되었습니다.',
+        description: '새 포트가 추가되었습니다.',
       });
     }
 
@@ -98,26 +98,26 @@ export default function PortTable() {
         <div>
           <h3 className="text-lg font-semibold flex items-center gap-2">
             <Anchor className="h-5 w-5" />
-            항구 관리
+            포트 관리
           </h3>
           <p className="text-sm text-gray-600 mt-1">
-            출발항(POL)과 도착항(POD)을 관리합니다
+            선적포트(POL)와 양하포트(POD)를 관리합니다
           </p>
         </div>
         <Button onClick={handleAdd}>
           <Plus className="h-4 w-4 mr-2" />
-          항구 추가
+          포트 추가
         </Button>
       </div>
 
       {/* POL Ports */}
       <div>
-        <h4 className="text-md font-semibold mb-3 text-blue-700">출발항 (POL) - {polPorts.length}개</h4>
+        <h4 className="text-md font-semibold mb-3 text-blue-700">선적포트 (POL) - {polPorts.length}개</h4>
         <div className="border rounded-lg overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>항구명</TableHead>
+                <TableHead>포트명</TableHead>
                 <TableHead>국가</TableHead>
                 <TableHead>설명</TableHead>
                 <TableHead className="text-right">작업</TableHead>
@@ -127,7 +127,7 @@ export default function PortTable() {
               {polPorts.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={4} className="text-center text-gray-500">
-                    등록된 출발항이 없습니다
+                    등록된 선적포트가 없습니다
                   </TableCell>
                 </TableRow>
               ) : (
@@ -165,12 +165,12 @@ export default function PortTable() {
 
       {/* POD Ports */}
       <div>
-        <h4 className="text-md font-semibold mb-3 text-green-700">도착항 (POD) - {podPorts.length}개</h4>
+        <h4 className="text-md font-semibold mb-3 text-green-700">양하포트 (POD) - {podPorts.length}개</h4>
         <div className="border rounded-lg overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>항구명</TableHead>
+                <TableHead>포트명</TableHead>
                 <TableHead>국가</TableHead>
                 <TableHead>설명</TableHead>
                 <TableHead className="text-right">작업</TableHead>
@@ -180,7 +180,7 @@ export default function PortTable() {
               {podPorts.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={4} className="text-center text-gray-500">
-                    등록된 도착항이 없습니다
+                    등록된 양하포트가 없습니다
                   </TableCell>
                 </TableRow>
               ) : (
@@ -221,15 +221,15 @@ export default function PortTable() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {editingPort ? '항구 수정' : '항구 추가'}
+              {editingPort ? '포트 수정' : '포트 추가'}
             </DialogTitle>
             <DialogDescription>
-              항구 정보를 입력하세요
+              포트 정보를 입력하세요
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label>항구명 *</Label>
+              <Label>포트명 *</Label>
               <Input
                 placeholder="예: 부산, 청도"
                 value={formData.name}
@@ -237,14 +237,14 @@ export default function PortTable() {
               />
             </div>
             <div className="space-y-2">
-              <Label>항구 유형 *</Label>
+              <Label>포트 유형 *</Label>
               <select
                 className="w-full h-10 px-3 border rounded-md"
                 value={formData.type}
                 onChange={(e) => setFormData({ ...formData, type: e.target.value as PortType })}
               >
-                <option value="POL">출발항 (POL)</option>
-                <option value="POD">도착항 (POD)</option>
+                <option value="POL">선적포트 (POL)</option>
+                <option value="POD">양하포트 (POD)</option>
               </select>
             </div>
             <div className="space-y-2">

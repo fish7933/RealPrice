@@ -82,7 +82,10 @@ export default function DestinationTable() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold">최종목적지 관리</h2>
+          <h2 className="text-2xl font-bold flex items-center gap-2">
+            <MapPin className="h-6 w-6" />
+            최종목적지 관리
+          </h2>
           <p className="text-gray-600 mt-1">운송의 최종 도착지를 관리합니다</p>
         </div>
         {isAdmin && (

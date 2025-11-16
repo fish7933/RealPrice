@@ -443,10 +443,7 @@ export default function DTHCTable() {
               )}
             </div>
             <div className="space-y-2">
-              <Label className="flex items-center gap-2">
-                <Ship className="h-4 w-4" />
-                선사 *
-              </Label>
+              <Label>선사 *</Label>
               {shippingLines.length > 0 ? (
                 <Select value={formData.carrier} onValueChange={(value) => {
                   setFormData({ ...formData, carrier: value });
@@ -564,10 +561,7 @@ export default function DTHCTable() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="flex items-center gap-2">
-                    <Ship className="h-4 w-4" />
-                    선사 *
-                  </Label>
+                  <Label>선사 *</Label>
                   {shippingLines.length > 0 ? (
                     <Select 
                       value={versionChangeData.carrier} 

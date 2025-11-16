@@ -86,11 +86,11 @@ export default function ShippingLineTable() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold flex items-center gap-2">
-            <Ship className="h-6 w-6" />
+          <h3 className="text-xl font-bold flex items-center gap-2">
+            <Ship className="h-5 w-5" />
             선사 관리
-          </h2>
-          <p className="text-gray-600 mt-1">해상운송을 담당하는 선사를 관리합니다</p>
+          </h3>
+          <p className="text-gray-600 mt-1 text-sm">해상운송을 담당하는 선사를 관리합니다</p>
         </div>
         {isAdmin && (
           <Button onClick={() => setIsAddDialogOpen(true)}>

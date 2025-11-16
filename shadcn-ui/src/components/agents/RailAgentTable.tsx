@@ -82,11 +82,11 @@ export default function RailAgentTable() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold flex items-center gap-2">
-            <Train className="h-6 w-6" />
+          <h3 className="text-xl font-bold flex items-center gap-2">
+            <Train className="h-5 w-5" />
             철도 대리점 관리
-          </h2>
-          <p className="text-gray-600 mt-1">철도 운송을 담당하는 대리점을 관리합니다</p>
+          </h3>
+          <p className="text-gray-600 mt-1 text-sm">철도 운송을 담당하는 대리점을 관리합니다</p>
         </div>
         {isAdmin && (
           <Button onClick={() => setIsAddDialogOpen(true)}>

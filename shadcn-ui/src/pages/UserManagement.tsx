@@ -28,7 +28,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { UserPlus, Pencil, Trash2, Shield, User as UserIcon, ArrowRightLeft, AlertCircle } from 'lucide-react';
+import { UserPlus, Pencil, Trash2, Shield, User as UserIcon, ArrowRightLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Layout from '@/components/layout/Layout';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -79,7 +79,7 @@ export default function UserManagement() {
         console.error('[UserManagement] User creation failed - addUser returned false');
         toast({
           title: '오류',
-          description: '사용자 추가에 실패했습니다. Supabase Dashboard에서 Authentication → Providers → Email → "Confirm email" 설정을 비활성화하세요.',
+          description: '사용자 추가에 실패했습니다.',
           variant: 'destructive',
         });
       }
@@ -254,24 +254,6 @@ export default function UserManagement() {
   return (
     <Layout>
       <div className="space-y-6">
-        <Alert className="bg-amber-50 border-amber-200">
-          <AlertCircle className="h-4 w-4 text-amber-600" />
-          <AlertTitle className="text-amber-900">Supabase 설정 필요</AlertTitle>
-          <AlertDescription className="text-amber-800">
-            사용자 추가가 실패하는 경우, Supabase Dashboard에서 다음 설정을 확인하세요:
-            <ol className="mt-2 ml-4 list-decimal space-y-1">
-              <li>Supabase Dashboard (https://supabase.com/dashboard) 접속</li>
-              <li>프로젝트 선택 (lcubxwvkoqkhsvzstbay)</li>
-              <li>Authentication → Providers → Email 선택</li>
-              <li><strong>"Confirm email" 옵션을 비활성화 (OFF)</strong></li>
-              <li>Save 클릭</li>
-            </ol>
-            <div className="mt-2 text-sm">
-              브라우저 콘솔(F12)에서 상세 로그를 확인할 수 있습니다.
-            </div>
-          </AlertDescription>
-        </Alert>
-
         {user?.role === 'superadmin' && (
           <Alert className="bg-purple-50 border-purple-200">
             <Shield className="h-4 w-4 text-purple-600" />
@@ -445,7 +427,7 @@ export default function UserManagement() {
             <DialogHeader>
               <DialogTitle>사용자 추가</DialogTitle>
               <DialogDescription>
-                새로운 사용자를 추가합니다. (F12 키를 눌러 브라우저 콘솔에서 상세 로그를 확인할 수 있습니다)
+                새로운 사용자를 추가합니다.
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">

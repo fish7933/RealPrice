@@ -357,7 +357,7 @@ export default function SeaFreightTable() {
             <Ship className="h-6 w-6" />
             해상운임 관리
           </h2>
-          <p className="text-gray-600 mt-1">출발포트에서 도착포트까지의 해상 운송 비용</p>
+          <p className="text-gray-600 mt-1">선적포트에서 양하포트까지의 해상 운송 비용</p>
         </div>
         {isAdmin && (
           <Button onClick={() => setIsAddDialogOpen(true)}>
@@ -394,7 +394,7 @@ export default function SeaFreightTable() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
           <div className="space-y-1">
-            <Label className="text-xs">출발포트</Label>
+            <Label className="text-xs">선적포트 (POL)</Label>
             <Select value={searchFilters.pol} onValueChange={(value) => setSearchFilters(prev => ({ ...prev, pol: value }))}>
               <SelectTrigger className="h-9">
                 <SelectValue placeholder="전체" />
@@ -410,7 +410,7 @@ export default function SeaFreightTable() {
             </Select>
           </div>
           <div className="space-y-1">
-            <Label className="text-xs">도착포트</Label>
+            <Label className="text-xs">양하포트 (POD)</Label>
             <Select value={searchFilters.pod} onValueChange={(value) => setSearchFilters(prev => ({ ...prev, pod: value }))}>
               <SelectTrigger className="h-9">
                 <SelectValue placeholder="전체" />
@@ -479,8 +479,8 @@ export default function SeaFreightTable() {
           <TableHeader>
             <TableRow>
               <TableHead>버전</TableHead>
-              <TableHead>출발포트</TableHead>
-              <TableHead>도착포트</TableHead>
+              <TableHead>선적포트 (POL)</TableHead>
+              <TableHead>양하포트 (POD)</TableHead>
               <TableHead>운임 (USD)</TableHead>
               <TableHead>L.LOCAL (USD)</TableHead>
               <TableHead>선사</TableHead>
@@ -627,14 +627,14 @@ export default function SeaFreightTable() {
             )}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>출발포트 *</Label>
+                <Label>선적포트 (POL) *</Label>
                 {polPorts.length > 0 ? (
                   <Select value={formData.pol} onValueChange={(value) => {
                     setFormData({ ...formData, pol: value });
                     setValidationError(null);
                   }}>
                     <SelectTrigger>
-                      <SelectValue placeholder="출발포트 선택" />
+                      <SelectValue placeholder="선적포트 선택" />
                     </SelectTrigger>
                     <SelectContent>
                       {polPorts.map((port) => (
@@ -646,19 +646,19 @@ export default function SeaFreightTable() {
                   </Select>
                 ) : (
                   <div className="text-sm text-gray-500 p-3 bg-gray-50 rounded border">
-                    출발포트를 먼저 등록해주세요. (선사 & 중국 파트너사 탭 → 포트 관리)
+                    선적포트를 먼저 등록해주세요. (선사 & 중국 파트너사 탭 → 포트 관리)
                   </div>
                 )}
               </div>
               <div className="space-y-2">
-                <Label>도착포트 *</Label>
+                <Label>양하포트 (POD) *</Label>
                 {podPorts.length > 0 ? (
                   <Select value={formData.pod} onValueChange={(value) => {
                     setFormData({ ...formData, pod: value });
                     setValidationError(null);
                   }}>
                     <SelectTrigger>
-                      <SelectValue placeholder="도착포트 선택" />
+                      <SelectValue placeholder="양하포트 선택" />
                     </SelectTrigger>
                     <SelectContent>
                       {podPorts.map((port) => (
@@ -670,7 +670,7 @@ export default function SeaFreightTable() {
                   </Select>
                 ) : (
                   <div className="text-sm text-gray-500 p-3 bg-gray-50 rounded border">
-                    도착포트를 먼저 등록해주세요. (선사 & 중국 파트너사 탭 → 포트 관리)
+                    양하포트를 먼저 등록해주세요. (선사 & 중국 파트너사 탭 → 포트 관리)
                   </div>
                 )}
               </div>
@@ -723,7 +723,7 @@ export default function SeaFreightTable() {
                 </p>
               )}
               <p className="text-xs text-orange-600">
-                💡 선사가 다르면 같은 출발포트/도착포트라도 별도의 버전(v1)으로 시작합니다.
+                💡 선사가 다르면 같은 선적포트/양하포트라도 별도의 버전(v1)으로 시작합니다.
               </p>
             </div>
             <div className="space-y-2">
@@ -817,11 +817,11 @@ export default function SeaFreightTable() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>출발포트</Label>
+                  <Label>선적포트 (POL)</Label>
                   <Input value={versionChangeData.pol} disabled className="bg-gray-50" />
                 </div>
                 <div className="space-y-2">
-                  <Label>도착포트</Label>
+                  <Label>양하포트 (POD)</Label>
                   <Input value={versionChangeData.pod} disabled className="bg-gray-50" />
                 </div>
               </div>

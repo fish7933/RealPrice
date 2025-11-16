@@ -1,7 +1,7 @@
 import Layout from '@/components/layout/Layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Ship, Train, Truck, Navigation, Star, FileText, Weight, Package, Merge, Anchor } from 'lucide-react';
+import { Ship, Train, Truck, Navigation, Star, FileText, Weight, Package, Merge, Anchor, Users } from 'lucide-react';
 import RailAgentTable from '@/components/agents/RailAgentTable';
 import TruckAgentTable from '@/components/agents/TruckAgentTable';
 import ShippingLineTable from '@/components/agents/ShippingLineTable';
@@ -35,7 +35,7 @@ export default function AdminDashboard() {
             <Tabs defaultValue="agents" className="w-full">
               <TabsList className="grid w-full grid-cols-5 lg:grid-cols-12 mb-4">
                 <TabsTrigger value="agents" className="flex items-center gap-1">
-                  <Train className="h-4 w-4" />
+                  <Users className="h-4 w-4" />
                   <span className="hidden sm:inline">선사 & 중국 파트너사</span>
                 </TabsTrigger>
                 <TabsTrigger value="ports" className="flex items-center gap-1">

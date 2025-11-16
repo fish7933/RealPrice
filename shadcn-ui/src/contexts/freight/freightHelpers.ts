@@ -65,17 +65,20 @@ export const getSeaFreightVersion = (
 };
 
 // Get next version number for agent sea freight
+// Now includes carrier to treat different carriers as separate entities
 export const getAgentSeaFreightVersion = (
   agentSeaFreights: AgentSeaFreight[],
   agent: string,
   pol: string,
   pod: string,
+  carrier?: string,
   excludeId?: string
 ): number => {
   const sameRoute = agentSeaFreights.filter(f => 
     f.agent === agent && 
     f.pol === pol && 
     f.pod === pod &&
+    f.carrier === carrier &&
     f.id !== excludeId
   );
   if (sameRoute.length === 0) return 1;

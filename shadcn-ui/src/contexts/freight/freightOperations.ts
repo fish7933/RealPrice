@@ -575,7 +575,14 @@ export const addAgentSeaFreight = async (
   user: User | null
 ) => {
   try {
-    const version = getAgentSeaFreightVersion(agentSeaFreights, freight.agent, freight.pol, freight.pod);
+    // Include carrier in version calculation
+    const version = getAgentSeaFreightVersion(
+      agentSeaFreights, 
+      freight.agent, 
+      freight.pol, 
+      freight.pod,
+      freight.carrier
+    );
     
     const { data, error } = await supabase
       .from(TABLES.AGENT_SEA_FREIGHTS)
@@ -643,12 +650,13 @@ export const updateAgentSeaFreight = async (
 
     const rateChanged = freight.rate !== undefined && freight.rate !== oldFreight.rate;
     const llocalChanged = freight.llocal !== undefined && freight.llocal !== oldFreight.llocal;
+    const carrierChanged = freight.carrier !== undefined && freight.carrier !== oldFreight.carrier;
     const validFromChanged = freight.validFrom !== undefined && freight.validFrom !== oldFreight.validFrom;
     const validToChanged = freight.validTo !== undefined && freight.validTo !== oldFreight.validTo;
     const validityChanged = validFromChanged || validToChanged;
 
     let newVersion = oldFreight.version;
-    if (rateChanged || llocalChanged || validityChanged) {
+    if (rateChanged || llocalChanged || carrierChanged || validityChanged) {
       newVersion = (oldFreight.version || 1) + 1;
     }
 
@@ -676,7 +684,7 @@ export const updateAgentSeaFreight = async (
       return;
     }
 
-    if (data && (rateChanged || llocalChanged || validityChanged)) {
+    if (data && (rateChanged || llocalChanged || carrierChanged || validityChanged)) {
       const updatedFreight: AgentSeaFreight = {
         id: data.id,
         agent: data.agent,

@@ -272,16 +272,19 @@ export const FreightProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const addSeaFreight: FreightContextType['addSeaFreight'] = async (freight) => {
     await ops.addSeaFreight(freight, seaFreights, user);
     await loadSeaFreights();
+    await loadAuditLogs();
   };
 
   const updateSeaFreight: FreightContextType['updateSeaFreight'] = async (id, freight) => {
     await ops.updateSeaFreight(id, freight, seaFreights, user);
     await loadSeaFreights();
+    await loadAuditLogs();
   };
 
   const deleteSeaFreight: FreightContextType['deleteSeaFreight'] = async (id) => {
     await ops.deleteSeaFreight(id, seaFreights, user);
     await loadSeaFreights();
+    await loadAuditLogs();
   };
 
   const getSeaFreightOptions: FreightContextType['getSeaFreightOptions'] = (pol, pod, date) => {
@@ -296,16 +299,19 @@ export const FreightProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const addAgentSeaFreight: FreightContextType['addAgentSeaFreight'] = async (freight) => {
     await ops.addAgentSeaFreight(freight, agentSeaFreights, user);
     await loadAgentSeaFreights();
+    await loadAuditLogs();
   };
 
   const updateAgentSeaFreight: FreightContextType['updateAgentSeaFreight'] = async (id, freight) => {
     await ops.updateAgentSeaFreight(id, freight, agentSeaFreights, user);
     await loadAgentSeaFreights();
+    await loadAuditLogs();
   };
 
   const deleteAgentSeaFreight: FreightContextType['deleteAgentSeaFreight'] = async (id) => {
     await ops.deleteAgentSeaFreight(id, agentSeaFreights, user);
     await loadAgentSeaFreights();
+    await loadAuditLogs();
   };
 
   const getAgentSeaFreight: FreightContextType['getAgentSeaFreight'] = (agent, pol, pod, date) => {
@@ -320,16 +326,19 @@ export const FreightProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const addDTHC: FreightContextType['addDTHC'] = async (dthc) => {
     await opsExt.addDTHC(dthc, user);
     await loadDTHC();
+    await loadAuditLogs();
   };
 
   const updateDTHC: FreightContextType['updateDTHC'] = async (id, dthc) => {
     await opsExt.updateDTHC(id, dthc, dthcList, user);
     await loadDTHC();
+    await loadAuditLogs();
   };
 
   const deleteDTHC: FreightContextType['deleteDTHC'] = async (id) => {
     await opsExt.deleteDTHC(id, dthcList, user);
     await loadDTHC();
+    await loadAuditLogs();
   };
 
   const getDTHCByAgentAndRoute: FreightContextType['getDTHCByAgentAndRoute'] = (agent, pol, pod, date) => {
@@ -340,16 +349,19 @@ export const FreightProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const addDPCost: FreightContextType['addDPCost'] = async (dp) => {
     await opsExt.addDPCost(dp, user);
     await loadDPCosts();
+    await loadAuditLogs();
   };
 
   const updateDPCost: FreightContextType['updateDPCost'] = async (id, dp) => {
     await opsExt.updateDPCost(id, dp, dpCosts, user);
     await loadDPCosts();
+    await loadAuditLogs();
   };
 
   const deleteDPCost: FreightContextType['deleteDPCost'] = async (id) => {
     await opsExt.deleteDPCost(id, dpCosts, user);
     await loadDPCosts();
+    await loadAuditLogs();
   };
 
   const getDPCost: FreightContextType['getDPCost'] = (port, date) => {
@@ -360,16 +372,19 @@ export const FreightProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const addCombinedFreight: FreightContextType['addCombinedFreight'] = async (freight) => {
     await opsExt.addCombinedFreight(freight, user);
     await loadCombinedFreights();
+    await loadAuditLogs();
   };
 
   const updateCombinedFreight: FreightContextType['updateCombinedFreight'] = async (id, freight) => {
     await opsExt.updateCombinedFreight(id, freight, combinedFreights, user);
     await loadCombinedFreights();
+    await loadAuditLogs();
   };
 
   const deleteCombinedFreight: FreightContextType['deleteCombinedFreight'] = async (id) => {
     await opsExt.deleteCombinedFreight(id, combinedFreights, user);
     await loadCombinedFreights();
+    await loadAuditLogs();
   };
 
   const getCombinedFreight: FreightContextType['getCombinedFreight'] = (agent, pod, destinationId, date) => {
@@ -380,16 +395,19 @@ export const FreightProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const addPortBorderFreight: FreightContextType['addPortBorderFreight'] = async (freight) => {
     await opsExt.addPortBorderFreight(freight, user);
     await loadPortBorderFreights();
+    await loadAuditLogs();
   };
 
   const updatePortBorderFreight: FreightContextType['updatePortBorderFreight'] = async (id, freight) => {
     await opsExt.updatePortBorderFreight(id, freight, portBorderFreights, user);
     await loadPortBorderFreights();
+    await loadAuditLogs();
   };
 
   const deletePortBorderFreight: FreightContextType['deletePortBorderFreight'] = async (id) => {
     await opsExt.deletePortBorderFreight(id, portBorderFreights, user);
     await loadPortBorderFreights();
+    await loadAuditLogs();
   };
 
   const getPortBorderRate: FreightContextType['getPortBorderRate'] = (agent, pod, date) => {
@@ -400,16 +418,19 @@ export const FreightProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const addBorderDestinationFreight: FreightContextType['addBorderDestinationFreight'] = async (freight) => {
     await opsExt.addBorderDestinationFreight(freight, user);
     await loadBorderDestinationFreights();
+    await loadAuditLogs();
   };
 
   const updateBorderDestinationFreight: FreightContextType['updateBorderDestinationFreight'] = async (id, freight) => {
     await opsExt.updateBorderDestinationFreight(id, freight, borderDestinationFreights, user);
     await loadBorderDestinationFreights();
+    await loadAuditLogs();
   };
 
   const deleteBorderDestinationFreight: FreightContextType['deleteBorderDestinationFreight'] = async (id) => {
     await opsExt.deleteBorderDestinationFreight(id, borderDestinationFreights, user);
     await loadBorderDestinationFreights();
+    await loadAuditLogs();
   };
 
   const getBorderDestinationRate: FreightContextType['getBorderDestinationRate'] = (agent, destinationId, date) => {
@@ -420,16 +441,19 @@ export const FreightProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const addWeightSurchargeRule: FreightContextType['addWeightSurchargeRule'] = async (rule) => {
     await opsExt.addWeightSurchargeRule(rule, user);
     await loadWeightSurchargeRules();
+    await loadAuditLogs();
   };
 
   const updateWeightSurchargeRule: FreightContextType['updateWeightSurchargeRule'] = async (id, rule) => {
     await opsExt.updateWeightSurchargeRule(id, rule, weightSurchargeRules, user);
     await loadWeightSurchargeRules();
+    await loadAuditLogs();
   };
 
   const deleteWeightSurchargeRule: FreightContextType['deleteWeightSurchargeRule'] = async (id) => {
     await opsExt.deleteWeightSurchargeRule(id, weightSurchargeRules, user);
     await loadWeightSurchargeRules();
+    await loadAuditLogs();
   };
 
   const getWeightSurcharge: FreightContextType['getWeightSurcharge'] = (agent, weight, date) => {

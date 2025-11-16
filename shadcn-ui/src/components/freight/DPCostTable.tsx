@@ -28,7 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Trash2, Plus, DollarSign, AlertTriangle, RefreshCw } from 'lucide-react';
+import { Trash2, Plus, DollarSign, AlertTriangle, RefreshCw, Package } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import AuditLogTable from './AuditLogTable';
 import { ValidityPeriodInput } from '@/components/ui/validity-period-input';

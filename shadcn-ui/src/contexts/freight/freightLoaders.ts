@@ -218,6 +218,7 @@ export const loadAgentSeaFreights = async (): Promise<AgentSeaFreight[]> => {
         pol: d.pol,
         pod: d.pod,
         rate: d.rate,
+        llocal: d.llocal,
         carrier: d.carrier,
         note: d.note,
         version: d.version,

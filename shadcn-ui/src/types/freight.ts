@@ -109,10 +109,8 @@ export interface CombinedFreight {
 export interface PortBorderFreight {
   id: string;
   agent: string;
-  qingdao: number;
-  tianjin: number;
-  lianyungang: number;
-  dandong: number;
+  pod: string;
+  rate: number;
   validFrom: string;
   validTo: string;
 }
@@ -146,45 +144,48 @@ export interface OtherCost {
 export interface CostCalculationInput {
   pol: string;
   pod: string;
-  destination: string;
-  railAgent?: string;
-  truckAgent?: string;
+  destinationId: string;
   weight: number;
-  calculationDate: string;
-  otherCosts?: OtherCost[]; // Additional other costs
+  includeDP: boolean;
+  domesticTransport: number;
+  otherCosts: { name: string; amount: number }[];
+  selectedSeaFreightId?: string;
+  historicalDate?: string;
 }
 
+// This is the actual breakdown structure used in freightCalculations.ts
 export interface AgentCostBreakdown {
-  agentName: string;
-  agentType: 'rail' | 'truck';
-  seaFreight?: number;
-  agentSeaFreight?: number;
-  dthc?: number;
-  dpCost?: number;
-  combinedFreight?: number;
-  portBorderFreight?: number;
-  borderDestinationFreight?: number;
-  weightSurcharge?: number;
-  localCharge?: number;
-  llocal?: number; // L.LOCAL deduction (negative value)
-  otherCosts?: OtherCost[];
-  totalCost: number;
-  carrier?: string;
-  details?: string;
+  agent: string;
+  railAgent: string;
+  truckAgent: string;
+  seaFreight: number;
+  localCharge: number;
+  llocal: number; // L.LOCAL deduction
+  seaFreightId?: string;
+  seaFreightCarrier?: string;
+  isAgentSpecificSeaFreight: boolean;
+  dthc: number;
+  portBorder: number;
+  borderDestination: number;
+  combinedFreight: number;
+  isCombinedFreight: boolean;
+  weightSurcharge: number;
+  dp: number;
+  domesticTransport: number;
+  otherCosts: { name: string; amount: number }[];
+  total: number;
+  hasExpiredRates: boolean;
+  expiredRateDetails?: string[];
 }
 
+// This is the actual result structure returned by calculateCost
 export interface CostCalculationResult {
-  pol: string;
-  pod: string;
-  destination: string;
-  weight: number;
-  calculationDate: string;
-  agentBreakdowns: AgentCostBreakdown[];
-  lowestCost?: {
-    agentName: string;
-    agentType: 'rail' | 'truck';
-    totalCost: number;
-  };
+  input: CostCalculationInput;
+  breakdown: AgentCostBreakdown[];
+  lowestCostAgent: string;
+  lowestCost: number;
+  isHistorical: boolean;
+  historicalDate?: string;
 }
 
 export interface CalculationHistory {
@@ -239,12 +240,14 @@ export interface FreightAuditLog {
 
 export interface HistoricalFreightSnapshot {
   id: string;
-  entityType: string;
-  entityId: string;
-  snapshotData: Record<string, unknown>;
-  validFrom: string;
-  validTo: string;
-  createdAt: string;
+  seaFreights?: SeaFreight[];
+  agentSeaFreights?: AgentSeaFreight[];
+  dthcList?: DTHC[];
+  dpCosts?: DPCost[];
+  combinedFreights?: CombinedFreight[];
+  portBorderFreights?: PortBorderFreight[];
+  borderDestinationFreights?: BorderDestinationFreight[];
+  weightSurchargeRules?: WeightSurchargeRule[];
 }
 
 export interface CalculationResult {
@@ -321,75 +324,115 @@ export interface FreightContextType {
   weightSurchargeRules: WeightSurchargeRule[];
   calculationHistory: CalculationHistory[];
   quotations: Quotation[];
-  
-  // Loading states
-  isLoading: boolean;
+  auditLogs: AuditLog[];
+  borderCities: BorderCity[];
+  systemSettings: SystemSetting[];
   
   // CRUD operations for each entity
   addShippingLine: (line: Omit<ShippingLine, 'id'>) => Promise<void>;
   updateShippingLine: (id: string, line: Partial<ShippingLine>) => Promise<void>;
   deleteShippingLine: (id: string) => Promise<void>;
+  getShippingLineById: (id: string) => ShippingLine | undefined;
   
   addPort: (port: Omit<Port, 'id'>) => Promise<void>;
   updatePort: (id: string, port: Partial<Port>) => Promise<void>;
   deletePort: (id: string) => Promise<void>;
+  getPortById: (id: string) => Port | undefined;
   
   addRailAgent: (agent: Omit<RailAgent, 'id'>) => Promise<void>;
   updateRailAgent: (id: string, agent: Partial<RailAgent>) => Promise<void>;
   deleteRailAgent: (id: string) => Promise<void>;
+  getRailAgentById: (id: string) => RailAgent | undefined;
   
   addTruckAgent: (agent: Omit<TruckAgent, 'id'>) => Promise<void>;
   updateTruckAgent: (id: string, agent: Partial<TruckAgent>) => Promise<void>;
   deleteTruckAgent: (id: string) => Promise<void>;
+  getTruckAgentById: (id: string) => TruckAgent | undefined;
   
   addDestination: (destination: Omit<Destination, 'id'>) => Promise<void>;
   updateDestination: (id: string, destination: Partial<Destination>) => Promise<void>;
   deleteDestination: (id: string) => Promise<void>;
+  getDestinationById: (id: string) => Destination | undefined;
   
   addSeaFreight: (freight: Omit<SeaFreight, 'id'>) => Promise<void>;
   updateSeaFreight: (id: string, freight: Partial<SeaFreight>) => Promise<void>;
   deleteSeaFreight: (id: string) => Promise<void>;
+  getSeaFreightOptions: (pol: string, pod: string, date?: string) => SeaFreight[];
+  getSeaFreightVersion: (carrier: string, pol: string, pod: string, excludeId?: string) => number;
   
   addAgentSeaFreight: (freight: Omit<AgentSeaFreight, 'id'>) => Promise<void>;
   updateAgentSeaFreight: (id: string, freight: Partial<AgentSeaFreight>) => Promise<void>;
   deleteAgentSeaFreight: (id: string) => Promise<void>;
+  getAgentSeaFreight: (agent: string, pol: string, pod: string, date?: string) => AgentSeaFreight | undefined;
+  getAgentSeaFreightVersion: (agent: string, pol: string, pod: string, excludeId?: string) => number;
   
   addDTHC: (dthc: Omit<DTHC, 'id'>) => Promise<void>;
   updateDTHC: (id: string, dthc: Partial<DTHC>) => Promise<void>;
   deleteDTHC: (id: string) => Promise<void>;
+  getDTHCByAgentAndRoute: (agent: string, pol: string, pod: string, date?: string) => DTHC | undefined;
   
   addDPCost: (cost: Omit<DPCost, 'id'>) => Promise<void>;
   updateDPCost: (id: string, cost: Partial<DPCost>) => Promise<void>;
   deleteDPCost: (id: string) => Promise<void>;
+  getDPCost: (port: string, date?: string) => number;
   
   addCombinedFreight: (freight: Omit<CombinedFreight, 'id'>) => Promise<void>;
   updateCombinedFreight: (id: string, freight: Partial<CombinedFreight>) => Promise<void>;
   deleteCombinedFreight: (id: string) => Promise<void>;
+  getCombinedFreight: (agent: string, pod: string, destinationId: string, date?: string) => CombinedFreight | undefined;
   
   addPortBorderFreight: (freight: Omit<PortBorderFreight, 'id'>) => Promise<void>;
   updatePortBorderFreight: (id: string, freight: Partial<PortBorderFreight>) => Promise<void>;
   deletePortBorderFreight: (id: string) => Promise<void>;
+  getPortBorderRate: (agent: string, pod: string, date?: string) => number;
   
   addBorderDestinationFreight: (freight: Omit<BorderDestinationFreight, 'id'>) => Promise<void>;
   updateBorderDestinationFreight: (id: string, freight: Partial<BorderDestinationFreight>) => Promise<void>;
   deleteBorderDestinationFreight: (id: string) => Promise<void>;
+  getBorderDestinationRate: (agent: string, destinationId: string, date?: string) => number;
   
   addWeightSurchargeRule: (rule: Omit<WeightSurchargeRule, 'id'>) => Promise<void>;
   updateWeightSurchargeRule: (id: string, rule: Partial<WeightSurchargeRule>) => Promise<void>;
   deleteWeightSurchargeRule: (id: string) => Promise<void>;
+  getWeightSurcharge: (agent: string, weight: number, date?: string) => number;
   
   // Calculation operations
-  calculateFreight: (input: CostCalculationInput) => Promise<CostCalculationResult>;
-  saveCalculationHistory: (calculation: Omit<CalculationHistory, 'id' | 'createdAt'>) => Promise<void>;
+  calculateCost: (input: CostCalculationInput) => CostCalculationResult | null;
+  addCalculationHistory: (history: Omit<CalculationHistory, 'id' | 'createdAt'>) => Promise<void>;
   deleteCalculationHistory: (id: string) => Promise<void>;
-  deleteCalculationHistoryBatch: (ids: string[]) => Promise<void>;
+  getCalculationHistoryById: (id: string) => CalculationHistory | undefined;
   
   // Quotation operations
-  createQuotation: (quotation: Omit<Quotation, 'id' | 'createdAt'>) => Promise<void>;
-  updateQuotation: (id: string, quotation: Partial<Quotation>) => Promise<void>;
+  addQuotation: (quotation: Omit<Quotation, 'id' | 'createdAt'>) => Promise<void>;
   deleteQuotation: (id: string) => Promise<void>;
+  getQuotationById: (id: string) => Quotation | undefined;
+  
+  // Audit log operations
+  getAuditLogsForEntity: (entityType: string, entityId: string) => AuditLog[];
+  getAuditLogsByType: (entityType: string) => AuditLog[];
+  deleteAuditLog: (id: string) => Promise<void>;
+  clearAuditLogs: (entityType?: string) => Promise<void>;
+  
+  // Border city operations
+  addBorderCity: (city: Omit<BorderCity, 'id'>) => Promise<void>;
+  updateBorderCity: (id: string, city: Partial<BorderCity>) => Promise<void>;
+  deleteBorderCity: (id: string) => Promise<void>;
+  getBorderCityById: (id: string) => BorderCity | undefined;
+  getDefaultBorderCity: () => BorderCity | undefined;
+  
+  // System setting operations
+  addSystemSetting: (setting: Omit<SystemSetting, 'id'>) => Promise<void>;
+  updateSystemSetting: (id: string, setting: Partial<SystemSetting>) => Promise<void>;
+  deleteSystemSetting: (id: string) => Promise<void>;
+  getSystemSettingByKey: (key: string) => SystemSetting | undefined;
+  getSystemSettingValue: (key: string, defaultValue?: string) => string;
+  
+  // Time machine operations
+  getHistoricalSnapshot: (targetDate: string) => HistoricalFreightSnapshot | null;
+  getAvailableHistoricalDates: () => string[];
+  getHistoricalFreightOptions: (date: string, pol: string, pod: string) => SeaFreight[];
   
   // Utility functions
-  refreshData: () => Promise<void>;
-  isRateValid: (validFrom: string, validTo: string, checkDate: string) => boolean;
+  isValidOnDate: (validFrom: string, validTo: string, checkDate: string) => boolean;
+  getTotalOtherCosts: () => number;
 }

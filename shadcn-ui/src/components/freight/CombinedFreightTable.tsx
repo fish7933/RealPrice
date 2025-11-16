@@ -28,7 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Trash2, Plus, AlertTriangle, RefreshCw, Search, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Trash2, Plus, AlertTriangle, RefreshCw, Search, X, ChevronLeft, ChevronRight, Merge } from 'lucide-react';
 import { CombinedFreight } from '@/types/freight';
 import AuditLogTable from './AuditLogTable';
 import { ValidityPeriodInput } from '@/components/ui/validity-period-input';
@@ -318,144 +318,149 @@ export default function CombinedFreightTable() {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <div>
-          <h3 className="text-lg font-semibold">육상운송 통합운임 ({combinedFreights.length})</h3>
-          <p className="text-sm text-muted-foreground">
+          <h2 className="text-2xl font-bold flex items-center gap-2">
+            <Merge className="h-6 w-6" />
+            철도+트럭 통합운임 관리
+          </h2>
+          <p className="text-gray-600 mt-1">
             중국항 → 최종목적지 통합 운임 (철도+트럭 일괄)
           </p>
         </div>
-        <Dialog open={isAddDialogOpen} onOpenChange={(open) => {
-          setIsAddDialogOpen(open);
-          if (!open) setValidationError(null);
-        }}>
-          <DialogTrigger asChild>
-            <Button size="sm" onClick={() => resetForm()}>
-              <Plus className="mr-2 h-4 w-4" />
-              추가
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>육상운송 통합운임 추가</DialogTitle>
-              <DialogDescription>
-                새로운 통합 운임을 추가합니다. 중국항에서 최종목적지까지의 일괄 운임입니다.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              {validationError && (
-                <Alert variant="destructive">
-                  <AlertTriangle className="h-4 w-4" />
-                  <AlertDescription>
-                    <div className="font-semibold">유효기간 중복 오류</div>
-                    <div className="text-sm mt-1">{validationError}</div>
-                  </AlertDescription>
-                </Alert>
-              )}
-              <div className="grid gap-2">
-                <Label htmlFor="agent">대리점 *</Label>
-                <Select value={formData.agent} onValueChange={(value) => {
-                  setFormData({ ...formData, agent: value });
-                  setValidationError(null);
-                }}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="대리점 선택" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {railAgents.map((agent) => (
-                      <SelectItem key={agent.id} value={agent.name}>
-                        {agent.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="pod">중국항 (POD) *</Label>
-                {podPorts.length > 0 ? (
-                  <Select value={formData.pod} onValueChange={(value) => {
-                    setFormData({ ...formData, pod: value });
+        {isAdmin && (
+          <Dialog open={isAddDialogOpen} onOpenChange={(open) => {
+            setIsAddDialogOpen(open);
+            if (!open) setValidationError(null);
+          }}>
+            <DialogTrigger asChild>
+              <Button onClick={() => resetForm()}>
+                <Plus className="mr-2 h-4 w-4" />
+                추가
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>육상운송 통합운임 추가</DialogTitle>
+                <DialogDescription>
+                  새로운 통합 운임을 추가합니다. 중국항에서 최종목적지까지의 일괄 운임입니다.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                {validationError && (
+                  <Alert variant="destructive">
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertDescription>
+                      <div className="font-semibold">유효기간 중복 오류</div>
+                      <div className="text-sm mt-1">{validationError}</div>
+                    </AlertDescription>
+                  </Alert>
+                )}
+                <div className="grid gap-2">
+                  <Label htmlFor="agent">대리점 *</Label>
+                  <Select value={formData.agent} onValueChange={(value) => {
+                    setFormData({ ...formData, agent: value });
                     setValidationError(null);
                   }}>
                     <SelectTrigger>
-                      <SelectValue placeholder="중국항 선택" />
+                      <SelectValue placeholder="대리점 선택" />
                     </SelectTrigger>
                     <SelectContent>
-                      {podPorts.map((port) => (
-                        <SelectItem key={port.id} value={port.name}>
-                          {port.name}
+                      {railAgents.map((agent) => (
+                        <SelectItem key={agent.id} value={agent.name}>
+                          {agent.name}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-                ) : (
-                  <div className="text-sm text-gray-500 p-3 bg-gray-50 rounded border">
-                    도착항(POD)을 먼저 등록해주세요. (운송사 탭 → 포트 관리)
-                  </div>
-                )}
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="pod">중국항 (POD) *</Label>
+                  {podPorts.length > 0 ? (
+                    <Select value={formData.pod} onValueChange={(value) => {
+                      setFormData({ ...formData, pod: value });
+                      setValidationError(null);
+                    }}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="중국항 선택" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {podPorts.map((port) => (
+                          <SelectItem key={port.id} value={port.name}>
+                            {port.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <div className="text-sm text-gray-500 p-3 bg-gray-50 rounded border">
+                      도착항(POD)을 먼저 등록해주세요. (운송사 탭 → 포트 관리)
+                    </div>
+                  )}
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="destination">최종목적지 *</Label>
+                  <Select
+                    value={formData.destinationId}
+                    onValueChange={(value) => {
+                      setFormData({ ...formData, destinationId: value });
+                      setValidationError(null);
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="목적지 선택" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {destinations.map((dest) => (
+                        <SelectItem key={dest.id} value={dest.id}>
+                          {dest.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="rate">통합 운임 (USD) *</Label>
+                  <Input
+                    id="rate"
+                    type="number"
+                    step="0.01"
+                    placeholder="예: 4550"
+                    value={formData.rate}
+                    onChange={(e) => setFormData({ ...formData, rate: e.target.value })}
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label>유효기간 *</Label>
+                  <ValidityPeriodInput
+                    validFrom={formData.validFrom}
+                    validTo={formData.validTo}
+                    onChange={(validFrom, validTo) => {
+                      setFormData({ ...formData, validFrom, validTo });
+                      setValidationError(null);
+                    }}
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="description">설명</Label>
+                  <Input
+                    id="description"
+                    placeholder="예: 청도→OSH 통합 운임"
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  />
+                </div>
               </div>
-              <div className="grid gap-2">
-                <Label htmlFor="destination">최종목적지 *</Label>
-                <Select
-                  value={formData.destinationId}
-                  onValueChange={(value) => {
-                    setFormData({ ...formData, destinationId: value });
-                    setValidationError(null);
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="목적지 선택" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {destinations.map((dest) => (
-                      <SelectItem key={dest.id} value={dest.id}>
-                        {dest.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="rate">통합 운임 (USD) *</Label>
-                <Input
-                  id="rate"
-                  type="number"
-                  step="0.01"
-                  placeholder="예: 4550"
-                  value={formData.rate}
-                  onChange={(e) => setFormData({ ...formData, rate: e.target.value })}
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label>유효기간 *</Label>
-                <ValidityPeriodInput
-                  validFrom={formData.validFrom}
-                  validTo={formData.validTo}
-                  onChange={(validFrom, validTo) => {
-                    setFormData({ ...formData, validFrom, validTo });
-                    setValidationError(null);
-                  }}
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="description">설명</Label>
-                <Input
-                  id="description"
-                  placeholder="예: 청도→OSH 통합 운임"
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => {
-                setIsAddDialogOpen(false);
-                setValidationError(null);
-              }}>
-                취소
-              </Button>
-              <Button onClick={handleAdd}>추가</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => {
+                  setIsAddDialogOpen(false);
+                  setValidationError(null);
+                }}>
+                  취소
+                </Button>
+                <Button onClick={handleAdd}>추가</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
 
       {(expiredRates.length > 0 || expiringRates.length > 0) && (

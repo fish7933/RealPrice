@@ -1,7 +1,7 @@
 import Layout from '@/components/layout/Layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Ship, Train, Truck, Navigation, Star, FileText, Weight, Package, Merge, Anchor, Users } from 'lucide-react';
+import { Ship, Train, Truck, Navigation, Star, FileText, Weight, Package, Merge, Anchor, Users, Database } from 'lucide-react';
 import RailAgentTable from '@/components/agents/RailAgentTable';
 import TruckAgentTable from '@/components/agents/TruckAgentTable';
 import ShippingLineTable from '@/components/agents/ShippingLineTable';
@@ -28,7 +28,7 @@ export default function AdminDashboard() {
         {/* Management Tabs */}
         <Card>
           <CardHeader>
-            <CardTitle>데이터 관리</CardTitle>
+            <CardTitle className="flex items-center gap-2"><Database className="h-5 w-5" />데이터 관리</CardTitle>
             <CardDescription>각 항목별 데이터를 관리합니다</CardDescription>
           </CardHeader>
           <CardContent>

@@ -562,51 +562,52 @@ export default function DTHCTable() {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label className="flex items-center gap-2">
-                  <Ship className="h-4 w-4" />
-                  선사 *
-                </Label>
-                {shippingLines.length > 0 ? (
-                  <Select 
-                    value={versionChangeData.carrier} 
-                    onValueChange={(value) => {
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2">
+                    <Ship className="h-4 w-4" />
+                    선사 *
+                  </Label>
+                  {shippingLines.length > 0 ? (
+                    <Select 
+                      value={versionChangeData.carrier} 
+                      onValueChange={(value) => {
+                        setVersionChangeData({
+                          ...versionChangeData,
+                          carrier: value
+                        });
+                        setValidationError(null);
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="선사 선택" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {shippingLines.map((line) => (
+                          <SelectItem key={line.id} value={line.name}>
+                            {line.name} ({line.code})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <Input value={versionChangeData.carrier} disabled className="bg-gray-50" />
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label>D/O(DTHC) 금액 (USD) *</Label>
+                  <Input
+                    type="number"
+                    value={versionChangeData.amount}
+                    onChange={(e) => {
                       setVersionChangeData({
                         ...versionChangeData,
-                        carrier: value
+                        amount: Number(e.target.value)
                       });
                       setValidationError(null);
                     }}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="선사 선택" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {shippingLines.map((line) => (
-                        <SelectItem key={line.id} value={line.name}>
-                          {line.name} ({line.code})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                ) : (
-                  <Input value={versionChangeData.carrier} disabled className="bg-gray-50" />
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label>D/O(DTHC) 금액 (USD) *</Label>
-                <Input
-                  type="number"
-                  value={versionChangeData.amount}
-                  onChange={(e) => {
-                    setVersionChangeData({
-                      ...versionChangeData,
-                      amount: Number(e.target.value)
-                    });
-                    setValidationError(null);
-                  }}
-                />
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">

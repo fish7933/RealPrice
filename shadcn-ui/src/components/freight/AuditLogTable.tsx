@@ -160,7 +160,7 @@ export default function AuditLogTable({ logs, title = '운임 변경 기록', de
       case 'agentSeaFreight':
         return `[${snapshot.agent || ''}] ${snapshot.pol || ''} → ${snapshot.pod || ''} ${snapshot.carrier ? `(${snapshot.carrier})` : ''}`;
       case 'dthc':
-        return `[${snapshot.agent || ''}] ${snapshot.pol || ''} → ${snapshot.pod || ''}`;
+        return `[${snapshot.agent || ''}] ${snapshot.pol || ''} → ${snapshot.pod || ''} ${snapshot.carrier ? `(${snapshot.carrier})` : ''}`;
       case 'dpCost':
         return `${snapshot.port || ''}항`;
       case 'combinedFreight':

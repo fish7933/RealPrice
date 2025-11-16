@@ -23,6 +23,16 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -33,7 +43,7 @@ import { Trash2, Plus, FileText, AlertTriangle, RefreshCw, Ship } from 'lucide-r
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import AuditLogTable from './AuditLogTable';
 import { ValidityPeriodInput } from '@/components/ui/validity-period-input';
-import { getValidityStatus, formatValidityDate, validateNoOverlap } from '@/utils/validityHelper';
+import { getValidityStatus, formatValidityDate, validateValidityPeriod } from '@/utils/validityHelper';
 import { Badge } from '@/components/ui/badge';
 
 interface VersionChangeData {
@@ -54,6 +64,9 @@ export default function DTHCTable() {
   const { railAgents, shippingLines, dthcList, addDTHC, updateDTHC, deleteDTHC, getAuditLogsByType, ports } = useFreight();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isVersionChangeDialogOpen, setIsVersionChangeDialogOpen] = useState(false);
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+  const [confirmDialogType, setConfirmDialogType] = useState<'add' | 'version'>('add');
+  const [duplicateInfo, setDuplicateInfo] = useState<string>('');
   const [versionChangeData, setVersionChangeData] = useState<VersionChangeData | null>(null);
   const [originalDthcId, setOriginalDthcId] = useState<string | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
@@ -85,25 +98,54 @@ export default function DTHCTable() {
       return acc;
     }, {} as Record<string, DTHC[]>);
 
+  // Check for duplicate entries
+  const checkDuplicate = (agent: string, pol: string, pod: string, carrier: string, currentId: string = ''): DTHC | null => {
+    return dthcList.find(item => 
+      item.id !== currentId &&
+      item.agent === agent && 
+      item.pol === pol && 
+      item.pod === pod && 
+      item.carrier === carrier
+    ) || null;
+  };
+
   const handleAdd = () => {
     if (!formData.agent || !formData.pol || !formData.pod || !formData.carrier || !formData.amount || !formData.validFrom || !formData.validTo) {
       setValidationError('❌ 모든 필수 항목을 입력해주세요.');
       return;
     }
 
-    const error = validateNoOverlap(
-      formData.validFrom,
-      formData.validTo,
-      '',
-      dthcList,
-      (item) => item.agent === formData.agent && item.pol === formData.pol && item.pod === formData.pod && item.carrier === formData.carrier
-    );
-
-    if (error) {
-      setValidationError(error);
+    // Basic validity period validation
+    const basicError = validateValidityPeriod(formData.validFrom, formData.validTo);
+    if (basicError) {
+      setValidationError(basicError);
       return;
     }
 
+    // Check for duplicate
+    const duplicate = checkDuplicate(formData.agent, formData.pol, formData.pod, formData.carrier);
+    
+    if (duplicate) {
+      // Show confirmation dialog
+      setDuplicateInfo(
+        `⚠️ 동일한 정보의 D/O(DTHC)가 이미 존재합니다:\n\n` +
+        `• 철도 대리점: ${duplicate.agent}\n` +
+        `• 경로: ${duplicate.pol} → ${duplicate.pod}\n` +
+        `• 선사: ${duplicate.carrier}\n` +
+        `• 금액: $${duplicate.amount}\n` +
+        `• 유효기간: ${formatValidityDate(duplicate.validFrom)} ~ ${formatValidityDate(duplicate.validTo)}\n\n` +
+        `같은 정보로 새로운 D/O(DTHC)를 추가하시겠습니까?`
+      );
+      setConfirmDialogType('add');
+      setIsConfirmDialogOpen(true);
+      return;
+    }
+
+    // No duplicate, proceed with adding
+    proceedWithAdd();
+  };
+
+  const proceedWithAdd = () => {
     addDTHC({
       agent: formData.agent,
       pol: formData.pol,
@@ -118,6 +160,7 @@ export default function DTHCTable() {
     setFormData({ agent: '', pol: '', pod: '', carrier: '', amount: '', description: '', validFrom: '', validTo: '' });
     setValidationError(null);
     setIsAddDialogOpen(false);
+    setIsConfirmDialogOpen(false);
   };
 
   const handleVersionChangeClick = (dthc: DTHC) => {
@@ -182,6 +225,45 @@ export default function DTHCTable() {
       return;
     }
 
+    // Basic validity period validation
+    const basicError = validateValidityPeriod(versionChangeData.validFrom, versionChangeData.validTo);
+    if (basicError) {
+      setValidationError(basicError);
+      return;
+    }
+
+    // Check for duplicate (excluding current item)
+    const duplicate = checkDuplicate(
+      versionChangeData.agent, 
+      versionChangeData.pol, 
+      versionChangeData.pod, 
+      versionChangeData.carrier,
+      originalDthcId
+    );
+    
+    if (duplicate) {
+      // Show confirmation dialog
+      setDuplicateInfo(
+        `⚠️ 동일한 정보의 D/O(DTHC)가 이미 존재합니다:\n\n` +
+        `• 철도 대리점: ${duplicate.agent}\n` +
+        `• 경로: ${duplicate.pol} → ${duplicate.pod}\n` +
+        `• 선사: ${duplicate.carrier}\n` +
+        `• 금액: $${duplicate.amount}\n` +
+        `• 유효기간: ${formatValidityDate(duplicate.validFrom)} ~ ${formatValidityDate(duplicate.validTo)}\n\n` +
+        `같은 정보로 버전을 변경하시겠습니까?`
+      );
+      setConfirmDialogType('version');
+      setIsConfirmDialogOpen(true);
+      return;
+    }
+
+    // No duplicate, proceed with version change
+    proceedWithVersionChange();
+  };
+
+  const proceedWithVersionChange = () => {
+    if (!versionChangeData || !originalDthcId) return;
+
     updateDTHC(originalDthcId, {
       carrier: versionChangeData.carrier,
       amount: versionChangeData.amount,
@@ -194,6 +276,7 @@ export default function DTHCTable() {
     setVersionChangeData(null);
     setOriginalDthcId(null);
     setValidationError(null);
+    setIsConfirmDialogOpen(false);
   };
 
   const handleVersionChangeCancel = () => {
@@ -201,6 +284,19 @@ export default function DTHCTable() {
     setVersionChangeData(null);
     setOriginalDthcId(null);
     setValidationError(null);
+  };
+
+  const handleConfirmProceed = () => {
+    if (confirmDialogType === 'add') {
+      proceedWithAdd();
+    } else {
+      proceedWithVersionChange();
+    }
+  };
+
+  const handleConfirmCancel = () => {
+    setIsConfirmDialogOpen(false);
+    setDuplicateInfo('');
   };
 
   const handleDelete = (id: string) => {
@@ -370,7 +466,7 @@ export default function DTHCTable() {
                 <Alert variant="destructive">
                   <AlertTriangle className="h-4 w-4" />
                   <AlertDescription>
-                    <div className="font-semibold">유효기간 중복 오류</div>
+                    <div className="font-semibold">유효성 검증 오류</div>
                     <div className="text-sm mt-1">{validationError}</div>
                   </AlertDescription>
                 </Alert>
@@ -660,6 +756,32 @@ export default function DTHCTable() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Confirmation Dialog */}
+      <AlertDialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-orange-600" />
+              중복 정보 확인
+            </AlertDialogTitle>
+            <AlertDialogDescription className="whitespace-pre-line text-base">
+              {duplicateInfo}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={handleConfirmCancel}>
+              취소
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleConfirmProceed}
+              className="bg-orange-600 hover:bg-orange-700"
+            >
+              계속 진행
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

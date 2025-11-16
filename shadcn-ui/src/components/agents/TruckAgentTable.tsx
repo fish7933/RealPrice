@@ -73,7 +73,7 @@ export default function TruckAgentTable() {
   };
 
   const handleDelete = (id: string, name: string) => {
-    if (confirm(`"${name}" 트럭 운송사를 삭제하시겠습니까?\n\n관련된 모든 데이터(국경목적지운임, 중량할증)도 함께 삭제됩니다.`)) {
+    if (confirm(`"${name}" 트럭 대리점을 삭제하시겠습니까?\n\n관련된 모든 데이터(국경목적지운임, 중량할증)도 함께 삭제됩니다.`)) {
       deleteTruckAgent(id);
     }
   };
@@ -84,14 +84,14 @@ export default function TruckAgentTable() {
         <div>
           <h2 className="text-2xl font-bold flex items-center gap-2">
             <Truck className="h-6 w-6" />
-            트럭 운송사 관리
+            트럭 대리점 관리
           </h2>
-          <p className="text-gray-600 mt-1">트럭 운송을 담당하는 업체를 관리합니다</p>
+          <p className="text-gray-600 mt-1">트럭 운송을 담당하는 대리점을 관리합니다</p>
         </div>
         {isAdmin && (
           <Button onClick={() => setIsAddDialogOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
-            운송사 추가
+            대리점 추가
           </Button>
         )}
       </div>
@@ -99,10 +99,10 @@ export default function TruckAgentTable() {
       <Alert>
         <Truck className="h-4 w-4" />
         <AlertDescription>
-          <strong>트럭 운송사:</strong> KASHGAR 국경에서 최종 목적지까지 트럭 운송을 담당하는 업체입니다.
+          <strong>트럭 대리점:</strong> KASHGAR 국경에서 최종 목적지까지 트럭 운송을 담당하는 대리점입니다.
           <br />
           <span className="text-sm text-gray-600 mt-1 block">
-            운송사를 삭제하면 해당 운송사와 관련된 모든 운임 데이터(국경목적지운임, 중량할증)가 함께 삭제됩니다.
+            대리점을 삭제하면 해당 대리점과 관련된 모든 운임 데이터(국경목적지운임, 중량할증)가 함께 삭제됩니다.
           </span>
         </AlertDescription>
       </Alert>
@@ -111,7 +111,7 @@ export default function TruckAgentTable() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>운송사명</TableHead>
+              <TableHead>대리점명</TableHead>
               <TableHead>설명</TableHead>
               <TableHead>등록일</TableHead>
               {isAdmin && <TableHead className="text-right">작업</TableHead>}
@@ -154,7 +154,7 @@ export default function TruckAgentTable() {
             ) : (
               <TableRow>
                 <TableCell colSpan={isAdmin ? 4 : 3} className="text-center text-gray-500">
-                  등록된 트럭 운송사가 없습니다
+                  등록된 트럭 대리점이 없습니다
                 </TableCell>
               </TableRow>
             )}
@@ -166,12 +166,12 @@ export default function TruckAgentTable() {
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>트럭 운송사 추가</DialogTitle>
-            <DialogDescription>새로운 트럭 운송사 정보를 입력하세요.</DialogDescription>
+            <DialogTitle>트럭 대리점 추가</DialogTitle>
+            <DialogDescription>새로운 트럭 대리점 정보를 입력하세요.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label>운송사명 *</Label>
+              <Label>대리점명 *</Label>
               <Input
                 placeholder="예: COWIN"
                 value={formData.name}
@@ -181,7 +181,7 @@ export default function TruckAgentTable() {
             <div className="space-y-2">
               <Label>설명</Label>
               <Textarea
-                placeholder="운송사에 대한 설명을 입력하세요"
+                placeholder="대리점에 대한 설명을 입력하세요"
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               />
@@ -202,12 +202,12 @@ export default function TruckAgentTable() {
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>트럭 운송사 수정</DialogTitle>
-            <DialogDescription>운송사 정보를 수정하세요.</DialogDescription>
+            <DialogTitle>트럭 대리점 수정</DialogTitle>
+            <DialogDescription>대리점 정보를 수정하세요.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label>운송사명 *</Label>
+              <Label>대리점명 *</Label>
               <Input
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}

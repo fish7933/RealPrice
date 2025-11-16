@@ -73,7 +73,7 @@ export default function RailAgentTable() {
   };
 
   const handleDelete = (id: string, name: string) => {
-    if (confirm(`"${name}" 철도 운송사를 삭제하시겠습니까?\n\n관련된 모든 데이터(대리점별 해상운임, 포트국경운임)도 함께 삭제됩니다.`)) {
+    if (confirm(`"${name}" 철도 대리점을 삭제하시겠습니까?\n\n관련된 모든 데이터(대리점별 해상운임, 포트국경운임)도 함께 삭제됩니다.`)) {
       deleteRailAgent(id);
     }
   };
@@ -84,14 +84,14 @@ export default function RailAgentTable() {
         <div>
           <h2 className="text-2xl font-bold flex items-center gap-2">
             <Train className="h-6 w-6" />
-            철도 운송사 관리
+            철도 대리점 관리
           </h2>
           <p className="text-gray-600 mt-1">철도 운송을 담당하는 대리점을 관리합니다</p>
         </div>
         {isAdmin && (
           <Button onClick={() => setIsAddDialogOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
-            운송사 추가
+            대리점 추가
           </Button>
         )}
       </div>
@@ -99,10 +99,10 @@ export default function RailAgentTable() {
       <Alert>
         <Train className="h-4 w-4" />
         <AlertDescription>
-          <strong>철도 운송사:</strong> 중국 항구에서 KASHGAR 국경까지 철도 운송을 담당하는 대리점입니다.
+          <strong>철도 대리점:</strong> 중국 항구에서 KASHGAR 국경까지 철도 운송을 담당하는 대리점입니다.
           <br />
           <span className="text-sm text-gray-600 mt-1 block">
-            운송사를 삭제하면 해당 운송사와 관련된 모든 운임 데이터(대리점별 해상운임, 포트국경운임)가 함께 삭제됩니다.
+            대리점을 삭제하면 해당 대리점과 관련된 모든 운임 데이터(대리점별 해상운임, 포트국경운임)가 함께 삭제됩니다.
           </span>
         </AlertDescription>
       </Alert>
@@ -111,7 +111,7 @@ export default function RailAgentTable() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>운송사명</TableHead>
+              <TableHead>대리점명</TableHead>
               <TableHead>설명</TableHead>
               <TableHead>등록일</TableHead>
               {isAdmin && <TableHead className="text-right">작업</TableHead>}
@@ -154,7 +154,7 @@ export default function RailAgentTable() {
             ) : (
               <TableRow>
                 <TableCell colSpan={isAdmin ? 4 : 3} className="text-center text-gray-500">
-                  등록된 철도 운송사가 없습니다
+                  등록된 철도 대리점이 없습니다
                 </TableCell>
               </TableRow>
             )}
@@ -166,12 +166,12 @@ export default function RailAgentTable() {
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>철도 운송사 추가</DialogTitle>
-            <DialogDescription>새로운 철도 운송사 정보를 입력하세요.</DialogDescription>
+            <DialogTitle>철도 대리점 추가</DialogTitle>
+            <DialogDescription>새로운 철도 대리점 정보를 입력하세요.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label>운송사명 *</Label>
+              <Label>대리점명 *</Label>
               <Input
                 placeholder="예: 하버링크, WJ, LB"
                 value={formData.name}
@@ -181,7 +181,7 @@ export default function RailAgentTable() {
             <div className="space-y-2">
               <Label>설명</Label>
               <Textarea
-                placeholder="운송사에 대한 설명을 입력하세요"
+                placeholder="대리점에 대한 설명을 입력하세요"
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               />
@@ -202,12 +202,12 @@ export default function RailAgentTable() {
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>철도 운송사 수정</DialogTitle>
-            <DialogDescription>운송사 정보를 수정하세요.</DialogDescription>
+            <DialogTitle>철도 대리점 수정</DialogTitle>
+            <DialogDescription>대리점 정보를 수정하세요.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label>운송사명 *</Label>
+              <Label>대리점명 *</Label>
               <Input
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}

@@ -441,7 +441,7 @@ export default function DTHCTable() {
                 </div>
               )}
             </div>
-            <div className="col-span-2 space-y-2">
+            <div className="space-y-2">
               <Label className="flex items-center gap-2">
                 <Ship className="h-4 w-4" />
                 선사 *
@@ -468,7 +468,7 @@ export default function DTHCTable() {
                 </div>
               )}
             </div>
-            <div className="col-span-2 space-y-2">
+            <div className="space-y-2">
               <Label>D/O(DTHC) 금액 (USD) *</Label>
               <Input
                 type="number"

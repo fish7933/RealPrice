@@ -254,6 +254,11 @@ export default function UserManagement() {
   return (
     <Layout>
       <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold">사용자 관리</h1>
+          <p className="text-gray-600 mt-2">시스템 사용자 및 권한 관리</p>
+        </div>
+
         {user?.role === 'superadmin' && (
           <Alert className="bg-purple-50 border-purple-200">
             <Shield className="h-4 w-4 text-purple-600" />
@@ -279,7 +284,7 @@ export default function UserManagement() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle>사용자 관리</CardTitle>
+                <CardTitle>사용자 목록</CardTitle>
                 <CardDescription>
                   {user?.role === 'superadmin' 
                     ? '최고관리자는 모든 관리자와 사용자를 생성, 수정, 삭제할 수 있습니다.'

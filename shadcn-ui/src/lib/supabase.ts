@@ -135,6 +135,7 @@ export interface DTHC {
   agent: string;
   pol: string;
   pod: string;
+  carrier: string;
   amount: number;
   description?: string;
   version: number;

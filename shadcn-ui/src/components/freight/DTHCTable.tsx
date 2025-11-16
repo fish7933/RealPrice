@@ -177,12 +177,13 @@ export default function DTHCTable() {
   const handleVersionChangeSave = () => {
     if (!versionChangeData || !originalDthcId) return;
 
-    if (!versionChangeData.amount || !versionChangeData.validFrom || !versionChangeData.validTo) {
+    if (!versionChangeData.carrier || !versionChangeData.amount || !versionChangeData.validFrom || !versionChangeData.validTo) {
       setValidationError('❌ 모든 필수 항목을 입력해주세요.');
       return;
     }
 
     updateDTHC(originalDthcId, {
+      carrier: versionChangeData.carrier,
       amount: versionChangeData.amount,
       description: versionChangeData.description,
       validFrom: versionChangeData.validFrom,
@@ -564,9 +565,33 @@ export default function DTHCTable() {
               <div className="space-y-2">
                 <Label className="flex items-center gap-2">
                   <Ship className="h-4 w-4" />
-                  선사
+                  선사 *
                 </Label>
-                <Input value={versionChangeData.carrier} disabled className="bg-gray-50" />
+                {shippingLines.length > 0 ? (
+                  <Select 
+                    value={versionChangeData.carrier} 
+                    onValueChange={(value) => {
+                      setVersionChangeData({
+                        ...versionChangeData,
+                        carrier: value
+                      });
+                      setValidationError(null);
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="선사 선택" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {shippingLines.map((line) => (
+                        <SelectItem key={line.id} value={line.name}>
+                          {line.name} ({line.code})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <Input value={versionChangeData.carrier} disabled className="bg-gray-50" />
+                )}
               </div>
 
               <div className="space-y-2">

@@ -78,15 +78,15 @@ export default function AdminDashboard() {
               <TabsList className="grid w-full grid-cols-5 lg:grid-cols-12 mb-4">
                 <TabsTrigger value="agents" className="flex items-center gap-1">
                   <Train className="h-4 w-4" />
-                  <span className="hidden sm:inline">운송사</span>
+                  <span className="hidden sm:inline">선사 & 중국 파트너사</span>
                 </TabsTrigger>
                 <TabsTrigger value="ports" className="flex items-center gap-1">
                   <Anchor className="h-4 w-4" />
-                  <span className="hidden sm:inline">항구</span>
+                  <span className="hidden sm:inline">포트</span>
                 </TabsTrigger>
                 <TabsTrigger value="destinations" className="flex items-center gap-1">
                   <Navigation className="h-4 w-4" />
-                  <span className="hidden sm:inline">목적지</span>
+                  <span className="hidden sm:inline">최종목적지</span>
                 </TabsTrigger>
                 <TabsTrigger value="sea-freight" className="flex items-center gap-1">
                   <Ship className="h-4 w-4" />
@@ -102,7 +102,7 @@ export default function AdminDashboard() {
                 </TabsTrigger>
                 <TabsTrigger value="combined-freight" className="flex items-center gap-1">
                   <Merge className="h-4 w-4" />
-                  <span className="hidden sm:inline">육상운송 통합운임</span>
+                  <span className="hidden sm:inline">철도+트럭 통합운임</span>
                 </TabsTrigger>
                 <TabsTrigger value="port-border" className="flex items-center gap-1">
                   <Train className="h-4 w-4" />

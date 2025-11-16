@@ -584,6 +584,7 @@ export const addAgentSeaFreight = async (
         pol: freight.pol,
         pod: freight.pod,
         rate: freight.rate,
+        llocal: freight.llocal,
         carrier: freight.carrier,
         note: freight.note,
         version,
@@ -605,6 +606,7 @@ export const addAgentSeaFreight = async (
         pol: data.pol,
         pod: data.pod,
         rate: data.rate,
+        llocal: data.llocal,
         carrier: data.carrier,
         note: data.note,
         version: data.version,
@@ -640,12 +642,13 @@ export const updateAgentSeaFreight = async (
     if (!oldFreight) return;
 
     const rateChanged = freight.rate !== undefined && freight.rate !== oldFreight.rate;
+    const llocalChanged = freight.llocal !== undefined && freight.llocal !== oldFreight.llocal;
     const validFromChanged = freight.validFrom !== undefined && freight.validFrom !== oldFreight.validFrom;
     const validToChanged = freight.validTo !== undefined && freight.validTo !== oldFreight.validTo;
     const validityChanged = validFromChanged || validToChanged;
 
     let newVersion = oldFreight.version;
-    if (rateChanged || validityChanged) {
+    if (rateChanged || llocalChanged || validityChanged) {
       newVersion = (oldFreight.version || 1) + 1;
     }
 
@@ -656,6 +659,7 @@ export const updateAgentSeaFreight = async (
         pol: freight.pol,
         pod: freight.pod,
         rate: freight.rate,
+        llocal: freight.llocal,
         carrier: freight.carrier,
         note: freight.note,
         version: newVersion,
@@ -672,13 +676,14 @@ export const updateAgentSeaFreight = async (
       return;
     }
 
-    if (data && (rateChanged || validityChanged)) {
+    if (data && (rateChanged || llocalChanged || validityChanged)) {
       const updatedFreight: AgentSeaFreight = {
         id: data.id,
         agent: data.agent,
         pol: data.pol,
         pod: data.pod,
         rate: data.rate,
+        llocal: data.llocal,
         carrier: data.carrier,
         note: data.note,
         version: data.version,

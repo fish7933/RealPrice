@@ -1,7 +1,6 @@
 import Layout from '@/components/layout/Layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useFreight } from '@/contexts/FreightContext';
 import { Ship, Train, Truck, Navigation, Star, FileText, Weight, Package, Merge, Anchor } from 'lucide-react';
 import RailAgentTable from '@/components/agents/RailAgentTable';
 import TruckAgentTable from '@/components/agents/TruckAgentTable';
@@ -18,53 +17,12 @@ import WeightSurchargeTable from '@/components/freight/WeightSurchargeTable';
 import DPCostTable from '@/components/freight/DPCostTable';
 
 export default function AdminDashboard() {
-  const { 
-    railAgents, 
-    truckAgents, 
-    destinations,
-    seaFreights,
-    agentSeaFreights,
-    dthcList,
-    combinedFreights,
-    portBorderFreights,
-    borderDestinationFreights,
-    weightSurchargeRules,
-    dpCosts
-  } = useFreight();
-
-  const stats = [
-    { title: '철도 운송사', value: railAgents.length, icon: Train, color: 'text-blue-600', bgColor: 'bg-blue-50' },
-    { title: '트럭 운송사', value: truckAgents.length, icon: Truck, color: 'text-green-600', bgColor: 'bg-green-50' },
-    { title: '최종목적지', value: destinations.length, icon: Navigation, color: 'text-purple-600', bgColor: 'bg-purple-50' },
-    { title: '해상운임', value: seaFreights.length, icon: Ship, color: 'text-cyan-600', bgColor: 'bg-cyan-50' },
-  ];
-
   return (
     <Layout>
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold">관리자 대시보드</h1>
           <p className="text-gray-600 mt-2">운임 데이터 관리 및 설정</p>
-        </div>
-
-        {/* Statistics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {stats.map((stat) => {
-            const Icon = stat.icon;
-            return (
-              <Card key={stat.title}>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-                  <div className={`p-2 rounded-lg ${stat.bgColor}`}>
-                    <Icon className={`h-5 w-5 ${stat.color}`} />
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{stat.value}</div>
-                </CardContent>
-              </Card>
-            );
-          })}
         </div>
 
         {/* Management Tabs */}

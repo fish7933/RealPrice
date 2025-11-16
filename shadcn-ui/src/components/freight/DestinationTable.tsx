@@ -108,7 +108,7 @@ export default function DestinationTable() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>목적지 이름</TableHead>
+              <TableHead>최종목적지</TableHead>
               <TableHead>설명</TableHead>
               <TableHead>생성일</TableHead>
               {isAdmin && <TableHead className="text-right">작업</TableHead>}
@@ -168,7 +168,7 @@ export default function DestinationTable() {
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label>목적지 이름 *</Label>
+              <Label>최종목적지 *</Label>
               <Input
                 placeholder="예: TASHKENT, ALMATY"
                 value={formData.name}
@@ -206,7 +206,7 @@ export default function DestinationTable() {
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label>목적지 이름 *</Label>
+              <Label>최종목적지 *</Label>
               <Input
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}

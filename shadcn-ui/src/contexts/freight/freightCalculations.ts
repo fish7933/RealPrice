@@ -31,6 +31,10 @@ export const calculateCost = (
 ): CostCalculationResult | null => {
   const calculationDate = input.historicalDate || new Date().toISOString().split('T')[0];
 
+  console.log('🔍 ===== 원가 계산 시작 =====');
+  console.log('📍 경로:', input.pol, '→', input.pod, '→ 목적지:', input.destinationId);
+  console.log('📦 전체 대리점 해상운임 데이터:', agentSeaFreights);
+
   const getDataSource = <T,>(current: T[], historical: T[] | undefined): T[] => {
     return snapshot && historical ? historical : current;
   };
@@ -58,13 +62,29 @@ export const calculateCost = (
   };
 
   const getAgentSeaFreightWithExpiry = (agent: string, pol: string, pod: string): { value: number | null; expired: boolean; carrier?: string; llocal?: number } => {
+    console.log(`\n🔎 대리점 해상운임 검색: agent="${agent}", pol="${pol}", pod="${pod}"`);
+    
     const filtered = currentAgentSeaFreights.filter(
       (f) => f.agent === agent && f.pol === pol && f.pod === pod
     );
-    if (filtered.length === 0) return { value: null, expired: false };
+    
+    console.log(`   검색 결과 개수: ${filtered.length}`);
+    if (filtered.length > 0) {
+      console.log(`   검색된 데이터:`, filtered[0]);
+      console.log(`   ✅ L.LOCAL 값: ${filtered[0].llocal}`);
+    }
+    
+    if (filtered.length === 0) {
+      console.log('   ❌ 대리점 해상운임 없음');
+      return { value: null, expired: false };
+    }
     
     const validFreights = filtered.filter(f => isValidOnDate(f.validFrom, f.validTo, calculationDate));
     if (validFreights.length > 0) {
+      console.log(`   ✅ 유효한 대리점 해상운임 발견!`);
+      console.log(`      - Rate: ${validFreights[0].rate}`);
+      console.log(`      - L.LOCAL: ${validFreights[0].llocal}`);
+      console.log(`      - Carrier: ${validFreights[0].carrier}`);
       return { 
         value: validFreights[0].rate, 
         expired: false, 
@@ -73,6 +93,7 @@ export const calculateCost = (
       };
     }
     
+    console.log(`   ⚠️ 만료된 대리점 해상운임 사용`);
     return { 
       value: filtered[0].rate, 
       expired: true, 
@@ -170,6 +191,8 @@ export const calculateCost = (
     railAgents.find(ra => ra.name === agentName)
   );
   
+  console.log('\n📋 처리할 대리점 목록:', railAgentsWithFreight);
+  
   const cowinTruck = currentBorderDestinationFreights.find(f => 
     f.agent === 'COWIN' && 
     f.destinationId === input.destinationId
@@ -178,6 +201,8 @@ export const calculateCost = (
   const breakdown: AgentCostBreakdown[] = [];
 
   railAgentsWithFreight.forEach((agentName) => {
+    console.log(`\n\n🏢 ===== ${agentName} 대리점 처리 시작 =====`);
+    
     const expiredDetails: string[] = [];
     
     const agentSeaResult = getAgentSeaFreightWithExpiry(agentName, input.pol, input.pod);
@@ -191,13 +216,22 @@ export const calculateCost = (
     let seaFreightExpired = false;
 
     if (agentSeaResult.value !== null) {
+      console.log(`\n✅ 대리점 해상운임 적용!`);
       seaFreightRate = agentSeaResult.value;
       seaFreightLLocal = agentSeaResult.llocal || 0;
       seaFreightCarrier = agentSeaResult.carrier;
       isAgentSpecific = true;
       seaFreightExpired = agentSeaResult.expired;
+      
+      console.log(`   📊 적용된 값:`);
+      console.log(`      - seaFreightRate: ${seaFreightRate}`);
+      console.log(`      - seaFreightLLocal: ${seaFreightLLocal} ⭐`);
+      console.log(`      - seaFreightCarrier: ${seaFreightCarrier}`);
+      console.log(`      - isAgentSpecific: ${isAgentSpecific}`);
+      
       if (seaFreightExpired) expiredDetails.push('해상운임');
     } else if (input.selectedSeaFreightId) {
+      console.log(`\n📌 선택된 일반 해상운임 사용`);
       const selectedFreight = currentSeaFreights.find(f => f.id === input.selectedSeaFreightId);
       if (selectedFreight) {
         seaFreightRate = selectedFreight.rate;
@@ -205,9 +239,11 @@ export const calculateCost = (
         seaFreightId = selectedFreight.id;
         seaFreightCarrier = selectedFreight.carrier;
         seaFreightExpired = !isValidOnDate(selectedFreight.validFrom, selectedFreight.validTo, calculationDate);
+        console.log(`   - Rate: ${seaFreightRate}, LocalCharge: ${seaFreightLocalCharge}`);
         if (seaFreightExpired) expiredDetails.push('해상운임');
       }
     } else {
+      console.log(`\n🔍 일반 해상운임 검색`);
       const allSeaFreights = currentSeaFreights.filter(
         (f) => f.pol === input.pol && f.pod === input.pod
       );
@@ -218,6 +254,7 @@ export const calculateCost = (
           seaFreightLocalCharge = validFreights[0].localCharge || 0;
           seaFreightId = validFreights[0].id;
           seaFreightCarrier = validFreights[0].carrier;
+          console.log(`   ✅ 유효한 일반 해상운임 발견: Rate ${seaFreightRate}`);
         } else {
           seaFreightRate = allSeaFreights[0].rate;
           seaFreightLocalCharge = allSeaFreights[0].localCharge || 0;
@@ -225,6 +262,7 @@ export const calculateCost = (
           seaFreightCarrier = allSeaFreights[0].carrier;
           seaFreightExpired = true;
           expiredDetails.push('해상운임');
+          console.log(`   ⚠️ 만료된 일반 해상운임 사용: Rate ${seaFreightRate}`);
         }
       }
     }
@@ -261,6 +299,11 @@ export const calculateCost = (
         input.domesticTransport -
         seaFreightLLocal; // Subtract L.LOCAL from total
 
+      console.log(`\n💰 통합운임 계산 완료:`);
+      console.log(`   총액 = ${seaFreightRate} + ${seaFreightLocalCharge} + ${dthcResult.value} + ${combinedResult.value} + ${weightSurchargeResult.value} + ${combinedDpValue} + ${totalOtherCosts} + ${input.domesticTransport} - ${seaFreightLLocal}`);
+      console.log(`   총액 = ${total}`);
+      console.log(`   ⭐ L.LOCAL 차감: -${seaFreightLLocal}`);
+
       breakdown.push({
         agent: agentName,
         railAgent: agentName,
@@ -284,6 +327,8 @@ export const calculateCost = (
         hasExpiredRates: combinedExpiredDetails.length > 0,
         expiredRateDetails: combinedExpiredDetails.length > 0 ? combinedExpiredDetails : undefined,
       });
+      
+      console.log(`   ✅ Breakdown에 추가됨 - llocal: ${seaFreightLLocal}`);
     }
     
     // Add separate rail+truck option if it exists
@@ -311,6 +356,11 @@ export const calculateCost = (
         input.domesticTransport -
         seaFreightLLocal; // Subtract L.LOCAL from total
 
+      console.log(`\n💰 분리운임 계산 완료:`);
+      console.log(`   총액 = ${seaFreightRate} + ${seaFreightLocalCharge} + ${dthcResult.value} + ${railResult.value} + ${ownTruckResult.value} + ${weightSurchargeResult.value} + ${separateDpValue} + ${totalOtherCosts} + ${input.domesticTransport} - ${seaFreightLLocal}`);
+      console.log(`   총액 = ${total}`);
+      console.log(`   ⭐ L.LOCAL 차감: -${seaFreightLLocal}`);
+
       breakdown.push({
         agent: agentName,
         railAgent: agentName,
@@ -334,6 +384,8 @@ export const calculateCost = (
         hasExpiredRates: separateExpiredDetails.length > 0,
         expiredRateDetails: separateExpiredDetails.length > 0 ? separateExpiredDetails : undefined,
       });
+      
+      console.log(`   ✅ Breakdown에 추가됨 - llocal: ${seaFreightLLocal}`);
     }
 
     // Add rail + COWIN truck combination if COWIN truck exists and rail exists
@@ -364,6 +416,11 @@ export const calculateCost = (
         input.domesticTransport -
         seaFreightLLocal; // Subtract L.LOCAL from total
 
+      console.log(`\n💰 COWIN 조합 계산 완료:`);
+      console.log(`   총액 = ${seaFreightRate} + ${seaFreightLocalCharge} + ${cowinDthcResult.value} + ${railResult.value} + ${cowinTruck.rate} + ${weightSurchargeResult.value} + ${cowinDpValue} + ${totalOtherCosts} + ${input.domesticTransport} - ${seaFreightLLocal}`);
+      console.log(`   총액 = ${total}`);
+      console.log(`   ⭐ L.LOCAL 차감: -${seaFreightLLocal}`);
+
       breakdown.push({
         agent: `${agentName} + COWIN`,
         railAgent: agentName,
@@ -387,12 +444,23 @@ export const calculateCost = (
         hasExpiredRates: cowinExpiredDetails.length > 0,
         expiredRateDetails: cowinExpiredDetails.length > 0 ? cowinExpiredDetails : undefined,
       });
+      
+      console.log(`   ✅ Breakdown에 추가됨 - llocal: ${seaFreightLLocal}`);
     }
   });
 
   if (breakdown.length === 0) {
+    console.log('\n❌ Breakdown이 비어있음!');
     return null;
   }
+
+  console.log('\n\n📊 ===== 최종 Breakdown =====');
+  breakdown.forEach((b, index) => {
+    console.log(`\n${index + 1}. ${b.agent}`);
+    console.log(`   - 대리점 해상운임 사용: ${b.isAgentSpecificSeaFreight ? '✅ YES' : '❌ NO'}`);
+    console.log(`   - L.LOCAL: ${b.llocal} ${b.llocal > 0 ? '⭐' : ''}`);
+    console.log(`   - 총액: ${b.total}`);
+  });
 
   breakdown.sort((a, b) => {
     if (a.railAgent !== b.railAgent) {
@@ -404,6 +472,9 @@ export const calculateCost = (
   const lowestCostBreakdown = breakdown.reduce((min, current) =>
     current.total < min.total ? current : min
   );
+
+  console.log('\n🏆 최저가:', lowestCostBreakdown.agent, '-', lowestCostBreakdown.total);
+  console.log('🔍 ===== 원가 계산 완료 =====\n');
 
   return {
     input,

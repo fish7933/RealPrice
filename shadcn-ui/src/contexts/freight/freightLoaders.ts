@@ -252,6 +252,7 @@ export const loadDTHC = async (): Promise<DTHC[]> => {
         agent: d.agent,
         pol: d.pol,
         pod: d.pod,
+        carrier: d.carrier, // Added carrier field mapping
         amount: d.amount,
         description: d.description,
         version: d.version,

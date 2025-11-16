@@ -284,7 +284,7 @@ export default function UserManagement() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="flex items-center gap-2"><Users className="h-5 w-5" />사용자 목록</CardTitle>
+                <CardTitle className="flex items-center gap-2"><UserIcon className="h-5 w-5" />사용자 목록</CardTitle>
                 <CardDescription>
                   {user?.role === 'superadmin' 
                     ? '최고관리자는 모든 관리자와 사용자를 생성, 수정, 삭제할 수 있습니다.'

@@ -1450,7 +1450,7 @@ export default function CostCalculatorWithTabs() {
                                 )}
                               </>
                             )}
-                            {breakdown.isAgentSpecificSeaFreight && !excludedCosts.seaFreight && !isCellExcluded(originalIndex, 'seaFreight') && breakdown.seaFreight !== 0 && (
+                            {breakdown.isAgentSpecificSeaFreight && !excludedCosts.seaFreight && !isCellExcluded(originalIndex, 'seaFreight') && (
                               <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded text-xs">
                                 <Star className="h-3 w-3" />
                               </span>
@@ -1484,7 +1484,7 @@ export default function CostCalculatorWithTabs() {
                               // For general freight or zero L.LOCAL, show localCharge normally
                               <span>${breakdown.localCharge || 0}</span>
                             )}
-                            {breakdown.isAgentSpecificSeaFreight && !excludedCosts.localCharge && !isCellExcluded(originalIndex, 'localCharge') && (breakdown.llocal || 0) !== 0 && (
+                            {breakdown.isAgentSpecificSeaFreight && !excludedCosts.localCharge && !isCellExcluded(originalIndex, 'localCharge') && (
                               <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded text-xs">
                                 <Star className="h-3 w-3" />
                               </span>

@@ -117,17 +117,30 @@ export const calculateCost = (
     return { value: isAgentSpecificSeaFreight ? 0 : filtered[0].amount, expired: true };
   };
 
-  const getCombinedFreightWithExpiry = (agent: string, pod: string, destinationId: string): { value: number | null; expired: boolean } => {
+  const getCombinedFreightWithExpiry = (agent: string, pol: string, pod: string, destinationId: string): { value: number | null; expired: boolean } => {
+    console.log(`\n🔎 통합운임 검색: agent="${agent}", pol="${pol}", pod="${pod}", destinationId="${destinationId}"`);
+    
     const filtered = currentCombinedFreights.filter(
-      (f) => f.agent === agent && f.pod === pod && f.destinationId === destinationId
+      (f) => f.agent === agent && f.pol === pol && f.pod === pod && f.destinationId === destinationId
     );
-    if (filtered.length === 0) return { value: null, expired: false };
+    
+    console.log(`   검색 결과 개수: ${filtered.length}`);
+    if (filtered.length > 0) {
+      console.log(`   검색된 통합운임:`, filtered[0]);
+    }
+    
+    if (filtered.length === 0) {
+      console.log('   ❌ 통합운임 없음 (POL 불일치 가능성)');
+      return { value: null, expired: false };
+    }
     
     const validFreights = filtered.filter(f => isValidOnDate(f.validFrom, f.validTo, calculationDate));
     if (validFreights.length > 0) {
+      console.log(`   ✅ 유효한 통합운임 발견: ${validFreights[0].rate}`);
       return { value: validFreights[0].rate, expired: false };
     }
     
+    console.log(`   ⚠️ 만료된 통합운임 사용: ${filtered[0].rate}`);
     return { value: filtered[0].rate, expired: true };
   };
 
@@ -177,14 +190,17 @@ export const calculateCost = (
   const dpCostData = getDPCostWithExpiry(input.pol);
   const totalOtherCosts = input.otherCosts.reduce((sum, item) => sum + item.amount, 0);
 
-  // Collect agents from BOTH rail freight AND combined freight
+  // Collect agents from BOTH rail freight AND combined freight - NOW WITH POL FILTERING
   const railAgentsFromPortBorder = currentPortBorderFreights
     .filter(f => f.pod === input.pod)
     .map(f => f.agent);
   
   const railAgentsFromCombined = currentCombinedFreights
-    .filter(f => f.pod === input.pod && f.destinationId === input.destinationId)
+    .filter(f => f.pol === input.pol && f.pod === input.pod && f.destinationId === input.destinationId)
     .map(f => f.agent);
+  
+  console.log('\n📋 철도운임 대리점:', railAgentsFromPortBorder);
+  console.log('📋 통합운임 대리점 (POL 필터링 적용):', railAgentsFromCombined);
   
   // Merge and get unique agents
   const allAgentNames = [...new Set([...railAgentsFromPortBorder, ...railAgentsFromCombined])];
@@ -275,7 +291,7 @@ export const calculateCost = (
     const dthcResult = getDTHCByAgentAndRouteWithExpiry(agentName, input.pol, input.pod, isAgentSpecific);
     if (dthcResult.expired) expiredDetails.push('DTHC');
     
-    const combinedResult = getCombinedFreightWithExpiry(agentName, input.pod, input.destinationId);
+    const combinedResult = getCombinedFreightWithExpiry(agentName, input.pol, input.pod, input.destinationId);
     const railResult = getPortBorderRateWithExpiry(agentName, input.pod);
     const ownTruckResult = getBorderDestinationRateWithExpiry(agentName, input.destinationId);
     

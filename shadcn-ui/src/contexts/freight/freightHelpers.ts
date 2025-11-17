@@ -154,16 +154,17 @@ export const getDPCost = (
   return filtered.length > 0 ? filtered[0].amount : 0;
 };
 
-// Get combined freight
+// Get combined freight - NOW INCLUDES POL FILTERING
 export const getCombinedFreight = (
   combinedFreights: CombinedFreight[],
   agent: string,
+  pol: string,
   pod: string,
   destinationId: string,
   date?: string
 ): number | null => {
   const filtered = combinedFreights.filter(
-    (f) => f.agent === agent && f.pod === pod && f.destinationId === destinationId
+    (f) => f.agent === agent && f.pol === pol && f.pod === pod && f.destinationId === destinationId
   );
   
   if (date) {

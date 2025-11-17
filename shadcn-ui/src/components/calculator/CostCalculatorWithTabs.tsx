@@ -947,7 +947,11 @@ export default function CostCalculatorWithTabs() {
     const isDomesticTransportExcluded = excludedCosts.domesticTransport || isCellExcluded(agentIndex, 'domesticTransport');
     
     if (!isSeaFreightExcluded) total += breakdown.seaFreight;
-    if (!isLocalChargeExcluded && breakdown.localCharge) total += breakdown.localCharge;
+    // For agent-specific freight, don't add localCharge (it will be subtracted as llocal)
+    // For general freight, add localCharge normally
+    if (!isLocalChargeExcluded && breakdown.localCharge && !breakdown.isAgentSpecificSeaFreight) {
+      total += breakdown.localCharge;
+    }
     if (!isDthcExcluded) total += breakdown.dthc;
     
     if (breakdown.isCombinedFreight) {

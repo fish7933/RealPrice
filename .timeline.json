@@ -1,5 +1,5 @@
 {
-  "timeline_index": 976,
+  "timeline_index": 979,
   "planner": {},
   "gallery_last_file": {},
   "timeline_status": {
@@ -977,7 +977,10 @@
     "973": 1,
     "974": 0,
     "975": 1,
-    "976": 1
+    "976": 1,
+    "977": 1,
+    "978": 1,
+    "979": 1
   },
   "preview_servers": {},
   "preview_server": {

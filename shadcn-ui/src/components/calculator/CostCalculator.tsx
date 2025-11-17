@@ -433,7 +433,7 @@ export default function CostCalculator() {
               </div>
               <div className="flex items-center gap-2 text-sm text-blue-900 mb-2">
                 <DollarSign className="h-4 w-4" />
-                <span className="font-semibold">기타비용:</strong>
+                <span className="font-semibold">기타비용:</span>
                 <span>기타비용 메뉴에서 설정한 항목(DP 제외)이 자동 합산됩니다</span>
               </div>
               <div className="flex items-center gap-2 text-sm text-blue-900 mb-2">

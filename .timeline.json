@@ -1,5 +1,5 @@
 {
-  "timeline_index": 792,
+  "timeline_index": 808,
   "planner": {},
   "gallery_last_file": {},
   "timeline_status": {
@@ -793,7 +793,23 @@
     "789": 1,
     "790": 1,
     "791": 1,
-    "792": 1
+    "792": 1,
+    "793": 1,
+    "794": 1,
+    "795": 1,
+    "796": 1,
+    "797": 1,
+    "798": 1,
+    "799": 1,
+    "800": 1,
+    "801": 1,
+    "802": 1,
+    "803": 1,
+    "804": 1,
+    "805": 1,
+    "806": 1,
+    "807": 1,
+    "808": 1
   },
   "preview_servers": {},
   "preview_server": {
@@ -802,5 +818,5 @@
     "config_path": ".mgx/config.yaml",
     "timeline_index": 1
   },
-  "last_build_failed": false
+  "last_build_failed": true
 }

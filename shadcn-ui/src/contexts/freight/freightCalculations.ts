@@ -61,7 +61,7 @@ export const calculateCost = (
     return { value: filtered[0].amount, expired: true };
   };
 
-const getAgentSeaFreightWithExpiry = (agent: string, pol: string, pod: string): { value: number | null; expired: boolean; carrier?: string; localCharge?: number; llocal?: number } => {
+  const getAgentSeaFreightWithExpiry = (agent: string, pol: string, pod: string): { value: number | null; expired: boolean; carrier?: string; localCharge?: number; llocal?: number } => {
     console.log(`\n🔎 대리점 해상운임 검색: agent="${agent}", pol="${pol}", pod="${pod}"`);
     
     const filtered = currentAgentSeaFreights.filter(
@@ -83,79 +83,9 @@ const getAgentSeaFreightWithExpiry = (agent: string, pol: string, pod: string): 
     if (validFreights.length > 0) {
       console.log(`   ✅ 유효한 대리점 해상운임 발견!`);
       console.log(`      - Rate: ${validFreights[0].rate}`);
+      console.log(`      - LocalCharge: ${validFreights[0].localCharge}`);
       console.log(`      - L.LOCAL: ${validFreights[0].llocal}`);
       console.log(`      - Carrier: ${validFreights[0].carrier}`);
-      return { 
-        value: validFreights[0].rate, 
-        expired: false, 
-        carrier: validFreights[0].carrier,
-        localCharge: validFreights[0].localCharge || 0,
-        llocal: validFreights[0].llocal || 0
-      };
-      return { 
-        value: validFreights[0].rate, 
-    return { 
-      value: filtered[0].rate, 
-      expired: true, 
-      carrier: filtered[0].carrier,
-      localCharge: filtered[0].localCharge || 0,
-      llocal: filtered[0].llocal || 0
-    };
-    return { 
-      value: filtered[0].rate, 
-      expired: true, 
-      carrier: filtered[0].carrier,
-      localCharge: filtered[0].localCharge || 0,
-      llocal: filtered[0].llocal || 0
-    };
-    return { 
-      value: filtered[0].rate, 
-      expired: true, 
-      carrier: filtered[0].carrier,
-      localCharge: filtered[0].localCharge || 0,
-      llocal: filtered[0].llocal || 0
-    };
-    return { 
-      value: filtered[0].rate, 
-      expired: true, 
-      carrier: filtered[0].carrier,
-      localCharge: filtered[0].localCharge || 0,
-      llocal: filtered[0].llocal || 0
-    };
-    return { 
-      value: filtered[0].rate, 
-      expired: true, 
-      carrier: filtered[0].carrier,
-      localCharge: filtered[0].localCharge || 0,
-      llocal: filtered[0].llocal || 0
-    };
-    return { 
-      value: filtered[0].rate, 
-      expired: true, 
-      carrier: filtered[0].carrier,
-      localCharge: filtered[0].localCharge || 0,
-      llocal: filtered[0].llocal || 0
-    };
-        value: validFreights[0].rate, 
-        expired: false, 
-        carrier: validFreights[0].carrier,
-        localCharge: validFreights[0].localCharge || 0,
-        llocal: validFreights[0].llocal || 0
-      };
-      return { 
-        value: validFreights[0].rate, 
-        expired: false, 
-        carrier: validFreights[0].carrier,
-        localCharge: validFreights[0].localCharge || 0,
-        llocal: validFreights[0].llocal || 0
-      };
-      return { 
-        value: validFreights[0].rate, 
-        expired: false, 
-        carrier: validFreights[0].carrier,
-        localCharge: validFreights[0].localCharge || 0,
-        llocal: validFreights[0].llocal || 0
-      };
       return { 
         value: validFreights[0].rate, 
         expired: false, 
@@ -170,7 +100,8 @@ const getAgentSeaFreightWithExpiry = (agent: string, pol: string, pod: string): 
       value: filtered[0].rate, 
       expired: true, 
       carrier: filtered[0].carrier,
-      llocal: filtered[0].llocal 
+      localCharge: filtered[0].localCharge || 0,
+      llocal: filtered[0].llocal || 0
     };
   };
 
@@ -217,12 +148,8 @@ const getAgentSeaFreightWithExpiry = (agent: string, pol: string, pod: string): 
   const getWeightSurchargeWithExpiry = (agent: string, weight: number): { value: number; expired: boolean } => {
     const filtered = currentWeightSurchargeRules.filter(
       (r) => r.agent === agent && weight >= r.minWeight && weight <= r.maxWeight
-      seaFreightRate = agentSeaResult.value;
-      seaFreightLocalCharge = agentSeaResult.localCharge || 0;
-      seaFreightLLocal = agentSeaResult.llocal || 0;
-      seaFreightRate = agentSeaResult.value;
-      seaFreightLocalCharge = agentSeaResult.localCharge || 0;
-      seaFreightLLocal = agentSeaResult.llocal || 0;
+    );
+    if (filtered.length === 0) return { value: 0, expired: false };
     
     const validRules = filtered.filter(r => isValidOnDate(r.validFrom, r.validTo, calculationDate));
     if (validRules.length > 0) {
@@ -294,6 +221,7 @@ const getAgentSeaFreightWithExpiry = (agent: string, pol: string, pod: string): 
     if (agentSeaResult.value !== null) {
       console.log(`\n✅ 대리점 해상운임 적용!`);
       seaFreightRate = agentSeaResult.value;
+      seaFreightLocalCharge = agentSeaResult.localCharge || 0;
       seaFreightLLocal = agentSeaResult.llocal || 0;
       seaFreightCarrier = agentSeaResult.carrier;
       isAgentSpecific = true;
@@ -301,6 +229,7 @@ const getAgentSeaFreightWithExpiry = (agent: string, pol: string, pod: string): 
       
       console.log(`   📊 적용된 값:`);
       console.log(`      - seaFreightRate: ${seaFreightRate}`);
+      console.log(`      - seaFreightLocalCharge: ${seaFreightLocalCharge} 💰`);
       console.log(`      - seaFreightLLocal: ${seaFreightLLocal} ⭐`);
       console.log(`      - seaFreightCarrier: ${seaFreightCarrier}`);
       console.log(`      - isAgentSpecific: ${isAgentSpecific}`);
@@ -404,7 +333,7 @@ const getAgentSeaFreightWithExpiry = (agent: string, pol: string, pod: string): 
         expiredRateDetails: combinedExpiredDetails.length > 0 ? combinedExpiredDetails : undefined,
       });
       
-      console.log(`   ✅ Breakdown에 추가됨 - llocal: ${seaFreightLLocal}`);
+      console.log(`   ✅ Breakdown에 추가됨 - localCharge: ${seaFreightLocalCharge}, llocal: ${seaFreightLLocal}`);
     }
     
     // Add separate rail+truck option if it exists
@@ -461,7 +390,7 @@ const getAgentSeaFreightWithExpiry = (agent: string, pol: string, pod: string): 
         expiredRateDetails: separateExpiredDetails.length > 0 ? separateExpiredDetails : undefined,
       });
       
-      console.log(`   ✅ Breakdown에 추가됨 - llocal: ${seaFreightLLocal}`);
+      console.log(`   ✅ Breakdown에 추가됨 - localCharge: ${seaFreightLocalCharge}, llocal: ${seaFreightLLocal}`);
     }
 
     // Add rail + COWIN truck combination if COWIN truck exists and rail exists
@@ -521,7 +450,7 @@ const getAgentSeaFreightWithExpiry = (agent: string, pol: string, pod: string): 
         expiredRateDetails: cowinExpiredDetails.length > 0 ? cowinExpiredDetails : undefined,
       });
       
-      console.log(`   ✅ Breakdown에 추가됨 - llocal: ${seaFreightLLocal}`);
+      console.log(`   ✅ Breakdown에 추가됨 - localCharge: ${seaFreightLocalCharge}, llocal: ${seaFreightLLocal}`);
     }
   });
 
@@ -534,6 +463,7 @@ const getAgentSeaFreightWithExpiry = (agent: string, pol: string, pod: string): 
   breakdown.forEach((b, index) => {
     console.log(`\n${index + 1}. ${b.agent}`);
     console.log(`   - 대리점 해상운임 사용: ${b.isAgentSpecificSeaFreight ? '✅ YES' : '❌ NO'}`);
+    console.log(`   - LocalCharge: ${b.localCharge} 💰`);
     console.log(`   - L.LOCAL: ${b.llocal} ${b.llocal > 0 ? '⭐' : ''}`);
     console.log(`   - 총액: ${b.total}`);
   });

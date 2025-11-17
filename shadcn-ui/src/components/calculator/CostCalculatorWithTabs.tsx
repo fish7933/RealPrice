@@ -970,6 +970,11 @@ export default function CostCalculatorWithTabs() {
       });
     }
     
+    // Subtract L.LOCAL if it's agent-specific sea freight and not excluded
+    if (breakdown.isAgentSpecificSeaFreight && !isLocalChargeExcluded && breakdown.llocal) {
+      total -= breakdown.llocal;
+    }
+    
     return total;
   };
 
@@ -1566,7 +1571,9 @@ export default function CostCalculatorWithTabs() {
                           </TableCell>
                         ))}
                         <TableCell className="text-right font-bold">
-                          ${adjustedTotal.toLocaleString()}
+                          <span className={adjustedTotal < 0 ? "text-red-600 font-bold" : ""}>
+                            ${adjustedTotal.toLocaleString()}
+                          </span>
                         </TableCell>
                         <TableCell className="text-center">
                           <Button

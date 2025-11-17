@@ -94,10 +94,19 @@ export default function CostCalculator() {
       return;
     }
 
-    console.log('🎯 UI에서 받은 계산 결과:', calculationResult);
-    console.log('📊 Breakdown 데이터:', calculationResult.breakdown);
+    console.log('\n\n🎯 ===== UI에서 받은 계산 결과 ===== ');
+    console.log('📊 전체 result 객체:', calculationResult);
+    console.log('\n📦 Breakdown 배열:', calculationResult.breakdown);
+    console.log('\n🔍 각 breakdown 항목 상세:');
     calculationResult.breakdown.forEach((b, i) => {
-      console.log(`   ${i + 1}. ${b.agent} - llocal: ${b.llocal}, isAgentSpecific: ${b.isAgentSpecificSeaFreight}`);
+      console.log(`\n${i + 1}. ${b.agent}`);
+      console.log(`   - llocal 값: ${b.llocal}`);
+      console.log(`   - llocal 타입: ${typeof b.llocal}`);
+      console.log(`   - llocal === undefined: ${b.llocal === undefined}`);
+      console.log(`   - llocal === null: ${b.llocal === null}`);
+      console.log(`   - llocal > 0: ${b.llocal > 0}`);
+      console.log(`   - isAgentSpecific: ${b.isAgentSpecificSeaFreight}`);
+      console.log(`   - 전체 객체:`, b);
     });
 
     setResult(calculationResult);
@@ -510,11 +519,14 @@ export default function CostCalculator() {
                     const isLowest = breakdown.agent === result.lowestCostAgent;
                     const hasExpired = breakdown.hasExpiredRates;
                     
-                    console.log(`🖼️ 렌더링 ${index + 1}번째 행: ${breakdown.agent}`);
-                    console.log(`   - breakdown.llocal: ${breakdown.llocal}`);
-                    console.log(`   - typeof breakdown.llocal: ${typeof breakdown.llocal}`);
-                    console.log(`   - breakdown.llocal > 0: ${breakdown.llocal > 0}`);
-                    console.log(`   - 조건 결과: ${breakdown.llocal && breakdown.llocal > 0}`);
+                    console.log(`\n🖼️ ===== 렌더링 ${index + 1}번째 행: ${breakdown.agent} =====`);
+                    console.log(`   breakdown 객체:`, breakdown);
+                    console.log(`   breakdown.llocal: ${breakdown.llocal}`);
+                    console.log(`   typeof breakdown.llocal: ${typeof breakdown.llocal}`);
+                    console.log(`   breakdown.llocal === undefined: ${breakdown.llocal === undefined}`);
+                    console.log(`   breakdown.llocal === null: ${breakdown.llocal === null}`);
+                    console.log(`   breakdown.llocal > 0: ${breakdown.llocal > 0}`);
+                    console.log(`   조건 평가 결과: ${breakdown.llocal > 0 ? 'TRUE - 빨간색 표시됨' : 'FALSE - 회색 - 표시됨'}`);
                     
                     return (
                       <TableRow

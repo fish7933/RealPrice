@@ -49,6 +49,7 @@ import {
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Calculator, TrendingDown, Train, Truck, Weight, Package, Star, FileText, DollarSign, Info, Ship, ArrowUp, ArrowDown, History, Trash2, Clock, Merge, Save, FileSpreadsheet, Plus, X, AlertTriangle, Search, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { DebugLLocal } from './DebugLLocal';
 import QuotationDialog from './QuotationDialog';
 import TimeMachineDialog from './TimeMachineDialog';
 
@@ -1067,6 +1068,10 @@ export default function CostCalculatorWithTabs() {
 
     return (
       <>
+
+        {/* Debug L.LOCAL values */}
+        <DebugLLocal breakdown={resultData.breakdown} />
+
         <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
           <div className="flex items-center gap-2 text-sm text-blue-900 mb-2">
             <Info className="h-4 w-4" />

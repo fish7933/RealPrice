@@ -152,16 +152,16 @@ export default function TimeMachineDialog({ open, onOpenChange, onSelectDate, cu
             </div>
             <div className="relative overflow-hidden rounded-2xl bg-white shadow-xl border-2 border-pink-200">
               {/* Decorative elements */}
-              <div className="absolute top-2 left-2">
+              <div className="absolute top-2 left-2 z-10">
                 <Heart className="h-4 w-4 text-pink-300 animate-pulse" />
               </div>
-              <div className="absolute top-2 right-2">
+              <div className="absolute top-2 right-2 z-10">
                 <Star className="h-4 w-4 text-yellow-300 animate-pulse" />
               </div>
-              <div className="absolute bottom-2 left-2">
+              <div className="absolute bottom-2 left-2 z-10">
                 <Sparkles className="h-4 w-4 text-purple-300 animate-pulse" />
               </div>
-              <div className="absolute bottom-2 right-2">
+              <div className="absolute bottom-2 right-2 z-10">
                 <Heart className="h-4 w-4 text-blue-300 animate-pulse" />
               </div>
               
@@ -181,22 +181,24 @@ export default function TimeMachineDialog({ open, onOpenChange, onSelectDate, cu
                     available: (date) => isDateAvailable(date),
                   }}
                   modifiersClassNames={{
-                    available: 'bg-gradient-to-br from-pink-400 via-purple-400 to-blue-400 text-white font-bold hover:from-pink-500 hover:via-purple-500 hover:to-blue-500 rounded-xl shadow-lg transform hover:scale-110 transition-all duration-200 animate-pulse',
+                    available: 'bg-gradient-to-br from-pink-400 via-purple-400 to-blue-400 text-white font-bold hover:from-pink-500 hover:via-purple-500 hover:to-blue-500 rounded-xl shadow-lg transform hover:scale-110 transition-all duration-200',
                   }}
                   className="rounded-xl"
                   classNames={{
-                    months: "space-y-3",
-                    month: "space-y-3",
+                    months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
+                    month: "space-y-4",
                     caption: "flex justify-center pt-1 relative items-center text-base font-bold bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent",
                     caption_label: "text-base font-bold",
                     nav: "space-x-1 flex items-center",
                     nav_button: "h-7 w-7 bg-gradient-to-br from-pink-100 to-purple-100 hover:from-pink-200 hover:to-purple-200 rounded-xl transition-all duration-200 border-2 border-pink-200 shadow-sm hover:shadow-md transform hover:scale-105",
+                    nav_button_previous: "absolute left-1",
+                    nav_button_next: "absolute right-1",
                     table: "w-full border-collapse space-y-1",
-                    head_row: "flex justify-center",
-                    head_cell: "text-purple-600 rounded-xl w-9 font-bold text-xs text-center",
-                    row: "flex w-full mt-1 justify-center",
-                    cell: "relative p-0 text-center text-xs focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-transparent",
-                    day: "h-9 w-9 p-0 font-semibold rounded-xl hover:bg-gradient-to-br hover:from-pink-100 hover:to-purple-100 transition-all duration-200 aria-selected:opacity-100 flex items-center justify-center transform hover:scale-105 hover:shadow-md",
+                    head_row: "flex",
+                    head_cell: "text-purple-600 rounded-md w-10 font-bold text-xs text-center",
+                    row: "flex w-full mt-2",
+                    cell: "relative h-10 w-10 text-center text-sm p-0 [&:has([aria-selected])]:bg-transparent focus-within:relative focus-within:z-20",
+                    day: "h-10 w-10 p-0 font-semibold rounded-xl hover:bg-gradient-to-br hover:from-pink-100 hover:to-purple-100 transition-all duration-200 aria-selected:opacity-100 flex items-center justify-center transform hover:scale-105 hover:shadow-md",
                     day_selected: "bg-gradient-to-br from-pink-500 via-purple-500 to-blue-500 text-white hover:from-pink-600 hover:via-purple-600 hover:to-blue-600 focus:from-pink-600 focus:via-purple-600 focus:to-blue-600 shadow-lg",
                     day_today: "bg-gradient-to-br from-yellow-100 to-orange-100 text-orange-900 font-bold border-2 border-orange-400 shadow-md",
                     day_outside: "text-gray-400 opacity-50",

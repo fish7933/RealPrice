@@ -1462,10 +1462,22 @@ export default function CostCalculatorWithTabs() {
                           <div className="flex items-center justify-end gap-1">
                             {excludedCosts.localCharge || isCellExcluded(originalIndex, 'localCharge') ? (
                               <span>$0</span>
+                            ) : breakdown.isAgentSpecificSeaFreight ? (
+                              // For agent-specific freight, show llocal value
+                              (breakdown.llocal || 0) < 0 ? (
+                                // If llocal is negative, show as positive green (because minus negative = plus)
+                                <span className="text-green-600 font-bold">
+                                  +${Math.abs(breakdown.llocal || 0)}
+                                </span>
+                              ) : (
+                                // If llocal is positive or zero, show as red negative
+                                <span className="text-red-600 font-bold">
+                                  -${breakdown.llocal || 0}
+                                </span>
+                              )
                             ) : (
-                              <span className={breakdown.isAgentSpecificSeaFreight ? "text-red-600 font-bold" : ""}>
-                                ${breakdown.isAgentSpecificSeaFreight ? -(breakdown.llocal || 0) : (breakdown.localCharge || 0)}
-                              </span>
+                              // For general freight, show localCharge normally
+                              <span>${breakdown.localCharge || 0}</span>
                             )}
                             {breakdown.isAgentSpecificSeaFreight && !excludedCosts.localCharge && !isCellExcluded(originalIndex, 'localCharge') && (breakdown.llocal || 0) !== 0 && (
                               <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded text-xs">

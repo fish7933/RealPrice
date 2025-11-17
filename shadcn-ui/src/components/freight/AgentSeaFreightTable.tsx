@@ -517,8 +517,10 @@ export default function AgentSeaFreightTable() {
                     <TableCell>{freight.pod}</TableCell>
                     <TableCell>${freight.rate}</TableCell>
                     <TableCell>
-                      {freight.llocal ? (
-                        <span className="font-medium">${Math.abs(freight.llocal)}</span>
+                      {freight.llocal !== undefined && freight.llocal !== null ? (
+                        <span className="font-medium">
+                          {freight.llocal >= 0 ? `$${freight.llocal}` : `-$${Math.abs(freight.llocal)}`}
+                        </span>
                       ) : (
                         <span className="text-gray-400">-</span>
                       )}
@@ -752,7 +754,7 @@ export default function AgentSeaFreightTable() {
               <Label>L.LOCAL (USD) <span className="text-xs text-gray-500">(선택)</span></Label>
               <Input
                 type="number"
-                placeholder="예: 50"
+                placeholder="예: 50 또는 -50"
                 value={formData.llocal}
                 onChange={(e) => setFormData({ ...formData, llocal: e.target.value })}
               />
@@ -889,7 +891,7 @@ export default function AgentSeaFreightTable() {
                   <Label>L.LOCAL (USD)</Label>
                   <Input
                     type="number"
-                    placeholder="예: 50"
+                    placeholder="예: 50 또는 -50"
                     value={versionChangeData.llocal || ''}
                     onChange={(e) => {
                       setVersionChangeData({

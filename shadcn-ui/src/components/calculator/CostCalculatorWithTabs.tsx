@@ -1427,12 +1427,14 @@ export default function CostCalculatorWithTabs() {
                           title="클릭하여 이 조합만 제외/포함"
                         >
                           <div className="flex items-center justify-end gap-1">
-                            <span className={breakdown.isAgentSpecificSeaFreight ? "text-red-600 font-bold" : ""}>
-                              ${excludedCosts.localCharge || isCellExcluded(originalIndex, 'localCharge') ? 0 : 
-                                breakdown.isAgentSpecificSeaFreight ? -(breakdown.localCharge || 0) : (breakdown.localCharge || 0)
-                              }
-                            </span>
-                            {breakdown.isAgentSpecificSeaFreight && !excludedCosts.localCharge && !isCellExcluded(originalIndex, 'localCharge') && (breakdown.localCharge || 0) !== 0 && (
+                            {excludedCosts.localCharge || isCellExcluded(originalIndex, 'localCharge') ? (
+                              <span>$0</span>
+                            ) : (
+                              <span className={breakdown.isAgentSpecificSeaFreight ? "text-red-600 font-bold" : ""}>
+                                ${breakdown.isAgentSpecificSeaFreight ? -(breakdown.llocal || 0) : (breakdown.localCharge || 0)}
+                              </span>
+                            )}
+                            {breakdown.isAgentSpecificSeaFreight && !excludedCosts.localCharge && !isCellExcluded(originalIndex, 'localCharge') && (breakdown.llocal || 0) !== 0 && (
                               <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded text-xs">
                                 <Star className="h-3 w-3" />
                               </span>

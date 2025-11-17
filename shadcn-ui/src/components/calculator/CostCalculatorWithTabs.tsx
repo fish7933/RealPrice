@@ -634,9 +634,19 @@ export default function CostCalculatorWithTabs() {
 
     console.log('💾 Saving calculation result...', { result, user });
 
+    // Recalculate lowest cost based on current exclusions
+    const lowestCostInfo = getLowestCostAgent(result.breakdown);
+    
+    // Create updated result with recalculated lowest cost
+    const updatedResult = {
+      ...result,
+      lowestCost: lowestCostInfo.cost,
+      lowestCostAgent: lowestCostInfo.agent,
+    };
+
     const destination = getDestinationById(result.input.destinationId);
     await addCalculationHistory({
-      result,
+      result: updatedResult,
       destinationName: destination?.name || '',
       createdBy: user.id,
       createdByUsername: user.username,
@@ -647,7 +657,10 @@ export default function CostCalculatorWithTabs() {
       description: '조회 결과가 저장되었습니다.',
     });
 
-    console.log('✅ Calculation result saved successfully');
+    console.log('✅ Calculation result saved successfully with adjusted lowest cost:', {
+      lowestCost: lowestCostInfo.cost,
+      lowestAgent: lowestCostInfo.agent
+    });
   };
 
   const handleReset = () => {

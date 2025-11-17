@@ -94,6 +94,12 @@ export default function CostCalculator() {
       return;
     }
 
+    console.log('🎯 UI에서 받은 계산 결과:', calculationResult);
+    console.log('📊 Breakdown 데이터:', calculationResult.breakdown);
+    calculationResult.breakdown.forEach((b, i) => {
+      console.log(`   ${i + 1}. ${b.agent} - llocal: ${b.llocal}, isAgentSpecific: ${b.isAgentSpecificSeaFreight}`);
+    });
+
     setResult(calculationResult);
   };
 
@@ -503,6 +509,13 @@ export default function CostCalculator() {
                   {result.breakdown.map((breakdown, index) => {
                     const isLowest = breakdown.agent === result.lowestCostAgent;
                     const hasExpired = breakdown.hasExpiredRates;
+                    
+                    console.log(`🖼️ 렌더링 ${index + 1}번째 행: ${breakdown.agent}`);
+                    console.log(`   - breakdown.llocal: ${breakdown.llocal}`);
+                    console.log(`   - typeof breakdown.llocal: ${typeof breakdown.llocal}`);
+                    console.log(`   - breakdown.llocal > 0: ${breakdown.llocal > 0}`);
+                    console.log(`   - 조건 결과: ${breakdown.llocal && breakdown.llocal > 0}`);
+                    
                     return (
                       <TableRow
                         key={index}
@@ -530,6 +543,11 @@ export default function CostCalculator() {
                               <span>선사: {breakdown.seaFreightCarrier || 'N/A'}</span>
                               {breakdown.isAgentSpecificSeaFreight && (
                                 <Star className="h-3 w-3 text-amber-600" title="대리점 지정 해상운임" />
+                              )}
+                              {breakdown.isAgentSpecificSeaFreight && breakdown.llocal > 0 && (
+                                <span className="ml-1 text-xs bg-red-100 text-red-700 px-1.5 py-0.5 rounded font-medium">
+                                  L.LOCAL: ${breakdown.llocal.toLocaleString()}
+                                </span>
                               )}
                             </div>
                           </div>
@@ -560,9 +578,9 @@ export default function CostCalculator() {
                           onClick={() => toggleCostItem(index, 'llocal')}
                           title="클릭하여 계산에서 제외/포함"
                         >
-                          {breakdown.llocal && breakdown.llocal > 0 ? (
+                          {breakdown.llocal > 0 ? (
                             <span className={`text-red-600 font-medium ${isCostExcluded(index, 'llocal') ? 'line-through text-gray-400' : ''}`}>
-                              -${breakdown.llocal}
+                              -${breakdown.llocal.toLocaleString()}
                             </span>
                           ) : (
                             <span className="text-gray-400">-</span>

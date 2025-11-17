@@ -1047,6 +1047,18 @@ export default function CostCalculatorWithTabs() {
     return destination ? destination.name : destinationId;
   };
 
+
+  // Generate unique combination code for each breakdown
+  const generateCombinationCode = (breakdown: AgentCostBreakdown, index: number): string => {
+    const railCode = breakdown.railAgent.substring(0, 2).toUpperCase();
+    const truckCode = breakdown.truckAgent.substring(0, 2).toUpperCase();
+    const freightType = breakdown.isCombinedFreight ? 'C' : 'S'; // C=Combined, S=Separate
+    const carrierCode = breakdown.seaFreightCarrier ? breakdown.seaFreightCarrier.substring(0, 2).toUpperCase() : 'XX';
+    const seqNum = String(index + 1).padStart(3, '0');
+    
+    return `${carrierCode}-${railCode}${truckCode}-${freightType}${seqNum}`;
+  };
+
   const isExpired = (breakdown: AgentCostBreakdown, field: string) => {
     return breakdown.expiredRateDetails?.includes(field) || false;
   };
@@ -1133,7 +1145,7 @@ export default function CostCalculatorWithTabs() {
                       onClick={() => handleSort('agent')}
                     >
                       <div className="flex items-center gap-2">
-                        <span>조합</span>
+                        <span>조합코드</span>
                         {sortConfig.key === 'agent' && (
                           sortConfig.direction === 'asc' ? 
                             <ArrowUp className="h-4 w-4" /> : 
@@ -1319,7 +1331,7 @@ export default function CostCalculatorWithTabs() {
                       >
                         <TableCell>
                           <div className="flex items-center gap-2">
-                            {breakdown.agent}
+                            <span className="font-mono text-sm">{generateCombinationCode(breakdown, originalIndex)}</span>
                             {isLowest && (
                               <span className="flex items-center gap-1 text-xs bg-green-600 text-white px-2 py-0.5 rounded whitespace-nowrap">
                                 <TrendingDown className="h-3 w-3" />

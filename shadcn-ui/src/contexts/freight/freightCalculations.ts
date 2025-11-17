@@ -172,11 +172,11 @@ export const calculateCost = (
     return { value: filtered[0].surcharge, expired: true };
   };
 
-  const getPortBorderRateWithExpiry = (agent: string, pol: string, pod: string): { value: number; expired: boolean } => {
-    console.log(`\n🔎 철도운임 검색: agent="${agent}", pol="${pol}", pod="${pod}"`);
+  const getPortBorderRateWithExpiry = (agent: string, pod: string): { value: number; expired: boolean } => {
+    console.log(`\n🔎 철도운임 검색: agent="${agent}", pod="${pod}"`);
     
     const filtered = currentPortBorderFreights.filter(
-      (f) => f.agent === agent && f.pol === pol && f.pod === pod
+      (f) => f.agent === agent && f.pod === pod
     );
     
     console.log(`   검색 결과 개수: ${filtered.length}`);
@@ -185,7 +185,7 @@ export const calculateCost = (
     }
     
     if (filtered.length === 0) {
-      console.log('   ❌ 철도운임 없음 (POL 불일치 가능성)');
+      console.log('   ❌ 철도운임 없음');
       return { value: 0, expired: false };
     }
     
@@ -203,16 +203,16 @@ export const calculateCost = (
   const dpCostData = getDPCostWithExpiry(input.pol);
   const totalOtherCosts = input.otherCosts.reduce((sum, item) => sum + item.amount, 0);
 
-  // Collect agents from BOTH rail freight AND combined freight - NOW WITH POL FILTERING
+  // Collect agents from BOTH rail freight AND combined freight - POL removed from rail freight filtering
   const railAgentsFromPortBorder = currentPortBorderFreights
-    .filter(f => f.pol === input.pol && f.pod === input.pod)
+    .filter(f => f.pod === input.pod)
     .map(f => f.agent);
   
   const railAgentsFromCombined = currentCombinedFreights
     .filter(f => f.pol === input.pol && f.pod === input.pod && f.destinationId === input.destinationId)
     .map(f => f.agent);
   
-  console.log('\n📋 철도운임 대리점 (POL 필터링 적용):', railAgentsFromPortBorder);
+  console.log('\n📋 철도운임 대리점 (POD 필터링만 적용):', railAgentsFromPortBorder);
   console.log('📋 통합운임 대리점 (POL 필터링 적용):', railAgentsFromCombined);
   
   // Merge and get unique agents
@@ -305,7 +305,7 @@ export const calculateCost = (
     if (dthcResult.expired) expiredDetails.push('DTHC');
     
     const combinedResult = getCombinedFreightWithExpiry(agentName, input.pol, input.pod, input.destinationId);
-    const railResult = getPortBorderRateWithExpiry(agentName, input.pol, input.pod);
+    const railResult = getPortBorderRateWithExpiry(agentName, input.pod);
     const ownTruckResult = getBorderDestinationRateWithExpiry(agentName, input.destinationId);
     
     const hasCombined = combinedResult.value !== null && combinedResult.value > 0;

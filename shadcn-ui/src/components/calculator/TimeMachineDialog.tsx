@@ -120,38 +120,38 @@ export default function TimeMachineDialog({ open, onOpenChange, onSelectDate, cu
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50">
-        <DialogHeader className="space-y-3 pb-4 border-b border-blue-200">
-          <DialogTitle className="flex items-center gap-3 text-2xl">
+      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50">
+        <DialogHeader className="space-y-2 pb-3 border-b border-blue-200">
+          <DialogTitle className="flex items-center gap-2 text-xl">
             <div className="relative">
-              <Clock className="h-7 w-7 text-blue-600" />
-              <Sparkles className="h-4 w-4 text-purple-500 absolute -top-1 -right-1 animate-pulse" />
+              <Clock className="h-6 w-6 text-blue-600" />
+              <Sparkles className="h-3 w-3 text-purple-500 absolute -top-1 -right-1 animate-pulse" />
             </div>
             <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent font-bold">
               타임머신
             </span>
           </DialogTitle>
-          <DialogDescription className="text-base text-gray-700">
+          <DialogDescription className="text-sm text-gray-700">
             과거의 운임 데이터로 시간을 되돌려 원가를 계산해보세요
             {availableDates.length === 0 && (
-              <span className="flex items-center gap-2 mt-3 text-amber-700 bg-amber-50 px-4 py-2 rounded-lg border border-amber-200">
-                <AlertCircle className="h-4 w-4" />
+              <span className="flex items-center gap-2 mt-2 text-amber-700 bg-amber-50 px-3 py-2 rounded-lg border border-amber-200 text-xs">
+                <AlertCircle className="h-3 w-3" />
                 아직 운임 변경 기록이 없습니다. 운임을 수정하면 자동으로 기록됩니다.
               </span>
             )}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 py-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 py-3">
           {/* Calendar Section */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 text-sm font-bold text-gray-700 bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-200">
-              <CalendarIcon className="h-5 w-5 text-blue-600" />
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 text-xs font-bold text-gray-700 bg-white px-3 py-2 rounded-lg shadow-sm border border-gray-200">
+              <CalendarIcon className="h-4 w-4 text-blue-600" />
               날짜 선택
             </div>
             <div className="relative overflow-hidden rounded-xl bg-white shadow-lg border border-gray-200">
               <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-purple-50/50 pointer-events-none"></div>
-              <div className="relative p-6">
+              <div className="relative p-4 flex justify-center">
                 <Calendar
                   mode="single"
                   selected={selectedDate}
@@ -170,18 +170,18 @@ export default function TimeMachineDialog({ open, onOpenChange, onSelectDate, cu
                   }}
                   className="rounded-lg"
                   classNames={{
-                    months: "space-y-4",
-                    month: "space-y-4",
-                    caption: "flex justify-center pt-1 relative items-center text-lg font-bold text-gray-800",
-                    caption_label: "text-lg font-bold",
+                    months: "space-y-3",
+                    month: "space-y-3",
+                    caption: "flex justify-center pt-1 relative items-center text-base font-bold text-gray-800",
+                    caption_label: "text-base font-bold",
                     nav: "space-x-1 flex items-center",
-                    nav_button: "h-9 w-9 bg-white hover:bg-blue-100 rounded-lg transition-colors border border-gray-200",
+                    nav_button: "h-7 w-7 bg-white hover:bg-blue-100 rounded-lg transition-colors border border-gray-200",
                     table: "w-full border-collapse space-y-1",
-                    head_row: "flex",
-                    head_cell: "text-gray-600 rounded-md w-12 font-semibold text-sm",
-                    row: "flex w-full mt-2",
-                    cell: "relative p-0 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-transparent",
-                    day: "h-12 w-12 p-0 font-medium rounded-lg hover:bg-blue-100 transition-all aria-selected:opacity-100",
+                    head_row: "flex justify-center",
+                    head_cell: "text-gray-600 rounded-md w-9 font-semibold text-xs text-center",
+                    row: "flex w-full mt-1 justify-center",
+                    cell: "relative p-0 text-center text-xs focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-transparent",
+                    day: "h-9 w-9 p-0 font-medium rounded-lg hover:bg-blue-100 transition-all aria-selected:opacity-100 flex items-center justify-center",
                     day_selected: "bg-gradient-to-br from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600 focus:from-blue-600 focus:to-purple-600",
                     day_today: "bg-blue-50 text-blue-900 font-bold border-2 border-blue-400",
                     day_outside: "text-gray-400 opacity-50",
@@ -189,30 +189,30 @@ export default function TimeMachineDialog({ open, onOpenChange, onSelectDate, cu
                     day_hidden: "invisible",
                   }}
                 />
-                <div className="mt-6 space-y-3 text-sm">
-                  <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
-                    <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 shadow-md"></div>
-                    <span className="text-gray-700 font-medium">운임 변경이 있었던 날짜</span>
-                  </div>
-                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                    <div className="w-6 h-6 rounded-lg bg-gray-200"></div>
-                    <span className="text-gray-600">변경 기록이 없는 날짜</span>
-                  </div>
+              </div>
+              <div className="px-4 pb-4 space-y-2 text-xs">
+                <div className="flex items-center gap-2 p-2 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
+                  <div className="w-5 h-5 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 shadow-md flex-shrink-0"></div>
+                  <span className="text-gray-700 font-medium">운임 변경이 있었던 날짜</span>
+                </div>
+                <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg border border-gray-200">
+                  <div className="w-5 h-5 rounded-lg bg-gray-200 flex-shrink-0"></div>
+                  <span className="text-gray-600">변경 기록이 없는 날짜</span>
                 </div>
               </div>
             </div>
 
             {selectedDate && (
-              <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 p-6 shadow-lg text-white">
+              <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 p-4 shadow-lg text-white">
                 <div className="absolute inset-0 bg-white/10 backdrop-blur-sm"></div>
-                <div className="relative space-y-3">
+                <div className="relative space-y-2">
                   <div className="flex items-center gap-2">
-                    <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
-                      <CalendarIcon className="h-5 w-5" />
+                    <div className="p-1.5 bg-white/20 rounded-lg backdrop-blur-sm">
+                      <CalendarIcon className="h-4 w-4" />
                     </div>
-                    <span className="font-bold text-lg">선택된 날짜</span>
+                    <span className="font-bold text-base">선택된 날짜</span>
                   </div>
-                  <p className="text-2xl font-bold">
+                  <p className="text-xl font-bold">
                     {selectedDate.toLocaleDateString('ko-KR', {
                       year: 'numeric',
                       month: 'long',
@@ -220,8 +220,8 @@ export default function TimeMachineDialog({ open, onOpenChange, onSelectDate, cu
                       weekday: 'long',
                     })}
                   </p>
-                  <p className="text-sm text-blue-100 flex items-center gap-2">
-                    <Sparkles className="h-4 w-4" />
+                  <p className="text-xs text-blue-100 flex items-center gap-2">
+                    <Sparkles className="h-3 w-3" />
                     이 날짜의 운임 데이터로 원가를 계산합니다
                   </p>
                 </div>
@@ -230,23 +230,23 @@ export default function TimeMachineDialog({ open, onOpenChange, onSelectDate, cu
           </div>
 
           {/* Changes Section */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 text-sm font-bold text-gray-700 bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-200">
-              <TrendingUp className="h-5 w-5 text-purple-600" />
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 text-xs font-bold text-gray-700 bg-white px-3 py-2 rounded-lg shadow-sm border border-gray-200">
+              <TrendingUp className="h-4 w-4 text-purple-600" />
               {selectedDate ? '선택된 날짜의 운임 변경 내역' : '날짜를 선택하세요'}
             </div>
             
             {selectedDate ? (
               dateChanges.length > 0 ? (
                 <div className="rounded-xl overflow-hidden bg-white shadow-lg border border-gray-200">
-                  <div className="max-h-[450px] overflow-y-auto">
+                  <div className="max-h-[350px] overflow-y-auto">
                     <Table>
                       <TableHeader className="bg-gradient-to-r from-blue-50 to-purple-50 sticky top-0">
                         <TableRow className="border-b-2 border-blue-200">
-                          <TableHead className="font-bold text-gray-700">시간</TableHead>
-                          <TableHead className="font-bold text-gray-700">운임 종류</TableHead>
-                          <TableHead className="font-bold text-gray-700">작업</TableHead>
-                          <TableHead className="font-bold text-gray-700">변경자</TableHead>
+                          <TableHead className="font-bold text-gray-700 text-xs py-2">시간</TableHead>
+                          <TableHead className="font-bold text-gray-700 text-xs py-2">운임 종류</TableHead>
+                          <TableHead className="font-bold text-gray-700 text-xs py-2">작업</TableHead>
+                          <TableHead className="font-bold text-gray-700 text-xs py-2">변경자</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -259,20 +259,20 @@ export default function TimeMachineDialog({ open, onOpenChange, onSelectDate, cu
                                 index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'
                               }`}
                             >
-                              <TableCell className="font-mono text-xs font-semibold text-gray-600">
+                              <TableCell className="font-mono text-xs font-semibold text-gray-600 py-2">
                                 {formatTime(log.timestamp)}
                               </TableCell>
-                              <TableCell>
-                                <span className="text-sm font-semibold text-gray-800">
+                              <TableCell className="py-2">
+                                <span className="text-xs font-semibold text-gray-800">
                                   {getEntityTypeLabel(log.entityType)}
                                 </span>
                               </TableCell>
-                              <TableCell>
-                                <Badge className={`${action.color} font-semibold shadow-sm`}>
+                              <TableCell className="py-2">
+                                <Badge className={`${action.color} font-semibold shadow-sm text-xs`}>
                                   {action.label}
                                 </Badge>
                               </TableCell>
-                              <TableCell className="text-sm font-medium text-gray-700">
+                              <TableCell className="text-xs font-medium text-gray-700 py-2">
                                 {log.changedByName}
                               </TableCell>
                             </TableRow>
@@ -281,33 +281,33 @@ export default function TimeMachineDialog({ open, onOpenChange, onSelectDate, cu
                       </TableBody>
                     </Table>
                   </div>
-                  <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 border-t-2 border-blue-200 text-sm font-semibold text-gray-700">
+                  <div className="p-3 bg-gradient-to-r from-blue-50 to-purple-50 border-t-2 border-blue-200 text-xs font-semibold text-gray-700">
                     총 <span className="text-blue-600">{dateChanges.length}</span>건의 변경 사항
                   </div>
                 </div>
               ) : (
-                <div className="rounded-xl bg-white shadow-lg border border-gray-200 p-12 text-center">
-                  <div className="inline-flex p-4 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full mb-4">
-                    <Clock className="h-12 w-12 text-blue-600" />
+                <div className="rounded-xl bg-white shadow-lg border border-gray-200 p-8 text-center">
+                  <div className="inline-flex p-3 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full mb-3">
+                    <Clock className="h-8 w-8 text-blue-600" />
                   </div>
-                  <p className="text-gray-700 font-semibold text-lg mb-2">이 날짜에는 운임 변경 기록이 없습니다</p>
-                  <p className="text-sm text-gray-500">다른 날짜를 선택해보세요</p>
+                  <p className="text-gray-700 font-semibold text-base mb-1">이 날짜에는 운임 변경 기록이 없습니다</p>
+                  <p className="text-xs text-gray-500">다른 날짜를 선택해보세요</p>
                 </div>
               )
             ) : (
-              <div className="rounded-xl bg-white shadow-lg border border-gray-200 p-12 text-center">
-                <div className="inline-flex p-4 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full mb-4">
-                  <CalendarIcon className="h-12 w-12 text-purple-600" />
+              <div className="rounded-xl bg-white shadow-lg border border-gray-200 p-8 text-center">
+                <div className="inline-flex p-3 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full mb-3">
+                  <CalendarIcon className="h-8 w-8 text-purple-600" />
                 </div>
-                <p className="text-gray-700 font-semibold text-lg mb-2">왼쪽 달력에서 날짜를 선택하세요</p>
-                <p className="text-sm text-gray-500">해당 날짜의 운임 변경 내역을 확인할 수 있습니다</p>
+                <p className="text-gray-700 font-semibold text-base mb-1">왼쪽 달력에서 날짜를 선택하세요</p>
+                <p className="text-xs text-gray-500">해당 날짜의 운임 변경 내역을 확인할 수 있습니다</p>
               </div>
             )}
           </div>
         </div>
 
-        <div className="flex justify-between items-center pt-4 border-t-2 border-blue-200 bg-white/50 backdrop-blur-sm rounded-lg px-4 py-3">
-          <div className="text-sm font-semibold text-gray-700">
+        <div className="flex justify-between items-center pt-3 border-t-2 border-blue-200 bg-white/50 backdrop-blur-sm rounded-lg px-3 py-2">
+          <div className="text-xs font-semibold text-gray-700">
             {availableDates.length > 0 && (
               <span className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
@@ -315,12 +315,12 @@ export default function TimeMachineDialog({ open, onOpenChange, onSelectDate, cu
               </span>
             )}
           </div>
-          <div className="flex gap-3">
+          <div className="flex gap-2">
             {currentDate && (
               <Button 
                 variant="outline" 
                 onClick={handleClearDate}
-                className="border-2 border-gray-300 hover:border-blue-400 hover:bg-blue-50 font-semibold transition-all"
+                className="border-2 border-gray-300 hover:border-blue-400 hover:bg-blue-50 font-semibold transition-all text-xs h-8"
               >
                 현재 운임으로 돌아가기
               </Button>
@@ -328,16 +328,16 @@ export default function TimeMachineDialog({ open, onOpenChange, onSelectDate, cu
             <Button 
               variant="outline" 
               onClick={() => onOpenChange(false)}
-              className="border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 font-semibold transition-all"
+              className="border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 font-semibold transition-all text-xs h-8"
             >
               취소
             </Button>
             <Button 
               onClick={handleConfirm} 
               disabled={!selectedDate}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed text-xs h-8"
             >
-              <Clock className="h-4 w-4 mr-2" />
+              <Clock className="h-3 w-3 mr-1" />
               이 날짜로 계산하기
             </Button>
           </div>

@@ -275,7 +275,8 @@ export default function AgentSeaFreightTable() {
   const handleVersionChangeSave = () => {
     if (!versionChangeData || !originalFreightId) return;
 
-    if (!versionChangeData.rate || !versionChangeData.validFrom || !versionChangeData.validTo) {
+    // Check for required fields - allow rate to be 0
+    if (versionChangeData.rate === null || versionChangeData.rate === undefined || !versionChangeData.validFrom || !versionChangeData.validTo) {
       setValidationWarning('❌ 모든 필수 항목을 입력해주세요.');
       return;
     }
@@ -860,6 +861,7 @@ export default function AgentSeaFreightTable() {
                       setValidationWarning(null);
                     }}
                   />
+                  <p className="text-xs text-green-600">✅ 운임이 0이어도 유효합니다</p>
                 </div>
               </div>
 

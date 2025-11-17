@@ -1465,16 +1465,12 @@ export default function CostCalculatorWithTabs() {
                             ) : breakdown.isAgentSpecificSeaFreight ? (
                               // For agent-specific freight, display llocal value as-is
                               // Positive values show as positive, negative as negative, zero as zero
-                              (breakdown.llocal || 0) > 0 ? (
-                                <span className="text-green-600 font-bold">
-                                  ${breakdown.llocal}
-                                </span>
-                              ) : (breakdown.llocal || 0) < 0 ? (
+                              (breakdown.llocal || 0) < 0 ? (
                                 <span className="text-red-600 font-bold">
                                   ${breakdown.llocal}
                                 </span>
                               ) : (
-                                <span>$0</span>
+                                <span>${breakdown.llocal || 0}</span>
                               )
                             ) : (
                               // For general freight, show localCharge normally

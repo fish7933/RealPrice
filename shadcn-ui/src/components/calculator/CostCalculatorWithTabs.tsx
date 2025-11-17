@@ -1445,7 +1445,7 @@ export default function CostCalculatorWithTabs() {
                                 )}
                               </>
                             )}
-                            {breakdown.isAgentSpecificSeaFreight && !excludedCosts.seaFreight && !isCellExcluded(originalIndex, 'seaFreight') && breakdown.seaFreight !== 0 && (
+                            {breakdown.isAgentSpecificSeaFreight && !excludedCosts.seaFreight && !isCellExcluded(originalIndex, 'seaFreight') && (
                               <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded text-xs">
                                 <Star className="h-3 w-3" />
                               </span>

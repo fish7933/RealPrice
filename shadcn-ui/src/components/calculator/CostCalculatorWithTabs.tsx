@@ -422,7 +422,18 @@ export default function CostCalculatorWithTabs() {
         : [];
 
     if (seaFreightIdsToCalculate.length === 0) {
-      setError('해상 운임을 선택해주세요.');
+      // Provide detailed error message about missing freight rates
+      const missingRates: string[] = [];
+      
+      if (seaFreightOptions.length === 0) {
+        missingRates.push(`${input.pol} → ${input.pod} 항로의 해상운임`);
+      }
+      
+      const errorMsg = missingRates.length > 0 
+        ? `다음 운임 정보가 등록되지 않았습니다:\n• ${missingRates.join('\n• ')}\n\n관리자 대시보드에서 해당 운임을 먼저 등록해주세요.`
+        : '해상 운임을 선택해주세요.';
+      
+      setError(errorMsg);
       return;
     }
 
@@ -445,7 +456,16 @@ export default function CostCalculatorWithTabs() {
     });
 
     if (allBreakdowns.length === 0) {
-      setError('선택한 경로에 대한 운임 정보를 찾을 수 없습니다.');
+      // Provide detailed error message about missing freight rates
+      const destination = getDestinationById(input.destinationId);
+      const destinationName = destination?.name || input.destinationId;
+      const missingRates: string[] = [];
+      
+      // Check what's missing
+      missingRates.push(`${input.pod} → ${destinationName} 경로의 철도운임 또는 통합운임`);
+      missingRates.push(`${destinationName} 목적지의 트럭운임`);
+      
+      setError(`다음 운임 정보가 등록되지 않았습니다:\n• ${missingRates.join('\n• ')}\n\n관리자 대시보드에서 해당 운임을 먼저 등록해주세요.`);
       return;
     }
 
@@ -1918,7 +1938,7 @@ export default function CostCalculatorWithTabs() {
 
           {error && (
             <Alert variant="destructive">
-              <AlertDescription>{error}</AlertDescription>
+              <AlertDescription style={{ whiteSpace: 'pre-line' }}>{error}</AlertDescription>
             </Alert>
           )}
 

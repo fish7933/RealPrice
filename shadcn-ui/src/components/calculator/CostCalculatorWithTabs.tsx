@@ -1433,6 +1433,8 @@ export default function CostCalculatorWithTabs() {
                           <div className="flex items-center justify-end gap-1">
                             {excludedCosts.seaFreight || isCellExcluded(originalIndex, 'seaFreight') ? (
                               '$0'
+                            ) : breakdown.seaFreight === 0 ? (
+                              <span>$0</span>
                             ) : (
                               <>
                                 <span className={isExpired(breakdown, '해상운임') ? 'text-red-600 font-bold' : ''}>

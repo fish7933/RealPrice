@@ -1467,7 +1467,7 @@ export default function CostCalculatorWithTabs() {
                               // Positive values show as positive, negative as negative, zero as zero
                               (breakdown.llocal || 0) > 0 ? (
                                 <span className="text-green-600 font-bold">
-                                  +${breakdown.llocal}
+                                  ${breakdown.llocal}
                                 </span>
                               ) : (breakdown.llocal || 0) < 0 ? (
                                 <span className="text-red-600 font-bold">

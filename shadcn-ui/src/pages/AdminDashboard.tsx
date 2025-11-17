@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import Layout from '@/components/layout/Layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -16,7 +17,20 @@ import BorderDestinationTable from '@/components/freight/BorderDestinationTable'
 import WeightSurchargeTable from '@/components/freight/WeightSurchargeTable';
 import DPCostTable from '@/components/freight/DPCostTable';
 
+const ADMIN_TAB_STORAGE_KEY = 'admin-dashboard-active-tab';
+
 export default function AdminDashboard() {
+  // Load the last active tab from localStorage, default to "agents"
+  const [activeTab, setActiveTab] = useState<string>(() => {
+    const savedTab = localStorage.getItem(ADMIN_TAB_STORAGE_KEY);
+    return savedTab || 'agents';
+  });
+
+  // Save the active tab to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem(ADMIN_TAB_STORAGE_KEY, activeTab);
+  }, [activeTab]);
+
   return (
     <Layout>
       <div className="space-y-6">
@@ -32,7 +46,7 @@ export default function AdminDashboard() {
             <CardDescription>각 항목별 데이터를 관리합니다</CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="agents" className="w-full">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="grid w-full grid-cols-5 lg:grid-cols-12 mb-4">
                 <TabsTrigger value="agents" className="flex items-center gap-1">
                   <Users className="h-4 w-4" />

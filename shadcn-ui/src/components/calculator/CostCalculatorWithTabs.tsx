@@ -506,6 +506,9 @@ export default function CostCalculatorWithTabs() {
         total += breakdown.otherCosts.reduce((sum, cost) => sum + cost.amount, 0);
       }
       
+      // Add L.LOCAL (negative reduces, positive increases)
+      total += (breakdown.llocal || 0);
+      
       if (total < lowestCost) {
         lowestCost = total;
         lowestAgent = breakdown.agent;
@@ -576,6 +579,9 @@ export default function CostCalculatorWithTabs() {
         if (breakdown.otherCosts) {
           total += breakdown.otherCosts.reduce((sum, cost) => sum + cost.amount, 0);
         }
+        
+        // Add L.LOCAL (negative reduces, positive increases)
+        total += (breakdown.llocal || 0);
         
         if (total < lowestCost) {
           lowestCost = total;
@@ -766,6 +772,9 @@ export default function CostCalculatorWithTabs() {
         if (breakdown.otherCosts) {
           total += breakdown.otherCosts.reduce((sum, cost) => sum + cost.amount, 0);
         }
+        
+        // Add L.LOCAL (negative reduces, positive increases)
+        total += (breakdown.llocal || 0);
         
         if (total < lowestCost) {
           lowestCost = total;
@@ -984,9 +993,7 @@ export default function CostCalculatorWithTabs() {
     const isDomesticTransportExcluded = excludedCosts.domesticTransport || isCellExcluded(agentIndex, 'domesticTransport');
     
     if (!isSeaFreightExcluded) total += breakdown.seaFreight;
-    // For agent-specific freight, don't add localCharge (it will be subtracted as llocal)
-    // For general freight, add localCharge normally
-    if (!isLocalChargeExcluded && breakdown.localCharge && !breakdown.isAgentSpecificSeaFreight) {
+    if (!isLocalChargeExcluded && breakdown.localCharge) {
       total += breakdown.localCharge;
     }
     if (!isDthcExcluded) total += breakdown.dthc;
@@ -1011,9 +1018,9 @@ export default function CostCalculatorWithTabs() {
       });
     }
     
-    // Subtract L.LOCAL if it's agent-specific sea freight and not excluded
-    if (breakdown.isAgentSpecificSeaFreight && !isLocalChargeExcluded && breakdown.llocal) {
-      total -= breakdown.llocal;
+    // NEW LOGIC: Add L.LOCAL directly (negative reduces, positive increases)
+    if (!isLocalChargeExcluded && breakdown.llocal) {
+      total += breakdown.llocal;
     }
     
     return total;
@@ -1462,21 +1469,19 @@ export default function CostCalculatorWithTabs() {
                           <div className="flex items-center justify-end gap-1">
                             {excludedCosts.localCharge || isCellExcluded(originalIndex, 'localCharge') ? (
                               <span>$0</span>
-                            ) : breakdown.isAgentSpecificSeaFreight ? (
-                              // For agent-specific freight, show llocal value
+                            ) : breakdown.isAgentSpecificSeaFreight && (breakdown.llocal || 0) !== 0 ? (
+                              // For agent-specific freight with non-zero L.LOCAL, show with sign and color
                               (breakdown.llocal || 0) < 0 ? (
-                                // If llocal is negative, show as positive green (because minus negative = plus)
-                                <span className="text-green-600 font-bold">
-                                  +${Math.abs(breakdown.llocal || 0)}
+                                <span className="text-red-600 font-bold">
+                                  ${breakdown.llocal}
                                 </span>
                               ) : (
-                                // If llocal is positive or zero, show as red negative
-                                <span className="text-red-600 font-bold">
-                                  -${breakdown.llocal || 0}
+                                <span className="text-green-600 font-bold">
+                                  +${breakdown.llocal}
                                 </span>
                               )
                             ) : (
-                              // For general freight, show localCharge normally
+                              // For general freight or zero L.LOCAL, show localCharge normally
                               <span>${breakdown.localCharge || 0}</span>
                             )}
                             {breakdown.isAgentSpecificSeaFreight && !excludedCosts.localCharge && !isCellExcluded(originalIndex, 'localCharge') && (breakdown.llocal || 0) !== 0 && (
@@ -1687,6 +1692,10 @@ export default function CostCalculatorWithTabs() {
               <p className="text-xs text-gray-600 mt-2 flex items-center gap-1">
                 <Star className="h-3 w-3 text-amber-600" />
                 <span>별표는 해당 대리점이 지정한 특별 해상운임 또는 L.LOCAL이 적용되었음을 나타냅니다</span>
+              </p>
+              <p className="text-xs text-gray-600 mt-1 flex items-center gap-1">
+                <DollarSign className="h-3 w-3 text-gray-600" />
+                <span>L.LOCAL: 마이너스(-)는 총액 차감(빨간색), 플러스(+)는 총액 증가(녹색)</span>
               </p>
               <p className="text-xs text-gray-600 mt-1 flex items-center gap-1">
                 <Merge className="h-3 w-3 text-purple-600" />
@@ -1965,6 +1974,7 @@ export default function CostCalculatorWithTabs() {
                 <li>• <strong>중량할증:</strong> 입력한 중량에 따라 자동 계산됩니다</li>
                 <li>• <strong>해상운임:</strong> 같은 항로에 여러 운임이 있는 경우 복수 선택할 수 있습니다</li>
                 <li>• <strong>DP:</strong> 관리자 대시보드에서 설정한 부산/인천 DP 금액이 자동 적용됩니다</li>
+                <li>• <strong>L.LOCAL:</strong> 마이너스(-)로 입력하면 총액에서 차감, 플러스(+)로 입력하면 총액에 추가됩니다</li>
               </ul>
             </AlertDescription>
           </Alert>

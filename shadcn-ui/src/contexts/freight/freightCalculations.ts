@@ -322,6 +322,7 @@ export const calculateCost = (
       // CRITICAL FIX: For combined freight, DP is always 0
       const combinedDpValue = 0;
       
+      // NEW LOGIC: L.LOCAL is added directly to total (negative L.LOCAL reduces total, positive L.LOCAL increases total)
       const total =
         seaFreightRate +
         seaFreightLocalCharge +
@@ -330,13 +331,13 @@ export const calculateCost = (
         weightSurchargeResult.value +
         combinedDpValue +
         totalOtherCosts +
-        input.domesticTransport -
-        seaFreightLLocal; // Subtract L.LOCAL from total
+        input.domesticTransport +
+        seaFreightLLocal; // Add L.LOCAL directly (negative reduces, positive increases)
 
       console.log(`\n💰 통합운임 계산 완료:`);
-      console.log(`   총액 = ${seaFreightRate} + ${seaFreightLocalCharge} + ${dthcResult.value} + ${combinedResult.value} + ${weightSurchargeResult.value} + ${combinedDpValue} + ${totalOtherCosts} + ${input.domesticTransport} - ${seaFreightLLocal}`);
+      console.log(`   총액 = ${seaFreightRate} + ${seaFreightLocalCharge} + ${dthcResult.value} + ${combinedResult.value} + ${weightSurchargeResult.value} + ${combinedDpValue} + ${totalOtherCosts} + ${input.domesticTransport} + ${seaFreightLLocal}`);
       console.log(`   총액 = ${total}`);
-      console.log(`   ⭐ L.LOCAL 차감: -${seaFreightLLocal}`);
+      console.log(`   ⭐ L.LOCAL: ${seaFreightLLocal >= 0 ? '+' : ''}${seaFreightLLocal}`);
 
       breakdown.push({
         agent: agentName,
@@ -378,6 +379,7 @@ export const calculateCost = (
       const separateDpValue = dpCostData.value;
       if (dpCostData.expired) separateExpiredDetails.push('DP');
       
+      // NEW LOGIC: L.LOCAL is added directly to total (negative L.LOCAL reduces total, positive L.LOCAL increases total)
       const total =
         seaFreightRate +
         seaFreightLocalCharge +
@@ -387,13 +389,13 @@ export const calculateCost = (
         weightSurchargeResult.value +
         separateDpValue +
         totalOtherCosts +
-        input.domesticTransport -
-        seaFreightLLocal; // Subtract L.LOCAL from total
+        input.domesticTransport +
+        seaFreightLLocal; // Add L.LOCAL directly (negative reduces, positive increases)
 
       console.log(`\n💰 분리운임 계산 완료:`);
-      console.log(`   총액 = ${seaFreightRate} + ${seaFreightLocalCharge} + ${dthcResult.value} + ${railResult.value} + ${ownTruckResult.value} + ${weightSurchargeResult.value} + ${separateDpValue} + ${totalOtherCosts} + ${input.domesticTransport} - ${seaFreightLLocal}`);
+      console.log(`   총액 = ${seaFreightRate} + ${seaFreightLocalCharge} + ${dthcResult.value} + ${railResult.value} + ${ownTruckResult.value} + ${weightSurchargeResult.value} + ${separateDpValue} + ${totalOtherCosts} + ${input.domesticTransport} + ${seaFreightLLocal}`);
       console.log(`   총액 = ${total}`);
-      console.log(`   ⭐ L.LOCAL 차감: -${seaFreightLLocal}`);
+      console.log(`   ⭐ L.LOCAL: ${seaFreightLLocal >= 0 ? '+' : ''}${seaFreightLLocal}`);
 
       breakdown.push({
         agent: agentName,
@@ -438,6 +440,7 @@ export const calculateCost = (
       
       const cowinDthcResult = getDTHCByAgentAndRouteWithExpiry(agentName, input.pol, input.pod, isAgentSpecific);
       
+      // NEW LOGIC: L.LOCAL is added directly to total (negative L.LOCAL reduces total, positive L.LOCAL increases total)
       const total =
         seaFreightRate +
         seaFreightLocalCharge +
@@ -447,13 +450,13 @@ export const calculateCost = (
         weightSurchargeResult.value +
         cowinDpValue +
         totalOtherCosts +
-        input.domesticTransport -
-        seaFreightLLocal; // Subtract L.LOCAL from total
+        input.domesticTransport +
+        seaFreightLLocal; // Add L.LOCAL directly (negative reduces, positive increases)
 
       console.log(`\n💰 COWIN 조합 계산 완료:`);
-      console.log(`   총액 = ${seaFreightRate} + ${seaFreightLocalCharge} + ${cowinDthcResult.value} + ${railResult.value} + ${cowinTruck.rate} + ${weightSurchargeResult.value} + ${cowinDpValue} + ${totalOtherCosts} + ${input.domesticTransport} - ${seaFreightLLocal}`);
+      console.log(`   총액 = ${seaFreightRate} + ${seaFreightLocalCharge} + ${cowinDthcResult.value} + ${railResult.value} + ${cowinTruck.rate} + ${weightSurchargeResult.value} + ${cowinDpValue} + ${totalOtherCosts} + ${input.domesticTransport} + ${seaFreightLLocal}`);
       console.log(`   총액 = ${total}`);
-      console.log(`   ⭐ L.LOCAL 차감: -${seaFreightLLocal}`);
+      console.log(`   ⭐ L.LOCAL: ${seaFreightLLocal >= 0 ? '+' : ''}${seaFreightLLocal}`);
 
       breakdown.push({
         agent: `${agentName} + COWIN`,
@@ -493,7 +496,7 @@ export const calculateCost = (
     console.log(`\n${index + 1}. ${b.agent}`);
     console.log(`   - 대리점 해상운임 사용: ${b.isAgentSpecificSeaFreight ? '✅ YES' : '❌ NO'}`);
     console.log(`   - LocalCharge: ${b.localCharge} 💰`);
-    console.log(`   - L.LOCAL: ${b.llocal} ${b.llocal > 0 ? '⭐' : ''}`);
+    console.log(`   - L.LOCAL: ${b.llocal} ${b.llocal !== 0 ? '⭐' : ''}`);
     console.log(`   - 총액: ${b.total}`);
   });
 

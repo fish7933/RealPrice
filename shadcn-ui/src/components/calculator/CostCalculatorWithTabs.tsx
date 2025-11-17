@@ -462,10 +462,14 @@ export default function CostCalculatorWithTabs() {
       const missingRates: string[] = [];
       
       // Check what's missing
-      missingRates.push(`${input.pod} → ${destinationName} 경로의 철도운임 또는 통합운임`);
-      missingRates.push(`${destinationName} 목적지의 트럭운임`);
+      if (input.includeDP) {
+        missingRates.push(`${input.pol} → ${input.pod} → ${destinationName} 경로의 철도운임 (POD → KASHGAR)`);
+        missingRates.push(`${destinationName} 목적지의 트럭운임 (KASHGAR → 최종목적지)`);
+      } else {
+        missingRates.push(`${input.pol} → ${input.pod} → ${destinationName} 경로의 통합운임`);
+      }
       
-      setError(`다음 운임 정보가 등록되지 않았습니다:\n• ${missingRates.join('\n• ')}\n\n관리자 대시보드에서 해당 운임을 먼저 등록해주세요.`);
+      setError(`선택한 경로에 대한 운임 조합이 없습니다.\n\n누락된 운임:\n• ${missingRates.join('\n• ')}\n\n관리자 대시보드에서 해당 운임을 먼저 등록해주세요.`);
       return;
     }
 
@@ -1159,10 +1163,21 @@ export default function CostCalculatorWithTabs() {
         )}
 
         {resultData.breakdown.length === 0 && (
-          <Alert>
-            <Info className="h-4 w-4" />
+          <Alert variant="destructive">
+            <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
-              이 경로에는 운임 조합이 없습니다.
+              <strong>운임 조합이 없습니다</strong>
+              <div className="mt-2 space-y-1 text-sm">
+                {input.includeDP ? (
+                  <>
+                    <div>• <strong>철도운임</strong>: {input.pol} → {input.pod} → KASHGAR 경로의 철도운임이 등록되지 않았습니다</div>
+                    <div>• <strong>트럭운임</strong>: KASHGAR → {getDestinationName(input.destinationId)} 경로의 트럭운임이 등록되지 않았습니다</div>
+                  </>
+                ) : (
+                  <div>• <strong>통합운임</strong>: {input.pol} → {input.pod} → {getDestinationName(input.destinationId)} 경로의 통합운임이 등록되지 않았습니다</div>
+                )}
+                <div className="mt-2 text-blue-700">관리자 대시보드에서 해당 운임을 먼저 등록해주세요.</div>
+              </div>
             </AlertDescription>
           </Alert>
         )}
@@ -1494,6 +1509,8 @@ export default function CostCalculatorWithTabs() {
                         >
                           {breakdown.isCombinedFreight ? (
                             <span className="text-gray-400">-</span>
+                          ) : breakdown.portBorder === 0 ? (
+                            <span className="text-amber-600">운임 없음</span>
                           ) : (
                             <div className="flex items-center justify-end gap-1">
                               <span className={isExpired(breakdown, '철도운임') ? 'text-red-600 font-bold' : ''}>
@@ -1520,6 +1537,8 @@ export default function CostCalculatorWithTabs() {
                         >
                           {breakdown.isCombinedFreight ? (
                             <span className="text-gray-400">-</span>
+                          ) : breakdown.borderDestination === 0 ? (
+                            <span className="text-amber-600">운임 없음</span>
                           ) : (
                             <div className="flex items-center justify-end gap-1">
                               <span className={isExpired(breakdown, '트럭운임') ? 'text-red-600 font-bold' : ''}>
@@ -1545,17 +1564,21 @@ export default function CostCalculatorWithTabs() {
                           title={breakdown.isCombinedFreight ? "클릭하여 이 조합만 제외/포함" : ""}
                         >
                           {breakdown.isCombinedFreight ? (
-                            <div className="flex items-center justify-end gap-1">
-                              <span className={isExpired(breakdown, '통합운임') ? 'text-red-600 font-bold' : ''}>
-                                ${excludedCosts.combinedFreight || isCellExcluded(originalIndex, 'combinedFreight') ? 0 : breakdown.combinedFreight}
-                              </span>
-                              {isExpired(breakdown, '통합운임') && !excludedCosts.combinedFreight && !isCellExcluded(originalIndex, 'combinedFreight') && (
-                                <AlertTriangle className="h-3 w-3 text-red-600" title="만료된 운임" />
-                              )}
-                              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-purple-100 text-purple-700 rounded text-xs">
-                                <Merge className="h-3 w-3" />
-                              </span>
-                            </div>
+                            breakdown.combinedFreight === 0 ? (
+                              <span className="text-amber-600">운임 없음</span>
+                            ) : (
+                              <div className="flex items-center justify-end gap-1">
+                                <span className={isExpired(breakdown, '통합운임') ? 'text-red-600 font-bold' : ''}>
+                                  ${excludedCosts.combinedFreight || isCellExcluded(originalIndex, 'combinedFreight') ? 0 : breakdown.combinedFreight}
+                                </span>
+                                {isExpired(breakdown, '통합운임') && !excludedCosts.combinedFreight && !isCellExcluded(originalIndex, 'combinedFreight') && (
+                                  <AlertTriangle className="h-3 w-3 text-red-600" title="만료된 운임" />
+                                )}
+                                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-purple-100 text-purple-700 rounded text-xs">
+                                  <Merge className="h-3 w-3" />
+                                </span>
+                              </div>
+                            )
                           ) : (
                             <span className="text-gray-400">-</span>
                           )}

@@ -111,6 +111,7 @@ export interface CombinedFreight {
 export interface PortBorderFreight {
   id: string;
   agent: string;
+  pol: string; // Added POL field for integrity
   pod: string;
   rate: number;
   validFrom: string;

@@ -1463,15 +1463,15 @@ export default function CostCalculatorWithTabs() {
                             {excludedCosts.localCharge || isCellExcluded(originalIndex, 'localCharge') ? (
                               <span>$0</span>
                             ) : breakdown.isAgentSpecificSeaFreight ? (
-                              // For agent-specific freight, display llocal value as-is
-                              // Positive values show as positive, negative as negative, zero as zero
-                              (breakdown.llocal || 0) < 0 ? (
-                                <span className="text-red-600 font-bold">
-                                  ${breakdown.llocal}
+                              // For agent-specific freight, apply same conditions as sea freight
+                              <>
+                                <span className={isExpired(breakdown, 'L.LOCAL') ? 'text-red-600 font-bold' : ''}>
+                                  ${breakdown.llocal || 0}
                                 </span>
-                              ) : (
-                                <span>${breakdown.llocal || 0}</span>
-                              )
+                                {isExpired(breakdown, 'L.LOCAL') && (
+                                  <AlertTriangle className="h-3 w-3 text-red-600" title="만료된 운임" />
+                                )}
+                              </>
                             ) : (
                               // For general freight, show localCharge normally
                               <span>${breakdown.localCharge || 0}</span>

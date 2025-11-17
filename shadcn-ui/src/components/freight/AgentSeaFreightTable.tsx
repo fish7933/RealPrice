@@ -349,10 +349,6 @@ export default function AgentSeaFreightTable() {
           <span className="text-sm text-gray-600 mt-1 block">
             D/O(DTHC)는 별도의 "D/O(DTHC) 관리" 페이지에서 대리점별로 설정됩니다.
           </span>
-          <br />
-          <span className="text-sm text-blue-600 mt-1 block font-medium">
-            💡 L.LOCAL: 대리점이 회사로 돌려주는 금액으로, 총액에서 차감됩니다.
-          </span>
         </AlertDescription>
       </Alert>
 
@@ -522,7 +518,7 @@ export default function AgentSeaFreightTable() {
                     <TableCell>${freight.rate}</TableCell>
                     <TableCell>
                       {freight.llocal ? (
-                        <span className="text-red-600 font-medium">-${freight.llocal}</span>
+                        <span className="font-medium">${Math.abs(freight.llocal)}</span>
                       ) : (
                         <span className="text-gray-400">-</span>
                       )}
@@ -760,7 +756,6 @@ export default function AgentSeaFreightTable() {
                 value={formData.llocal}
                 onChange={(e) => setFormData({ ...formData, llocal: e.target.value })}
               />
-              <p className="text-xs text-blue-600">대리점이 회사로 돌려주는 금액 (총액에서 차감됨)</p>
             </div>
             <div className="col-span-2 space-y-2">
               <Label>유효기간 *</Label>
@@ -903,7 +898,6 @@ export default function AgentSeaFreightTable() {
                       });
                     }}
                   />
-                  <p className="text-xs text-blue-600">대리점이 회사로 돌려주는 금액</p>
                 </div>
               </div>
 

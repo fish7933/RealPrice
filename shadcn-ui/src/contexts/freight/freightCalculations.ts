@@ -61,7 +61,7 @@ export const calculateCost = (
     return { value: filtered[0].amount, expired: true };
   };
 
-  const getAgentSeaFreightWithExpiry = (agent: string, pol: string, pod: string): { value: number | null; expired: boolean; carrier?: string; llocal?: number } => {
+const getAgentSeaFreightWithExpiry = (agent: string, pol: string, pod: string): { value: number | null; expired: boolean; carrier?: string; localCharge?: number; llocal?: number } => {
     console.log(`\n🔎 대리점 해상운임 검색: agent="${agent}", pol="${pol}", pod="${pod}"`);
     
     const filtered = currentAgentSeaFreights.filter(
@@ -89,7 +89,79 @@ export const calculateCost = (
         value: validFreights[0].rate, 
         expired: false, 
         carrier: validFreights[0].carrier,
-        llocal: validFreights[0].llocal 
+        localCharge: validFreights[0].localCharge || 0,
+        llocal: validFreights[0].llocal || 0
+      };
+      return { 
+        value: validFreights[0].rate, 
+    return { 
+      value: filtered[0].rate, 
+      expired: true, 
+      carrier: filtered[0].carrier,
+      localCharge: filtered[0].localCharge || 0,
+      llocal: filtered[0].llocal || 0
+    };
+    return { 
+      value: filtered[0].rate, 
+      expired: true, 
+      carrier: filtered[0].carrier,
+      localCharge: filtered[0].localCharge || 0,
+      llocal: filtered[0].llocal || 0
+    };
+    return { 
+      value: filtered[0].rate, 
+      expired: true, 
+      carrier: filtered[0].carrier,
+      localCharge: filtered[0].localCharge || 0,
+      llocal: filtered[0].llocal || 0
+    };
+    return { 
+      value: filtered[0].rate, 
+      expired: true, 
+      carrier: filtered[0].carrier,
+      localCharge: filtered[0].localCharge || 0,
+      llocal: filtered[0].llocal || 0
+    };
+    return { 
+      value: filtered[0].rate, 
+      expired: true, 
+      carrier: filtered[0].carrier,
+      localCharge: filtered[0].localCharge || 0,
+      llocal: filtered[0].llocal || 0
+    };
+    return { 
+      value: filtered[0].rate, 
+      expired: true, 
+      carrier: filtered[0].carrier,
+      localCharge: filtered[0].localCharge || 0,
+      llocal: filtered[0].llocal || 0
+    };
+        value: validFreights[0].rate, 
+        expired: false, 
+        carrier: validFreights[0].carrier,
+        localCharge: validFreights[0].localCharge || 0,
+        llocal: validFreights[0].llocal || 0
+      };
+      return { 
+        value: validFreights[0].rate, 
+        expired: false, 
+        carrier: validFreights[0].carrier,
+        localCharge: validFreights[0].localCharge || 0,
+        llocal: validFreights[0].llocal || 0
+      };
+      return { 
+        value: validFreights[0].rate, 
+        expired: false, 
+        carrier: validFreights[0].carrier,
+        localCharge: validFreights[0].localCharge || 0,
+        llocal: validFreights[0].llocal || 0
+      };
+      return { 
+        value: validFreights[0].rate, 
+        expired: false, 
+        carrier: validFreights[0].carrier,
+        localCharge: validFreights[0].localCharge || 0,
+        llocal: validFreights[0].llocal || 0
       };
     }
     
@@ -145,8 +217,12 @@ export const calculateCost = (
   const getWeightSurchargeWithExpiry = (agent: string, weight: number): { value: number; expired: boolean } => {
     const filtered = currentWeightSurchargeRules.filter(
       (r) => r.agent === agent && weight >= r.minWeight && weight <= r.maxWeight
-    );
-    if (filtered.length === 0) return { value: 0, expired: false };
+      seaFreightRate = agentSeaResult.value;
+      seaFreightLocalCharge = agentSeaResult.localCharge || 0;
+      seaFreightLLocal = agentSeaResult.llocal || 0;
+      seaFreightRate = agentSeaResult.value;
+      seaFreightLocalCharge = agentSeaResult.localCharge || 0;
+      seaFreightLLocal = agentSeaResult.llocal || 0;
     
     const validRules = filtered.filter(r => isValidOnDate(r.validFrom, r.validTo, calculationDate));
     if (validRules.length > 0) {

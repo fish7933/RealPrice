@@ -66,6 +66,7 @@ export interface AgentSeaFreight {
   pol: string;
   pod: string;
   rate: number;
+  localCharge?: number; // L.LOCAL charge for display
   llocal?: number; // L.LOCAL charge that will be deducted from total
   carrier?: string;
   note?: string;

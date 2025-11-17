@@ -24,6 +24,7 @@ import {
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Calculator, TrendingDown, Train, Truck, Weight, Package, Star, FileText, DollarSign, Info, Ship, Clock, AlertTriangle, Minus } from 'lucide-react';
 
+// DEBUG VERSION: 2024-01-16-16:15:00
 export default function CostCalculator() {
   const { destinations, calculateCost, getDPCost, getDestinationById, getTotalOtherCosts, ports, getAvailableHistoricalDates } = useFreight();
   const [input, setInput] = useState<CostCalculationInput>({
@@ -94,7 +95,7 @@ export default function CostCalculator() {
       return;
     }
 
-    console.log('\n\n🎯 ===== UI에서 받은 계산 결과 ===== ');
+    console.log('\n\n🎯 ===== UI에서 받은 계산 결과 (DEBUG v2024-01-16-16:15) ===== ');
     console.log('📊 전체 result 객체:', calculationResult);
     console.log('\n📦 Breakdown 배열:', calculationResult.breakdown);
     console.log('\n🔍 각 breakdown 항목 상세:');
@@ -432,7 +433,7 @@ export default function CostCalculator() {
               </div>
               <div className="flex items-center gap-2 text-sm text-blue-900 mb-2">
                 <DollarSign className="h-4 w-4" />
-                <span className="font-semibold">기타비용:</span>
+                <span className="font-semibold">기타비용:</strong>
                 <span>기타비용 메뉴에서 설정한 항목(DP 제외)이 자동 합산됩니다</span>
               </div>
               <div className="flex items-center gap-2 text-sm text-blue-900 mb-2">
@@ -519,7 +520,7 @@ export default function CostCalculator() {
                     const isLowest = breakdown.agent === result.lowestCostAgent;
                     const hasExpired = breakdown.hasExpiredRates;
                     
-                    console.log(`\n🖼️ ===== 렌더링 ${index + 1}번째 행: ${breakdown.agent} =====`);
+                    console.log(`\n🖼️ ===== 렌더링 ${index + 1}번째 행: ${breakdown.agent} (DEBUG v2024-01-16-16:15) =====`);
                     console.log(`   breakdown 객체:`, breakdown);
                     console.log(`   breakdown.llocal: ${breakdown.llocal}`);
                     console.log(`   typeof breakdown.llocal: ${typeof breakdown.llocal}`);

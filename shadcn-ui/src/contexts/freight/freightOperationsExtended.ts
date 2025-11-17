@@ -300,6 +300,7 @@ export const addCombinedFreight = async (freight: Omit<CombinedFreight, 'id' | '
       .from(TABLES.COMBINED_FREIGHTS)
       .insert({
         agent: freight.agent,
+        pol: freight.pol,
         pod: freight.pod,
         destination_id: freight.destinationId,
         rate: freight.rate,
@@ -320,6 +321,7 @@ export const addCombinedFreight = async (freight: Omit<CombinedFreight, 'id' | '
       const newFreight: CombinedFreight = {
         id: data.id,
         agent: data.agent,
+        pol: data.pol || '인천',
         pod: data.pod,
         destinationId: data.destination_id,
         rate: data.rate,
@@ -365,6 +367,7 @@ export const updateCombinedFreight = async (id: string, freight: Partial<Combine
       .from(TABLES.COMBINED_FREIGHTS)
       .update({
         agent: freight.agent,
+        pol: freight.pol,
         pod: freight.pod,
         destination_id: freight.destinationId,
         rate: freight.rate,
@@ -387,6 +390,7 @@ export const updateCombinedFreight = async (id: string, freight: Partial<Combine
       const updatedFreight: CombinedFreight = {
         id: data.id,
         agent: data.agent,
+        pol: data.pol || '인천',
         pod: data.pod,
         destinationId: data.destination_id,
         rate: data.rate,

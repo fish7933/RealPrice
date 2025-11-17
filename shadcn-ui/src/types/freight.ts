@@ -99,6 +99,7 @@ export interface DPCost {
 export interface CombinedFreight {
   id: string;
   agent: string;
+  pol: string; // Added POL field
   pod: string;
   destinationId: string;
   rate: number;

@@ -319,6 +319,7 @@ export const loadCombinedFreights = async (): Promise<CombinedFreight[]> => {
       return data.map(d => ({
         id: d.id,
         agent: d.agent,
+        pol: d.pol || '인천', // Map POL field with default value
         pod: d.pod,
         destinationId: d.destination_id,
         rate: d.rate,

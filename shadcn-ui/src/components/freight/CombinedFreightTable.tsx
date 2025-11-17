@@ -38,6 +38,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface VersionChangeData {
   agent: string;
+  pol: string;
   pod: string;
   destinationId: string;
   rate: number;
@@ -71,6 +72,7 @@ export default function CombinedFreightTable() {
   const [validationError, setValidationError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     agent: '',
+    pol: '',
     pod: '',
     destinationId: '',
     rate: '',
@@ -83,6 +85,7 @@ export default function CombinedFreightTable() {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchFilters, setSearchFilters] = useState({
     agent: FILTER_ALL_VALUE,
+    pol: FILTER_ALL_VALUE,
     pod: FILTER_ALL_VALUE,
     destination: FILTER_ALL_VALUE,
     status: FILTER_ALL_VALUE, // 'all', 'active', 'expiring', 'expired'
@@ -90,23 +93,27 @@ export default function CombinedFreightTable() {
 
   const isAdmin = user?.role === 'admin' || user?.role === 'superadmin';
   
-  // Get POD ports from the ports list
+  // Get POL and POD ports from the ports list
+  const polPorts = ports.filter(p => p.type === 'POL');
   const podPorts = ports.filter(p => p.type === 'POD');
 
   // Extract unique values for filter dropdowns
   const filterOptions = useMemo(() => {
     const agents = new Set<string>();
+    const pols = new Set<string>();
     const pods = new Set<string>();
     const destinationIds = new Set<string>();
 
     combinedFreights.forEach(freight => {
       if (freight.agent) agents.add(freight.agent);
+      if (freight.pol) pols.add(freight.pol);
       if (freight.pod) pods.add(freight.pod);
       if (freight.destinationId) destinationIds.add(freight.destinationId);
     });
 
     return {
       agents: Array.from(agents).sort((a, b) => a.localeCompare(b, 'ko')),
+      pols: Array.from(pols).sort((a, b) => a.localeCompare(b, 'ko')),
       pods: Array.from(pods).sort((a, b) => a.localeCompare(b, 'ko')),
       destinations: Array.from(destinationIds).map(id => {
         const dest = destinations.find(d => d.id === id);
@@ -120,6 +127,11 @@ export default function CombinedFreightTable() {
     return combinedFreights.filter((freight) => {
       // Agent filter
       if (searchFilters.agent !== FILTER_ALL_VALUE && freight.agent !== searchFilters.agent) {
+        return false;
+      }
+
+      // POL filter
+      if (searchFilters.pol !== FILTER_ALL_VALUE && freight.pol !== searchFilters.pol) {
         return false;
       }
 
@@ -166,6 +178,7 @@ export default function CombinedFreightTable() {
   const resetForm = () => {
     setFormData({
       agent: '',
+      pol: '',
       pod: '',
       destinationId: '',
       rate: '',
@@ -177,8 +190,8 @@ export default function CombinedFreightTable() {
   };
 
   const handleAdd = () => {
-    if (!formData.agent || !formData.pod || !formData.destinationId || !formData.rate || !formData.validFrom || !formData.validTo) {
-      alert('대리점, 중국항, 목적지, 운임, 유효기간을 모두 입력해주세요.');
+    if (!formData.agent || !formData.pol || !formData.pod || !formData.destinationId || !formData.rate || !formData.validFrom || !formData.validTo) {
+      alert('대리점, 선적항, 양하항, 목적지, 운임, 유효기간을 모두 입력해주세요.');
       return;
     }
 
@@ -187,7 +200,7 @@ export default function CombinedFreightTable() {
       formData.validTo,
       '',
       combinedFreights,
-      (item) => item.agent === formData.agent && item.pod === formData.pod && item.destinationId === formData.destinationId
+      (item) => item.agent === formData.agent && item.pol === formData.pol && item.pod === formData.pod && item.destinationId === formData.destinationId
     );
 
     if (error) {
@@ -197,6 +210,7 @@ export default function CombinedFreightTable() {
 
     addCombinedFreight({
       agent: formData.agent,
+      pol: formData.pol,
       pod: formData.pod,
       destinationId: formData.destinationId,
       rate: parseFloat(formData.rate),
@@ -211,7 +225,7 @@ export default function CombinedFreightTable() {
 
   const handleVersionChangeClick = (freight: CombinedFreight) => {
     const relevantItems = combinedFreights.filter(
-      (item) => item.agent === freight.agent && item.pod === freight.pod && item.destinationId === freight.destinationId
+      (item) => item.agent === freight.agent && item.pol === freight.pol && item.pod === freight.pod && item.destinationId === freight.destinationId
     );
     const maxVersion = Math.max(...relevantItems.map(item => item.version || 1), 0);
     const nextVersion = maxVersion + 1;
@@ -248,6 +262,7 @@ export default function CombinedFreightTable() {
 
     setVersionChangeData({
       agent: freight.agent,
+      pol: freight.pol,
       pod: freight.pod,
       destinationId: freight.destinationId,
       rate: freight.rate,
@@ -299,6 +314,7 @@ export default function CombinedFreightTable() {
   const handleClearFilters = () => {
     setSearchFilters({
       agent: FILTER_ALL_VALUE,
+      pol: FILTER_ALL_VALUE,
       pod: FILTER_ALL_VALUE,
       destination: FILTER_ALL_VALUE,
       status: FILTER_ALL_VALUE,
@@ -323,7 +339,7 @@ export default function CombinedFreightTable() {
             철도+트럭 통합운임 관리
           </h2>
           <p className="text-gray-600 mt-1">
-            중국항 → 최종목적지 통합 운임 (철도+트럭 일괄)
+            선적항 → 양하항 → 최종목적지 통합 운임 (철도+트럭 일괄)
           </p>
         </div>
         {isAdmin && (
@@ -341,7 +357,7 @@ export default function CombinedFreightTable() {
               <DialogHeader>
                 <DialogTitle>육상운송 통합운임 추가</DialogTitle>
                 <DialogDescription>
-                  새로운 통합 운임을 추가합니다. 중국항에서 최종목적지까지의 일괄 운임입니다.
+                  새로운 통합 운임을 추가합니다. 선적항에서 양하항을 거쳐 최종목적지까지의 일괄 운임입니다.
                 </DialogDescription>
               </DialogHeader>
               <div className="grid gap-4 py-4">
@@ -373,14 +389,38 @@ export default function CombinedFreightTable() {
                   </Select>
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="pod">중국항 (POD) *</Label>
+                  <Label htmlFor="pol">선적항 (POL) *</Label>
+                  {polPorts.length > 0 ? (
+                    <Select value={formData.pol} onValueChange={(value) => {
+                      setFormData({ ...formData, pol: value });
+                      setValidationError(null);
+                    }}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="선적항 선택" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {polPorts.map((port) => (
+                          <SelectItem key={port.id} value={port.name}>
+                            {port.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <div className="text-sm text-gray-500 p-3 bg-gray-50 rounded border">
+                      선적항(POL)을 먼저 등록해주세요. (운송사 탭 → 포트 관리)
+                    </div>
+                  )}
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="pod">양하항 (POD) *</Label>
                   {podPorts.length > 0 ? (
                     <Select value={formData.pod} onValueChange={(value) => {
                       setFormData({ ...formData, pod: value });
                       setValidationError(null);
                     }}>
                       <SelectTrigger>
-                        <SelectValue placeholder="중국항 선택" />
+                        <SelectValue placeholder="양하항 선택" />
                       </SelectTrigger>
                       <SelectContent>
                         {podPorts.map((port) => (
@@ -392,7 +432,7 @@ export default function CombinedFreightTable() {
                     </Select>
                   ) : (
                     <div className="text-sm text-gray-500 p-3 bg-gray-50 rounded border">
-                      도착항(POD)을 먼저 등록해주세요. (운송사 탭 → 포트 관리)
+                      양하항(POD)을 먼저 등록해주세요. (운송사 탭 → 포트 관리)
                     </div>
                   )}
                 </div>
@@ -443,7 +483,7 @@ export default function CombinedFreightTable() {
                   <Label htmlFor="description">설명</Label>
                   <Input
                     id="description"
-                    placeholder="예: 청도→OSH 통합 운임"
+                    placeholder="예: 인천→청도→OSH 통합 운임"
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   />
@@ -487,7 +527,7 @@ export default function CombinedFreightTable() {
           <Search className="h-4 w-4 text-gray-600" />
           <span className="font-semibold text-sm">검색 필터</span>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
           <div className="space-y-1">
             <Label className="text-xs">대리점</Label>
             <Select value={searchFilters.agent} onValueChange={(value) => setSearchFilters(prev => ({ ...prev, agent: value }))}>
@@ -505,7 +545,23 @@ export default function CombinedFreightTable() {
             </Select>
           </div>
           <div className="space-y-1">
-            <Label className="text-xs">중국항 (POD)</Label>
+            <Label className="text-xs">선적항 (POL)</Label>
+            <Select value={searchFilters.pol} onValueChange={(value) => setSearchFilters(prev => ({ ...prev, pol: value }))}>
+              <SelectTrigger className="h-9">
+                <SelectValue placeholder="전체" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={FILTER_ALL_VALUE}>전체</SelectItem>
+                {filterOptions.pols.map((pol) => (
+                  <SelectItem key={pol} value={pol}>
+                    {pol}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs">양하항 (POD)</Label>
             <Select value={searchFilters.pod} onValueChange={(value) => setSearchFilters(prev => ({ ...prev, pod: value }))}>
               <SelectTrigger className="h-9">
                 <SelectValue placeholder="전체" />
@@ -575,7 +631,8 @@ export default function CombinedFreightTable() {
             <TableRow>
               <TableHead>버전</TableHead>
               <TableHead>대리점</TableHead>
-              <TableHead>중국항</TableHead>
+              <TableHead>선적항</TableHead>
+              <TableHead>양하항</TableHead>
               <TableHead>최종목적지</TableHead>
               <TableHead className="text-right">통합 운임 (USD)</TableHead>
               <TableHead>유효기간</TableHead>
@@ -587,7 +644,7 @@ export default function CombinedFreightTable() {
           <TableBody>
             {paginatedFreights.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={isAdmin ? 9 : 8} className="text-center py-8 text-gray-500">
+                <TableCell colSpan={isAdmin ? 10 : 9} className="text-center py-8 text-gray-500">
                   {combinedFreights.length === 0 ? '등록된 통합 운임이 없습니다.' : '검색 결과가 없습니다'}
                 </TableCell>
               </TableRow>
@@ -601,6 +658,7 @@ export default function CombinedFreightTable() {
                       <Badge variant="outline">v{freight.version || 1}</Badge>
                     </TableCell>
                     <TableCell className="font-medium">{freight.agent}</TableCell>
+                    <TableCell>{freight.pol}</TableCell>
                     <TableCell>{freight.pod}</TableCell>
                     <TableCell>{getDestinationName(freight.destinationId)}</TableCell>
                     <TableCell className="text-right">${freight.rate}</TableCell>
@@ -741,10 +799,14 @@ export default function CombinedFreightTable() {
                   <Input value={versionChangeData.agent} disabled className="bg-gray-50" />
                 </div>
                 <div className="space-y-2">
-                  <Label>중국항</Label>
+                  <Label>선적항</Label>
+                  <Input value={versionChangeData.pol} disabled className="bg-gray-50" />
+                </div>
+                <div className="space-y-2">
+                  <Label>양하항</Label>
                   <Input value={versionChangeData.pod} disabled className="bg-gray-50" />
                 </div>
-                <div className="col-span-2 space-y-2">
+                <div className="space-y-2">
                   <Label>최종목적지</Label>
                   <Input value={getDestinationName(versionChangeData.destinationId)} disabled className="bg-gray-50" />
                 </div>
@@ -795,7 +857,7 @@ export default function CombinedFreightTable() {
               <div className="space-y-2">
                 <Label>설명</Label>
                 <Input
-                  placeholder="예: 청도→OSH 통합 운임"
+                  placeholder="예: 인천→청도→OSH 통합 운임"
                   value={versionChangeData.description || ''}
                   onChange={(e) => {
                     setVersionChangeData({

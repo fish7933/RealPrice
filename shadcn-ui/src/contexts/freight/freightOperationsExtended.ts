@@ -446,6 +446,7 @@ export const addPortBorderFreight = async (freight: Omit<PortBorderFreight, 'id'
       .from(TABLES.PORT_BORDER_FREIGHTS)
       .insert({
         agent: freight.agent,
+        pol: freight.pol, // ✅ Added POL field
         pod: freight.pod,
         rate: freight.rate,
         version: 1,
@@ -464,6 +465,7 @@ export const addPortBorderFreight = async (freight: Omit<PortBorderFreight, 'id'
       const newFreight: PortBorderFreight = {
         id: data.id,
         agent: data.agent,
+        pol: data.pol || '인천', // ✅ Added POL field mapping
         pod: data.pod,
         rate: data.rate,
         version: data.version,
@@ -504,15 +506,22 @@ export const updatePortBorderFreight = async (id: string, freight: Partial<PortB
       newVersion = (oldFreight.version || 1) + 1;
     }
 
+    const updateData: Record<string, unknown> = {
+      rate: freight.rate,
+      version: newVersion,
+      valid_from: freight.validFrom,
+      valid_to: freight.validTo,
+      updated_at: new Date().toISOString(),
+    };
+
+    // ✅ Only update pol if it's provided in the freight parameter
+    if (freight.pol !== undefined) {
+      updateData.pol = freight.pol;
+    }
+
     const { data, error } = await supabase
       .from(TABLES.PORT_BORDER_FREIGHTS)
-      .update({
-        rate: freight.rate,
-        version: newVersion,
-        valid_from: freight.validFrom,
-        valid_to: freight.validTo,
-        updated_at: new Date().toISOString(),
-      })
+      .update(updateData)
       .eq('id', id)
       .select()
       .single();
@@ -526,6 +535,7 @@ export const updatePortBorderFreight = async (id: string, freight: Partial<PortB
       const updatedFreight: PortBorderFreight = {
         id: data.id,
         agent: data.agent,
+        pol: data.pol || '인천', // ✅ Added POL field mapping
         pod: data.pod,
         rate: data.rate,
         version: data.version,

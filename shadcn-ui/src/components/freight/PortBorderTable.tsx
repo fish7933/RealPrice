@@ -125,11 +125,54 @@ export default function PortBorderTable() {
   }, [formData.agent, formData.pol, isAddDialogOpen]);
 
   const handleAdd = () => {
-    if (!formData.agent || !formData.pol || !formData.validFrom || !formData.validTo) return;
+    // 🔍 DEBUG: Log the entire formData at the start
+    console.log('=== handleAdd 시작 ===');
+    console.log('전체 formData:', JSON.stringify(formData, null, 2));
+    console.log('formData.agent:', formData.agent, '(type:', typeof formData.agent, ')');
+    console.log('formData.pol:', formData.pol, '(type:', typeof formData.pol, ')');
+    console.log('formData.validFrom:', formData.validFrom);
+    console.log('formData.validTo:', formData.validTo);
+    
+    // ✅ Enhanced validation with explicit checks and error messages
+    if (!formData.agent || formData.agent.trim() === '') {
+      console.error('❌ 검증 실패: agent가 비어있음');
+      setValidationError('❌ 철도 대리점을 선택해주세요.');
+      return;
+    }
+    
+    if (!formData.pol || formData.pol.trim() === '') {
+      console.error('❌ 검증 실패: pol이 비어있음');
+      console.log('현재 pol 값:', formData.pol);
+      console.log('사용 가능한 POL 포트:', polPorts.map(p => p.name));
+      setValidationError('❌ 선적포트(POL)를 선택해주세요.');
+      return;
+    }
+    
+    console.log('✅ agent 및 pol 검증 통과');
+    
+    if (!formData.validFrom || formData.validFrom.trim() === '') {
+      console.error('❌ 검증 실패: validFrom이 비어있음');
+      setValidationError('❌ 유효기간 시작일을 입력해주세요.');
+      return;
+    }
+    
+    if (!formData.validTo || formData.validTo.trim() === '') {
+      console.error('❌ 검증 실패: validTo가 비어있음');
+      setValidationError('❌ 유효기간 종료일을 입력해주세요.');
+      return;
+    }
 
     const hasAnyRate = podPorts.some(pod => formData[pod.name] && formData[pod.name] !== '');
-    if (!hasAnyRate) return;
+    console.log('운임 입력 확인:', hasAnyRate);
+    if (!hasAnyRate) {
+      console.error('❌ 검증 실패: 운임이 하나도 입력되지 않음');
+      setValidationError('❌ 최소 하나 이상의 양하포트 운임을 입력해주세요.');
+      return;
+    }
 
+    console.log('✅ 모든 필수 필드 검증 통과');
+
+    // Validate no overlap for each POD
     for (const pod of podPorts) {
       if (formData[pod.name] && formData[pod.name] !== '') {
         const existingFreight = portBorderFreights.find(
@@ -145,40 +188,47 @@ export default function PortBorderTable() {
         );
 
         if (error) {
+          console.error('❌ 유효기간 중복 오류:', error);
           setValidationError(error);
           return;
         }
       }
     }
 
+    console.log('✅ 유효기간 중복 검증 통과');
+    console.log('=== 운임 추가/수정 시작 ===');
+
+    // Add or update freights for each POD
     podPorts.forEach(pod => {
       if (formData[pod.name] && formData[pod.name] !== '') {
         const existingFreight = portBorderFreights.find(
           f => f.agent === formData.agent && f.pol === formData.pol && f.pod === pod.name
         );
 
+        const freightData = {
+          agent: formData.agent,
+          pol: formData.pol,
+          pod: pod.name,
+          rate: Number(formData[pod.name]),
+          validFrom: formData.validFrom,
+          validTo: formData.validTo,
+        };
+
+        console.log(`\n--- ${pod.name} 처리 ---`);
+        console.log('운임 데이터:', JSON.stringify(freightData, null, 2));
+
         if (existingFreight) {
-          updatePortBorderFreight(existingFreight.id, {
-            agent: formData.agent,
-            pol: formData.pol,
-            pod: pod.name,
-            rate: Number(formData[pod.name]),
-            validFrom: formData.validFrom,
-            validTo: formData.validTo,
-          });
+          console.log(`기존 운임 수정 (ID: ${existingFreight.id})`);
+          updatePortBorderFreight(existingFreight.id, freightData);
         } else {
-          addPortBorderFreight({
-            agent: formData.agent,
-            pol: formData.pol,
-            pod: pod.name,
-            rate: Number(formData[pod.name]),
-            validFrom: formData.validFrom,
-            validTo: formData.validTo,
-          });
+          console.log('새 운임 추가');
+          console.log('addPortBorderFreight 호출 전 pol 값:', freightData.pol);
+          addPortBorderFreight(freightData);
         }
       }
     });
 
+    console.log('=== 운임 추가/수정 완료 ===\n');
     setFormData(initializeFormData());
     setValidationError(null);
     setIsAddDialogOpen(false);
@@ -500,14 +550,15 @@ export default function PortBorderTable() {
               <Alert variant="destructive">
                 <AlertTriangle className="h-4 w-4" />
                 <AlertDescription>
-                  <div className="font-semibold">유효기간 중복 오류</div>
+                  <div className="font-semibold">입력 오류</div>
                   <div className="text-sm mt-1">{validationError}</div>
                 </AlertDescription>
               </Alert>
             )}
             <div className="space-y-2">
-              <Label>철도 대리점</Label>
+              <Label>철도 대리점 *</Label>
               <Select value={formData.agent} onValueChange={(value) => {
+                console.log('🔍 Agent 선택:', value);
                 setFormData({ ...formData, agent: value });
                 setValidationError(null);
               }}>
@@ -524,8 +575,10 @@ export default function PortBorderTable() {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>선적포트 (POL)</Label>
+              <Label>선적포트 (POL) *</Label>
               <Select value={formData.pol} onValueChange={(value) => {
+                console.log('🔍 POL 선택:', value);
+                console.log('🔍 선택 후 formData:', { ...formData, pol: value });
                 setFormData({ ...formData, pol: value });
                 setValidationError(null);
               }}>
@@ -541,6 +594,9 @@ export default function PortBorderTable() {
                   ))}
                 </SelectContent>
               </Select>
+              <div className="text-xs text-gray-500 mt-1">
+                현재 선택된 POL: {formData.pol || '(선택 안됨)'}
+              </div>
             </div>
             <div className="space-y-2">
               <Label>유효기간 *</Label>
@@ -554,7 +610,7 @@ export default function PortBorderTable() {
               />
             </div>
             <div className="space-y-3">
-              <Label>각 양하포트별 운임 (USD)</Label>
+              <Label>각 양하포트별 운임 (USD) *</Label>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {podPorts.map(pod => (
                   <div key={pod.id} className="space-y-2">

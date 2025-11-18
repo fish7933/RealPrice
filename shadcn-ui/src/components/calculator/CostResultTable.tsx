@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Ship, Train, Truck, Weight, Package, Star, FileText, DollarSign, 
   Info, ArrowUp, ArrowDown, Merge, TrendingDown, AlertTriangle, 
-  FileSpreadsheet, Sparkles, Trophy 
+  FileSpreadsheet, Sparkles, Trophy, Crown, Zap
 } from 'lucide-react';
 import { CostCalculationResult, AgentCostBreakdown, CostCalculationInput } from '@/types/freight';
 import { ExcludedCosts, CellExclusions, SortConfig } from './types';
@@ -127,7 +127,7 @@ export default function CostResultTable({
   };
 
   const getLowestCostAgent = (breakdown: AgentCostBreakdown[]) => {
-    if (breakdown.length === 0) return { agent: '', cost: 0, index: -1 };
+    if (breakdown.length === 0) return { agent: '', cost: 0, index: -1, code: '' };
     
     let lowestIndex = 0;
     let lowestCost = calculateAdjustedTotal(breakdown[0], 0);
@@ -140,7 +140,15 @@ export default function CostResultTable({
       }
     });
 
-    return { agent: breakdown[lowestIndex].agent, cost: lowestCost, index: lowestIndex };
+    const lowestBreakdown = breakdown[lowestIndex];
+    const railCode = lowestBreakdown.railAgentCode || lowestBreakdown.railAgent.substring(0, 2).toUpperCase();
+    const truckCode = lowestBreakdown.truckAgentCode || lowestBreakdown.truckAgent.substring(0, 2).toUpperCase();
+    const freightType = lowestBreakdown.isCombinedFreight ? 'C' : 'S';
+    const carrierCode = lowestBreakdown.seaFreightCarrierCode || (lowestBreakdown.seaFreightCarrier ? lowestBreakdown.seaFreightCarrier.substring(0, 2).toUpperCase() : 'XX');
+    const seqNum = String(lowestIndex + 1).padStart(3, '0');
+    const code = `${carrierCode}-${railCode}${truckCode}-${freightType}${seqNum}`;
+
+    return { agent: lowestBreakdown.agent, cost: lowestCost, index: lowestIndex, code };
   };
 
   const generateCombinationCode = (breakdown: AgentCostBreakdown, index: number): string => {
@@ -678,21 +686,44 @@ export default function CostResultTable({
                             ${excludedCosts[`other_${idx}`] || isCellExcluded(originalIndex, `other_${idx}`) ? 0 : item.amount}
                           </TableCell>
                         ))}
-                        <TableCell className={`text-right font-bold whitespace-nowrap p-2 ${isLowest ? 'text-amber-900 text-lg' : ''}`}>
-                          <span className={adjustedTotal < 0 ? "text-red-600 font-bold" : ""}>
-                            ${adjustedTotal.toLocaleString()}
-                          </span>
+                        <TableCell className="text-right font-bold whitespace-nowrap p-2">
+                          {isLowest ? (
+                            <div className="flex items-center justify-end gap-2">
+                              <div className="flex flex-col items-end">
+                                <span className="text-2xl font-extrabold bg-gradient-to-r from-amber-600 via-yellow-600 to-amber-600 bg-clip-text text-transparent animate-pulse">
+                                  ${adjustedTotal.toLocaleString()}
+                                </span>
+                                <span className="text-[10px] text-amber-700 font-semibold">최저가</span>
+                              </div>
+                              <Crown className="h-5 w-5 text-amber-500 animate-bounce-subtle" />
+                            </div>
+                          ) : (
+                            <span className={adjustedTotal < 0 ? "text-red-600 font-bold" : ""}>
+                              ${adjustedTotal.toLocaleString()}
+                            </span>
+                          )}
                         </TableCell>
                         <TableCell className="text-center whitespace-nowrap p-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => onCreateQuotation(breakdown)}
-                            className="whitespace-nowrap h-8 px-2 text-xs"
-                          >
-                            <FileSpreadsheet className="h-3 w-3 mr-1" />
-                            견적서
-                          </Button>
+                          {isLowest ? (
+                            <Button
+                              size="sm"
+                              onClick={() => onCreateQuotation(breakdown)}
+                              className="relative overflow-hidden whitespace-nowrap h-9 px-3 text-xs font-bold bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-500 hover:from-amber-600 hover:via-yellow-600 hover:to-amber-600 text-white border-2 border-amber-400 shadow-lg hover:shadow-xl transition-all duration-300 animate-shimmer"
+                            >
+                              <Zap className="h-4 w-4 mr-1 animate-pulse" />
+                              견적서
+                            </Button>
+                          ) : (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => onCreateQuotation(breakdown)}
+                              className="whitespace-nowrap h-8 px-2 text-xs"
+                            >
+                              <FileSpreadsheet className="h-3 w-3 mr-1" />
+                              견적서
+                            </Button>
+                          )}
                         </TableCell>
                       </TableRow>
                     );
@@ -701,42 +732,56 @@ export default function CostResultTable({
               </Table>
             </div>
 
-            <div className="p-3 bg-gradient-to-r from-amber-50 via-yellow-50 to-amber-50 rounded-lg border-2 border-amber-300 shadow-md text-sm space-y-1.5">
+            <div className="p-4 bg-gradient-to-r from-amber-50 via-yellow-50 to-amber-50 rounded-lg border-2 border-amber-300 shadow-md space-y-2">
               <div className="flex items-center gap-2">
-                <Trophy className="h-5 w-5 text-amber-600" />
-                <p className="text-amber-900 font-bold text-base">
-                  최저가 조합: {lowestCostInfo.agent}
+                <Trophy className="h-6 w-6 text-amber-600" />
+                <p className="text-amber-900 font-bold text-lg">
+                  최저가 조합
                 </p>
               </div>
-              <p className="text-amber-900 font-semibold">
-                최저 총액: <span className="text-lg">${lowestCostInfo.cost.toLocaleString()}</span>
-              </p>
-              <p className="text-xs text-gray-600 flex items-center gap-1">
-                <Star className="h-3 w-3 text-amber-600" />
-                <span>별표는 특별 해상운임 또는 L.LOCAL 적용</span>
-              </p>
-              <p className="text-xs text-gray-600 flex items-center gap-1">
-                <Merge className="h-3 w-3 text-purple-600" />
-                <span>철도+트럭 통합운임 적용</span>
-              </p>
-              {showDpColumn && (
-                <p className="text-xs text-blue-600 flex items-center gap-1 font-semibold">
-                  <Info className="h-3 w-3" />
-                  <span>DP 포함 조합은 실제 DP 값 표시, 통합운임은 DP=0</span>
+              <div className="pl-8 space-y-1.5">
+                <p className="text-amber-900 font-semibold">
+                  조합 코드: <span className="font-mono text-base font-bold">{lowestCostInfo.code}</span>
                 </p>
-              )}
-              {resultData.breakdown.some(b => b.hasExpiredRates) && (
-                <p className="text-xs text-red-600 flex items-center gap-1 font-semibold">
-                  <AlertTriangle className="h-3 w-3" />
-                  <span>빨간색 굵은 글씨와 경고 아이콘은 만료된 운임</span>
+                <p className="text-amber-900 font-semibold">
+                  업체명: <span className="text-base">{lowestCostInfo.agent}</span>
                 </p>
-              )}
-              {(Object.values(excludedCosts).some(v => v) || Object.keys(cellExclusions).length > 0) && (
+                <p className="text-amber-900 font-bold text-lg flex items-center gap-2">
+                  최저 총액: 
+                  <span className="text-2xl bg-gradient-to-r from-amber-600 via-yellow-600 to-amber-600 bg-clip-text text-transparent">
+                    ${lowestCostInfo.cost.toLocaleString()}
+                  </span>
+                  <Crown className="h-5 w-5 text-amber-500" />
+                </p>
+              </div>
+              <div className="pt-2 border-t border-amber-200 space-y-1">
                 <p className="text-xs text-gray-600 flex items-center gap-1">
-                  <Info className="h-3 w-3 text-blue-600" />
-                  <span>일부 비용 항목이 제외되어 계산됨</span>
+                  <Star className="h-3 w-3 text-amber-600" />
+                  <span>별표는 특별 해상운임 또는 L.LOCAL 적용</span>
                 </p>
-              )}
+                <p className="text-xs text-gray-600 flex items-center gap-1">
+                  <Merge className="h-3 w-3 text-purple-600" />
+                  <span>철도+트럭 통합운임 적용</span>
+                </p>
+                {showDpColumn && (
+                  <p className="text-xs text-blue-600 flex items-center gap-1 font-semibold">
+                    <Info className="h-3 w-3" />
+                    <span>DP 포함 조합은 실제 DP 값 표시, 통합운임은 DP=0</span>
+                  </p>
+                )}
+                {resultData.breakdown.some(b => b.hasExpiredRates) && (
+                  <p className="text-xs text-red-600 flex items-center gap-1 font-semibold">
+                    <AlertTriangle className="h-3 w-3" />
+                    <span>빨간색 굵은 글씨와 경고 아이콘은 만료된 운임</span>
+                  </p>
+                )}
+                {(Object.values(excludedCosts).some(v => v) || Object.keys(cellExclusions).length > 0) && (
+                  <p className="text-xs text-gray-600 flex items-center gap-1">
+                    <Info className="h-3 w-3 text-blue-600" />
+                    <span>일부 비용 항목이 제외되어 계산됨</span>
+                  </p>
+                )}
+              </div>
             </div>
           </>
         )}

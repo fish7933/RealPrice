@@ -286,8 +286,8 @@ export default function TimeMachineDialog({ open, onOpenChange, onSelectDate, cu
                               : isAvailable && !isDisabled
                               ? 'bg-gradient-to-br from-pink-400 via-purple-400 to-blue-400 text-white hover:from-pink-500 hover:via-purple-500 hover:to-blue-500 shadow-md hover:scale-110'
                               : isDisabled
-                              ? 'text-gray-300 opacity-30 cursor-not-allowed'
-                              : 'hover:bg-gradient-to-br hover:from-pink-100 hover:to-purple-100 hover:scale-105'
+                              ? 'text-gray-400 bg-gray-100 cursor-not-allowed'
+                              : 'text-gray-600 bg-gray-200 hover:bg-gray-300 hover:scale-105'
                             }
                           `}
                         >
@@ -304,9 +304,9 @@ export default function TimeMachineDialog({ open, onOpenChange, onSelectDate, cu
                   <div className="w-5 h-5 rounded-xl bg-gradient-to-br from-pink-400 via-purple-400 to-blue-400 shadow-md flex-shrink-0"></div>
                   <span className="text-gray-700 font-semibold">✨ 운임 변경이 있었던 날짜</span>
                 </div>
-                <div className="flex items-center gap-2 p-2 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border-2 border-gray-200 shadow-sm">
-                  <div className="w-5 h-5 rounded-xl bg-gray-200 flex-shrink-0"></div>
-                  <span className="text-gray-600 font-medium">변경 기록이 없는 날짜</span>
+                <div className="flex items-center gap-2 p-2 bg-gradient-to-r from-gray-100 to-gray-200 rounded-xl border-2 border-gray-300 shadow-sm">
+                  <div className="w-5 h-5 rounded-xl bg-gray-400 flex-shrink-0"></div>
+                  <span className="text-gray-700 font-semibold">변경 기록이 없는 날짜</span>
                 </div>
               </div>
             </div>

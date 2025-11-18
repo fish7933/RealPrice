@@ -142,6 +142,13 @@ export default function BorderDestinationTable() {
     }
 
     try {
+      // Calculate version for new freight
+      const agentFreights = borderDestinationFreights.filter(f => f.agent === formData.agent);
+      const maxVersion = agentFreights.length > 0 
+        ? Math.max(...agentFreights.map(item => item.version || 1), 0)
+        : 0;
+      const newVersion = maxVersion + 1;
+
       const operations: Array<{
         type: 'add' | 'update' | 'delete';
         data?: Omit<BorderDestinationFreight, 'id' | 'createdAt'>;
@@ -165,6 +172,7 @@ export default function BorderDestinationTable() {
                 rate: Number(formData[dest.id]),
                 validFrom: formData.validFrom,
                 validTo: formData.validTo,
+                version: existingFreight.version, // Keep existing version for updates
               }
             });
           } else {
@@ -176,6 +184,7 @@ export default function BorderDestinationTable() {
                 rate: Number(formData[dest.id]),
                 validFrom: formData.validFrom,
                 validTo: formData.validTo,
+                version: newVersion, // Use calculated version for new freight
               }
             });
           }

@@ -50,7 +50,7 @@ export default function AdminDashboard() {
               <TabsList className="grid w-full grid-cols-5 lg:grid-cols-12 mb-4">
                 <TabsTrigger value="agents" className="flex items-center gap-1">
                   <Users className="h-4 w-4" />
-                  <span className="hidden sm:inline">선사&중국파트너사</span>
+                  <span className="hidden sm:inline">선사&중국 파트너사</span>
                 </TabsTrigger>
                 <TabsTrigger value="ports" className="flex items-center gap-1">
                   <Anchor className="h-4 w-4" />

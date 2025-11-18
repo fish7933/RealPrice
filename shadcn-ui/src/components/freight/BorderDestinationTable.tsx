@@ -116,7 +116,7 @@ export default function BorderDestinationTable() {
     }
   }, [formData.agent, destinations, borderDestinationFreights]);
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     if (!formData.agent || !formData.validFrom || !formData.validTo) return;
 
     const hasAnyRate = destinations.some(dest => formData[dest.id] && formData[dest.id] !== '');
@@ -143,35 +143,41 @@ export default function BorderDestinationTable() {
       }
     }
 
-    destinations.forEach(dest => {
-      if (formData[dest.id] && formData[dest.id] !== '') {
-        const existingFreight = borderDestinationFreights.find(
-          f => f.agent === formData.agent && f.destinationId === dest.id
-        );
+    // Process all operations sequentially
+    try {
+      for (const dest of destinations) {
+        if (formData[dest.id] && formData[dest.id] !== '') {
+          const existingFreight = borderDestinationFreights.find(
+            f => f.agent === formData.agent && f.destinationId === dest.id
+          );
 
-        if (existingFreight) {
-          updateBorderDestinationFreight(existingFreight.id, {
-            agent: formData.agent,
-            destinationId: dest.id,
-            rate: Number(formData[dest.id]),
-            validFrom: formData.validFrom,
-            validTo: formData.validTo,
-          });
-        } else {
-          addBorderDestinationFreight({
-            agent: formData.agent,
-            destinationId: dest.id,
-            rate: Number(formData[dest.id]),
-            validFrom: formData.validFrom,
-            validTo: formData.validTo,
-          });
+          if (existingFreight) {
+            await updateBorderDestinationFreight(existingFreight.id, {
+              agent: formData.agent,
+              destinationId: dest.id,
+              rate: Number(formData[dest.id]),
+              validFrom: formData.validFrom,
+              validTo: formData.validTo,
+            });
+          } else {
+            await addBorderDestinationFreight({
+              agent: formData.agent,
+              destinationId: dest.id,
+              rate: Number(formData[dest.id]),
+              validFrom: formData.validFrom,
+              validTo: formData.validTo,
+            });
+          }
         }
       }
-    });
 
-    setFormData(initializeFormData());
-    setValidationError(null);
-    setIsAddDialogOpen(false);
+      setFormData(initializeFormData());
+      setValidationError(null);
+      setIsAddDialogOpen(false);
+    } catch (error) {
+      console.error('Error adding/updating freight:', error);
+      setValidationError('운임 추가/수정 중 오류가 발생했습니다.');
+    }
   };
 
   const handleVersionChangeClick = (agent: string, freights: { [destinationId: string]: BorderDestinationFreight | undefined }) => {
@@ -233,36 +239,58 @@ export default function BorderDestinationTable() {
     setIsVersionChangeDialogOpen(true);
   };
 
-  const handleVersionChangeSave = () => {
+  const handleVersionChangeSave = async () => {
     if (!versionChangeData) return;
 
     const hasAnyRate = Object.values(versionChangeData.rates).some(rate => rate > 0);
-    if (!hasAnyRate || !versionChangeData.validFrom || !versionChangeData.validTo) {
-      setValidationError('❌ 모든 필수 항목을 입력해주세요.');
+    if (!versionChangeData.validFrom || !versionChangeData.validTo) {
+      setValidationError('❌ 유효기간을 입력해주세요.');
       return;
     }
 
-    destinations.forEach(dest => {
-      if (versionChangeData.rates[dest.id] && versionChangeData.rates[dest.id] > 0) {
+    try {
+      // Process all operations sequentially
+      for (const dest of destinations) {
         const existingFreight = borderDestinationFreights.find(
           f => f.agent === versionChangeData.agent && f.destinationId === dest.id
         );
 
+        const newRate = versionChangeData.rates[dest.id];
+
         if (existingFreight) {
-          updateBorderDestinationFreight(existingFreight.id, {
-            rate: versionChangeData.rates[dest.id],
+          if (newRate && newRate > 0) {
+            // Update existing freight with new rate
+            await updateBorderDestinationFreight(existingFreight.id, {
+              rate: newRate,
+              validFrom: versionChangeData.validFrom,
+              validTo: versionChangeData.validTo,
+              version: versionChangeData.nextVersion,
+            });
+          } else {
+            // Delete freight if rate is 0 or empty
+            await deleteBorderDestinationFreight(existingFreight.id);
+          }
+        } else if (newRate && newRate > 0) {
+          // Add new freight if it doesn't exist and has a rate
+          await addBorderDestinationFreight({
+            agent: versionChangeData.agent,
+            destinationId: dest.id,
+            rate: newRate,
             validFrom: versionChangeData.validFrom,
             validTo: versionChangeData.validTo,
             version: versionChangeData.nextVersion,
           });
         }
       }
-    });
 
-    setIsVersionChangeDialogOpen(false);
-    setVersionChangeData(null);
-    setOriginalFreightIds([]);
-    setValidationError(null);
+      setIsVersionChangeDialogOpen(false);
+      setVersionChangeData(null);
+      setOriginalFreightIds([]);
+      setValidationError(null);
+    } catch (error) {
+      console.error('Error updating version:', error);
+      setValidationError('버전 변경 중 오류가 발생했습니다.');
+    }
   };
 
   const handleVersionChangeCancel = () => {
@@ -272,7 +300,7 @@ export default function BorderDestinationTable() {
     setValidationError(null);
   };
 
-  const handleDeleteAgent = (agent: string, freights: { [destinationId: string]: BorderDestinationFreight | undefined }) => {
+  const handleDeleteAgent = async (agent: string, freights: { [destinationId: string]: BorderDestinationFreight | undefined }) => {
     const freightIds = Object.values(freights).filter(f => f).map(f => f!.id);
     const destinationNames = Object.keys(freights)
       .filter(destId => freights[destId])
@@ -283,9 +311,15 @@ export default function BorderDestinationTable() {
       .join(', ');
 
     if (confirm(`"${agent}" 트럭 대리점의 모든 운임을 삭제하시겠습니까?\n\n삭제될 목적지: ${destinationNames}\n총 ${freightIds.length}개의 운임이 삭제됩니다.`)) {
-      freightIds.forEach(id => {
-        deleteBorderDestinationFreight(id);
-      });
+      try {
+        // Delete all freights sequentially
+        for (const id of freightIds) {
+          await deleteBorderDestinationFreight(id);
+        }
+      } catch (error) {
+        console.error('Error deleting freights:', error);
+        alert('운임 삭제 중 오류가 발생했습니다.');
+      }
     }
   };
 
@@ -561,7 +595,7 @@ export default function BorderDestinationTable() {
               버전 변경
             </DialogTitle>
             <DialogDescription>
-              새로운 버전의 트럭운임 정보를 수정하세요. 버전이 자동으로 증가하고 유효기간이 설정됩니다.
+              새로운 버전의 트럭운임 정보를 수정하세요. 버전이 자동으로 증가하고 유효기간이 설정됩니다. 운임을 0으로 설정하면 해당 목적지 운임이 삭제됩니다.
             </DialogDescription>
           </DialogHeader>
           {versionChangeData && (
@@ -626,7 +660,12 @@ export default function BorderDestinationTable() {
               </div>
 
               <div className="space-y-3">
-                <Label>각 목적지별 운임 (USD) *</Label>
+                <Label>각 목적지별 운임 (USD)</Label>
+                <div className="text-xs bg-amber-50 border border-amber-200 rounded p-3">
+                  <p className="text-amber-700 font-medium">
+                    💡 운임을 0으로 설정하면 해당 목적지 운임이 삭제됩니다.
+                  </p>
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {destinations.map(dest => (
                     <div key={dest.id} className="space-y-2">

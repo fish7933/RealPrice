@@ -356,6 +356,7 @@ export const loadPortBorderFreights = async (): Promise<PortBorderFreight[]> => 
       return data.map(d => ({
         id: d.id,
         agent: d.agent,
+        pol: d.pol || '인천', // Added POL field mapping with default value
         pod: d.pod,
         rate: d.rate,
         version: d.version,

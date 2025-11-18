@@ -12,6 +12,8 @@ import {
   BorderDestinationFreight,
   WeightSurchargeRule,
   RailAgent,
+  TruckAgent,
+  ShippingLine,
   HistoricalFreightSnapshot,
 } from '@/types/freight';
 
@@ -27,6 +29,8 @@ export const calculateCost = (
   borderDestinationFreights: BorderDestinationFreight[],
   weightSurchargeRules: WeightSurchargeRule[],
   railAgents: RailAgent[],
+  truckAgents: TruckAgent[],
+  shippingLines: ShippingLine[],
   snapshot: HistoricalFreightSnapshot | null
 ): CostCalculationResult | null => {
   const calculationDate = input.historicalDate || new Date().toISOString().split('T')[0];
@@ -47,6 +51,23 @@ export const calculateCost = (
   const currentPortBorderFreights = getDataSource(portBorderFreights, snapshot?.portBorderFreights);
   const currentBorderDestinationFreights = getDataSource(borderDestinationFreights, snapshot?.borderDestinationFreights);
   const currentWeightSurchargeRules = getDataSource(weightSurchargeRules, snapshot?.weightSurchargeRules);
+
+  // Helper function to get agent code
+  const getRailAgentCode = (agentName: string): string | undefined => {
+    const agent = railAgents.find(a => a.name === agentName);
+    return agent?.code;
+  };
+
+  const getTruckAgentCode = (agentName: string): string | undefined => {
+    const agent = truckAgents.find(a => a.name === agentName);
+    return agent?.code;
+  };
+
+  const getShippingLineCode = (carrierName: string | undefined): string | undefined => {
+    if (!carrierName) return undefined;
+    const line = shippingLines.find(l => l.name === carrierName);
+    return line?.code;
+  };
 
   // Helper functions that return both value and expiration status
   const getDPCostWithExpiry = (port: string): { value: number; expired: boolean } => {
@@ -244,6 +265,7 @@ export const calculateCost = (
     let seaFreightLLocal = 0;
     let seaFreightId: string | undefined;
     let seaFreightCarrier: string | undefined;
+    let seaFreightCarrierCode: string | undefined;
     let isAgentSpecific = false;
     let seaFreightExpired = false;
 
@@ -253,6 +275,7 @@ export const calculateCost = (
       seaFreightLocalCharge = agentSeaResult.localCharge || 0;
       seaFreightLLocal = agentSeaResult.llocal || 0;
       seaFreightCarrier = agentSeaResult.carrier;
+      seaFreightCarrierCode = getShippingLineCode(seaFreightCarrier);
       isAgentSpecific = true;
       seaFreightExpired = agentSeaResult.expired;
       
@@ -261,6 +284,7 @@ export const calculateCost = (
       console.log(`      - seaFreightLocalCharge: ${seaFreightLocalCharge} 💰`);
       console.log(`      - seaFreightLLocal: ${seaFreightLLocal} ⭐`);
       console.log(`      - seaFreightCarrier: ${seaFreightCarrier}`);
+      console.log(`      - seaFreightCarrierCode: ${seaFreightCarrierCode}`);
       console.log(`      - isAgentSpecific: ${isAgentSpecific}`);
       
       if (seaFreightExpired) expiredDetails.push('해상운임');
@@ -272,6 +296,7 @@ export const calculateCost = (
         seaFreightLocalCharge = selectedFreight.localCharge || 0;
         seaFreightId = selectedFreight.id;
         seaFreightCarrier = selectedFreight.carrier;
+        seaFreightCarrierCode = getShippingLineCode(seaFreightCarrier);
         seaFreightExpired = !isValidOnDate(selectedFreight.validFrom, selectedFreight.validTo, calculationDate);
         console.log(`   - Rate: ${seaFreightRate}, LocalCharge: ${seaFreightLocalCharge}`);
         if (seaFreightExpired) expiredDetails.push('해상운임');
@@ -288,12 +313,14 @@ export const calculateCost = (
           seaFreightLocalCharge = validFreights[0].localCharge || 0;
           seaFreightId = validFreights[0].id;
           seaFreightCarrier = validFreights[0].carrier;
+          seaFreightCarrierCode = getShippingLineCode(seaFreightCarrier);
           console.log(`   ✅ 유효한 일반 해상운임 발견: Rate ${seaFreightRate}`);
         } else {
           seaFreightRate = allSeaFreights[0].rate;
           seaFreightLocalCharge = allSeaFreights[0].localCharge || 0;
           seaFreightId = allSeaFreights[0].id;
           seaFreightCarrier = allSeaFreights[0].carrier;
+          seaFreightCarrierCode = getShippingLineCode(seaFreightCarrier);
           seaFreightExpired = true;
           expiredDetails.push('해상운임');
           console.log(`   ⚠️ 만료된 일반 해상운임 사용: Rate ${seaFreightRate}`);
@@ -310,6 +337,10 @@ export const calculateCost = (
     
     const hasCombined = combinedResult.value !== null && combinedResult.value > 0;
     const hasSeparate = railResult.value > 0 && ownTruckResult.value > 0;
+    
+    // Get agent codes
+    const railAgentCode = getRailAgentCode(agentName);
+    const truckAgentCode = getTruckAgentCode(agentName);
     
     // Add combined freight option if it exists
     if (hasCombined) {
@@ -342,12 +373,15 @@ export const calculateCost = (
       breakdown.push({
         agent: agentName,
         railAgent: agentName,
+        railAgentCode,
         truckAgent: agentName,
+        truckAgentCode,
         seaFreight: seaFreightRate,
         localCharge: seaFreightLocalCharge,
         llocal: seaFreightLLocal,
         seaFreightId,
         seaFreightCarrier,
+        seaFreightCarrierCode,
         isAgentSpecificSeaFreight: isAgentSpecific,
         dthc: dthcResult.value,
         portBorder: 0,
@@ -400,12 +434,15 @@ export const calculateCost = (
       breakdown.push({
         agent: agentName,
         railAgent: agentName,
+        railAgentCode,
         truckAgent: agentName,
+        truckAgentCode,
         seaFreight: seaFreightRate,
         localCharge: seaFreightLocalCharge,
         llocal: seaFreightLLocal,
         seaFreightId,
         seaFreightCarrier,
+        seaFreightCarrierCode,
         isAgentSpecificSeaFreight: isAgentSpecific,
         dthc: dthcResult.value,
         portBorder: railResult.value,
@@ -440,6 +477,8 @@ export const calculateCost = (
       
       const cowinDthcResult = getDTHCByAgentAndRouteWithExpiry(agentName, input.pol, input.pod, isAgentSpecific);
       
+      const cowinTruckAgentCode = getTruckAgentCode('COWIN');
+      
       // NEW LOGIC: L.LOCAL is added directly to total (negative L.LOCAL reduces total, positive L.LOCAL increases total)
       const total =
         seaFreightRate +
@@ -461,12 +500,15 @@ export const calculateCost = (
       breakdown.push({
         agent: `${agentName} + COWIN`,
         railAgent: agentName,
+        railAgentCode,
         truckAgent: 'COWIN',
+        truckAgentCode: cowinTruckAgentCode,
         seaFreight: seaFreightRate,
         localCharge: seaFreightLocalCharge,
         llocal: seaFreightLLocal,
         seaFreightId,
         seaFreightCarrier,
+        seaFreightCarrierCode,
         isAgentSpecificSeaFreight: isAgentSpecific,
         dthc: cowinDthcResult.value,
         portBorder: railResult.value,

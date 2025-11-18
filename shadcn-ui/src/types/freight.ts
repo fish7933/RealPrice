@@ -21,6 +21,7 @@ export interface AppVersion {
 export interface RailAgent {
   id: string;
   name: string;
+  code?: string;
   description?: string;
   createdAt: string;
 }
@@ -28,6 +29,7 @@ export interface RailAgent {
 export interface TruckAgent {
   id: string;
   name: string;
+  code?: string;
   description?: string;
   createdAt: string;
 }
@@ -264,17 +266,21 @@ export interface CostCalculationInput {
   otherCosts: OtherCost[];
   selectedSeaFreightId?: string;
   historicalDate?: string;
+  includeDP?: boolean;
 }
 
 export interface AgentCostBreakdown {
   agent: string;
   railAgent: string;
+  railAgentCode?: string;
   truckAgent: string;
+  truckAgentCode?: string;
   seaFreight: number;
   localCharge: number;
   llocal: number;
   seaFreightId?: string;
   seaFreightCarrier?: string;
+  seaFreightCarrierCode?: string;
   isAgentSpecificSeaFreight: boolean;
   dthc: number;
   portBorder: number;

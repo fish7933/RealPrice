@@ -88,7 +88,7 @@ export default function CostResultTable({
     }
     
     if (breakdown.isAgentSpecificSeaFreight && !isLocalChargeExcluded && breakdown.llocal) {
-      total -= breakdown.llocal;
+      total += breakdown.llocal;
     }
     
     return total;
@@ -144,10 +144,10 @@ export default function CostResultTable({
   };
 
   const generateCombinationCode = (breakdown: AgentCostBreakdown, index: number): string => {
-    const railCode = breakdown.railAgent.substring(0, 2).toUpperCase();
-    const truckCode = breakdown.truckAgent.substring(0, 2).toUpperCase();
+    const railCode = breakdown.railAgentCode || breakdown.railAgent.substring(0, 2).toUpperCase();
+    const truckCode = breakdown.truckAgentCode || breakdown.truckAgent.substring(0, 2).toUpperCase();
     const freightType = breakdown.isCombinedFreight ? 'C' : 'S';
-    const carrierCode = breakdown.seaFreightCarrier ? breakdown.seaFreightCarrier.substring(0, 2).toUpperCase() : 'XX';
+    const carrierCode = breakdown.seaFreightCarrierCode || (breakdown.seaFreightCarrier ? breakdown.seaFreightCarrier.substring(0, 2).toUpperCase() : 'XX');
     const seqNum = String(index + 1).padStart(3, '0');
     
     return `${carrierCode}-${railCode}${truckCode}-${freightType}${seqNum}`;
@@ -155,11 +155,6 @@ export default function CostResultTable({
 
   const isExpired = (breakdown: AgentCostBreakdown, field: string) => {
     return breakdown.expiredRateDetails?.includes(field) || false;
-  };
-
-  // Helper function to truncate text to 3 characters
-  const truncateText = (text: string, maxLength: number = 3): string => {
-    return text.substring(0, maxLength);
   };
 
   const renderResultTable = (resultData: CostCalculationResult, showDpColumn: boolean = false) => {
@@ -378,7 +373,7 @@ export default function CostResultTable({
                       >
                         <div className="flex flex-col items-end gap-0.5">
                           <DollarSign className="h-3.5 w-3.5" />
-                          <span className="text-xs">{item.category}</span>
+                          <span className="text-xs">{item.name}</span>
                         </div>
                       </TableHead>
                     ))}
@@ -437,17 +432,17 @@ export default function CostResultTable({
                         )}
                         <TableCell className="text-center whitespace-nowrap p-2">
                           <span className="inline-flex items-center justify-center gap-0.5 px-2 py-0.5 bg-cyan-100 text-cyan-700 rounded text-xs w-14">
-                            {truncateText(breakdown.seaFreightCarrier || 'N/A', 3)}
+                            {breakdown.seaFreightCarrierCode || breakdown.seaFreightCarrier?.substring(0, 3) || 'N/A'}
                           </span>
                         </TableCell>
                         <TableCell className="text-center whitespace-nowrap p-2">
                           <span className="inline-flex items-center justify-center gap-0.5 px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs w-14">
-                            {truncateText(breakdown.railAgent, 3)}
+                            {breakdown.railAgentCode || breakdown.railAgent.substring(0, 3)}
                           </span>
                         </TableCell>
                         <TableCell className="text-center whitespace-nowrap p-2">
                           <span className="inline-flex items-center justify-center gap-0.5 px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs w-14">
-                            {truncateText(breakdown.truckAgent, 3)}
+                            {breakdown.truckAgentCode || breakdown.truckAgent.substring(0, 3)}
                           </span>
                         </TableCell>
                         <TableCell 
@@ -600,10 +595,10 @@ export default function CostResultTable({
                               <span className="text-amber-600 text-xs">없음</span>
                             ) : (
                               <div className="flex items-center justify-end gap-0.5">
-                                <span className={isExpired(breakdown, '철도+트럭 통합운임') ? 'text-red-600 font-bold' : ''}>
+                                <span className={isExpired(breakdown, '통합운임') ? 'text-red-600 font-bold' : ''}>
                                   ${excludedCosts.combinedFreight || isCellExcluded(originalIndex, 'combinedFreight') ? 0 : breakdown.combinedFreight}
                                 </span>
-                                {isExpired(breakdown, '철도+트럭 통합운임') && !excludedCosts.combinedFreight && !isCellExcluded(originalIndex, 'combinedFreight') && (
+                                {isExpired(breakdown, '통합운임') && !excludedCosts.combinedFreight && !isCellExcluded(originalIndex, 'combinedFreight') && (
                                   <AlertTriangle className="h-3 w-3 text-red-600" title="만료된 운임" />
                                 )}
                                 <Merge className="h-3 w-3 text-purple-600" />

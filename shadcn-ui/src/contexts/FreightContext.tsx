@@ -56,6 +56,7 @@ import {
 } from './freight/freightLoaders';
 import { deleteCalculationHistory as deleteCalculationHistoryOp, addCalculationHistory as addCalculationHistoryOp } from './freight/freightOperations';
 import { useAuth } from './AuthContext';
+import { supabase as supabaseClient, TABLES } from '@/lib/supabase';
 
 const supabase = createClient(
   'https://lcubxwvkoqkhsvzstbay.supabase.co',
@@ -75,14 +76,14 @@ interface FreightContextType {
   
   // Rail Agents
   railAgents: RailAgent[];
-  addRailAgent: (agent: Omit<RailAgent, 'id' | 'createdAt'>) => void;
-  updateRailAgent: (id: string, updates: Partial<RailAgent>) => void;
+  addRailAgent: (agent: Omit<RailAgent, 'id' | 'createdAt'>) => Promise<void>;
+  updateRailAgent: (id: string, updates: Partial<RailAgent>) => Promise<void>;
   deleteRailAgent: (id: string) => void;
   
   // Truck Agents
   truckAgents: TruckAgent[];
-  addTruckAgent: (agent: Omit<TruckAgent, 'id' | 'createdAt'>) => void;
-  updateTruckAgent: (id: string, updates: Partial<TruckAgent>) => void;
+  addTruckAgent: (agent: Omit<TruckAgent, 'id' | 'createdAt'>) => Promise<void>;
+  updateTruckAgent: (id: string, updates: Partial<TruckAgent>) => Promise<void>;
   deleteTruckAgent: (id: string) => void;
   
   // Shipping Lines
@@ -355,25 +356,107 @@ export function FreightProvider({ children }: { children: ReactNode }) {
   };
 
   // Rail Agent management
-  const addRailAgent = (agent: Omit<RailAgent, 'id' | 'createdAt'>) => {
-    const newAgent: RailAgent = { ...agent, id: crypto.randomUUID(), createdAt: new Date().toISOString() };
-    setRailAgents([...railAgents, newAgent]);
+  const addRailAgent = async (agent: Omit<RailAgent, 'id' | 'createdAt'>) => {
+    try {
+      const { data, error } = await supabaseClient
+        .from(TABLES.RAIL_AGENTS)
+        .insert({
+          name: agent.name,
+          code: agent.code,
+          description: agent.description,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      const newAgent: RailAgent = {
+        id: data.id,
+        name: data.name,
+        code: data.code,
+        description: data.description,
+        createdAt: data.created_at,
+      };
+      setRailAgents([...railAgents, newAgent]);
+    } catch (error) {
+      console.error('Error adding rail agent:', error);
+      throw error;
+    }
   };
-  const updateRailAgent = (id: string, updates: Partial<RailAgent>) => {
-    setRailAgents(railAgents.map(agent => agent.id === id ? { ...agent, ...updates } : agent));
+
+  const updateRailAgent = async (id: string, updates: Partial<RailAgent>) => {
+    try {
+      const { error } = await supabaseClient
+        .from(TABLES.RAIL_AGENTS)
+        .update({
+          name: updates.name,
+          code: updates.code,
+          description: updates.description,
+        })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setRailAgents(railAgents.map(agent => agent.id === id ? { ...agent, ...updates } : agent));
+    } catch (error) {
+      console.error('Error updating rail agent:', error);
+      throw error;
+    }
   };
+
   const deleteRailAgent = (id: string) => {
     setRailAgents(railAgents.filter(agent => agent.id !== id));
   };
 
   // Truck Agent management
-  const addTruckAgent = (agent: Omit<TruckAgent, 'id' | 'createdAt'>) => {
-    const newAgent: TruckAgent = { ...agent, id: crypto.randomUUID(), createdAt: new Date().toISOString() };
-    setTruckAgents([...truckAgents, newAgent]);
+  const addTruckAgent = async (agent: Omit<TruckAgent, 'id' | 'createdAt'>) => {
+    try {
+      const { data, error } = await supabaseClient
+        .from(TABLES.TRUCK_AGENTS)
+        .insert({
+          name: agent.name,
+          code: agent.code,
+          description: agent.description,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      const newAgent: TruckAgent = {
+        id: data.id,
+        name: data.name,
+        code: data.code,
+        description: data.description,
+        createdAt: data.created_at,
+      };
+      setTruckAgents([...truckAgents, newAgent]);
+    } catch (error) {
+      console.error('Error adding truck agent:', error);
+      throw error;
+    }
   };
-  const updateTruckAgent = (id: string, updates: Partial<TruckAgent>) => {
-    setTruckAgents(truckAgents.map(agent => agent.id === id ? { ...agent, ...updates } : agent));
+
+  const updateTruckAgent = async (id: string, updates: Partial<TruckAgent>) => {
+    try {
+      const { error } = await supabaseClient
+        .from(TABLES.TRUCK_AGENTS)
+        .update({
+          name: updates.name,
+          code: updates.code,
+          description: updates.description,
+        })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setTruckAgents(truckAgents.map(agent => agent.id === id ? { ...agent, ...updates } : agent));
+    } catch (error) {
+      console.error('Error updating truck agent:', error);
+      throw error;
+    }
   };
+
   const deleteTruckAgent = (id: string) => {
     setTruckAgents(truckAgents.filter(agent => agent.id !== id));
   };
@@ -654,6 +737,8 @@ export function FreightProvider({ children }: { children: ReactNode }) {
       borderDestinationFreights,
       weightSurchargeRules,
       railAgents,
+      truckAgents,
+      shippingLines,
       snapshot
     );
   };

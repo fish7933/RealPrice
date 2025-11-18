@@ -33,20 +33,22 @@ export default function TruckAgentTable() {
   const [editingAgent, setEditingAgent] = useState<TruckAgent | null>(null);
   const [formData, setFormData] = useState({
     name: '',
+    code: '',
     description: '',
   });
 
   const isAdmin = user?.role === 'admin' || user?.role === 'superadmin';
 
   const handleAdd = () => {
-    if (!formData.name.trim()) return;
+    if (!formData.name.trim() || !formData.code.trim()) return;
 
     addTruckAgent({
       name: formData.name.trim(),
+      code: formData.code.trim().toUpperCase(),
       description: formData.description.trim() || undefined,
     });
 
-    setFormData({ name: '', description: '' });
+    setFormData({ name: '', code: '', description: '' });
     setIsAddDialogOpen(false);
   };
 
@@ -54,20 +56,22 @@ export default function TruckAgentTable() {
     setEditingAgent(agent);
     setFormData({
       name: agent.name,
+      code: agent.code || '',
       description: agent.description || '',
     });
     setIsEditDialogOpen(true);
   };
 
   const handleUpdate = () => {
-    if (!editingAgent || !formData.name.trim()) return;
+    if (!editingAgent || !formData.name.trim() || !formData.code.trim()) return;
 
     updateTruckAgent(editingAgent.id, {
       name: formData.name.trim(),
+      code: formData.code.trim().toUpperCase(),
       description: formData.description.trim() || undefined,
     });
 
-    setFormData({ name: '', description: '' });
+    setFormData({ name: '', code: '', description: '' });
     setIsEditDialogOpen(false);
     setEditingAgent(null);
   };
@@ -115,6 +119,9 @@ export default function TruckAgentTable() {
           <strong className="text-green-700">트럭 대리점:</strong> KASHGAR 국경에서 최종 목적지까지 트럭 운송을 담당하는 대리점입니다.
           <br />
           <span className="text-sm text-gray-600 mt-1 block">
+            💡 각 대리점에는 고유한 코드(2-3자)를 지정하여 운임 조회 시 간편하게 표시됩니다.
+          </span>
+          <span className="text-sm text-gray-600 mt-1 block">
             ⚠️ 대리점을 삭제하면 해당 대리점과 관련된 모든 운임 데이터(국경목적지운임, 중량할증)가 함께 삭제됩니다.
           </span>
         </AlertDescription>
@@ -126,6 +133,7 @@ export default function TruckAgentTable() {
           <TableHeader>
             <TableRow className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600">
               <TableHead className="text-white font-semibold">대리점명</TableHead>
+              <TableHead className="text-white font-semibold">코드</TableHead>
               <TableHead className="text-white font-semibold">설명</TableHead>
               <TableHead className="text-white font-semibold">등록일</TableHead>
               {isAdmin && <TableHead className="text-right text-white font-semibold">작업</TableHead>}
@@ -148,6 +156,11 @@ export default function TruckAgentTable() {
                       </div>
                       <span className="text-gray-900">{agent.name}</span>
                     </div>
+                  </TableCell>
+                  <TableCell>
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-green-100 text-green-800">
+                      {agent.code || '-'}
+                    </span>
                   </TableCell>
                   <TableCell className="text-gray-600">{agent.description || '-'}</TableCell>
                   <TableCell className="text-gray-500 text-sm">
@@ -179,7 +192,7 @@ export default function TruckAgentTable() {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={isAdmin ? 4 : 3} className="text-center py-12">
+                <TableCell colSpan={isAdmin ? 5 : 4} className="text-center py-12">
                   <div className="flex flex-col items-center gap-3 text-gray-400">
                     <Truck className="h-16 w-16 opacity-20" />
                     <p className="text-lg">등록된 트럭 대리점이 없습니다</p>
@@ -214,6 +227,17 @@ export default function TruckAgentTable() {
               />
             </div>
             <div className="space-y-2">
+              <Label className="text-sm font-semibold text-gray-700">코드 * (2-3자)</Label>
+              <Input
+                placeholder="예: CWN, TRK"
+                value={formData.code}
+                onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
+                maxLength={3}
+                className="border-gray-300 focus:border-green-500 focus:ring-green-500"
+              />
+              <p className="text-xs text-gray-500">운임 조회 시 표시될 고유 코드입니다 (2-3자, 자동으로 대문자 변환)</p>
+            </div>
+            <div className="space-y-2">
               <Label className="text-sm font-semibold text-gray-700">설명</Label>
               <Textarea
                 placeholder="대리점에 대한 설명을 입력하세요"
@@ -233,7 +257,7 @@ export default function TruckAgentTable() {
             </Button>
             <Button 
               onClick={handleAdd} 
-              disabled={!formData.name.trim()}
+              disabled={!formData.name.trim() || !formData.code.trim()}
               className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white shadow-lg"
             >
               <Plus className="h-4 w-4 mr-2" />
@@ -265,6 +289,16 @@ export default function TruckAgentTable() {
               />
             </div>
             <div className="space-y-2">
+              <Label className="text-sm font-semibold text-gray-700">코드 * (2-3자)</Label>
+              <Input
+                value={formData.code}
+                onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
+                maxLength={3}
+                className="border-gray-300 focus:border-emerald-500 focus:ring-emerald-500"
+              />
+              <p className="text-xs text-gray-500">운임 조회 시 표시될 고유 코드입니다 (2-3자, 자동으로 대문자 변환)</p>
+            </div>
+            <div className="space-y-2">
               <Label className="text-sm font-semibold text-gray-700">설명</Label>
               <Textarea
                 value={formData.description}
@@ -283,7 +317,7 @@ export default function TruckAgentTable() {
             </Button>
             <Button 
               onClick={handleUpdate} 
-              disabled={!formData.name.trim()}
+              disabled={!formData.name.trim() || !formData.code.trim()}
               className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-lg"
             >
               <Pencil className="h-4 w-4 mr-2" />

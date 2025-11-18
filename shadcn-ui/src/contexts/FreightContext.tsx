@@ -88,9 +88,9 @@ interface FreightContextType {
   
   // Shipping Lines
   shippingLines: ShippingLine[];
-  addShippingLine: (line: Omit<ShippingLine, 'id' | 'createdAt'>) => void;
-  updateShippingLine: (id: string, updates: Partial<ShippingLine>) => void;
-  deleteShippingLine: (id: string) => void;
+  addShippingLine: (line: Omit<ShippingLine, 'id' | 'createdAt'>) => Promise<void>;
+  updateShippingLine: (id: string, updates: Partial<ShippingLine>) => Promise<void>;
+  deleteShippingLine: (id: string) => Promise<void>;
   
   // Sea Freight
   seaFreights: SeaFreight[];
@@ -462,15 +462,68 @@ export function FreightProvider({ children }: { children: ReactNode }) {
   };
 
   // Shipping Line management
-  const addShippingLine = (line: Omit<ShippingLine, 'id' | 'createdAt'>) => {
-    const newLine: ShippingLine = { ...line, id: crypto.randomUUID(), createdAt: new Date().toISOString() };
-    setShippingLines([...shippingLines, newLine]);
+  const addShippingLine = async (line: Omit<ShippingLine, 'id' | 'createdAt'>) => {
+    try {
+      const { data, error } = await supabaseClient
+        .from(TABLES.SHIPPING_LINES)
+        .insert({
+          name: line.name,
+          code: line.code,
+          description: line.description,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      const newLine: ShippingLine = {
+        id: data.id,
+        name: data.name,
+        code: data.code,
+        description: data.description,
+        createdAt: data.created_at,
+      };
+      setShippingLines([...shippingLines, newLine]);
+    } catch (error) {
+      console.error('Error adding shipping line:', error);
+      throw error;
+    }
   };
-  const updateShippingLine = (id: string, updates: Partial<ShippingLine>) => {
-    setShippingLines(shippingLines.map(line => line.id === id ? { ...line, ...updates } : line));
+
+  const updateShippingLine = async (id: string, updates: Partial<ShippingLine>) => {
+    try {
+      const { error } = await supabaseClient
+        .from(TABLES.SHIPPING_LINES)
+        .update({
+          name: updates.name,
+          code: updates.code,
+          description: updates.description,
+        })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setShippingLines(shippingLines.map(line => line.id === id ? { ...line, ...updates } : line));
+    } catch (error) {
+      console.error('Error updating shipping line:', error);
+      throw error;
+    }
   };
-  const deleteShippingLine = (id: string) => {
-    setShippingLines(shippingLines.filter(line => line.id !== id));
+
+  const deleteShippingLine = async (id: string) => {
+    try {
+      const { error } = await supabaseClient
+        .from(TABLES.SHIPPING_LINES)
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setShippingLines(shippingLines.filter(line => line.id !== id));
+    } catch (error) {
+      console.error('Error deleting shipping line:', error);
+      throw error;
+    }
   };
 
   // Sea Freight management

@@ -150,6 +150,7 @@ interface FreightContextType {
   // Cost Calculation
   calculateFreightCost: (input: CostCalculationInput) => CostCalculationResult | null;
   getHistoricalSnapshot: (date: string) => HistoricalFreightSnapshot | null;
+  getAvailableHistoricalDates: () => string[];
 }
 
 const FreightContext = createContext<FreightContextType | undefined>(undefined);
@@ -494,6 +495,26 @@ export function FreightProvider({ children }: { children: ReactNode }) {
     setCalculationHistory([]);
   };
 
+  // Get available historical dates from audit logs
+  const getAvailableHistoricalDates = (): string[] => {
+    const dates = new Set<string>();
+    
+    // Extract dates from freight audit logs
+    freightAuditLogs.forEach(log => {
+      const date = log.timestamp.split('T')[0];
+      dates.add(date);
+    });
+    
+    // Extract dates from legacy audit logs
+    auditLogs.forEach(log => {
+      const date = log.timestamp.split('T')[0];
+      dates.add(date);
+    });
+    
+    // Convert to array and sort in descending order (newest first)
+    return Array.from(dates).sort((a, b) => b.localeCompare(a));
+  };
+
   // Cost Calculation
   const calculateFreightCost = (input: CostCalculationInput): CostCalculationResult | null => {
     const snapshot = input.historicalDate 
@@ -613,6 +634,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
       weightSurchargeRules,
       freightAuditLogs
     ),
+    getAvailableHistoricalDates,
   };
 
   return <FreightContext.Provider value={value}>{children}</FreightContext.Provider>;

@@ -278,8 +278,8 @@ export default function BorderDestinationTable() {
         const newRate = versionChangeData.rates[dest.id];
 
         if (existingFreight) {
-          if (newRate !== undefined && newRate > 0) {
-            // Update existing freight with new rate
+          if (newRate !== undefined) {
+            // Update existing freight with new rate (including 0)
             operations.push({
               type: 'update',
               id: existingFreight.id,
@@ -291,14 +291,14 @@ export default function BorderDestinationTable() {
               }
             });
           } else {
-            // Delete freight if rate is undefined or 0
+            // Delete freight only if rate is undefined (empty input)
             operations.push({
               type: 'delete',
               id: existingFreight.id,
             });
           }
-        } else if (newRate !== undefined && newRate > 0) {
-          // Add new freight if it doesn't exist and has a rate
+        } else if (newRate !== undefined) {
+          // Add new freight if it doesn't exist and has a rate (including 0)
           operations.push({
             type: 'add',
             data: {
@@ -629,7 +629,7 @@ export default function BorderDestinationTable() {
               버전 변경
             </DialogTitle>
             <DialogDescription>
-              새로운 버전의 트럭운임 정보를 수정하세요. 버전이 자동으로 증가하고 유효기간이 설정됩니다. 운임을 비우거나 0으로 설정하면 해당 목적지 운임이 삭제됩니다.
+              새로운 버전의 트럭운임 정보를 수정하세요. 버전이 자동으로 증가하고 유효기간이 설정됩니다. 운임을 비우면 해당 목적지 운임이 삭제되고, 0을 입력하면 운임 0으로 설정됩니다.
             </DialogDescription>
           </DialogHeader>
           {versionChangeData && (
@@ -695,9 +695,15 @@ export default function BorderDestinationTable() {
 
               <div className="space-y-3">
                 <Label>각 목적지별 운임 (USD)</Label>
-                <div className="text-xs bg-amber-50 border border-amber-200 rounded p-3">
+                <div className="text-xs bg-amber-50 border border-amber-200 rounded p-3 space-y-1">
                   <p className="text-amber-700 font-medium">
-                    💡 운임을 비우거나 0으로 설정하면 해당 목적지 운임이 삭제됩니다.
+                    💡 운임 입력 방법:
+                  </p>
+                  <p className="text-amber-600">
+                    • 텍스트 박스를 <strong>비우면</strong> → 해당 목적지 운임이 <strong>삭제</strong>됩니다
+                  </p>
+                  <p className="text-amber-600">
+                    • <strong>0을 입력</strong>하면 → 운임이 <strong>0으로 설정</strong>됩니다 (유효한 운임 데이터)
                   </p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

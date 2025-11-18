@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import Layout from '@/components/layout/Layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Ship, Train, Truck, Navigation, Star, FileText, Weight, Package, Merge, Anchor, Users, Database } from 'lucide-react';
+import { Ship, Train, Truck, Navigation, Star, FileText, Weight, Package, Merge, Anchor, Users, Database, MapPin } from 'lucide-react';
 import RailAgentTable from '@/components/agents/RailAgentTable';
 import TruckAgentTable from '@/components/agents/TruckAgentTable';
 import ShippingLineTable from '@/components/agents/ShippingLineTable';
@@ -50,14 +50,14 @@ export default function AdminDashboard() {
               <TabsList className="grid w-full grid-cols-5 lg:grid-cols-12 mb-4">
                 <TabsTrigger value="agents" className="flex items-center gap-1">
                   <Users className="h-4 w-4" />
-                  <span className="hidden sm:inline">선사 & 중국 파트너사</span>
+                  <span className="hidden sm:inline">선사&중국파트너사</span>
                 </TabsTrigger>
                 <TabsTrigger value="ports" className="flex items-center gap-1">
                   <Anchor className="h-4 w-4" />
                   <span className="hidden sm:inline">포트</span>
                 </TabsTrigger>
                 <TabsTrigger value="destinations" className="flex items-center gap-1">
-                  <Navigation className="h-4 w-4" />
+                  <MapPin className="h-4 w-4" />
                   <span className="hidden sm:inline">최종목적지</span>
                 </TabsTrigger>
                 <TabsTrigger value="sea-freight" className="flex items-center gap-1">

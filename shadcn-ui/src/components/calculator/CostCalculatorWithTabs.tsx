@@ -2018,11 +2018,19 @@ export default function CostCalculatorWithTabs() {
                     {input.domesticTransport > 0 && ` | 국내운송 $${input.domesticTransport}`}
                   </p>
                   {(result?.isHistorical || allFreightsResult?.isHistorical) && (result?.historicalDate || allFreightsResult?.historicalDate) && (
-                    <div className="mt-2 p-3 bg-gradient-to-r from-purple-100 to-purple-200 rounded-lg border-2 border-purple-400">
+                    <div className="mt-2 p-3 bg-gradient-to-r from-purple-100 to-purple-200 rounded-lg border-2 border-purple-400 flex items-center justify-between">
                       <p className="text-purple-900 font-bold text-xl flex items-center gap-2">
                         <Clock className="h-6 w-6 animate-pulse" />
                         📅 {result?.historicalDate || allFreightsResult?.historicalDate} 날짜 기준으로 유효했던 운임으로 계산됨
                       </p>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleTimeMachineSelect('')}
+                        className="bg-white hover:bg-gray-50 border-purple-300 text-purple-700 font-semibold"
+                      >
+                        현재 운임으로 복귀
+                      </Button>
                     </div>
                   )}
                 </div>

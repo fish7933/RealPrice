@@ -16,6 +16,28 @@ export interface ExcelExportData {
   carrier?: string;
 }
 
+interface CellStyle {
+  font?: {
+    bold?: boolean;
+    sz?: number;
+    color?: { rgb: string };
+    underline?: boolean;
+  };
+  fill?: {
+    fgColor: { rgb: string };
+  };
+  alignment?: {
+    horizontal?: string;
+    vertical?: string;
+  };
+  border?: {
+    top: { style: string; color: { rgb: string } };
+    bottom: { style: string; color: { rgb: string } };
+    left: { style: string; color: { rgb: string } };
+    right: { style: string; color: { rgb: string } };
+  };
+}
+
 export const exportQuotationToExcel = (data: ExcelExportData) => {
   // Create workbook
   const wb = XLSX.utils.book_new();
@@ -222,7 +244,7 @@ export const exportQuotationToExcel = (data: ExcelExportData) => {
       const header = headers[col];
       
       // Base style for all data cells
-      const cellStyle: any = {
+      const cellStyle: CellStyle = {
         font: { sz: 10 },
         alignment: { 
           horizontal: 'center', 

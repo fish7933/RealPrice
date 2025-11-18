@@ -50,9 +50,7 @@ export default function BorderDestinationTable() {
     destinations,
     truckAgents,
     borderDestinationFreights, 
-    addBorderDestinationFreight, 
-    updateBorderDestinationFreight, 
-    deleteBorderDestinationFreight,
+    batchBorderDestinationFreightOperations,
     getAuditLogsByType,
     getDefaultBorderCity,
     getSystemSettingValue
@@ -143,33 +141,48 @@ export default function BorderDestinationTable() {
       }
     }
 
-    // Process all operations sequentially
     try {
-      for (const dest of destinations) {
+      const operations: Array<{
+        type: 'add' | 'update' | 'delete';
+        data?: Omit<BorderDestinationFreight, 'id' | 'createdAt'>;
+        id?: string;
+        updates?: Partial<BorderDestinationFreight>;
+      }> = [];
+
+      destinations.forEach(dest => {
         if (formData[dest.id] && formData[dest.id] !== '') {
           const existingFreight = borderDestinationFreights.find(
             f => f.agent === formData.agent && f.destinationId === dest.id
           );
 
           if (existingFreight) {
-            await updateBorderDestinationFreight(existingFreight.id, {
-              agent: formData.agent,
-              destinationId: dest.id,
-              rate: Number(formData[dest.id]),
-              validFrom: formData.validFrom,
-              validTo: formData.validTo,
+            operations.push({
+              type: 'update',
+              id: existingFreight.id,
+              updates: {
+                agent: formData.agent,
+                destinationId: dest.id,
+                rate: Number(formData[dest.id]),
+                validFrom: formData.validFrom,
+                validTo: formData.validTo,
+              }
             });
           } else {
-            await addBorderDestinationFreight({
-              agent: formData.agent,
-              destinationId: dest.id,
-              rate: Number(formData[dest.id]),
-              validFrom: formData.validFrom,
-              validTo: formData.validTo,
+            operations.push({
+              type: 'add',
+              data: {
+                agent: formData.agent,
+                destinationId: dest.id,
+                rate: Number(formData[dest.id]),
+                validFrom: formData.validFrom,
+                validTo: formData.validTo,
+              }
             });
           }
         }
-      }
+      });
+
+      await batchBorderDestinationFreightOperations(operations);
 
       setFormData(initializeFormData());
       setValidationError(null);
@@ -242,15 +255,20 @@ export default function BorderDestinationTable() {
   const handleVersionChangeSave = async () => {
     if (!versionChangeData) return;
 
-    const hasAnyRate = Object.values(versionChangeData.rates).some(rate => rate > 0);
     if (!versionChangeData.validFrom || !versionChangeData.validTo) {
       setValidationError('❌ 유효기간을 입력해주세요.');
       return;
     }
 
     try {
-      // Process all operations sequentially
-      for (const dest of destinations) {
+      const operations: Array<{
+        type: 'add' | 'update' | 'delete';
+        data?: Omit<BorderDestinationFreight, 'id' | 'createdAt'>;
+        id?: string;
+        updates?: Partial<BorderDestinationFreight>;
+      }> = [];
+
+      destinations.forEach(dest => {
         const existingFreight = borderDestinationFreights.find(
           f => f.agent === versionChangeData.agent && f.destinationId === dest.id
         );
@@ -260,28 +278,40 @@ export default function BorderDestinationTable() {
         if (existingFreight) {
           if (newRate && newRate > 0) {
             // Update existing freight with new rate
-            await updateBorderDestinationFreight(existingFreight.id, {
+            operations.push({
+              type: 'update',
+              id: existingFreight.id,
+              updates: {
+                rate: newRate,
+                validFrom: versionChangeData.validFrom,
+                validTo: versionChangeData.validTo,
+                version: versionChangeData.nextVersion,
+              }
+            });
+          } else {
+            // Delete freight if rate is 0 or empty
+            operations.push({
+              type: 'delete',
+              id: existingFreight.id,
+            });
+          }
+        } else if (newRate && newRate > 0) {
+          // Add new freight if it doesn't exist and has a rate
+          operations.push({
+            type: 'add',
+            data: {
+              agent: versionChangeData.agent,
+              destinationId: dest.id,
               rate: newRate,
               validFrom: versionChangeData.validFrom,
               validTo: versionChangeData.validTo,
               version: versionChangeData.nextVersion,
-            });
-          } else {
-            // Delete freight if rate is 0 or empty
-            await deleteBorderDestinationFreight(existingFreight.id);
-          }
-        } else if (newRate && newRate > 0) {
-          // Add new freight if it doesn't exist and has a rate
-          await addBorderDestinationFreight({
-            agent: versionChangeData.agent,
-            destinationId: dest.id,
-            rate: newRate,
-            validFrom: versionChangeData.validFrom,
-            validTo: versionChangeData.validTo,
-            version: versionChangeData.nextVersion,
+            }
           });
         }
-      }
+      });
+
+      await batchBorderDestinationFreightOperations(operations);
 
       setIsVersionChangeDialogOpen(false);
       setVersionChangeData(null);
@@ -312,10 +342,12 @@ export default function BorderDestinationTable() {
 
     if (confirm(`"${agent}" 트럭 대리점의 모든 운임을 삭제하시겠습니까?\n\n삭제될 목적지: ${destinationNames}\n총 ${freightIds.length}개의 운임이 삭제됩니다.`)) {
       try {
-        // Delete all freights sequentially
-        for (const id of freightIds) {
-          await deleteBorderDestinationFreight(id);
-        }
+        const operations = freightIds.map(id => ({
+          type: 'delete' as const,
+          id,
+        }));
+
+        await batchBorderDestinationFreightOperations(operations);
       } catch (error) {
         console.error('Error deleting freights:', error);
         alert('운임 삭제 중 오류가 발생했습니다.');

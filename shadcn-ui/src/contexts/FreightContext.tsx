@@ -133,6 +133,12 @@ interface FreightContextType {
   addBorderDestinationFreight: (freight: Omit<BorderDestinationFreight, 'id' | 'createdAt'>) => Promise<void>;
   updateBorderDestinationFreight: (id: string, updates: Partial<BorderDestinationFreight>) => Promise<void>;
   deleteBorderDestinationFreight: (id: string) => Promise<void>;
+  batchBorderDestinationFreightOperations: (operations: Array<{
+    type: 'add' | 'update' | 'delete';
+    data?: Omit<BorderDestinationFreight, 'id' | 'createdAt'>;
+    id?: string;
+    updates?: Partial<BorderDestinationFreight>;
+  }>) => Promise<void>;
   
   // Weight Surcharge Rules
   weightSurchargeRules: WeightSurchargeRule[];
@@ -1081,9 +1087,10 @@ export function FreightProvider({ children }: { children: ReactNode }) {
 
       if (error) throw error;
 
-      // Reload the data from database to ensure consistency
-      const reloadedData = await loadBorderDestinationFreights();
-      setBorderDestinationFreights(reloadedData);
+      // Update local state without reloading
+      setBorderDestinationFreights(borderDestinationFreights.map(freight => 
+        freight.id === id ? { ...freight, ...updates } : freight
+      ));
     } catch (error) {
       console.error('Error updating border destination freight:', error);
       throw error;
@@ -1102,6 +1109,56 @@ export function FreightProvider({ children }: { children: ReactNode }) {
       setBorderDestinationFreights(borderDestinationFreights.filter(freight => freight.id !== id));
     } catch (error) {
       console.error('Error deleting border destination freight:', error);
+      throw error;
+    }
+  };
+
+  // Batch operations for Border Destination Freight
+  const batchBorderDestinationFreightOperations = async (operations: Array<{
+    type: 'add' | 'update' | 'delete';
+    data?: Omit<BorderDestinationFreight, 'id' | 'createdAt'>;
+    id?: string;
+    updates?: Partial<BorderDestinationFreight>;
+  }>) => {
+    try {
+      // Execute all operations sequentially
+      for (const op of operations) {
+        if (op.type === 'add' && op.data) {
+          await supabaseClient
+            .from(TABLES.BORDER_DESTINATION_FREIGHTS)
+            .insert({
+              agent: op.data.agent,
+              destination_id: op.data.destinationId,
+              rate: op.data.rate,
+              version: op.data.version,
+              valid_from: op.data.validFrom,
+              valid_to: op.data.validTo,
+            });
+        } else if (op.type === 'update' && op.id && op.updates) {
+          await supabaseClient
+            .from(TABLES.BORDER_DESTINATION_FREIGHTS)
+            .update({
+              agent: op.updates.agent,
+              destination_id: op.updates.destinationId,
+              rate: op.updates.rate,
+              version: op.updates.version,
+              valid_from: op.updates.validFrom,
+              valid_to: op.updates.validTo,
+            })
+            .eq('id', op.id);
+        } else if (op.type === 'delete' && op.id) {
+          await supabaseClient
+            .from(TABLES.BORDER_DESTINATION_FREIGHTS)
+            .delete()
+            .eq('id', op.id);
+        }
+      }
+
+      // Reload data once after all operations
+      const reloadedData = await loadBorderDestinationFreights();
+      setBorderDestinationFreights(reloadedData);
+    } catch (error) {
+      console.error('Error in batch operations:', error);
       throw error;
     }
   };
@@ -1627,6 +1684,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
     addBorderDestinationFreight,
     updateBorderDestinationFreight,
     deleteBorderDestinationFreight,
+    batchBorderDestinationFreightOperations,
     weightSurchargeRules,
     addWeightSurchargeRule,
     updateWeightSurchargeRule,

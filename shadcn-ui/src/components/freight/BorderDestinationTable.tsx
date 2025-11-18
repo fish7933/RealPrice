@@ -28,7 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Trash2, Plus, Truck, AlertTriangle, RefreshCw } from 'lucide-react';
+import { Trash2, Plus, Truck, AlertTriangle, RefreshCw, Sparkles } from 'lucide-react';
 import AuditLogTable from './AuditLogTable';
 import { ValidityPeriodInput } from '@/components/ui/validity-period-input';
 import { getValidityStatus, formatValidityDate, validateNoOverlap } from '@/utils/validityHelper';
@@ -313,21 +313,33 @@ export default function BorderDestinationTable() {
   const expiringRates = freightsByAgent.filter(f => f.validityStatus?.status === 'expiring');
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold flex items-center gap-2">
-            <Truck className="h-6 w-6" />
-            트럭운임 관리
-          </h2>
-          <p className="text-gray-600 mt-1">{borderCityName} → 최종목적지 트럭 운임</p>
+    <div className="space-y-6">
+      {/* Beautiful Header */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 p-6 shadow-xl">
+        <div className="absolute inset-0 bg-grid-white/10"></div>
+        <div className="relative flex justify-between items-center">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 bg-white/20 backdrop-blur-sm rounded-xl">
+                <Truck className="h-6 w-6 text-white" />
+              </div>
+              <h2 className="text-3xl font-bold text-white flex items-center gap-2">
+                트럭운임 관리
+                <Sparkles className="h-5 w-5 text-yellow-300 animate-pulse" />
+              </h2>
+            </div>
+            <p className="text-amber-50 ml-14">{borderCityName} → 최종목적지 트럭 운임</p>
+          </div>
+          {isAdmin && (
+            <Button 
+              onClick={handleOpenDialog}
+              className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border-2 border-white/50 shadow-lg transition-all hover:scale-105"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              운임 추가
+            </Button>
+          )}
         </div>
-        {isAdmin && (
-          <Button onClick={handleOpenDialog}>
-            <Plus className="h-4 w-4 mr-2" />
-            운임 추가
-          </Button>
-        )}
       </div>
 
       {(expiredRates.length > 0 || expiringRates.length > 0) && (
@@ -348,34 +360,34 @@ export default function BorderDestinationTable() {
         </Alert>
       )}
 
-      <div className="border rounded-lg overflow-hidden bg-white">
+      <div className="rounded-xl border-2 shadow-lg overflow-hidden">
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead>버전</TableHead>
-              <TableHead>
+            <TableRow className="bg-gradient-to-r from-amber-50 to-orange-50">
+              <TableHead className="font-bold">버전</TableHead>
+              <TableHead className="font-bold">
                 <div className="flex items-center gap-2">
                   <Truck className="h-4 w-4" />
                   트럭 대리점
                 </div>
               </TableHead>
               {destinations.map(dest => (
-                <TableHead key={dest.id}>
+                <TableHead key={dest.id} className="font-bold">
                   {borderCityName} → {dest.name}
                 </TableHead>
               ))}
-              <TableHead>유효기간</TableHead>
-              <TableHead>상태</TableHead>
-              {isAdmin && <TableHead className="text-right">작업</TableHead>}
+              <TableHead className="font-bold">유효기간</TableHead>
+              <TableHead className="font-bold">상태</TableHead>
+              {isAdmin && <TableHead className="text-right font-bold">작업</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
             {freightsByAgent.map(({ agent, freights, validityStatus, validFrom, validTo, version }) => {
               const hasData = Object.values(freights).some(f => f);
               return (
-                <TableRow key={agent}>
+                <TableRow key={agent} className="hover:bg-amber-50/50 transition-colors">
                   <TableCell>
-                    {hasData && <Badge variant="outline">v{version}</Badge>}
+                    {hasData && <Badge variant="outline" className="font-semibold">v{version}</Badge>}
                   </TableCell>
                   <TableCell className="font-medium">{agent}</TableCell>
                   {destinations.map(dest => {
@@ -383,7 +395,7 @@ export default function BorderDestinationTable() {
                     return (
                       <TableCell key={dest.id}>
                         {freight ? (
-                          <span>${freight.rate}</span>
+                          <span className="font-semibold text-orange-700">${freight.rate}</span>
                         ) : (
                           <span className="text-gray-400">-</span>
                         )}
@@ -415,7 +427,7 @@ export default function BorderDestinationTable() {
                             size="sm"
                             variant="outline"
                             onClick={() => handleVersionChangeClick(agent, freights)}
-                            className="bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-300"
+                            className="bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-300 transition-all hover:scale-105"
                           >
                             <RefreshCw className="h-4 w-4 mr-1" />
                             버전 변경
@@ -428,6 +440,7 @@ export default function BorderDestinationTable() {
                                 if (freight) handleDelete(freight.id);
                               });
                             }}
+                            className="hover:bg-red-50 hover:text-red-700 transition-all hover:scale-105"
                           >
                             <Trash2 className="h-4 w-4 text-red-600" />
                           </Button>

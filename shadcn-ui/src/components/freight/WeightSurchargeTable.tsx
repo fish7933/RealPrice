@@ -28,7 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Trash2, Plus, Weight, AlertTriangle, RefreshCw } from 'lucide-react';
+import { Trash2, Plus, Weight, AlertTriangle, RefreshCw, Sparkles } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import AuditLogTable from './AuditLogTable';
 import { ValidityPeriodInput } from '@/components/ui/validity-period-input';
@@ -197,20 +197,35 @@ export default function WeightSurchargeTable() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold flex items-center gap-2"><Weight className="h-6 w-6" />중량할증 관리</h2>
-          <p className="text-gray-600 mt-1">트럭 대리점별 중량 구간에 따른 할증 요율 설정</p>
+      {/* Beautiful Header */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 p-6 shadow-xl">
+        <div className="absolute inset-0 bg-grid-white/10"></div>
+        <div className="relative flex justify-between items-center">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 bg-white/20 backdrop-blur-sm rounded-xl">
+                <Weight className="h-6 w-6 text-white" />
+              </div>
+              <h2 className="text-3xl font-bold text-white flex items-center gap-2">
+                중량할증 관리
+                <Sparkles className="h-5 w-5 text-yellow-300 animate-pulse" />
+              </h2>
+            </div>
+            <p className="text-indigo-50 ml-14">트럭 대리점별 중량 구간에 따른 할증 요율 설정</p>
+          </div>
+          {isAdmin && (
+            <Button 
+              onClick={() => {
+                setIsAddDialogOpen(true);
+                setValidationError(null);
+              }}
+              className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border-2 border-white/50 shadow-lg transition-all hover:scale-105"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              규칙 추가
+            </Button>
+          )}
         </div>
-        {isAdmin && (
-          <Button onClick={() => {
-            setIsAddDialogOpen(true);
-            setValidationError(null);
-          }}>
-            <Plus className="h-4 w-4 mr-2" />
-            규칙 추가
-          </Button>
-        )}
       </div>
 
       <Alert>
@@ -239,20 +254,20 @@ export default function WeightSurchargeTable() {
       )}
 
       {rulesByAgent.map(({ agent, rules }) => (
-        <div key={agent} className="border rounded-lg overflow-hidden bg-white">
-          <div className="bg-gray-50 px-4 py-3 border-b">
+        <div key={agent} className="rounded-xl border-2 shadow-lg overflow-hidden">
+          <div className="bg-gradient-to-r from-indigo-50 to-purple-50 px-4 py-3 border-b">
             <h3 className="font-semibold text-lg">{agent}</h3>
           </div>
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>버전</TableHead>
-                <TableHead>최소 중량 (kg)</TableHead>
-                <TableHead>최대 중량 (kg)</TableHead>
-                <TableHead>할증 금액 (USD)</TableHead>
-                <TableHead>유효기간</TableHead>
-                <TableHead>상태</TableHead>
-                {isAdmin && <TableHead className="text-right">작업</TableHead>}
+              <TableRow className="bg-gray-50">
+                <TableHead className="font-bold">버전</TableHead>
+                <TableHead className="font-bold">최소 중량 (kg)</TableHead>
+                <TableHead className="font-bold">최대 중량 (kg)</TableHead>
+                <TableHead className="font-bold">할증 금액 (USD)</TableHead>
+                <TableHead className="font-bold">유효기간</TableHead>
+                <TableHead className="font-bold">상태</TableHead>
+                {isAdmin && <TableHead className="text-right font-bold">작업</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -261,13 +276,13 @@ export default function WeightSurchargeTable() {
                   const validityStatus = getValidityStatus(rule.validFrom, rule.validTo);
                   
                   return (
-                    <TableRow key={rule.id}>
+                    <TableRow key={rule.id} className="hover:bg-indigo-50/50 transition-colors">
                       <TableCell>
-                        <Badge variant="outline">v{rule.version || 1}</Badge>
+                        <Badge variant="outline" className="font-semibold">v{rule.version || 1}</Badge>
                       </TableCell>
-                      <TableCell>{rule.minWeight}</TableCell>
-                      <TableCell>{rule.maxWeight === 999999 ? '∞' : rule.maxWeight}</TableCell>
-                      <TableCell>${rule.surcharge}</TableCell>
+                      <TableCell className="font-medium">{rule.minWeight}</TableCell>
+                      <TableCell className="font-medium">{rule.maxWeight === 999999 ? '∞' : rule.maxWeight}</TableCell>
+                      <TableCell className="font-semibold text-purple-700">${rule.surcharge}</TableCell>
                       <TableCell>
                         <div className="text-sm">
                           <div>{formatValidityDate(rule.validFrom)}</div>
@@ -286,7 +301,7 @@ export default function WeightSurchargeTable() {
                               size="sm"
                               variant="outline"
                               onClick={() => handleVersionChangeClick(rule)}
-                              className="bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-300"
+                              className="bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-300 transition-all hover:scale-105"
                             >
                               <RefreshCw className="h-4 w-4 mr-1" />
                               버전 변경
@@ -295,6 +310,7 @@ export default function WeightSurchargeTable() {
                               variant="ghost"
                               size="icon"
                               onClick={() => handleDelete(rule.id)}
+                              className="hover:bg-red-50 hover:text-red-700 transition-all hover:scale-105"
                             >
                               <Trash2 className="h-4 w-4 text-red-600" />
                             </Button>
@@ -306,7 +322,7 @@ export default function WeightSurchargeTable() {
                 })
               ) : (
                 <TableRow>
-                  <TableCell colSpan={isAdmin ? 7 : 6} className="text-center text-gray-500">
+                  <TableCell colSpan={isAdmin ? 7 : 6} className="text-center text-gray-500 py-8">
                     설정된 규칙이 없습니다
                   </TableCell>
                 </TableRow>

@@ -28,7 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Trash2, Plus, DollarSign, AlertTriangle, RefreshCw, Package } from 'lucide-react';
+import { Trash2, Plus, DollarSign, AlertTriangle, RefreshCw, Package, Sparkles } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import AuditLogTable from './AuditLogTable';
 import { ValidityPeriodInput } from '@/components/ui/validity-period-input';
@@ -196,17 +196,32 @@ export default function DPCostTable() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold flex items-center gap-2"><Package className="h-6 w-6" />DP 비용 관리</h2>
-          <p className="text-gray-600 mt-1">항구별 DP(Delivery Point) 비용 설정</p>
+      {/* Beautiful Header */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-rose-500 via-pink-500 to-fuchsia-500 p-6 shadow-xl">
+        <div className="absolute inset-0 bg-grid-white/10"></div>
+        <div className="relative flex justify-between items-center">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 bg-white/20 backdrop-blur-sm rounded-xl">
+                <Package className="h-6 w-6 text-white" />
+              </div>
+              <h2 className="text-3xl font-bold text-white flex items-center gap-2">
+                DP 비용 관리
+                <Sparkles className="h-5 w-5 text-yellow-300 animate-pulse" />
+              </h2>
+            </div>
+            <p className="text-rose-50 ml-14">항구별 DP(Delivery Point) 비용 설정</p>
+          </div>
+          {isAdmin && (
+            <Button 
+              onClick={handleOpenDialog}
+              className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border-2 border-white/50 shadow-lg transition-all hover:scale-105"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              DP 비용 추가
+            </Button>
+          )}
         </div>
-        {isAdmin && (
-          <Button onClick={handleOpenDialog}>
-            <Plus className="h-4 w-4 mr-2" />
-            DP 비용 추가
-          </Button>
-        )}
       </div>
 
       <Alert>
@@ -234,16 +249,16 @@ export default function DPCostTable() {
         </Alert>
       )}
 
-      <div className="border rounded-lg overflow-hidden bg-white">
+      <div className="rounded-xl border-2 shadow-lg overflow-hidden">
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead>버전</TableHead>
-              <TableHead>항구</TableHead>
-              <TableHead>DP 비용 (USD)</TableHead>
-              <TableHead>유효기간</TableHead>
-              <TableHead>상태</TableHead>
-              {isAdmin && <TableHead className="text-right">작업</TableHead>}
+            <TableRow className="bg-gradient-to-r from-rose-50 to-pink-50">
+              <TableHead className="font-bold">버전</TableHead>
+              <TableHead className="font-bold">항구</TableHead>
+              <TableHead className="font-bold">DP 비용 (USD)</TableHead>
+              <TableHead className="font-bold">유효기간</TableHead>
+              <TableHead className="font-bold">상태</TableHead>
+              {isAdmin && <TableHead className="text-right font-bold">작업</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -251,12 +266,12 @@ export default function DPCostTable() {
               const validityStatus = getValidityStatus(dpCost.validFrom, dpCost.validTo);
               
               return (
-                <TableRow key={dpCost.id}>
+                <TableRow key={dpCost.id} className="hover:bg-rose-50/50 transition-colors">
                   <TableCell>
-                    <Badge variant="outline">v{dpCost.version || 1}</Badge>
+                    <Badge variant="outline" className="font-semibold">v{dpCost.version || 1}</Badge>
                   </TableCell>
                   <TableCell className="font-medium">{dpCost.port}</TableCell>
-                  <TableCell>${dpCost.amount}</TableCell>
+                  <TableCell className="font-semibold text-rose-700">${dpCost.amount}</TableCell>
                   <TableCell>
                     <div className="text-sm">
                       <div>{formatValidityDate(dpCost.validFrom)}</div>
@@ -275,7 +290,7 @@ export default function DPCostTable() {
                           size="sm"
                           variant="outline"
                           onClick={() => handleVersionChangeClick(dpCost)}
-                          className="bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-300"
+                          className="bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-300 transition-all hover:scale-105"
                         >
                           <RefreshCw className="h-4 w-4 mr-1" />
                           버전 변경
@@ -284,6 +299,7 @@ export default function DPCostTable() {
                           variant="ghost"
                           size="icon"
                           onClick={() => handleDelete(dpCost.id)}
+                          className="hover:bg-red-50 hover:text-red-700 transition-all hover:scale-105"
                         >
                           <Trash2 className="h-4 w-4 text-red-600" />
                         </Button>
@@ -295,8 +311,11 @@ export default function DPCostTable() {
             })}
             {dpCosts.length === 0 && (
               <TableRow>
-                <TableCell colSpan={isAdmin ? 6 : 5} className="text-center text-gray-500">
-                  설정된 DP 비용이 없습니다
+                <TableCell colSpan={isAdmin ? 6 : 5} className="text-center py-12">
+                  <div className="flex flex-col items-center gap-3">
+                    <Package className="h-16 w-16 text-rose-400" />
+                    <p className="text-xl font-semibold text-rose-900">설정된 DP 비용이 없습니다</p>
+                  </div>
                 </TableCell>
               </TableRow>
             )}

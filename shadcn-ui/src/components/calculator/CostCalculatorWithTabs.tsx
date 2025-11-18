@@ -1729,9 +1729,21 @@ export default function CostCalculatorWithTabs() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold mb-2">원가 계산기</h2>
-        <p className="text-gray-600">경로와 추가 비용을 입력하여 대리점별 총 운임을 계산하세요.</p>
+      {/* Beautiful Header */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-500 p-6 shadow-xl">
+        <div className="absolute inset-0 bg-grid-white/10"></div>
+        <div className="relative">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-white/20 backdrop-blur-sm rounded-xl">
+              <Calculator className="h-6 w-6 text-white" />
+            </div>
+            <h2 className="text-3xl font-bold text-white flex items-center gap-2">
+              원가 계산기
+              <Sparkles className="h-5 w-5 text-yellow-300 animate-pulse" />
+            </h2>
+          </div>
+          <p className="text-cyan-50 ml-14">경로와 추가 비용을 입력하여 대리점별 총 운임을 계산하세요</p>
+        </div>
       </div>
 
       <Card>

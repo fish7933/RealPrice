@@ -37,7 +37,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface VersionChangeData {
   agent: string;
-  rates: { [destinationId: string]: number };
+  rates: { [destinationId: string]: number | undefined };
   validFrom: string;
   validTo: string;
   currentVersion: number;
@@ -229,13 +229,15 @@ export default function BorderDestinationTable() {
       validTo = nextMonth.toISOString().split('T')[0];
     }
 
-    const rates: { [destinationId: string]: number } = {};
+    const rates: { [destinationId: string]: number | undefined } = {};
     const ids: string[] = [];
     destinations.forEach(dest => {
       const freight = freights[dest.id];
       if (freight) {
         rates[dest.id] = freight.rate;
         ids.push(freight.id);
+      } else {
+        rates[dest.id] = undefined;
       }
     });
 
@@ -276,7 +278,7 @@ export default function BorderDestinationTable() {
         const newRate = versionChangeData.rates[dest.id];
 
         if (existingFreight) {
-          if (newRate && newRate > 0) {
+          if (newRate !== undefined && newRate > 0) {
             // Update existing freight with new rate
             operations.push({
               type: 'update',
@@ -289,13 +291,13 @@ export default function BorderDestinationTable() {
               }
             });
           } else {
-            // Delete freight if rate is 0 or empty
+            // Delete freight if rate is undefined or 0
             operations.push({
               type: 'delete',
               id: existingFreight.id,
             });
           }
-        } else if (newRate && newRate > 0) {
+        } else if (newRate !== undefined && newRate > 0) {
           // Add new freight if it doesn't exist and has a rate
           operations.push({
             type: 'add',
@@ -627,7 +629,7 @@ export default function BorderDestinationTable() {
               버전 변경
             </DialogTitle>
             <DialogDescription>
-              새로운 버전의 트럭운임 정보를 수정하세요. 버전이 자동으로 증가하고 유효기간이 설정됩니다. 운임을 0으로 설정하면 해당 목적지 운임이 삭제됩니다.
+              새로운 버전의 트럭운임 정보를 수정하세요. 버전이 자동으로 증가하고 유효기간이 설정됩니다. 운임을 비우거나 0으로 설정하면 해당 목적지 운임이 삭제됩니다.
             </DialogDescription>
           </DialogHeader>
           {versionChangeData && (
@@ -695,7 +697,7 @@ export default function BorderDestinationTable() {
                 <Label>각 목적지별 운임 (USD)</Label>
                 <div className="text-xs bg-amber-50 border border-amber-200 rounded p-3">
                   <p className="text-amber-700 font-medium">
-                    💡 운임을 0으로 설정하면 해당 목적지 운임이 삭제됩니다.
+                    💡 운임을 비우거나 0으로 설정하면 해당 목적지 운임이 삭제됩니다.
                   </p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -706,13 +708,15 @@ export default function BorderDestinationTable() {
                       </Label>
                       <Input
                         type="number"
-                        value={versionChangeData.rates[dest.id] || 0}
+                        placeholder="운임 없음"
+                        value={versionChangeData.rates[dest.id] !== undefined ? versionChangeData.rates[dest.id] : ''}
                         onChange={(e) => {
+                          const value = e.target.value;
                           setVersionChangeData({
                             ...versionChangeData,
                             rates: {
                               ...versionChangeData.rates,
-                              [dest.id]: Number(e.target.value)
+                              [dest.id]: value === '' ? undefined : Number(value)
                             }
                           });
                           setValidationError(null);

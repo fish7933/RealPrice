@@ -55,7 +55,7 @@ const ITEMS_PER_PAGE = 5;
 
 export default function AuditLogTable({ logs, title = '운임 변경 기록', description = '운임 정보의 모든 변경 내역이 자동으로 기록됩니다' }: AuditLogTableProps) {
   const { user } = useAuth();
-  const { deleteAuditLog, clearAuditLogs } = useFreight();
+  const { deleteAuditLog, clearAuditLogs, destinations } = useFreight();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [clearDialogOpen, setClearDialogOpen] = useState(false);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
@@ -72,6 +72,13 @@ export default function AuditLogTable({ logs, title = '운임 변경 기록', de
 
   // Check if any log has agent field to determine if we should show agent column
   const hasAgentField = logs.length > 0 && logs.some(log => log.entitySnapshot.agent);
+
+  // Helper function to get destination name by ID
+  const getDestinationName = (destinationId: string | undefined): string => {
+    if (!destinationId) return '';
+    const destination = destinations.find(d => d.id === destinationId);
+    return destination ? destination.name : destinationId;
+  };
 
   // Group logs by version and agent for rail/truck freight
   const groupedLogs = useMemo(() => {
@@ -166,11 +173,11 @@ export default function AuditLogTable({ logs, title = '운임 변경 기록', de
       case 'dpCost':
         return `${snapshot.port || ''}항`;
       case 'combinedFreight':
-        return `[${snapshot.agent || ''}] ${snapshot.pod || ''} → 목적지`;
+        return `[${snapshot.agent || ''}] ${snapshot.pod || ''} → ${getDestinationName(snapshot.destinationId as string)}`;
       case 'portBorderFreight':
         return `${snapshot.pod || ''} → 국경`;
       case 'borderDestinationFreight':
-        return `국경 → ${snapshot.destination || ''}`;
+        return `국경 → ${getDestinationName(snapshot.destinationId as string)}`;
       case 'weightSurcharge':
         return `[${snapshot.agent || ''}] ${snapshot.minWeight || ''}-${snapshot.maxWeight || ''}kg`;
       default:
@@ -189,6 +196,7 @@ export default function AuditLogTable({ logs, title = '운임 변경 기록', de
       amount: '금액',
       port: '항구',
       destination: '목적지',
+      destinationId: '목적지',
       qingdao: '청도',
       tianjin: '천진',
       lianyungang: '연운',
@@ -202,6 +210,13 @@ export default function AuditLogTable({ logs, title = '운임 변경 기록', de
       version: '버전',
     };
     return labels[field] || field;
+  };
+
+  const formatFieldValue = (field: string, value: string | number | boolean | undefined): string => {
+    if (field === 'destinationId' && typeof value === 'string') {
+      return getDestinationName(value);
+    }
+    return formatValue(value);
   };
 
   const handleViewLog = (groupedLog: GroupedLog) => {
@@ -551,16 +566,16 @@ export default function AuditLogTable({ logs, title = '운임 변경 기록', de
                                 </span>
                                 {selectedGroupedLog.action === 'create' ? (
                                   <span className="text-green-600 font-medium">
-                                    {formatValue(change.newValue)}
+                                    {formatFieldValue(change.field, change.newValue)}
                                   </span>
                                 ) : (
                                   <div className="flex items-center gap-2 flex-wrap">
                                     <span className="text-red-600 line-through">
-                                      {formatValue(change.oldValue)}
+                                      {formatFieldValue(change.field, change.oldValue)}
                                     </span>
                                     <span className="text-gray-500">→</span>
                                     <span className="text-green-600 font-medium">
-                                      {formatValue(change.newValue)}
+                                      {formatFieldValue(change.field, change.newValue)}
                                     </span>
                                   </div>
                                 )}

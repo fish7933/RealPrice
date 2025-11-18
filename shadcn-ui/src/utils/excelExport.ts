@@ -31,7 +31,7 @@ export const exportQuotationToExcel = (data: ExcelExportData) => {
   });
 
   // Build header row dynamically based on excluded costs
-  const headers: string[] = ['경로', 'CARRIER', 'CNTR SIZE'];
+  const headers: string[] = ['조합', 'CARRIER', 'CNTR SIZE'];
   
   if (!data.excludedCosts.seaFreight) {
     headers.push(`${data.input.pol}-${data.input.pod}`);
@@ -77,7 +77,7 @@ export const exportQuotationToExcel = (data: ExcelExportData) => {
 
   // Build data row
   const dataRow: (string | number)[] = [
-    data.destinationName,
+    data.breakdown.agent,
     data.carrier || '',
     "40'HQ"
   ];
@@ -169,7 +169,8 @@ export const exportQuotationToExcel = (data: ExcelExportData) => {
     titleCell.s = {
       font: { 
         bold: true, 
-        sz: 16
+        sz: 14,
+        underline: true
       },
       alignment: { 
         horizontal: 'center', 
@@ -192,30 +193,18 @@ export const exportQuotationToExcel = (data: ExcelExportData) => {
     };
   }
 
-  // Apply styles to header row (row 2)
+  // Apply styles to header row (row 2) - all headers with gray background
   for (let col = 0; col < numCols; col++) {
     const cellRef = XLSX.utils.encode_cell({ r: 2, c: col });
     if (ws[cellRef]) {
-      const header = headers[col];
-      let fillColor = '404040'; // Default gray
-      
-      // Special colors for TOTAL, SELLING, PROFIT columns
-      if (header === 'TOTAL') {
-        fillColor = 'DBEAFE'; // Blue-50
-      } else if (header === 'SELLING') {
-        fillColor = 'DCFCE7'; // Green-50
-      } else if (header === 'PROFIT') {
-        fillColor = 'FEF3C7'; // Yellow-50
-      }
-      
       ws[cellRef].s = {
         font: { 
           bold: true, 
           sz: 10,
-          color: { rgb: fillColor === '404040' ? 'FFFFFF' : '000000' }
+          color: { rgb: 'FFFFFF' }
         },
         fill: { 
-          fgColor: { rgb: fillColor }
+          fgColor: { rgb: '404040' }
         },
         alignment: { 
           horizontal: 'center', 
@@ -242,18 +231,11 @@ export const exportQuotationToExcel = (data: ExcelExportData) => {
         border: borderStyle
       };
 
-      // Special styling for TOTAL, SELLING, PROFIT columns
-      if (header === 'TOTAL') {
-        cellStyle.fill = { fgColor: { rgb: 'DBEAFE' } }; // Blue-50
-        cellStyle.font = { sz: 10, bold: true };
-      } else if (header === 'SELLING') {
-        cellStyle.fill = { fgColor: { rgb: 'DCFCE7' } }; // Green-50
-        cellStyle.font = { sz: 10, bold: true };
-      } else if (header === 'PROFIT') {
-        cellStyle.fill = { fgColor: { rgb: 'FEF3C7' } }; // Yellow-50
+      // Special styling for PROFIT column (red if negative)
+      if (header === 'PROFIT' && data.profit < 0) {
         cellStyle.font = {
           sz: 10,
-          color: { rgb: data.profit >= 0 ? '16A34A' : 'DC2626' }, // Green-600 or Red-600
+          color: { rgb: 'DC2626' }, // Red-600
           bold: true
         };
       }
@@ -284,7 +266,7 @@ export const copyQuotationToClipboard = async (data: ExcelExportData): Promise<b
     });
 
     // Build header row
-    const headers: string[] = ['경로', 'CARRIER', 'CNTR SIZE'];
+    const headers: string[] = ['조합', 'CARRIER', 'CNTR SIZE'];
     
     if (!data.excludedCosts.seaFreight) {
       headers.push(`${data.input.pol}-${data.input.pod}`);
@@ -329,7 +311,7 @@ export const copyQuotationToClipboard = async (data: ExcelExportData): Promise<b
 
     // Build data row
     const dataRow: (string | number)[] = [
-      data.destinationName,
+      data.breakdown.agent,
       data.carrier || '',
       "40'HQ"
     ];

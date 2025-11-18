@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Ship, Train, Truck, Weight, Package, Star, FileText, DollarSign, 
   Info, ArrowUp, ArrowDown, Merge, TrendingDown, AlertTriangle, 
-  FileSpreadsheet, Sparkles, Trophy, Zap, Plus
+  FileSpreadsheet, Sparkles, Trophy, Zap, Plus, Hash, Calculator
 } from 'lucide-react';
 import { CostCalculationResult, AgentCostBreakdown, CostCalculationInput } from '@/types/freight';
 import { ExcludedCosts, CellExclusions, SortConfig } from './types';
@@ -227,7 +227,8 @@ export default function CostResultTable({
                       className="cursor-pointer hover:bg-gray-100 transition-colors whitespace-nowrap w-32 p-2"
                       onClick={() => onSort('agent')}
                     >
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1 font-bold">
+                        <Hash className="h-3.5 w-3.5" />
                         <span>조합 코드</span>
                         {sortConfig.key === 'agent' && (
                           sortConfig.direction === 'asc' ? 
@@ -390,6 +391,7 @@ export default function CostResultTable({
                       onClick={() => onSort('total')}
                     >
                       <div className="flex items-center justify-end gap-1">
+                        <Calculator className="h-3.5 w-3.5" />
                         <span>총액</span>
                         {sortConfig.key === 'total' && (
                           sortConfig.direction === 'asc' ? 
@@ -398,7 +400,12 @@ export default function CostResultTable({
                         )}
                       </div>
                     </TableHead>
-                    <TableHead className="text-center whitespace-nowrap w-16 p-1 text-sm font-bold">견적서</TableHead>
+                    <TableHead className="text-center whitespace-nowrap w-16 p-1 text-sm font-bold">
+                      <div className="flex flex-col items-center gap-0.5">
+                        <FileSpreadsheet className="h-3.5 w-3.5" />
+                        <span className="text-xs">견적서</span>
+                      </div>
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -421,7 +428,7 @@ export default function CostResultTable({
                             {isLowest && (
                               <Trophy className="h-4 w-4 text-amber-600 animate-bounce-subtle" />
                             )}
-                            <span className={`font-mono text-xs ${isLowest ? 'font-bold text-amber-900' : ''}`}>
+                            <span className={`font-mono text-xs font-bold ${isLowest ? 'text-amber-900' : 'text-gray-700'}`}>
                               {generateCombinationCode(breakdown, originalIndex)}
                             </span>
                             {isLowest && (

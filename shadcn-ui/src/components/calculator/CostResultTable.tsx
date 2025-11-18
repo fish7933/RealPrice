@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Ship, Train, Truck, Weight, Package, Star, FileText, DollarSign, 
   Info, ArrowUp, ArrowDown, Merge, TrendingDown, AlertTriangle, 
-  FileSpreadsheet, Sparkles 
+  FileSpreadsheet, Sparkles, Trophy 
 } from 'lucide-react';
 import { CostCalculationResult, AgentCostBreakdown, CostCalculationInput } from '@/types/freight';
 import { ExcludedCosts, CellExclusions, SortConfig } from './types';
@@ -402,15 +402,24 @@ export default function CostResultTable({
                     return (
                       <TableRow
                         key={index}
-                        className={`text-sm ${isLowest ? 'bg-green-50 font-semibold' : ''}`}
+                        className={`text-sm transition-all duration-300 ${
+                          isLowest 
+                            ? 'bg-gradient-to-r from-amber-50 via-yellow-50 to-amber-50 border-l-4 border-amber-500 shadow-md animate-pulse-subtle' 
+                            : 'hover:bg-gray-50'
+                        }`}
                       >
                         <TableCell className="whitespace-nowrap p-2">
-                          <div className="flex items-center gap-1">
-                            <span className="font-mono text-xs">{generateCombinationCode(breakdown, originalIndex)}</span>
+                          <div className="flex items-center gap-2">
                             {isLowest && (
-                              <span className="flex items-center gap-0.5 text-[10px] bg-green-600 text-white px-1.5 py-0.5 rounded whitespace-nowrap">
+                              <Trophy className="h-4 w-4 text-amber-600 animate-bounce-subtle" />
+                            )}
+                            <span className={`font-mono text-xs ${isLowest ? 'font-bold text-amber-900' : ''}`}>
+                              {generateCombinationCode(breakdown, originalIndex)}
+                            </span>
+                            {isLowest && (
+                              <span className="flex items-center gap-1 text-[10px] bg-gradient-to-r from-amber-500 to-yellow-500 text-white px-2 py-1 rounded-full whitespace-nowrap font-bold shadow-sm">
                                 <TrendingDown className="h-3 w-3" />
-                                최저
+                                BEST PRICE
                               </span>
                             )}
                           </div>
@@ -669,7 +678,7 @@ export default function CostResultTable({
                             ${excludedCosts[`other_${idx}`] || isCellExcluded(originalIndex, `other_${idx}`) ? 0 : item.amount}
                           </TableCell>
                         ))}
-                        <TableCell className="text-right font-bold whitespace-nowrap p-2">
+                        <TableCell className={`text-right font-bold whitespace-nowrap p-2 ${isLowest ? 'text-amber-900 text-lg' : ''}`}>
                           <span className={adjustedTotal < 0 ? "text-red-600 font-bold" : ""}>
                             ${adjustedTotal.toLocaleString()}
                           </span>
@@ -692,12 +701,15 @@ export default function CostResultTable({
               </Table>
             </div>
 
-            <div className="p-3 bg-green-50 rounded-lg border border-green-200 text-sm space-y-1.5">
-              <p className="text-gray-700">
-                <span className="font-semibold">최저가 조합:</span> {lowestCostInfo.agent}
-              </p>
-              <p className="text-gray-700">
-                <span className="font-semibold">최저 총액:</span> ${lowestCostInfo.cost.toLocaleString()}
+            <div className="p-3 bg-gradient-to-r from-amber-50 via-yellow-50 to-amber-50 rounded-lg border-2 border-amber-300 shadow-md text-sm space-y-1.5">
+              <div className="flex items-center gap-2">
+                <Trophy className="h-5 w-5 text-amber-600" />
+                <p className="text-amber-900 font-bold text-base">
+                  최저가 조합: {lowestCostInfo.agent}
+                </p>
+              </div>
+              <p className="text-amber-900 font-semibold">
+                최저 총액: <span className="text-lg">${lowestCostInfo.cost.toLocaleString()}</span>
               </p>
               <p className="text-xs text-gray-600 flex items-center gap-1">
                 <Star className="h-3 w-3 text-amber-600" />

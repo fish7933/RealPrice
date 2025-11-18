@@ -398,7 +398,7 @@ export default function CostResultTable({
                         )}
                       </div>
                     </TableHead>
-                    <TableHead className="text-center whitespace-nowrap w-20 p-2 text-xs">작업</TableHead>
+                    <TableHead className="text-center whitespace-nowrap w-14 p-1 text-[10px]">견적</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -690,7 +690,7 @@ export default function CostResultTable({
                           {isLowest ? (
                             <div className="flex items-center justify-end gap-2">
                               <div className="flex flex-col items-end">
-                                <span className="text-2xl font-extrabold bg-gradient-to-r from-amber-600 via-yellow-600 to-amber-600 bg-clip-text text-transparent animate-pulse">
+                                <span className="text-2xl font-extrabold bg-gradient-to-r from-amber-600 via-yellow-600 to-amber-600 bg-clip-text text-transparent">
                                   ${adjustedTotal.toLocaleString()}
                                 </span>
                                 <span className="text-[10px] text-amber-700 font-semibold">최저가</span>
@@ -702,25 +702,25 @@ export default function CostResultTable({
                             </span>
                           )}
                         </TableCell>
-                        <TableCell className="text-center whitespace-nowrap p-2">
+                        <TableCell className="text-center whitespace-nowrap p-1">
                           {isLowest ? (
                             <Button
                               size="sm"
                               onClick={() => onCreateQuotation(breakdown)}
-                              className="relative overflow-hidden whitespace-nowrap h-9 px-3 text-xs font-bold bg-gradient-to-r from-amber-600 via-yellow-600 to-amber-600 hover:from-amber-700 hover:via-yellow-700 hover:to-amber-700 text-white border-2 border-amber-500 shadow-lg hover:shadow-xl transition-all duration-300"
+                              className="h-7 w-7 p-0 bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-700 hover:to-yellow-700 text-white border border-amber-500 shadow-sm hover:shadow-md transition-all duration-200"
+                              title="견적서 생성"
                             >
-                              <Zap className="h-4 w-4 mr-1 animate-pulse" />
-                              견적서
+                              <FileSpreadsheet className="h-3.5 w-3.5" />
                             </Button>
                           ) : (
                             <Button
                               size="sm"
-                              variant="outline"
+                              variant="ghost"
                               onClick={() => onCreateQuotation(breakdown)}
-                              className="whitespace-nowrap h-8 px-2 text-xs"
+                              className="h-7 w-7 p-0 hover:bg-gray-100 transition-colors"
+                              title="견적서 생성"
                             >
-                              <FileSpreadsheet className="h-3 w-3 mr-1" />
-                              견적서
+                              <FileSpreadsheet className="h-3.5 w-3.5 text-gray-600" />
                             </Button>
                           )}
                         </TableCell>

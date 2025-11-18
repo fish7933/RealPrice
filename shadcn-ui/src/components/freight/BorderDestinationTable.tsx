@@ -253,6 +253,7 @@ export default function BorderDestinationTable() {
             rate: versionChangeData.rates[dest.id],
             validFrom: versionChangeData.validFrom,
             validTo: versionChangeData.validTo,
+            version: versionChangeData.nextVersion,
           });
         }
       }

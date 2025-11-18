@@ -27,7 +27,7 @@ import {
 } from '@/types/freight';
 import { createClient } from '@supabase/supabase-js';
 import { calculateCost } from './freight/freightCalculations';
-import { getHistoricalSnapshot } from './freight/freightHelpers';
+import { getHistoricalSnapshot, getDPCost as getDPCostHelper, getSeaFreightOptions as getSeaFreightOptionsHelper } from './freight/freightHelpers';
 import {
   loadShippingLines,
   loadPorts,
@@ -47,6 +47,8 @@ import {
   loadBorderCities,
   loadSystemSettings,
 } from './freight/freightLoaders';
+import { deleteCalculationHistory as deleteCalculationHistoryOp, addCalculationHistory as addCalculationHistoryOp } from './freight/freightOperations';
+import { useAuth } from './AuthContext';
 
 const supabase = createClient(
   'https://lcubxwvkoqkhsvzstbay.supabase.co',
@@ -147,6 +149,7 @@ interface FreightContextType {
   addDestination: (destination: Omit<Destination, 'id'>) => void;
   updateDestination: (id: string, updates: Partial<Destination>) => void;
   deleteDestination: (id: string) => void;
+  getDestinationById: (id: string) => Destination | undefined;
   
   // Border Cities
   borderCities: BorderCity[];
@@ -170,18 +173,25 @@ interface FreightContextType {
   
   // Calculation History
   calculationHistory: CalculationHistory[];
-  addCalculationHistory: (history: Omit<CalculationHistory, 'id' | 'timestamp'>) => void;
+  addCalculationHistory: (history: Omit<CalculationHistory, 'id' | 'timestamp'>) => Promise<void>;
+  deleteCalculationHistory: (id: string) => Promise<void>;
   clearCalculationHistory: () => void;
   
   // Cost Calculation
+  calculateCost: (input: CostCalculationInput) => CostCalculationResult | null;
   calculateFreightCost: (input: CostCalculationInput) => CostCalculationResult | null;
   getHistoricalSnapshot: (date: string) => HistoricalFreightSnapshot | null;
   getAvailableHistoricalDates: () => string[];
+  
+  // Helper methods
+  getDPCost: (port: string, date?: string) => number;
+  getSeaFreightOptions: (pol: string, pod: string, date?: string) => SeaFreight[];
 }
 
 const FreightContext = createContext<FreightContextType | undefined>(undefined);
 
 export function FreightProvider({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
   const [appVersion, setAppVersion] = useState<AppVersion | null>(null);
   const [users, setUsers] = useState<User[]>([]);
   const [railAgents, setRailAgents] = useState<RailAgent[]>([]);
@@ -501,6 +511,9 @@ export function FreightProvider({ children }: { children: ReactNode }) {
   const deleteDestination = (id: string) => {
     setDestinations(destinations.filter(dest => dest.id !== id));
   };
+  const getDestinationById = (id: string): Destination | undefined => {
+    return destinations.find(dest => dest.id === id);
+  };
 
   // Border City management
   const addBorderCity = (city: Omit<BorderCity, 'id'>) => {
@@ -546,14 +559,20 @@ export function FreightProvider({ children }: { children: ReactNode }) {
   };
 
   // Calculation History management
-  const addCalculationHistory = (history: Omit<CalculationHistory, 'id' | 'timestamp'>) => {
-    const newHistory: CalculationHistory = {
-      ...history,
-      id: crypto.randomUUID(),
-      timestamp: new Date().toISOString(),
-    };
-    setCalculationHistory([newHistory, ...calculationHistory]);
+  const handleAddCalculationHistory = async (history: Omit<CalculationHistory, 'id' | 'timestamp'>) => {
+    await addCalculationHistoryOp(history, user);
+    // Reload calculation history after adding
+    const loadedHistory = await loadCalculationHistory();
+    setCalculationHistory(loadedHistory);
   };
+
+  const handleDeleteCalculationHistory = async (id: string) => {
+    await deleteCalculationHistoryOp(id);
+    // Reload calculation history after deleting
+    const loadedHistory = await loadCalculationHistory();
+    setCalculationHistory(loadedHistory);
+  };
+
   const clearCalculationHistory = () => {
     setCalculationHistory([]);
   };
@@ -576,6 +595,15 @@ export function FreightProvider({ children }: { children: ReactNode }) {
     
     // Convert to array and sort in descending order (newest first)
     return Array.from(dates).sort((a, b) => b.localeCompare(a));
+  };
+
+  // Helper methods
+  const getDPCost = (port: string, date?: string): number => {
+    return getDPCostHelper(dpCosts, port, date);
+  };
+
+  const getSeaFreightOptions = (pol: string, pod: string, date?: string): SeaFreight[] => {
+    return getSeaFreightOptionsHelper(seaFreights, pol, pod, date);
   };
 
   // Cost Calculation
@@ -673,6 +701,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
     addDestination,
     updateDestination,
     deleteDestination,
+    getDestinationById,
     borderCities,
     addBorderCity,
     updateBorderCity,
@@ -686,8 +715,10 @@ export function FreightProvider({ children }: { children: ReactNode }) {
     auditLogs,
     addAuditLog,
     calculationHistory,
-    addCalculationHistory,
+    addCalculationHistory: handleAddCalculationHistory,
+    deleteCalculationHistory: handleDeleteCalculationHistory,
     clearCalculationHistory,
+    calculateCost: calculateFreightCost,
     calculateFreightCost,
     getHistoricalSnapshot: (date: string) => getHistoricalSnapshot(
       date,
@@ -702,6 +733,8 @@ export function FreightProvider({ children }: { children: ReactNode }) {
       freightAuditLogs
     ),
     getAvailableHistoricalDates,
+    getDPCost,
+    getSeaFreightOptions,
   };
 
   return <FreightContext.Provider value={value}>{children}</FreightContext.Provider>;

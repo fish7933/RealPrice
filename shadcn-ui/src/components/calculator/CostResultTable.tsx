@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Ship, Train, Truck, Weight, Package, Star, FileText, DollarSign, 
   Info, ArrowUp, ArrowDown, Merge, TrendingDown, AlertTriangle, 
-  FileSpreadsheet, Sparkles, Trophy, Crown, Zap
+  FileSpreadsheet, Sparkles, Trophy, Zap
 } from 'lucide-react';
 import { CostCalculationResult, AgentCostBreakdown, CostCalculationInput } from '@/types/freight';
 import { ExcludedCosts, CellExclusions, SortConfig } from './types';
@@ -183,7 +183,7 @@ export default function CostResultTable({
             <div>* <strong>헤더 클릭:</strong> 해당 컬럼의 모든 값을 0으로 계산</div>
             <div>* <strong>셀 클릭:</strong> 해당 조합의 특정 비용만 0으로 계산</div>
             <div>* 제외된 항목은 회색으로 표시되며, 다시 클릭하면 포함됩니다</div>
-            <div>* "조합", "선사", "철도", "트럭" 또는 "총액" 헤더를 클릭하면 해당 기준으로 정렬</div>
+            <div>* "조합 코드", "선사", "철도", "트럭" 또는 "총액" 헤더를 클릭하면 해당 기준으로 정렬</div>
           </div>
         </div>
 
@@ -228,7 +228,7 @@ export default function CostResultTable({
                       onClick={() => onSort('agent')}
                     >
                       <div className="flex items-center gap-1">
-                        <span>조합</span>
+                        <span>조합 코드</span>
                         {sortConfig.key === 'agent' && (
                           sortConfig.direction === 'asc' ? 
                             <ArrowUp className="h-3.5 w-3.5" /> : 
@@ -425,9 +425,9 @@ export default function CostResultTable({
                               {generateCombinationCode(breakdown, originalIndex)}
                             </span>
                             {isLowest && (
-                              <span className="flex items-center gap-1 text-[10px] bg-gradient-to-r from-amber-500 to-yellow-500 text-white px-2 py-1 rounded-full whitespace-nowrap font-bold shadow-sm">
-                                <TrendingDown className="h-3 w-3" />
-                                BEST PRICE
+                              <span className="flex items-center gap-1 text-[10px] bg-gradient-to-r from-amber-600 to-yellow-600 text-white px-2 py-1 rounded-full whitespace-nowrap font-bold shadow-sm animate-sparkle">
+                                <Sparkles className="h-3 w-3 animate-pulse" />
+                                BEST
                               </span>
                             )}
                           </div>
@@ -695,7 +695,6 @@ export default function CostResultTable({
                                 </span>
                                 <span className="text-[10px] text-amber-700 font-semibold">최저가</span>
                               </div>
-                              <Crown className="h-5 w-5 text-amber-500 animate-bounce-subtle" />
                             </div>
                           ) : (
                             <span className={adjustedTotal < 0 ? "text-red-600 font-bold" : ""}>
@@ -708,7 +707,7 @@ export default function CostResultTable({
                             <Button
                               size="sm"
                               onClick={() => onCreateQuotation(breakdown)}
-                              className="relative overflow-hidden whitespace-nowrap h-9 px-3 text-xs font-bold bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-500 hover:from-amber-600 hover:via-yellow-600 hover:to-amber-600 text-white border-2 border-amber-400 shadow-lg hover:shadow-xl transition-all duration-300 animate-shimmer"
+                              className="relative overflow-hidden whitespace-nowrap h-9 px-3 text-xs font-bold bg-gradient-to-r from-amber-600 via-yellow-600 to-amber-600 hover:from-amber-700 hover:via-yellow-700 hover:to-amber-700 text-white border-2 border-amber-500 shadow-lg hover:shadow-xl transition-all duration-300"
                             >
                               <Zap className="h-4 w-4 mr-1 animate-pulse" />
                               견적서
@@ -751,7 +750,6 @@ export default function CostResultTable({
                   <span className="text-2xl bg-gradient-to-r from-amber-600 via-yellow-600 to-amber-600 bg-clip-text text-transparent">
                     ${lowestCostInfo.cost.toLocaleString()}
                   </span>
-                  <Crown className="h-5 w-5 text-amber-500" />
                 </p>
               </div>
               <div className="pt-2 border-t border-amber-200 space-y-1">

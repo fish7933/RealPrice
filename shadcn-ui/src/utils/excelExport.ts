@@ -31,7 +31,7 @@ export const exportQuotationToExcel = (data: ExcelExportData) => {
   });
 
   // Build header row dynamically based on excluded costs
-  const headers: string[] = [routeTitle, 'CARRIER', 'CNTR SIZE'];
+  const headers: string[] = ['경로', 'CARRIER', 'CNTR SIZE'];
   
   if (!data.excludedCosts.seaFreight) {
     headers.push(`${data.input.pol}-${data.input.pod}`);
@@ -126,8 +126,8 @@ export const exportQuotationToExcel = (data: ExcelExportData) => {
 
   // Create worksheet data with title and date rows
   const wsData = [
-    ['운임견적서'],  // Title row
-    [`견적일자: ${quotationDate} | 작성자: ${data.createdByUsername}`],  // Date and author row
+    ['운임 견적서'],  // Title row
+    [`${routeTitle} | 작성자: ${data.createdByUsername} | 작성일: ${quotationDate}`],  // Date and author row
     headers,
     dataRow
   ];
@@ -169,8 +169,7 @@ export const exportQuotationToExcel = (data: ExcelExportData) => {
     titleCell.s = {
       font: { 
         bold: true, 
-        sz: 14,
-        underline: true
+        sz: 16
       },
       alignment: { 
         horizontal: 'center', 
@@ -197,14 +196,26 @@ export const exportQuotationToExcel = (data: ExcelExportData) => {
   for (let col = 0; col < numCols; col++) {
     const cellRef = XLSX.utils.encode_cell({ r: 2, c: col });
     if (ws[cellRef]) {
+      const header = headers[col];
+      let fillColor = '404040'; // Default gray
+      
+      // Special colors for TOTAL, SELLING, PROFIT columns
+      if (header === 'TOTAL') {
+        fillColor = 'DBEAFE'; // Blue-50
+      } else if (header === 'SELLING') {
+        fillColor = 'DCFCE7'; // Green-50
+      } else if (header === 'PROFIT') {
+        fillColor = 'FEF3C7'; // Yellow-50
+      }
+      
       ws[cellRef].s = {
         font: { 
           bold: true, 
           sz: 10,
-          color: { rgb: 'FFFFFF' }
+          color: { rgb: fillColor === '404040' ? 'FFFFFF' : '000000' }
         },
         fill: { 
-          fgColor: { rgb: '404040' }
+          fgColor: { rgb: fillColor }
         },
         alignment: { 
           horizontal: 'center', 
@@ -219,8 +230,10 @@ export const exportQuotationToExcel = (data: ExcelExportData) => {
   for (let col = 0; col < numCols; col++) {
     const cellRef = XLSX.utils.encode_cell({ r: 3, c: col });
     if (ws[cellRef]) {
+      const header = headers[col];
+      
       // Base style for all data cells
-      const cellStyle = {
+      const cellStyle: any = {
         font: { sz: 10 },
         alignment: { 
           horizontal: 'center', 
@@ -229,12 +242,18 @@ export const exportQuotationToExcel = (data: ExcelExportData) => {
         border: borderStyle
       };
 
-      // Special styling for PROFIT column
-      const profitColIdx = headers.indexOf('PROFIT');
-      if (col === profitColIdx) {
+      // Special styling for TOTAL, SELLING, PROFIT columns
+      if (header === 'TOTAL') {
+        cellStyle.fill = { fgColor: { rgb: 'DBEAFE' } }; // Blue-50
+        cellStyle.font = { sz: 10, bold: true };
+      } else if (header === 'SELLING') {
+        cellStyle.fill = { fgColor: { rgb: 'DCFCE7' } }; // Green-50
+        cellStyle.font = { sz: 10, bold: true };
+      } else if (header === 'PROFIT') {
+        cellStyle.fill = { fgColor: { rgb: 'FEF3C7' } }; // Yellow-50
         cellStyle.font = {
           sz: 10,
-          color: { rgb: data.profit >= 0 ? '006600' : 'CC0000' },
+          color: { rgb: data.profit >= 0 ? '16A34A' : 'DC2626' }, // Green-600 or Red-600
           bold: true
         };
       }
@@ -252,6 +271,124 @@ export const exportQuotationToExcel = (data: ExcelExportData) => {
 
   // Write file with cellStyles option
   XLSX.writeFile(wb, filename, { cellStyles: true });
+};
+
+// Function to copy quotation data to clipboard as tab-separated values
+export const copyQuotationToClipboard = async (data: ExcelExportData): Promise<boolean> => {
+  try {
+    const routeTitle = `${data.input.pol}-${data.input.pod}-${data.destinationName}`;
+    const quotationDate = new Date(data.createdAt).toLocaleDateString('ko-KR', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    });
+
+    // Build header row
+    const headers: string[] = ['경로', 'CARRIER', 'CNTR SIZE'];
+    
+    if (!data.excludedCosts.seaFreight) {
+      headers.push(`${data.input.pol}-${data.input.pod}`);
+    }
+    
+    if (!data.excludedCosts.dthc) {
+      headers.push('D/O FEE');
+    }
+    
+    if (data.breakdown.isCombinedFreight) {
+      if (!data.excludedCosts.combinedFreight) {
+        headers.push(`${data.input.pod}-${data.destinationName}`);
+      }
+    } else {
+      if (!data.excludedCosts.portBorder) {
+        headers.push(`${data.input.pod}-국경`);
+      }
+      if (!data.excludedCosts.borderDestination) {
+        headers.push(`국경-${data.destinationName}`);
+      }
+    }
+    
+    if (!data.excludedCosts.weightSurcharge && data.breakdown.weightSurcharge > 0) {
+      headers.push('중량할증');
+    }
+    
+    if (!data.excludedCosts.dp && data.breakdown.dp > 0) {
+      headers.push('DP');
+    }
+    
+    if (!data.excludedCosts.domesticTransport && data.breakdown.domesticTransport > 0) {
+      headers.push('국내운송');
+    }
+    
+    data.breakdown.otherCosts.forEach((item, index) => {
+      if (!data.excludedCosts[`other_${index}`]) {
+        headers.push(item.category);
+      }
+    });
+    
+    headers.push('TOTAL', 'SELLING', 'PROFIT');
+
+    // Build data row
+    const dataRow: (string | number)[] = [
+      data.destinationName,
+      data.carrier || '',
+      "40'HQ"
+    ];
+    
+    if (!data.excludedCosts.seaFreight) {
+      dataRow.push(data.breakdown.seaFreight);
+    }
+    
+    if (!data.excludedCosts.dthc) {
+      dataRow.push(data.breakdown.dthc);
+    }
+    
+    if (data.breakdown.isCombinedFreight) {
+      if (!data.excludedCosts.combinedFreight) {
+        dataRow.push(data.breakdown.combinedFreight);
+      }
+    } else {
+      if (!data.excludedCosts.portBorder) {
+        dataRow.push(data.breakdown.portBorder);
+      }
+      if (!data.excludedCosts.borderDestination) {
+        dataRow.push(data.breakdown.borderDestination);
+      }
+    }
+    
+    if (!data.excludedCosts.weightSurcharge && data.breakdown.weightSurcharge > 0) {
+      dataRow.push(data.breakdown.weightSurcharge);
+    }
+    
+    if (!data.excludedCosts.dp && data.breakdown.dp > 0) {
+      dataRow.push(data.breakdown.dp);
+    }
+    
+    if (!data.excludedCosts.domesticTransport && data.breakdown.domesticTransport > 0) {
+      dataRow.push(data.breakdown.domesticTransport);
+    }
+    
+    data.breakdown.otherCosts.forEach((item, index) => {
+      if (!data.excludedCosts[`other_${index}`]) {
+        dataRow.push(item.amount);
+      }
+    });
+    
+    dataRow.push(data.costTotal, data.sellingPrice, data.profit);
+
+    // Create clipboard text with tab-separated values
+    const clipboardText = [
+      '운임 견적서',
+      `${routeTitle} | 작성자: ${data.createdByUsername} | 작성일: ${quotationDate}`,
+      headers.join('\t'),
+      dataRow.join('\t')
+    ].join('\n');
+
+    await navigator.clipboard.writeText(clipboardText);
+    return true;
+  } catch (error) {
+    console.error('Failed to copy to clipboard:', error);
+    return false;
+  }
 };
 
 interface QuotationData {

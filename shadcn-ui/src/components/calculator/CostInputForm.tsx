@@ -73,7 +73,7 @@ export default function CostInputForm({
       <div className="p-5 bg-gradient-to-br from-purple-100 via-purple-50 to-blue-50 rounded-xl border-2 border-purple-300 shadow-md">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-gradient-to-br from-purple-600 to-purple-700 rounded-xl shadow-lg">
+            <div className="p-3 bg-gradient-to-br from-purple-600 to-purple-700 rounded-xl shadow-lg flex items-center justify-center">
               <Clock className="h-6 w-6 text-white" />
             </div>
             <div>
@@ -92,8 +92,8 @@ export default function CostInputForm({
             variant={historicalDate ? "default" : "outline"}
             onClick={onTimeMachineOpen}
             className={historicalDate 
-              ? "bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white shadow-lg" 
-              : "border-2 border-purple-300 hover:bg-purple-50"}
+              ? "bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white shadow-lg flex items-center justify-center" 
+              : "border-2 border-purple-300 hover:bg-purple-50 flex items-center justify-center"}
           >
             <Clock className="h-4 w-4 mr-2" />
             {historicalDate ? '날짜 변경' : '날짜 선택'}
@@ -159,7 +159,7 @@ export default function CostInputForm({
                   variant="outline"
                   size="sm"
                   onClick={onSeaFreightDialogOpen}
-                  className="h-7 text-xs border-amber-300 hover:bg-amber-50"
+                  className="h-7 text-xs border-amber-300 hover:bg-amber-50 flex items-center justify-center"
                 >
                   <Ship className="h-3 w-3 mr-1" />
                   선택 ({selectedSeaFreightIds.size}/{seaFreightOptions.length})
@@ -266,7 +266,7 @@ export default function CostInputForm({
             variant="outline"
             size="sm"
             onClick={addOtherCost}
-            className="border-2 border-amber-300 hover:bg-amber-100"
+            className="border-2 border-amber-300 hover:bg-amber-100 flex items-center justify-center"
           >
             <Plus className="h-4 w-4 mr-1" />
             항목 추가
@@ -275,7 +275,7 @@ export default function CostInputForm({
         {input.otherCosts.length > 0 && (
           <div className="space-y-2">
             {input.otherCosts.map((cost, index) => (
-              <div key={index} className="flex gap-2">
+              <div key={index} className="flex gap-2 items-center">
                 <Input
                   placeholder="비용 항목 (예: 통관비용)"
                   value={cost.category}
@@ -294,7 +294,7 @@ export default function CostInputForm({
                   variant="ghost"
                   size="sm"
                   onClick={() => removeOtherCost(index)}
-                  className="h-10 w-10 p-0 hover:bg-red-100"
+                  className="h-10 w-10 p-0 hover:bg-red-100 flex items-center justify-center"
                 >
                   <X className="h-4 w-4 text-red-600" />
                 </Button>
@@ -307,31 +307,19 @@ export default function CostInputForm({
         </p>
       </div>
 
-      <Alert className="bg-gradient-to-r from-blue-50 to-cyan-50 border-2 border-blue-200">
-        <Info className="h-5 w-5 text-blue-600" />
-        <AlertDescription className="text-sm">
-          <strong className="text-blue-900">자동 계산 항목:</strong>
-          <ul className="mt-2 space-y-1">
-            <li>• <strong>D/O(DTHC):</strong> 대리점별로 설정된 금액이 자동 적용됩니다</li>
-            <li>• <strong>철도+트럭 통합 운임:</strong> 설정된 경우 철도+트럭 분리 운임 대신 철도+트럭 통합 운임이 적용됩니다</li>
-            <li>• <strong>중량할증:</strong> 입력한 중량에 따라 자동 계산됩니다</li>
-            <li>• <strong>해상운임:</strong> 같은 항로에 여러 운임이 있는 경우 복수 선택할 수 있습니다</li>
-            <li>• <strong>DP:</strong> 관리자 대시보드에서 설정한 부산/인천 DP 금액이 자동 적용됩니다</li>
-          </ul>
-        </AlertDescription>
-      </Alert>
-
       {error && (
         <Alert variant="destructive" className="border-2">
-          <AlertTriangle className="h-5 w-5" />
-          <AlertDescription style={{ whiteSpace: 'pre-line' }} className="font-medium">{error}</AlertDescription>
+          <div className="flex items-start gap-2">
+            <AlertTriangle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+            <AlertDescription style={{ whiteSpace: 'pre-line' }} className="font-medium">{error}</AlertDescription>
+          </div>
         </Alert>
       )}
 
       <div className="flex gap-3">
         <Button 
           onClick={onCalculate} 
-          className="flex-1 h-12 text-base font-bold bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 shadow-lg"
+          className="flex-1 h-12 text-base font-bold bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 shadow-lg flex items-center justify-center"
         >
           <Calculator className="h-5 w-5 mr-2" />
           계산하기
@@ -339,7 +327,7 @@ export default function CostInputForm({
         <Button 
           onClick={onViewAllFreights} 
           variant="outline"
-          className="flex items-center gap-2 h-12 px-6 bg-gradient-to-r from-purple-50 to-pink-50 hover:from-purple-100 hover:to-pink-100 border-2 border-purple-300 font-bold"
+          className="flex items-center justify-center gap-2 h-12 px-6 bg-gradient-to-r from-purple-50 to-pink-50 hover:from-purple-100 hover:to-pink-100 border-2 border-purple-300 font-bold"
           disabled={!result}
         >
           <Sparkles className="h-5 w-5 text-purple-600" />
@@ -348,11 +336,27 @@ export default function CostInputForm({
         <Button 
           variant="outline" 
           onClick={onReset}
-          className="h-12 px-6 border-2 hover:bg-gray-100 font-bold"
+          className="h-12 px-6 border-2 hover:bg-gray-100 font-bold flex items-center justify-center"
         >
           초기화
         </Button>
       </div>
+
+      <Alert className="bg-gradient-to-r from-blue-50 to-cyan-50 border-2 border-blue-200">
+        <div className="flex items-start gap-2">
+          <Info className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
+          <AlertDescription className="text-sm">
+            <strong className="text-blue-900">자동 계산 항목:</strong>
+            <ul className="mt-2 space-y-1">
+              <li>• <strong>D/O(DTHC):</strong> 대리점별로 설정된 금액이 자동 적용됩니다</li>
+              <li>• <strong>철도+트럭 통합 운임:</strong> 설정된 경우 철도+트럭 분리 운임 대신 철도+트럭 통합 운임이 적용됩니다</li>
+              <li>• <strong>중량할증:</strong> 입력한 중량에 따라 자동 계산됩니다</li>
+              <li>• <strong>해상운임:</strong> 같은 항로에 여러 운임이 있는 경우 복수 선택할 수 있습니다</li>
+              <li>• <strong>DP:</strong> 관리자 대시보드에서 설정한 부산/인천 DP 금액이 자동 적용됩니다</li>
+            </ul>
+          </AlertDescription>
+        </div>
+      </Alert>
     </div>
   );
 }

@@ -28,7 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Trash2, Plus, AlertTriangle, RefreshCw, Search, X, ChevronLeft, ChevronRight, Merge } from 'lucide-react';
+import { Trash2, Plus, AlertTriangle, RefreshCw, Search, X, ChevronLeft, ChevronRight, Merge, Sparkles } from 'lucide-react';
 import { CombinedFreight } from '@/types/freight';
 import AuditLogTable from './AuditLogTable';
 import { ValidityPeriodInput } from '@/components/ui/validity-period-input';
@@ -331,176 +331,186 @@ export default function CombinedFreightTable() {
   const expiringRates = combinedFreights.filter(f => getValidityStatus(f.validFrom, f.validTo).status === 'expiring');
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold flex items-center gap-2">
-            <Merge className="h-6 w-6" />
-            철도+트럭 통합운임 관리
-          </h2>
-          <p className="text-gray-600 mt-1">
-            선적항 → 양하항 → 최종목적지 통합 운임 (철도+트럭 일괄)
-          </p>
-        </div>
-        {isAdmin && (
-          <Dialog open={isAddDialogOpen} onOpenChange={(open) => {
-            setIsAddDialogOpen(open);
-            if (!open) setValidationError(null);
-          }}>
-            <DialogTrigger asChild>
-              <Button onClick={() => resetForm()}>
-                <Plus className="mr-2 h-4 w-4" />
-                추가
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl">
-              <DialogHeader>
-                <DialogTitle>육상운송 통합운임 추가</DialogTitle>
-                <DialogDescription>
-                  새로운 통합 운임을 추가합니다. 선적항에서 양하항을 거쳐 최종목적지까지의 일괄 운임입니다.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                {validationError && (
-                  <Alert variant="destructive">
-                    <AlertTriangle className="h-4 w-4" />
-                    <AlertDescription>
-                      <div className="font-semibold">유효기간 중복 오류</div>
-                      <div className="text-sm mt-1">{validationError}</div>
-                    </AlertDescription>
-                  </Alert>
-                )}
-                <div className="grid gap-2">
-                  <Label htmlFor="agent">대리점 *</Label>
-                  <Select value={formData.agent} onValueChange={(value) => {
-                    setFormData({ ...formData, agent: value });
+    <div className="space-y-6">
+      {/* Beautiful Header */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 p-6 shadow-xl">
+        <div className="absolute inset-0 bg-grid-white/10"></div>
+        <div className="relative flex justify-between items-center">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 bg-white/20 backdrop-blur-sm rounded-xl">
+                <Merge className="h-6 w-6 text-white" />
+              </div>
+              <h2 className="text-3xl font-bold text-white flex items-center gap-2">
+                철도+트럭 통합운임 관리
+                <Sparkles className="h-5 w-5 text-yellow-300 animate-pulse" />
+              </h2>
+            </div>
+            <p className="text-emerald-50 ml-14">선적항 → 양하항 → 최종목적지 통합 운임 (철도+트럭 일괄)</p>
+          </div>
+          {isAdmin && (
+            <Dialog open={isAddDialogOpen} onOpenChange={(open) => {
+              setIsAddDialogOpen(open);
+              if (!open) setValidationError(null);
+            }}>
+              <DialogTrigger asChild>
+                <Button 
+                  onClick={() => resetForm()}
+                  className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border-2 border-white/50 shadow-lg transition-all hover:scale-105"
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  추가
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>육상운송 통합운임 추가</DialogTitle>
+                  <DialogDescription>
+                    새로운 통합 운임을 추가합니다. 선적항에서 양하항을 거쳐 최종목적지까지의 일괄 운임입니다.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  {validationError && (
+                    <Alert variant="destructive">
+                      <AlertTriangle className="h-4 w-4" />
+                      <AlertDescription>
+                        <div className="font-semibold">유효기간 중복 오류</div>
+                        <div className="text-sm mt-1">{validationError}</div>
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                  <div className="grid gap-2">
+                    <Label htmlFor="agent">대리점 *</Label>
+                    <Select value={formData.agent} onValueChange={(value) => {
+                      setFormData({ ...formData, agent: value });
+                      setValidationError(null);
+                    }}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="대리점 선택" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {railAgents.map((agent) => (
+                          <SelectItem key={agent.id} value={agent.name}>
+                            {agent.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="pol">선적항 (POL) *</Label>
+                    {polPorts.length > 0 ? (
+                      <Select value={formData.pol} onValueChange={(value) => {
+                        setFormData({ ...formData, pol: value });
+                        setValidationError(null);
+                      }}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="선적항 선택" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {polPorts.map((port) => (
+                            <SelectItem key={port.id} value={port.name}>
+                              {port.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <div className="text-sm text-gray-500 p-3 bg-gray-50 rounded border">
+                        선적항(POL)을 먼저 등록해주세요. (운송사 탭 → 포트 관리)
+                      </div>
+                    )}
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="pod">양하항 (POD) *</Label>
+                    {podPorts.length > 0 ? (
+                      <Select value={formData.pod} onValueChange={(value) => {
+                        setFormData({ ...formData, pod: value });
+                        setValidationError(null);
+                      }}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="양하항 선택" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {podPorts.map((port) => (
+                            <SelectItem key={port.id} value={port.name}>
+                              {port.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <div className="text-sm text-gray-500 p-3 bg-gray-50 rounded border">
+                        양하항(POD)을 먼저 등록해주세요. (운송사 탭 → 포트 관리)
+                      </div>
+                    )}
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="destination">최종목적지 *</Label>
+                    <Select
+                      value={formData.destinationId}
+                      onValueChange={(value) => {
+                        setFormData({ ...formData, destinationId: value });
+                        setValidationError(null);
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="목적지 선택" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {destinations.map((dest) => (
+                          <SelectItem key={dest.id} value={dest.id}>
+                            {dest.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="rate">통합 운임 (USD) *</Label>
+                    <Input
+                      id="rate"
+                      type="number"
+                      step="0.01"
+                      placeholder="예: 4550"
+                      value={formData.rate}
+                      onChange={(e) => setFormData({ ...formData, rate: e.target.value })}
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label>유효기간 *</Label>
+                    <ValidityPeriodInput
+                      validFrom={formData.validFrom}
+                      validTo={formData.validTo}
+                      onChange={(validFrom, validTo) => {
+                        setFormData({ ...formData, validFrom, validTo });
+                        setValidationError(null);
+                      }}
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="description">설명</Label>
+                    <Input
+                      id="description"
+                      placeholder="예: 인천→청도→OSH 통합 운임"
+                      value={formData.description}
+                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => {
+                    setIsAddDialogOpen(false);
                     setValidationError(null);
                   }}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="대리점 선택" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {railAgents.map((agent) => (
-                        <SelectItem key={agent.id} value={agent.name}>
-                          {agent.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="pol">선적항 (POL) *</Label>
-                  {polPorts.length > 0 ? (
-                    <Select value={formData.pol} onValueChange={(value) => {
-                      setFormData({ ...formData, pol: value });
-                      setValidationError(null);
-                    }}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="선적항 선택" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {polPorts.map((port) => (
-                          <SelectItem key={port.id} value={port.name}>
-                            {port.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  ) : (
-                    <div className="text-sm text-gray-500 p-3 bg-gray-50 rounded border">
-                      선적항(POL)을 먼저 등록해주세요. (운송사 탭 → 포트 관리)
-                    </div>
-                  )}
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="pod">양하항 (POD) *</Label>
-                  {podPorts.length > 0 ? (
-                    <Select value={formData.pod} onValueChange={(value) => {
-                      setFormData({ ...formData, pod: value });
-                      setValidationError(null);
-                    }}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="양하항 선택" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {podPorts.map((port) => (
-                          <SelectItem key={port.id} value={port.name}>
-                            {port.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  ) : (
-                    <div className="text-sm text-gray-500 p-3 bg-gray-50 rounded border">
-                      양하항(POD)을 먼저 등록해주세요. (운송사 탭 → 포트 관리)
-                    </div>
-                  )}
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="destination">최종목적지 *</Label>
-                  <Select
-                    value={formData.destinationId}
-                    onValueChange={(value) => {
-                      setFormData({ ...formData, destinationId: value });
-                      setValidationError(null);
-                    }}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="목적지 선택" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {destinations.map((dest) => (
-                        <SelectItem key={dest.id} value={dest.id}>
-                          {dest.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="rate">통합 운임 (USD) *</Label>
-                  <Input
-                    id="rate"
-                    type="number"
-                    step="0.01"
-                    placeholder="예: 4550"
-                    value={formData.rate}
-                    onChange={(e) => setFormData({ ...formData, rate: e.target.value })}
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label>유효기간 *</Label>
-                  <ValidityPeriodInput
-                    validFrom={formData.validFrom}
-                    validTo={formData.validTo}
-                    onChange={(validFrom, validTo) => {
-                      setFormData({ ...formData, validFrom, validTo });
-                      setValidationError(null);
-                    }}
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="description">설명</Label>
-                  <Input
-                    id="description"
-                    placeholder="예: 인천→청도→OSH 통합 운임"
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => {
-                  setIsAddDialogOpen(false);
-                  setValidationError(null);
-                }}>
-                  취소
-                </Button>
-                <Button onClick={handleAdd}>추가</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        )}
+                    취소
+                  </Button>
+                  <Button onClick={handleAdd}>추가</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          )}
+        </div>
       </div>
 
       {(expiredRates.length > 0 || expiringRates.length > 0) && (
@@ -522,10 +532,10 @@ export default function CombinedFreightTable() {
       )}
 
       {/* Search Filters */}
-      <div className="p-4 bg-gray-50 rounded-lg border">
+      <div className="p-4 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-lg border-2 border-emerald-200">
         <div className="flex items-center gap-2 mb-3">
-          <Search className="h-4 w-4 text-gray-600" />
-          <span className="font-semibold text-sm">검색 필터</span>
+          <Search className="h-4 w-4 text-emerald-600" />
+          <span className="font-semibold text-sm text-emerald-900">검색 필터</span>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
           <div className="space-y-1">
@@ -621,31 +631,36 @@ export default function CombinedFreightTable() {
       </div>
 
       {/* Results Summary */}
-      <div className="text-sm text-gray-600">
+      <div className="text-sm text-gray-600 font-medium">
         총 {filteredFreights.length}개의 운임 (전체 {combinedFreights.length}개 중)
       </div>
 
-      <div className="rounded-md border">
+      <div className="rounded-xl border-2 shadow-lg overflow-hidden">
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead>버전</TableHead>
-              <TableHead>대리점</TableHead>
-              <TableHead>선적항</TableHead>
-              <TableHead>양하항</TableHead>
-              <TableHead>최종목적지</TableHead>
-              <TableHead className="text-right">통합 운임 (USD)</TableHead>
-              <TableHead>유효기간</TableHead>
-              <TableHead>상태</TableHead>
-              <TableHead>설명</TableHead>
-              {isAdmin && <TableHead className="text-right">작업</TableHead>}
+            <TableRow className="bg-gradient-to-r from-emerald-50 to-teal-50">
+              <TableHead className="font-bold">버전</TableHead>
+              <TableHead className="font-bold">대리점</TableHead>
+              <TableHead className="font-bold">선적항</TableHead>
+              <TableHead className="font-bold">양하항</TableHead>
+              <TableHead className="font-bold">최종목적지</TableHead>
+              <TableHead className="text-right font-bold">통합 운임 (USD)</TableHead>
+              <TableHead className="font-bold">유효기간</TableHead>
+              <TableHead className="font-bold">상태</TableHead>
+              <TableHead className="font-bold">설명</TableHead>
+              {isAdmin && <TableHead className="text-right font-bold">작업</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
             {paginatedFreights.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={isAdmin ? 10 : 9} className="text-center py-8 text-gray-500">
-                  {combinedFreights.length === 0 ? '등록된 통합 운임이 없습니다.' : '검색 결과가 없습니다'}
+                <TableCell colSpan={isAdmin ? 10 : 9} className="text-center py-12">
+                  <div className="flex flex-col items-center gap-3">
+                    <Merge className="h-16 w-16 text-emerald-400" />
+                    <p className="text-xl font-semibold text-emerald-900">
+                      {combinedFreights.length === 0 ? '등록된 통합 운임이 없습니다.' : '검색 결과가 없습니다'}
+                    </p>
+                  </div>
                 </TableCell>
               </TableRow>
             ) : (
@@ -653,15 +668,15 @@ export default function CombinedFreightTable() {
                 const validityStatus = getValidityStatus(freight.validFrom, freight.validTo);
                 
                 return (
-                  <TableRow key={freight.id}>
+                  <TableRow key={freight.id} className="hover:bg-emerald-50/50 transition-colors">
                     <TableCell>
-                      <Badge variant="outline">v{freight.version || 1}</Badge>
+                      <Badge variant="outline" className="font-semibold">v{freight.version || 1}</Badge>
                     </TableCell>
                     <TableCell className="font-medium">{freight.agent}</TableCell>
                     <TableCell>{freight.pol}</TableCell>
                     <TableCell>{freight.pod}</TableCell>
                     <TableCell>{getDestinationName(freight.destinationId)}</TableCell>
-                    <TableCell className="text-right">${freight.rate}</TableCell>
+                    <TableCell className="text-right font-semibold text-emerald-700">${freight.rate}</TableCell>
                     <TableCell>
                       <div className="text-sm">
                         <div>{formatValidityDate(freight.validFrom)}</div>
@@ -685,12 +700,17 @@ export default function CombinedFreightTable() {
                             size="sm"
                             variant="outline"
                             onClick={() => handleVersionChangeClick(freight)}
-                            className="bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-300"
+                            className="bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-300 transition-all hover:scale-105"
                           >
                             <RefreshCw className="h-4 w-4 mr-1" />
                             버전 변경
                           </Button>
-                          <Button variant="ghost" size="icon" onClick={() => handleDelete(freight.id)}>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            onClick={() => handleDelete(freight.id)}
+                            className="hover:bg-red-50 hover:text-red-700 transition-all hover:scale-105"
+                          >
                             <Trash2 className="h-4 w-4 text-red-600" />
                           </Button>
                         </div>

@@ -39,7 +39,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Trash2, Plus, FileText, AlertTriangle, RefreshCw, Ship } from 'lucide-react';
+import { Trash2, Plus, FileText, AlertTriangle, RefreshCw, Ship, Sparkles } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import AuditLogTable from './AuditLogTable';
 import { ValidityPeriodInput } from '@/components/ui/validity-period-input';
@@ -66,7 +66,7 @@ export default function DTHCTable() {
   const [isVersionChangeDialogOpen, setIsVersionChangeDialogOpen] = useState(false);
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [confirmDialogType, setConfirmDialogType] = useState<'add' | 'version'>('add');
-  const [duplicateInfo, setDuplicateInfo] = useState<string>('');
+  const [duplicateInfo, setDuplicateInfo] = useState('');
   const [versionChangeData, setVersionChangeData] = useState<VersionChangeData | null>(null);
   const [originalDthcId, setOriginalDthcId] = useState<string | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
@@ -311,25 +311,40 @@ export default function DTHCTable() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold flex items-center gap-2"><FileText className="h-6 w-6" />D/O(DTHC) 관리</h2>
-          <p className="text-gray-600 mt-1">대리점, 출발항, 도착항 및 선사별 D/O(DTHC) 비용 설정</p>
+      {/* Beautiful Header */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 p-6 shadow-xl">
+        <div className="absolute inset-0 bg-grid-white/10"></div>
+        <div className="relative flex justify-between items-center">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 bg-white/20 backdrop-blur-sm rounded-xl">
+                <FileText className="h-6 w-6 text-white" />
+              </div>
+              <h2 className="text-3xl font-bold text-white flex items-center gap-2">
+                D/O(DTHC) 관리
+                <Sparkles className="h-5 w-5 text-yellow-300 animate-pulse" />
+              </h2>
+            </div>
+            <p className="text-orange-50 ml-14">대리점, 출발항, 도착항 및 선사별 D/O(DTHC) 비용 설정</p>
+          </div>
+          {isAdmin && (
+            <Button 
+              onClick={() => setIsAddDialogOpen(true)}
+              className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border-2 border-white/50 shadow-lg transition-all hover:scale-105"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              D/O(DTHC) 추가
+            </Button>
+          )}
         </div>
-        {isAdmin && (
-          <Button onClick={() => setIsAddDialogOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            D/O(DTHC) 추가
-          </Button>
-        )}
       </div>
 
-      <Alert>
-        <FileText className="h-4 w-4" />
+      <Alert className="border-2 border-orange-200 bg-gradient-to-r from-orange-50 to-red-50">
+        <FileText className="h-4 w-4 text-orange-600" />
         <AlertDescription>
-          <strong>D/O(DTHC):</strong> Document Only - Destination Terminal Handling Charge. 철도 대리점, 출발항, 도착항 및 선사별로 설정되며, 원가 계산 시 자동으로 적용됩니다.
+          <strong className="text-orange-900">D/O(DTHC):</strong> Document Only - Destination Terminal Handling Charge. 철도 대리점, 출발항, 도착항 및 선사별로 설정되며, 원가 계산 시 자동으로 적용됩니다.
           <br />
-          <span className="text-sm text-gray-600 mt-1 block">
+          <span className="text-sm text-orange-700 mt-1 block">
             각 철도 대리점마다 경로(출발항→도착항) 및 선사에 따라 다른 D/O(DTHC) 금액을 설정할 수 있습니다.
           </span>
         </AlertDescription>
@@ -355,21 +370,21 @@ export default function DTHCTable() {
 
       {Object.keys(dthcByAgent).length > 0 ? (
         Object.entries(dthcByAgent).map(([agent, dthcs]) => (
-          <div key={agent} className="border rounded-lg overflow-hidden bg-white">
-            <div className="bg-blue-50 px-4 py-3 border-b">
-              <h3 className="font-semibold text-lg">{agent}</h3>
+          <div key={agent} className="border-2 rounded-xl overflow-hidden bg-white shadow-lg hover:shadow-xl transition-shadow">
+            <div className="bg-gradient-to-r from-orange-100 via-red-100 to-pink-100 px-6 py-4 border-b-2 border-orange-200">
+              <h3 className="font-bold text-xl text-orange-900">{agent}</h3>
             </div>
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>버전</TableHead>
-                  <TableHead>경로 (POL → POD)</TableHead>
-                  <TableHead>선사</TableHead>
-                  <TableHead>D/O(DTHC) (USD)</TableHead>
-                  <TableHead>유효기간</TableHead>
-                  <TableHead>상태</TableHead>
-                  <TableHead>설명</TableHead>
-                  {isAdmin && <TableHead className="text-right">작업</TableHead>}
+                <TableRow className="bg-gradient-to-r from-orange-50 to-red-50">
+                  <TableHead className="font-bold">버전</TableHead>
+                  <TableHead className="font-bold">경로 (POL → POD)</TableHead>
+                  <TableHead className="font-bold">선사</TableHead>
+                  <TableHead className="font-bold">D/O(DTHC) (USD)</TableHead>
+                  <TableHead className="font-bold">유효기간</TableHead>
+                  <TableHead className="font-bold">상태</TableHead>
+                  <TableHead className="font-bold">설명</TableHead>
+                  {isAdmin && <TableHead className="text-right font-bold">작업</TableHead>}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -377,9 +392,9 @@ export default function DTHCTable() {
                   const validityStatus = getValidityStatus(dthc.validFrom, dthc.validTo);
                   
                   return (
-                    <TableRow key={dthc.id}>
+                    <TableRow key={dthc.id} className="hover:bg-orange-50/50 transition-colors">
                       <TableCell>
-                        <Badge variant="outline">v{dthc.version || 1}</Badge>
+                        <Badge variant="outline" className="font-semibold">v{dthc.version || 1}</Badge>
                       </TableCell>
                       <TableCell className="font-medium">
                         {dthc.pol || '-'} → {dthc.pod || '-'}
@@ -390,7 +405,7 @@ export default function DTHCTable() {
                           <span className="font-medium">{dthc.carrier || '-'}</span>
                         </div>
                       </TableCell>
-                      <TableCell>${dthc.amount ?? 0}</TableCell>
+                      <TableCell className="font-semibold text-orange-700">${dthc.amount ?? 0}</TableCell>
                       <TableCell>
                         <div className="text-sm">
                           <div>{formatValidityDate(dthc.validFrom)}</div>
@@ -414,7 +429,7 @@ export default function DTHCTable() {
                               size="sm"
                               variant="outline"
                               onClick={() => handleVersionChangeClick(dthc)}
-                              className="bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-300"
+                              className="bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-300 transition-all hover:scale-105"
                             >
                               <RefreshCw className="h-4 w-4 mr-1" />
                               버전 변경
@@ -423,6 +438,7 @@ export default function DTHCTable() {
                               variant="ghost"
                               size="icon"
                               onClick={() => handleDelete(dthc.id)}
+                              className="hover:bg-red-50 hover:text-red-700 transition-all hover:scale-105"
                             >
                               <Trash2 className="h-4 w-4 text-red-600" />
                             </Button>
@@ -437,10 +453,10 @@ export default function DTHCTable() {
           </div>
         ))
       ) : (
-        <div className="border rounded-lg bg-white p-8 text-center text-gray-500">
-          <FileText className="h-12 w-12 mx-auto mb-3 text-gray-400" />
-          <p>설정된 D/O(DTHC)가 없습니다</p>
-          <p className="text-sm mt-1">대리점, 경로 및 선사별로 D/O(DTHC)를 추가해보세요</p>
+        <div className="border-2 rounded-xl bg-gradient-to-br from-orange-50 to-red-50 p-12 text-center shadow-lg">
+          <FileText className="h-16 w-16 mx-auto mb-4 text-orange-400" />
+          <p className="text-xl font-semibold text-orange-900">설정된 D/O(DTHC)가 없습니다</p>
+          <p className="text-sm mt-2 text-orange-700">대리점, 경로 및 선사별로 D/O(DTHC)를 추가해보세요</p>
         </div>
       )}
 

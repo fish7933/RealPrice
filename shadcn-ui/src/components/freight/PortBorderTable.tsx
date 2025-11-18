@@ -354,7 +354,7 @@ export default function PortBorderTable() {
                 <Sparkles className="h-5 w-5 text-yellow-300 animate-pulse" />
               </h2>
             </div>
-            <p className="text-green-50 ml-14">중국항 → {borderCityName} 철도 운임</p>
+            <p className="text-green-50 ml-14">선적포트(POL) → 양하포트(POD) → {borderCityName} 철도 운임</p>
           </div>
           {isAdmin && (
             <Button 
@@ -397,10 +397,10 @@ export default function PortBorderTable() {
                   철도 대리점
                 </div>
               </TableHead>
-              <TableHead className="font-bold">선적항 (POL)</TableHead>
+              <TableHead className="font-bold">선적포트 (POL)</TableHead>
               {podPorts.map(pod => (
                 <TableHead key={pod.id} className="font-bold">
-                  {pod.name} → {borderCityName}
+                  양하포트 {pod.name} → {borderCityName}
                 </TableHead>
               ))}
               <TableHead className="font-bold">유효기간</TableHead>
@@ -524,13 +524,13 @@ export default function PortBorderTable() {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>선적항 (POL)</Label>
+              <Label>선적포트 (POL)</Label>
               <Select value={formData.pol} onValueChange={(value) => {
                 setFormData({ ...formData, pol: value });
                 setValidationError(null);
               }}>
                 <SelectTrigger>
-                  <SelectValue placeholder="선적항 선택" />
+                  <SelectValue placeholder="선적포트 선택" />
                 </SelectTrigger>
                 <SelectContent>
                   {polPorts.map((port) => (
@@ -554,12 +554,12 @@ export default function PortBorderTable() {
               />
             </div>
             <div className="space-y-3">
-              <Label>각 중국항별 운임 (USD)</Label>
+              <Label>각 양하포트별 운임 (USD)</Label>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {podPorts.map(pod => (
                   <div key={pod.id} className="space-y-2">
                     <Label className="text-sm text-gray-600">
-                      {pod.name} → {borderCityName}
+                      양하포트 {pod.name} → {borderCityName}
                     </Label>
                     <Input
                       type="number"
@@ -633,7 +633,7 @@ export default function PortBorderTable() {
               </div>
 
               <div className="space-y-2">
-                <Label>선적항 (POL)</Label>
+                <Label>선적포트 (POL)</Label>
                 <Input value={versionChangeData.pol} disabled className="bg-gray-50" />
               </div>
 
@@ -665,12 +665,12 @@ export default function PortBorderTable() {
               </div>
 
               <div className="space-y-3">
-                <Label>각 중국항별 운임 (USD) *</Label>
+                <Label>각 양하포트별 운임 (USD) *</Label>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {podPorts.map(pod => (
                     <div key={pod.id} className="space-y-2">
                       <Label className="text-sm text-gray-600">
-                        {pod.name} → {borderCityName}
+                        양하포트 {pod.name} → {borderCityName}
                       </Label>
                       <Input
                         type="number"

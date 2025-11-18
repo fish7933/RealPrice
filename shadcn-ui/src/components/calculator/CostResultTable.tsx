@@ -275,91 +275,91 @@ export default function CostResultTable({
                       </div>
                     </TableHead>
                     <TableHead 
-                      className={`text-right cursor-pointer hover:bg-gray-100 transition-colors whitespace-nowrap w-20 p-2 ${excludedCosts.seaFreight ? 'bg-gray-200 line-through opacity-50' : ''}`}
+                      className={`text-center cursor-pointer hover:bg-gray-100 transition-colors whitespace-nowrap w-20 p-2 ${excludedCosts.seaFreight ? 'bg-gray-200 line-through opacity-50' : ''}`}
                       onClick={() => onToggleCostExclusion('seaFreight')}
                       title="클릭하여 전체 제외/포함"
                     >
-                      <div className="flex flex-col items-end gap-0.5">
+                      <div className="flex flex-col items-center gap-0.5">
                         <Ship className="h-3.5 w-3.5" />
                         <span className="text-xs">해상</span>
                       </div>
                     </TableHead>
                     <TableHead 
-                      className={`text-right cursor-pointer hover:bg-gray-100 transition-colors whitespace-nowrap w-20 p-2 ${excludedCosts.localCharge ? 'bg-gray-200 line-through opacity-50' : ''}`}
+                      className={`text-center cursor-pointer hover:bg-gray-100 transition-colors whitespace-nowrap w-20 p-2 ${excludedCosts.localCharge ? 'bg-gray-200 line-through opacity-50' : ''}`}
                       onClick={() => onToggleCostExclusion('localCharge')}
                       title="클릭하여 전체 제외/포함"
                     >
-                      <div className="flex flex-col items-end gap-0.5">
+                      <div className="flex flex-col items-center gap-0.5">
                         <DollarSign className="h-3.5 w-3.5" />
                         <span className="text-xs">LOCAL</span>
                       </div>
                     </TableHead>
                     <TableHead 
-                      className={`text-right cursor-pointer hover:bg-gray-100 transition-colors whitespace-nowrap w-16 p-2 ${excludedCosts.dthc ? 'bg-gray-200 line-through opacity-50' : ''}`}
+                      className={`text-center cursor-pointer hover:bg-gray-100 transition-colors whitespace-nowrap w-16 p-2 ${excludedCosts.dthc ? 'bg-gray-200 line-through opacity-50' : ''}`}
                       onClick={() => onToggleCostExclusion('dthc')}
                       title="클릭하여 전체 제외/포함"
                     >
-                      <div className="flex flex-col items-end gap-0.5">
+                      <div className="flex flex-col items-center gap-0.5">
                         <FileText className="h-3.5 w-3.5" />
                         <span className="text-xs">D/O</span>
                       </div>
                     </TableHead>
                     <TableHead 
-                      className={`text-right cursor-pointer hover:bg-gray-100 transition-colors whitespace-nowrap w-20 p-2 ${excludedCosts.portBorder ? 'bg-gray-200 line-through opacity-50' : ''}`}
+                      className={`text-center cursor-pointer hover:bg-gray-100 transition-colors whitespace-nowrap w-20 p-2 ${excludedCosts.portBorder ? 'bg-gray-200 line-through opacity-50' : ''}`}
                       onClick={() => onToggleCostExclusion('portBorder')}
                       title="클릭하여 전체 제외/포함"
                     >
-                      <div className="flex flex-col items-end gap-0.5">
+                      <div className="flex flex-col items-center gap-0.5">
                         <Train className="h-3.5 w-3.5" />
                         <span className="text-xs">철도</span>
                       </div>
                     </TableHead>
                     <TableHead 
-                      className={`text-right cursor-pointer hover:bg-gray-100 transition-colors whitespace-nowrap w-20 p-2 ${excludedCosts.borderDestination ? 'bg-gray-200 line-through opacity-50' : ''}`}
+                      className={`text-center cursor-pointer hover:bg-gray-100 transition-colors whitespace-nowrap w-20 p-2 ${excludedCosts.borderDestination ? 'bg-gray-200 line-through opacity-50' : ''}`}
                       onClick={() => onToggleCostExclusion('borderDestination')}
                       title="클릭하여 전체 제외/포함"
                     >
-                      <div className="flex flex-col items-end gap-0.5">
+                      <div className="flex flex-col items-center gap-0.5">
                         <Truck className="h-3.5 w-3.5" />
                         <span className="text-xs">트럭</span>
                       </div>
                     </TableHead>
                     <TableHead 
-                      className={`text-right cursor-pointer hover:bg-gray-100 transition-colors whitespace-nowrap w-20 p-2 ${excludedCosts.combinedFreight ? 'bg-gray-200 line-through opacity-50' : ''}`}
+                      className={`text-center cursor-pointer hover:bg-gray-100 transition-colors whitespace-nowrap w-20 p-2 ${excludedCosts.combinedFreight ? 'bg-gray-200 line-through opacity-50' : ''}`}
                       onClick={() => onToggleCostExclusion('combinedFreight')}
                       title="클릭하여 전체 제외/포함"
                     >
-                      <div className="flex flex-col items-end gap-0.5">
+                      <div className="flex flex-col items-center gap-0.5">
                         <Merge className="h-3.5 w-3.5" />
                         <span className="text-xs">통합</span>
                       </div>
                     </TableHead>
                     <TableHead 
-                      className={`text-right cursor-pointer hover:bg-gray-100 transition-colors whitespace-nowrap w-16 p-2 ${excludedCosts.weightSurcharge ? 'bg-gray-200 line-through opacity-50' : ''}`}
+                      className={`text-center cursor-pointer hover:bg-gray-100 transition-colors whitespace-nowrap w-16 p-2 ${excludedCosts.weightSurcharge ? 'bg-gray-200 line-through opacity-50' : ''}`}
                       onClick={() => onToggleCostExclusion('weightSurcharge')}
                       title="클릭하여 전체 제외/포함"
                     >
-                      <div className="flex flex-col items-end gap-0.5">
+                      <div className="flex flex-col items-center gap-0.5">
                         <Weight className="h-3.5 w-3.5" />
                         <span className="text-xs">할증</span>
                       </div>
                     </TableHead>
                     <TableHead 
-                      className={`text-right cursor-pointer hover:bg-gray-100 transition-colors whitespace-nowrap w-16 p-2 ${excludedCosts.dp ? 'bg-gray-200 line-through opacity-50' : ''}`}
+                      className={`text-center cursor-pointer hover:bg-gray-100 transition-colors whitespace-nowrap w-16 p-2 ${excludedCosts.dp ? 'bg-gray-200 line-through opacity-50' : ''}`}
                       onClick={() => onToggleCostExclusion('dp')}
                       title="클릭하여 전체 제외/포함"
                     >
-                      <div className="flex flex-col items-end gap-0.5">
+                      <div className="flex flex-col items-center gap-0.5">
                         <Package className="h-3.5 w-3.5" />
                         <span className="text-xs">DP</span>
                       </div>
                     </TableHead>
                     <TableHead 
-                      className={`text-right cursor-pointer hover:bg-gray-100 transition-colors whitespace-nowrap w-20 p-2 ${excludedCosts.domesticTransport ? 'bg-gray-200 line-through opacity-50' : ''}`}
+                      className={`text-center cursor-pointer hover:bg-gray-100 transition-colors whitespace-nowrap w-20 p-2 ${excludedCosts.domesticTransport ? 'bg-gray-200 line-through opacity-50' : ''}`}
                       onClick={() => onToggleCostExclusion('domesticTransport')}
                       title="클릭하여 전체 제외/포함"
                     >
-                      <div className="flex flex-col items-end gap-0.5">
+                      <div className="flex flex-col items-center gap-0.5">
                         <DollarSign className="h-3.5 w-3.5" />
                         <span className="text-xs">국내</span>
                       </div>
@@ -367,11 +367,11 @@ export default function CostResultTable({
                     {otherCostItems.map((item, index) => (
                       <TableHead 
                         key={index}
-                        className={`text-right cursor-pointer hover:bg-gray-100 transition-colors whitespace-nowrap w-20 p-2 ${excludedCosts[`other_${index}`] ? 'bg-gray-200 line-through opacity-50' : ''}`}
+                        className={`text-center cursor-pointer hover:bg-gray-100 transition-colors whitespace-nowrap w-20 p-2 ${excludedCosts[`other_${index}`] ? 'bg-gray-200 line-through opacity-50' : ''}`}
                         onClick={() => onToggleCostExclusion(`other_${index}`)}
                         title="클릭하여 전체 제외/포함"
                       >
-                        <div className="flex flex-col items-end gap-0.5">
+                        <div className="flex flex-col items-center gap-0.5">
                           <DollarSign className="h-3.5 w-3.5" />
                           <span className="text-xs">{item.name}</span>
                         </div>

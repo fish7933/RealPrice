@@ -507,8 +507,6 @@ export const updatePortBorderFreight = async (id: string, freight: Partial<PortB
     const { data, error } = await supabase
       .from(TABLES.PORT_BORDER_FREIGHTS)
       .update({
-        agent: freight.agent,
-        pod: freight.pod,
         rate: freight.rate,
         version: newVersion,
         valid_from: freight.validFrom,

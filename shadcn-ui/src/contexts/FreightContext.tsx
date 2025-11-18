@@ -28,6 +28,25 @@ import {
 import { createClient } from '@supabase/supabase-js';
 import { calculateCost } from './freight/freightCalculations';
 import { getHistoricalSnapshot } from './freight/freightHelpers';
+import {
+  loadShippingLines,
+  loadPorts,
+  loadRailAgents,
+  loadTruckAgents,
+  loadDestinations,
+  loadSeaFreights,
+  loadAgentSeaFreights,
+  loadDTHC,
+  loadDPCosts,
+  loadCombinedFreights,
+  loadPortBorderFreights,
+  loadBorderDestinationFreights,
+  loadWeightSurchargeRules,
+  loadCalculationHistory,
+  loadAuditLogs,
+  loadBorderCities,
+  loadSystemSettings,
+} from './freight/freightLoaders';
 
 const supabase = createClient(
   'https://lcubxwvkoqkhsvzstbay.supabase.co',
@@ -210,77 +229,98 @@ export function FreightProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Load data from localStorage on mount
+  // Load all data from database on mount
   useEffect(() => {
-    const loadData = () => {
-      const storedUsers = localStorage.getItem('users');
-      const storedRailAgents = localStorage.getItem('railAgents');
-      const storedTruckAgents = localStorage.getItem('truckAgents');
-      const storedShippingLines = localStorage.getItem('shippingLines');
-      const storedSeaFreights = localStorage.getItem('seaFreights');
-      const storedAgentSeaFreights = localStorage.getItem('agentSeaFreights');
-      const storedDthcList = localStorage.getItem('dthcList');
-      const storedDpCosts = localStorage.getItem('dpCosts');
-      const storedCombinedFreights = localStorage.getItem('combinedFreights');
-      const storedPortBorderFreights = localStorage.getItem('portBorderFreights');
-      const storedBorderDestinationFreights = localStorage.getItem('borderDestinationFreights');
-      const storedWeightSurchargeRules = localStorage.getItem('weightSurchargeRules');
-      const storedWeightSurcharges = localStorage.getItem('weightSurcharges');
-      const storedPorts = localStorage.getItem('ports');
-      const storedDestinations = localStorage.getItem('destinations');
-      const storedBorderCities = localStorage.getItem('borderCities');
-      const storedSystemSettings = localStorage.getItem('systemSettings');
-      const storedFreightAuditLogs = localStorage.getItem('freightAuditLogs');
-      const storedAuditLogs = localStorage.getItem('auditLogs');
-      const storedCalculationHistory = localStorage.getItem('calculationHistory');
+    const loadAllData = async () => {
+      console.log('🔄 Loading all data from database...');
+      
+      try {
+        // Load all data in parallel
+        const [
+          loadedShippingLines,
+          loadedPorts,
+          loadedRailAgents,
+          loadedTruckAgents,
+          loadedDestinations,
+          loadedSeaFreights,
+          loadedAgentSeaFreights,
+          loadedDTHC,
+          loadedDPCosts,
+          loadedCombinedFreights,
+          loadedPortBorderFreights,
+          loadedBorderDestinationFreights,
+          loadedWeightSurchargeRules,
+          loadedCalculationHistory,
+          loadedAuditLogs,
+          loadedBorderCities,
+          loadedSystemSettings,
+        ] = await Promise.all([
+          loadShippingLines(),
+          loadPorts(),
+          loadRailAgents(),
+          loadTruckAgents(),
+          loadDestinations(),
+          loadSeaFreights(),
+          loadAgentSeaFreights(),
+          loadDTHC(),
+          loadDPCosts(),
+          loadCombinedFreights(),
+          loadPortBorderFreights(),
+          loadBorderDestinationFreights(),
+          loadWeightSurchargeRules(),
+          loadCalculationHistory(),
+          loadAuditLogs(),
+          loadBorderCities(),
+          loadSystemSettings(),
+        ]);
 
-      if (storedUsers) setUsers(JSON.parse(storedUsers));
-      if (storedRailAgents) setRailAgents(JSON.parse(storedRailAgents));
-      if (storedTruckAgents) setTruckAgents(JSON.parse(storedTruckAgents));
-      if (storedShippingLines) setShippingLines(JSON.parse(storedShippingLines));
-      if (storedSeaFreights) setSeaFreights(JSON.parse(storedSeaFreights));
-      if (storedAgentSeaFreights) setAgentSeaFreights(JSON.parse(storedAgentSeaFreights));
-      if (storedDthcList) setDthcList(JSON.parse(storedDthcList));
-      if (storedDpCosts) setDpCosts(JSON.parse(storedDpCosts));
-      if (storedCombinedFreights) setCombinedFreights(JSON.parse(storedCombinedFreights));
-      if (storedPortBorderFreights) setPortBorderFreights(JSON.parse(storedPortBorderFreights));
-      if (storedBorderDestinationFreights) setBorderDestinationFreights(JSON.parse(storedBorderDestinationFreights));
-      if (storedWeightSurchargeRules) setWeightSurchargeRules(JSON.parse(storedWeightSurchargeRules));
-      if (storedWeightSurcharges) setWeightSurcharges(JSON.parse(storedWeightSurcharges));
-      if (storedPorts) setPorts(JSON.parse(storedPorts));
-      if (storedDestinations) setDestinations(JSON.parse(storedDestinations));
-      if (storedBorderCities) setBorderCities(JSON.parse(storedBorderCities));
-      if (storedSystemSettings) setSystemSettings(JSON.parse(storedSystemSettings));
-      if (storedFreightAuditLogs) setFreightAuditLogs(JSON.parse(storedFreightAuditLogs));
-      if (storedAuditLogs) setAuditLogs(JSON.parse(storedAuditLogs));
-      if (storedCalculationHistory) setCalculationHistory(JSON.parse(storedCalculationHistory));
+        // Set all loaded data
+        setShippingLines(loadedShippingLines);
+        setPorts(loadedPorts);
+        setRailAgents(loadedRailAgents);
+        setTruckAgents(loadedTruckAgents);
+        setDestinations(loadedDestinations);
+        setSeaFreights(loadedSeaFreights);
+        setAgentSeaFreights(loadedAgentSeaFreights);
+        setDthcList(loadedDTHC);
+        setDpCosts(loadedDPCosts);
+        setCombinedFreights(loadedCombinedFreights);
+        setPortBorderFreights(loadedPortBorderFreights);
+        setBorderDestinationFreights(loadedBorderDestinationFreights);
+        setWeightSurchargeRules(loadedWeightSurchargeRules);
+        setCalculationHistory(loadedCalculationHistory);
+        setFreightAuditLogs(loadedAuditLogs);
+        setBorderCities(loadedBorderCities);
+        setSystemSettings(loadedSystemSettings);
+
+        console.log('✅ All data loaded successfully from database');
+        console.log('📊 Data counts:', {
+          shippingLines: loadedShippingLines.length,
+          ports: loadedPorts.length,
+          railAgents: loadedRailAgents.length,
+          truckAgents: loadedTruckAgents.length,
+          destinations: loadedDestinations.length,
+          seaFreights: loadedSeaFreights.length,
+          agentSeaFreights: loadedAgentSeaFreights.length,
+          dthc: loadedDTHC.length,
+          dpCosts: loadedDPCosts.length,
+          combinedFreights: loadedCombinedFreights.length,
+          portBorderFreights: loadedPortBorderFreights.length,
+          borderDestinationFreights: loadedBorderDestinationFreights.length,
+          weightSurchargeRules: loadedWeightSurchargeRules.length,
+          calculationHistory: loadedCalculationHistory.length,
+          auditLogs: loadedAuditLogs.length,
+          borderCities: loadedBorderCities.length,
+          systemSettings: loadedSystemSettings.length,
+        });
+      } catch (error) {
+        console.error('❌ Error loading data from database:', error);
+      }
     };
 
-    loadData();
+    loadAllData();
     fetchAppVersion();
   }, []);
-
-  // Save data to localStorage whenever it changes
-  useEffect(() => { localStorage.setItem('users', JSON.stringify(users)); }, [users]);
-  useEffect(() => { localStorage.setItem('railAgents', JSON.stringify(railAgents)); }, [railAgents]);
-  useEffect(() => { localStorage.setItem('truckAgents', JSON.stringify(truckAgents)); }, [truckAgents]);
-  useEffect(() => { localStorage.setItem('shippingLines', JSON.stringify(shippingLines)); }, [shippingLines]);
-  useEffect(() => { localStorage.setItem('seaFreights', JSON.stringify(seaFreights)); }, [seaFreights]);
-  useEffect(() => { localStorage.setItem('agentSeaFreights', JSON.stringify(agentSeaFreights)); }, [agentSeaFreights]);
-  useEffect(() => { localStorage.setItem('dthcList', JSON.stringify(dthcList)); }, [dthcList]);
-  useEffect(() => { localStorage.setItem('dpCosts', JSON.stringify(dpCosts)); }, [dpCosts]);
-  useEffect(() => { localStorage.setItem('combinedFreights', JSON.stringify(combinedFreights)); }, [combinedFreights]);
-  useEffect(() => { localStorage.setItem('portBorderFreights', JSON.stringify(portBorderFreights)); }, [portBorderFreights]);
-  useEffect(() => { localStorage.setItem('borderDestinationFreights', JSON.stringify(borderDestinationFreights)); }, [borderDestinationFreights]);
-  useEffect(() => { localStorage.setItem('weightSurchargeRules', JSON.stringify(weightSurchargeRules)); }, [weightSurchargeRules]);
-  useEffect(() => { localStorage.setItem('weightSurcharges', JSON.stringify(weightSurcharges)); }, [weightSurcharges]);
-  useEffect(() => { localStorage.setItem('ports', JSON.stringify(ports)); }, [ports]);
-  useEffect(() => { localStorage.setItem('destinations', JSON.stringify(destinations)); }, [destinations]);
-  useEffect(() => { localStorage.setItem('borderCities', JSON.stringify(borderCities)); }, [borderCities]);
-  useEffect(() => { localStorage.setItem('systemSettings', JSON.stringify(systemSettings)); }, [systemSettings]);
-  useEffect(() => { localStorage.setItem('freightAuditLogs', JSON.stringify(freightAuditLogs)); }, [freightAuditLogs]);
-  useEffect(() => { localStorage.setItem('auditLogs', JSON.stringify(auditLogs)); }, [auditLogs]);
-  useEffect(() => { localStorage.setItem('calculationHistory', JSON.stringify(calculationHistory)); }, [calculationHistory]);
 
   // User management
   const addUser = (user: Omit<User, 'id' | 'createdAt'>) => {

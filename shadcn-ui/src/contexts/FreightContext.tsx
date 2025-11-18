@@ -964,11 +964,9 @@ export function FreightProvider({ children }: { children: ReactNode }) {
         .from(TABLES.PORT_BORDER_FREIGHTS)
         .insert({
           agent: freight.agent,
-          qingdao: freight.qingdao,
-          tianjin: freight.tianjin,
-          lianyungang: freight.lianyungang,
-          dandong: freight.dandong,
-          version: freight.version,
+          pod: freight.pod,
+          rate: freight.rate,
+          version: freight.version || 1,
           valid_from: freight.validFrom,
           valid_to: freight.validTo,
         })
@@ -980,16 +978,29 @@ export function FreightProvider({ children }: { children: ReactNode }) {
       const newFreight: PortBorderFreight = {
         id: data.id,
         agent: data.agent,
-        qingdao: data.qingdao,
-        tianjin: data.tianjin,
-        lianyungang: data.lianyungang,
-        dandong: data.dandong,
+        pod: data.pod,
+        rate: data.rate,
         version: data.version,
         validFrom: data.valid_from,
         validTo: data.valid_to,
         createdAt: data.created_at,
       };
       setPortBorderFreights([...portBorderFreights, newFreight]);
+      
+      // Create audit log
+      await createAuditLog(
+        'portBorderFreight',
+        newFreight.id,
+        'create',
+        detectChanges(null, newFreight as unknown as Record<string, unknown>),
+        newFreight as unknown as Record<string, unknown>,
+        user,
+        newFreight.version || 1
+      );
+      
+      // Reload audit logs
+      const reloadedAuditLogs = await loadAuditLogs();
+      setFreightAuditLogs(reloadedAuditLogs);
     } catch (error) {
       console.error('Error adding port border freight:', error);
       throw error;
@@ -998,23 +1009,54 @@ export function FreightProvider({ children }: { children: ReactNode }) {
 
   const updatePortBorderFreight = async (id: string, updates: Partial<PortBorderFreight>) => {
     try {
-      const { error } = await supabaseClient
+      const oldFreight = portBorderFreights.find(f => f.id === id);
+      
+      const { data, error } = await supabaseClient
         .from(TABLES.PORT_BORDER_FREIGHTS)
         .update({
-          agent: updates.agent,
-          qingdao: updates.qingdao,
-          tianjin: updates.tianjin,
-          lianyungang: updates.lianyungang,
-          dandong: updates.dandong,
+          rate: updates.rate,
           version: updates.version,
           valid_from: updates.validFrom,
           valid_to: updates.validTo,
+          updated_at: new Date().toISOString(),
         })
-        .eq('id', id);
+        .eq('id', id)
+        .select()
+        .single();
 
       if (error) throw error;
 
-      setPortBorderFreights(portBorderFreights.map(freight => freight.id === id ? { ...freight, ...updates } : freight));
+      if (data) {
+        const updatedFreight: PortBorderFreight = {
+          id: data.id,
+          agent: data.agent,
+          pod: data.pod,
+          rate: data.rate,
+          version: data.version,
+          validFrom: data.valid_from,
+          validTo: data.valid_to,
+          createdAt: data.created_at,
+        };
+        
+        setPortBorderFreights(portBorderFreights.map(freight => freight.id === id ? updatedFreight : freight));
+        
+        // Create audit log if oldFreight exists
+        if (oldFreight) {
+          await createAuditLog(
+            'portBorderFreight',
+            id,
+            'update',
+            detectChanges(oldFreight as unknown as Record<string, unknown>, updatedFreight as unknown as Record<string, unknown>),
+            updatedFreight as unknown as Record<string, unknown>,
+            user,
+            updatedFreight.version || 1
+          );
+          
+          // Reload audit logs
+          const reloadedAuditLogs = await loadAuditLogs();
+          setFreightAuditLogs(reloadedAuditLogs);
+        }
+      }
     } catch (error) {
       console.error('Error updating port border freight:', error);
       throw error;
@@ -1023,6 +1065,8 @@ export function FreightProvider({ children }: { children: ReactNode }) {
 
   const deletePortBorderFreight = async (id: string) => {
     try {
+      const freight = portBorderFreights.find(f => f.id === id);
+      
       const { error } = await supabaseClient
         .from(TABLES.PORT_BORDER_FREIGHTS)
         .delete()
@@ -1031,6 +1075,23 @@ export function FreightProvider({ children }: { children: ReactNode }) {
       if (error) throw error;
 
       setPortBorderFreights(portBorderFreights.filter(freight => freight.id !== id));
+      
+      // Create audit log
+      if (freight) {
+        await createAuditLog(
+          'portBorderFreight',
+          id,
+          'delete',
+          [],
+          freight as unknown as Record<string, unknown>,
+          user,
+          freight.version || 1
+        );
+        
+        // Reload audit logs
+        const reloadedAuditLogs = await loadAuditLogs();
+        setFreightAuditLogs(reloadedAuditLogs);
+      }
     } catch (error) {
       console.error('Error deleting port border freight:', error);
       throw error;

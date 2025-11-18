@@ -96,6 +96,7 @@ export const loadRailAgents = async (): Promise<RailAgent[]> => {
       return data.map(d => ({
         id: d.id,
         name: d.name,
+        code: d.code,
         description: d.description,
         createdAt: d.created_at,
         updatedAt: d.updated_at,
@@ -124,6 +125,7 @@ export const loadTruckAgents = async (): Promise<TruckAgent[]> => {
       return data.map(d => ({
         id: d.id,
         name: d.name,
+        code: d.code,
         description: d.description,
         createdAt: d.created_at,
         updatedAt: d.updated_at,

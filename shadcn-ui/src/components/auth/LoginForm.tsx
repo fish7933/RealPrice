@@ -32,7 +32,7 @@ export default function LoginForm() {
       const result = await login(username, password);
       
       if (result.success) {
-        navigate('/dashboard');
+        navigate('/calculator');
       } else {
         // Display specific error messages based on error type
         switch (result.error) {

@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useFreight } from '@/contexts/FreightContext';
 import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
 import {
   Dialog,
   DialogContent,
@@ -18,8 +17,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Calendar as CalendarIcon, TrendingUp, AlertCircle, Sparkles, Heart, Star } from 'lucide-react';
-import { ko } from 'date-fns/locale';
+import { Clock, Calendar as CalendarIcon, TrendingUp, AlertCircle, Sparkles, Heart, Star, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface TimeMachineDialogProps {
   open: boolean;
@@ -35,6 +33,7 @@ export default function TimeMachineDialog({ open, onOpenChange, onSelectDate, cu
   );
   const [availableDates, setAvailableDates] = useState<string[]>([]);
   const [dateChanges, setDateChanges] = useState<typeof auditLogs>([]);
+  const [currentMonth, setCurrentMonth] = useState(new Date());
 
   useEffect(() => {
     const dates = getAvailableHistoricalDates();
@@ -58,7 +57,7 @@ export default function TimeMachineDialog({ open, onOpenChange, onSelectDate, cu
     }
   }, [selectedDate, auditLogs]);
 
-  const handleDateSelect = (date: Date | undefined) => {
+  const handleDateSelect = (date: Date) => {
     setSelectedDate(date);
   };
 
@@ -118,6 +117,61 @@ export default function TimeMachineDialog({ open, onOpenChange, onSelectDate, cu
     return availableDates.includes(dateStr);
   };
 
+  const isSameDay = (date1: Date, date2: Date) => {
+    return date1.getFullYear() === date2.getFullYear() &&
+           date1.getMonth() === date2.getMonth() &&
+           date1.getDate() === date2.getDate();
+  };
+
+  const isToday = (date: Date) => {
+    return isSameDay(date, new Date());
+  };
+
+  const getDaysInMonth = (date: Date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startDayOfWeek = firstDay.getDay();
+    
+    const days: (Date | null)[] = [];
+    
+    // Add empty cells for days before the first day of the month
+    for (let i = 0; i < startDayOfWeek; i++) {
+      days.push(null);
+    }
+    
+    // Add all days of the month
+    for (let i = 1; i <= daysInMonth; i++) {
+      days.push(new Date(year, month, i));
+    }
+    
+    return days;
+  };
+
+  const previousMonth = () => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1));
+  };
+
+  const nextMonth = () => {
+    const today = new Date();
+    const nextMonthDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1);
+    if (nextMonthDate <= today) {
+      setCurrentMonth(nextMonthDate);
+    }
+  };
+
+  const canGoNext = () => {
+    const today = new Date();
+    const nextMonthDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1);
+    return nextMonthDate <= today;
+  };
+
+  const monthName = currentMonth.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long' });
+  const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
+  const days = getDaysInMonth(currentMonth);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50">
@@ -166,50 +220,88 @@ export default function TimeMachineDialog({ open, onOpenChange, onSelectDate, cu
               </div>
               
               <div className="absolute inset-0 bg-gradient-to-br from-pink-50/30 via-purple-50/30 to-blue-50/30 pointer-events-none"></div>
-              <div className="relative p-4 flex justify-center">
-                <Calendar
-                  mode="single"
-                  selected={selectedDate}
-                  onSelect={handleDateSelect}
-                  locale={ko}
-                  disabled={(date) => {
-                    const today = new Date();
-                    today.setHours(23, 59, 59, 999);
-                    return date > today || !isDateAvailable(date);
-                  }}
-                  modifiers={{
-                    available: (date) => isDateAvailable(date),
-                  }}
-                  modifiersClassNames={{
-                    available: 'bg-gradient-to-br from-pink-400 via-purple-400 to-blue-400 text-white font-bold hover:from-pink-500 hover:via-purple-500 hover:to-blue-500 rounded-xl shadow-lg transform hover:scale-110 transition-all duration-200',
-                  }}
-                  className="rounded-xl"
-                  classNames={{
-                    months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
-                    month: "space-y-4",
-                    caption: "flex justify-center pt-1 relative items-center text-base font-bold bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent",
-                    caption_label: "text-base font-bold",
-                    nav: "space-x-1 flex items-center",
-                    nav_button: "h-7 w-7 bg-gradient-to-br from-pink-100 to-purple-100 hover:from-pink-200 hover:to-purple-200 rounded-xl transition-all duration-200 border-2 border-pink-200 shadow-sm hover:shadow-md transform hover:scale-105",
-                    nav_button_previous: "absolute left-1",
-                    nav_button_next: "absolute right-1",
-                    table: "w-full border-collapse space-y-1",
-                    head_row: "flex",
-                    head_cell: "text-purple-600 rounded-md w-10 font-bold text-xs text-center",
-                    row: "flex w-full mt-2",
-                    cell: "relative h-10 w-10 text-center text-sm p-0 [&:has([aria-selected])]:bg-transparent focus-within:relative focus-within:z-20",
-                    day: "h-10 w-10 p-0 font-semibold rounded-xl hover:bg-gradient-to-br hover:from-pink-100 hover:to-purple-100 transition-all duration-200 aria-selected:opacity-100 flex items-center justify-center transform hover:scale-105 hover:shadow-md",
-                    day_selected: "bg-gradient-to-br from-pink-500 via-purple-500 to-blue-500 text-white hover:from-pink-600 hover:via-purple-600 hover:to-blue-600 focus:from-pink-600 focus:via-purple-600 focus:to-blue-600 shadow-lg",
-                    day_today: "bg-gradient-to-br from-yellow-100 to-orange-100 text-orange-900 font-bold border-2 border-orange-400 shadow-md",
-                    day_outside: "text-gray-400 opacity-50",
-                    day_disabled: "text-gray-300 opacity-30 cursor-not-allowed",
-                    day_hidden: "invisible",
-                  }}
-                />
+              
+              {/* Custom Calendar */}
+              <div className="relative p-4">
+                {/* Month Navigation */}
+                <div className="flex items-center justify-between mb-4">
+                  <button
+                    onClick={previousMonth}
+                    className="h-8 w-8 bg-gradient-to-br from-pink-100 to-purple-100 hover:from-pink-200 hover:to-purple-200 rounded-xl transition-all duration-200 border-2 border-pink-200 shadow-sm hover:shadow-md transform hover:scale-105 flex items-center justify-center"
+                  >
+                    <ChevronLeft className="h-4 w-4 text-purple-600" />
+                  </button>
+                  <h3 className="text-base font-bold bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent">
+                    {monthName}
+                  </h3>
+                  <button
+                    onClick={nextMonth}
+                    disabled={!canGoNext()}
+                    className="h-8 w-8 bg-gradient-to-br from-pink-100 to-purple-100 hover:from-pink-200 hover:to-purple-200 rounded-xl transition-all duration-200 border-2 border-pink-200 shadow-sm hover:shadow-md transform hover:scale-105 flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100"
+                  >
+                    <ChevronRight className="h-4 w-4 text-purple-600" />
+                  </button>
+                </div>
+
+                {/* Calendar Grid */}
+                <div className="w-full">
+                  {/* Week Days Header */}
+                  <div className="grid grid-cols-7 gap-1 mb-2">
+                    {weekDays.map((day, index) => (
+                      <div
+                        key={index}
+                        className="h-10 flex items-center justify-center text-purple-600 font-bold text-xs"
+                      >
+                        {day}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Days Grid */}
+                  <div className="grid grid-cols-7 gap-1">
+                    {days.map((day, index) => {
+                      if (!day) {
+                        return <div key={index} className="h-10 w-full" />;
+                      }
+
+                      const today = new Date();
+                      const isDisabled = day > today || !isDateAvailable(day);
+                      const isSelected = selectedDate && isSameDay(day, selectedDate);
+                      const isTodayDate = isToday(day);
+                      const isAvailable = isDateAvailable(day);
+
+                      return (
+                        <button
+                          key={index}
+                          onClick={() => !isDisabled && handleDateSelect(day)}
+                          disabled={isDisabled}
+                          className={`
+                            h-10 w-full rounded-xl font-semibold text-sm
+                            flex items-center justify-center
+                            transition-all duration-200
+                            ${isSelected
+                              ? 'bg-gradient-to-br from-pink-500 via-purple-500 to-blue-500 text-white shadow-lg scale-105'
+                              : isTodayDate
+                              ? 'bg-gradient-to-br from-yellow-100 to-orange-100 text-orange-900 border-2 border-orange-400 shadow-md'
+                              : isAvailable && !isDisabled
+                              ? 'bg-gradient-to-br from-pink-400 via-purple-400 to-blue-400 text-white hover:from-pink-500 hover:via-purple-500 hover:to-blue-500 shadow-md hover:scale-110'
+                              : isDisabled
+                              ? 'text-gray-300 opacity-30 cursor-not-allowed'
+                              : 'hover:bg-gradient-to-br hover:from-pink-100 hover:to-purple-100 hover:scale-105'
+                            }
+                          `}
+                        >
+                          {day.getDate()}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
+
               <div className="px-4 pb-4 space-y-2 text-xs">
                 <div className="flex items-center gap-2 p-2 bg-gradient-to-r from-pink-50 via-purple-50 to-blue-50 rounded-xl border-2 border-pink-200 shadow-sm">
-                  <div className="w-5 h-5 rounded-xl bg-gradient-to-br from-pink-400 via-purple-400 to-blue-400 shadow-md flex-shrink-0 animate-pulse"></div>
+                  <div className="w-5 h-5 rounded-xl bg-gradient-to-br from-pink-400 via-purple-400 to-blue-400 shadow-md flex-shrink-0"></div>
                   <span className="text-gray-700 font-semibold">✨ 운임 변경이 있었던 날짜</span>
                 </div>
                 <div className="flex items-center gap-2 p-2 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border-2 border-gray-200 shadow-sm">

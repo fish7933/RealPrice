@@ -662,7 +662,7 @@ export default function CostCalculatorWithTabs() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Calculator className="h-5 w-5" />
-            경로 및 비용 입력
+            운임 조건 입력
           </CardTitle>
           <CardDescription>운송 경로를 입력하세요</CardDescription>
         </CardHeader>

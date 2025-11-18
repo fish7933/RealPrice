@@ -10,7 +10,7 @@ export default function CostCalculatorHeader() {
             <Calculator className="h-8 w-8 text-white" />
           </div>
           <h2 className="text-4xl font-bold text-white flex items-center gap-2">
-            원가 계산기
+            운임 조회
             <Sparkles className="h-6 w-6 text-yellow-300 animate-pulse" />
           </h2>
         </div>

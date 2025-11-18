@@ -45,20 +45,20 @@ export default function Layout({ children }: LayoutProps) {
   const superadminNavItems = [
     { path: '/users', label: '사용자 관리', icon: Users, gradient: 'from-purple-500 to-pink-500' },
     { path: '/dashboard', label: '관리자 대시보드', icon: LayoutDashboard, gradient: 'from-blue-500 to-cyan-500' },
-    { path: '/calculator', label: '원가 계산기', icon: Calculator, gradient: 'from-green-500 to-emerald-500' },
+    { path: '/calculator', label: '운임 조회', icon: Calculator, gradient: 'from-green-500 to-emerald-500' },
     { path: '/profile', label: '프로필 설정', icon: Settings, gradient: 'from-orange-500 to-red-500' },
   ];
 
   const adminNavItems = [
     { path: '/users', label: '사용자 관리', icon: Users, gradient: 'from-purple-500 to-pink-500' },
     { path: '/dashboard', label: '관리자 대시보드', icon: LayoutDashboard, gradient: 'from-blue-500 to-cyan-500' },
-    { path: '/calculator', label: '원가 계산기', icon: Calculator, gradient: 'from-green-500 to-emerald-500' },
+    { path: '/calculator', label: '운임 조회', icon: Calculator, gradient: 'from-green-500 to-emerald-500' },
     { path: '/profile', label: '프로필 설정', icon: Settings, gradient: 'from-orange-500 to-red-500' },
   ];
 
   const userNavItems = [
     { path: '/dashboard', label: '사용자 대시보드', icon: LayoutDashboard, gradient: 'from-blue-500 to-cyan-500' },
-    { path: '/calculator', label: '원가 계산기', icon: Calculator, gradient: 'from-green-500 to-emerald-500' },
+    { path: '/calculator', label: '운임 조회', icon: Calculator, gradient: 'from-green-500 to-emerald-500' },
     { path: '/profile', label: '프로필 설정', icon: Settings, gradient: 'from-orange-500 to-red-500' },
   ];
 

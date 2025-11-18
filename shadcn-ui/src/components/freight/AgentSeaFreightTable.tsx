@@ -29,7 +29,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Trash2, Plus, Star, AlertTriangle, RefreshCw, Search, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Trash2, Plus, Star, AlertTriangle, RefreshCw, Search, X, ChevronLeft, ChevronRight, Ship, Anchor, TrendingUp } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import AuditLogTable from './AuditLogTable';
 import { ValidityPeriodInput } from '@/components/ui/validity-period-input';
@@ -322,36 +322,102 @@ export default function AgentSeaFreightTable() {
   const auditLogs = getAuditLogsByType('agentSeaFreight');
   const expiredRates = agentSeaFreights.filter(f => getValidityStatus(f.validFrom, f.validTo).status === 'expired');
   const expiringRates = agentSeaFreights.filter(f => getValidityStatus(f.validFrom, f.validTo).status === 'expiring');
+  const activeRates = agentSeaFreights.filter(f => getValidityStatus(f.validFrom, f.validTo).status === 'active');
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold flex items-center gap-2">
-            <Star className="h-6 w-6" />
-            대리점별 해상운임 관리
-          </h2>
-          <p className="text-gray-600 mt-1">철도 대리점이 지정한 특별 해상운임</p>
+      {/* Modern Header with Gradient */}
+      <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-amber-500 via-orange-500 to-red-500 p-8 text-white shadow-lg">
+        <div className="absolute inset-0 bg-black/10"></div>
+        <div className="relative z-10">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
+                  <Star className="h-8 w-8" />
+                </div>
+                <h2 className="text-3xl font-bold">대리점별 해상운임 관리</h2>
+              </div>
+              <p className="text-white/90 text-lg">철도 대리점이 지정한 특별 해상운임</p>
+            </div>
+            {isAdmin && (
+              <Button 
+                onClick={() => setIsAddDialogOpen(true)}
+                size="lg"
+                className="bg-white text-orange-600 hover:bg-white/90 hover:scale-105 transition-all shadow-lg"
+              >
+                <Plus className="h-5 w-5 mr-2" />
+                운임 추가
+              </Button>
+            )}
+          </div>
         </div>
-        {isAdmin && (
-          <Button onClick={() => setIsAddDialogOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            운임 추가
-          </Button>
-        )}
       </div>
 
-      <Alert>
-        <Star className="h-4 w-4" />
-        <AlertDescription>
+      {/* Statistics Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-6 hover:shadow-lg transition-shadow">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-amber-600">총 운임</p>
+              <p className="text-3xl font-bold text-amber-900 mt-2">{agentSeaFreights.length}</p>
+            </div>
+            <div className="p-3 bg-amber-500/20 rounded-lg">
+              <Ship className="h-8 w-8 text-amber-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6 hover:shadow-lg transition-shadow">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-green-600">유효 운임</p>
+              <p className="text-3xl font-bold text-green-900 mt-2">{activeRates.length}</p>
+            </div>
+            <div className="p-3 bg-green-500/20 rounded-lg">
+              <TrendingUp className="h-8 w-8 text-green-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-br from-yellow-50 to-amber-50 border border-yellow-200 rounded-xl p-6 hover:shadow-lg transition-shadow">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-yellow-600">만료 임박</p>
+              <p className="text-3xl font-bold text-yellow-900 mt-2">{expiringRates.length}</p>
+            </div>
+            <div className="p-3 bg-yellow-500/20 rounded-lg">
+              <AlertTriangle className="h-8 w-8 text-yellow-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-br from-red-50 to-rose-50 border border-red-200 rounded-xl p-6 hover:shadow-lg transition-shadow">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-red-600">만료됨</p>
+              <p className="text-3xl font-bold text-red-900 mt-2">{expiredRates.length}</p>
+            </div>
+            <div className="p-3 bg-red-500/20 rounded-lg">
+              <X className="h-8 w-8 text-red-600" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Info Alert */}
+      <Alert className="border-amber-200 bg-amber-50">
+        <Star className="h-4 w-4 text-amber-600" />
+        <AlertDescription className="text-amber-900">
           <strong>대리점별 해상운임:</strong> 철도 대리점이 특정 경로에 대해 지정한 해상운임입니다. 설정된 경우 일반 해상운임보다 우선 적용됩니다.
           <br />
-          <span className="text-sm text-gray-600 mt-1 block">
+          <span className="text-sm text-amber-700 mt-1 block">
             D/O(DTHC)는 별도의 "D/O(DTHC) 관리" 페이지에서 대리점별로 설정됩니다.
           </span>
         </AlertDescription>
       </Alert>
 
+      {/* Warning Alert */}
       {(expiredRates.length > 0 || expiringRates.length > 0) && (
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
@@ -371,10 +437,10 @@ export default function AgentSeaFreightTable() {
       )}
 
       {/* Search Filters */}
-      <div className="p-4 bg-gray-50 rounded-lg border">
-        <div className="flex items-center gap-2 mb-3">
-          <Search className="h-4 w-4 text-gray-600" />
-          <span className="font-semibold text-sm">검색 필터</span>
+      <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border border-gray-200">
+        <div className="flex items-center gap-2 mb-4">
+          <Search className="h-5 w-5 text-gray-600" />
+          <span className="font-semibold">검색 필터</span>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
           <div className="space-y-1">
@@ -474,36 +540,41 @@ export default function AgentSeaFreightTable() {
         총 {filteredFreights.length}개의 운임 (전체 {agentSeaFreights.length}개 중)
       </div>
 
-      <div className="border rounded-lg overflow-hidden bg-white">
+      <div className="border rounded-lg overflow-hidden bg-white shadow-sm">
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead>버전</TableHead>
-              <TableHead>대리점</TableHead>
-              <TableHead>선적포트 (POL)</TableHead>
-              <TableHead>양하포트 (POD)</TableHead>
-              <TableHead>운임 (USD)</TableHead>
-              <TableHead>L.LOCAL (USD)</TableHead>
-              <TableHead>선사</TableHead>
-              <TableHead>유효기간</TableHead>
-              <TableHead>상태</TableHead>
-              <TableHead>비고</TableHead>
-              {isAdmin && <TableHead className="text-right">작업</TableHead>}
+            <TableRow className="bg-gradient-to-r from-amber-50 to-orange-50 hover:from-amber-100 hover:to-orange-100">
+              <TableHead className="font-semibold">버전</TableHead>
+              <TableHead className="font-semibold">대리점</TableHead>
+              <TableHead className="font-semibold">선적포트 (POL)</TableHead>
+              <TableHead className="font-semibold">양하포트 (POD)</TableHead>
+              <TableHead className="font-semibold">운임 (USD)</TableHead>
+              <TableHead className="font-semibold">L.LOCAL (USD)</TableHead>
+              <TableHead className="font-semibold">선사</TableHead>
+              <TableHead className="font-semibold">유효기간</TableHead>
+              <TableHead className="font-semibold">상태</TableHead>
+              <TableHead className="font-semibold">비고</TableHead>
+              {isAdmin && <TableHead className="text-right font-semibold">작업</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
             {paginatedFreights.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={isAdmin ? 11 : 10} className="text-center py-8 text-gray-500">
-                  {agentSeaFreights.length === 0 ? '설정된 대리점별 해상운임이 없습니다' : '검색 결과가 없습니다'}
+                <TableCell colSpan={isAdmin ? 11 : 10} className="text-center py-12">
+                  <div className="flex flex-col items-center gap-3">
+                    <Anchor className="h-12 w-12 text-gray-300" />
+                    <p className="text-gray-500 font-medium">
+                      {agentSeaFreights.length === 0 ? '설정된 대리점별 해상운임이 없습니다' : '검색 결과가 없습니다'}
+                    </p>
+                  </div>
                 </TableCell>
               </TableRow>
             ) : (
-              paginatedFreights.map((freight) => {
+              paginatedFreights.map((freight, index) => {
                 const validityStatus = getValidityStatus(freight.validFrom, freight.validTo);
                 
                 return (
-                  <TableRow key={freight.id}>
+                  <TableRow key={freight.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}>
                     <TableCell>
                       <Badge variant="outline">v{freight.version || 1}</Badge>
                     </TableCell>
@@ -515,7 +586,7 @@ export default function AgentSeaFreightTable() {
                     </TableCell>
                     <TableCell>{freight.pol}</TableCell>
                     <TableCell>{freight.pod}</TableCell>
-                    <TableCell>${freight.rate}</TableCell>
+                    <TableCell className="font-semibold">${freight.rate}</TableCell>
                     <TableCell>
                       {freight.llocal !== undefined && freight.llocal !== null ? (
                         <span className="font-medium">
@@ -537,7 +608,7 @@ export default function AgentSeaFreightTable() {
                         {validityStatus.label}
                       </Badge>
                     </TableCell>
-                    <TableCell>{freight.note || '-'}</TableCell>
+                    <TableCell className="max-w-xs truncate">{freight.note || '-'}</TableCell>
                     {isAdmin && (
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
@@ -545,7 +616,7 @@ export default function AgentSeaFreightTable() {
                             size="sm"
                             variant="outline"
                             onClick={() => handleVersionChangeClick(freight)}
-                            className="bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-300"
+                            className="bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-300 hover:scale-105 transition-transform"
                           >
                             <RefreshCw className="h-4 w-4 mr-1" />
                             버전 변경
@@ -554,8 +625,9 @@ export default function AgentSeaFreightTable() {
                             variant="ghost"
                             size="icon"
                             onClick={() => handleDelete(freight.id)}
+                            className="hover:bg-red-50 hover:text-red-600"
                           >
-                            <Trash2 className="h-4 w-4 text-red-600" />
+                            <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
                       </TableCell>
@@ -623,7 +695,10 @@ export default function AgentSeaFreightTable() {
       }}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>대리점별 해상운임 추가</DialogTitle>
+            <DialogTitle className="flex items-center gap-2">
+              <Star className="h-5 w-5 text-amber-600" />
+              대리점별 해상운임 추가
+            </DialogTitle>
             <DialogDescription>철도 대리점이 지정한 특별 해상운임을 입력하세요.</DialogDescription>
           </DialogHeader>
           <div className="grid grid-cols-2 gap-4 py-4">
@@ -786,7 +861,7 @@ export default function AgentSeaFreightTable() {
             }}>
               취소
             </Button>
-            <Button onClick={handleAdd}>추가</Button>
+            <Button onClick={handleAdd} className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600">추가</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -951,7 +1026,7 @@ export default function AgentSeaFreightTable() {
             </Button>
             <Button 
               onClick={handleVersionChangeSave}
-              className="bg-purple-600 hover:bg-purple-700"
+              className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800"
             >
               <RefreshCw className="h-4 w-4 mr-2" />
               버전 변경 저장

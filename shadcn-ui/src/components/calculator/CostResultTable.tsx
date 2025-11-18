@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Ship, Train, Truck, Weight, Package, Star, FileText, DollarSign, 
   Info, ArrowUp, ArrowDown, Merge, TrendingDown, AlertTriangle, 
-  FileSpreadsheet, Sparkles, Trophy, Zap
+  FileSpreadsheet, Sparkles, Trophy, Zap, Plus
 } from 'lucide-react';
 import { CostCalculationResult, AgentCostBreakdown, CostCalculationInput } from '@/types/freight';
 import { ExcludedCosts, CellExclusions, SortConfig } from './types';
@@ -380,8 +380,8 @@ export default function CostResultTable({
                         title="클릭하여 전체 제외/포함"
                       >
                         <div className="flex flex-col items-center gap-0.5">
-                          <DollarSign className="h-3.5 w-3.5" />
-                          <span className="text-xs">{item.name}</span>
+                          <Plus className="h-3.5 w-3.5" />
+                          <span className="text-xs">{item.category}</span>
                         </div>
                       </TableHead>
                     ))}

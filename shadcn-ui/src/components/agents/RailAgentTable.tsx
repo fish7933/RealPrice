@@ -22,9 +22,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Pencil, Trash2, Plus, Train, TrendingUp, Package } from 'lucide-react';
+import { Pencil, Trash2, Plus, Train } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Card, CardContent } from '@/components/ui/card';
 
 export default function RailAgentTable() {
   const { user } = useAuth();
@@ -107,51 +106,6 @@ export default function RailAgentTable() {
             </Button>
           )}
         </div>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="border-none shadow-lg hover:shadow-xl transition-shadow duration-300 bg-gradient-to-br from-blue-50 to-indigo-50">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">총 대리점</p>
-                <p className="text-3xl font-bold text-blue-600 mt-2">{railAgents.length}</p>
-              </div>
-              <div className="p-4 bg-blue-100 rounded-full">
-                <Train className="h-8 w-8 text-blue-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-none shadow-lg hover:shadow-xl transition-shadow duration-300 bg-gradient-to-br from-indigo-50 to-purple-50">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">활성 상태</p>
-                <p className="text-3xl font-bold text-indigo-600 mt-2">100%</p>
-              </div>
-              <div className="p-4 bg-indigo-100 rounded-full">
-                <TrendingUp className="h-8 w-8 text-indigo-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-none shadow-lg hover:shadow-xl transition-shadow duration-300 bg-gradient-to-br from-purple-50 to-pink-50">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">운송 경로</p>
-                <p className="text-3xl font-bold text-purple-600 mt-2">항구→국경</p>
-              </div>
-              <div className="p-4 bg-purple-100 rounded-full">
-                <Package className="h-8 w-8 text-purple-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Info Alert */}

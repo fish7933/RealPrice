@@ -22,9 +22,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Pencil, Trash2, Plus, Truck, TrendingUp, MapPin } from 'lucide-react';
+import { Pencil, Trash2, Plus, Truck } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Card, CardContent } from '@/components/ui/card';
 
 export default function TruckAgentTable() {
   const { user } = useAuth();
@@ -107,51 +106,6 @@ export default function TruckAgentTable() {
             </Button>
           )}
         </div>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="border-none shadow-lg hover:shadow-xl transition-shadow duration-300 bg-gradient-to-br from-green-50 to-emerald-50">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">총 대리점</p>
-                <p className="text-3xl font-bold text-green-600 mt-2">{truckAgents.length}</p>
-              </div>
-              <div className="p-4 bg-green-100 rounded-full">
-                <Truck className="h-8 w-8 text-green-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-none shadow-lg hover:shadow-xl transition-shadow duration-300 bg-gradient-to-br from-emerald-50 to-teal-50">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">활성 상태</p>
-                <p className="text-3xl font-bold text-emerald-600 mt-2">100%</p>
-              </div>
-              <div className="p-4 bg-emerald-100 rounded-full">
-                <TrendingUp className="h-8 w-8 text-emerald-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-none shadow-lg hover:shadow-xl transition-shadow duration-300 bg-gradient-to-br from-teal-50 to-cyan-50">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">운송 경로</p>
-                <p className="text-3xl font-bold text-teal-600 mt-2">국경→목적지</p>
-              </div>
-              <div className="p-4 bg-teal-100 rounded-full">
-                <MapPin className="h-8 w-8 text-teal-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Info Alert */}

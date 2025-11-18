@@ -399,7 +399,7 @@ export default function CostCalculatorWithTabs() {
     setError('');
     
     if (!input.pol || !input.pod || !input.destinationId) {
-      setError('선적포트, 하역포트, 최종목적지를 모두 선택해주세요.');
+      setError('출발항, 중국항, 최종목적지를 모두 선택해주세요.');
       return;
     }
 
@@ -466,7 +466,7 @@ export default function CostCalculatorWithTabs() {
         missingRates.push(`${input.pol} → ${input.pod} → ${destinationName} 경로의 철도운임 (POD → KASHGAR)`);
         missingRates.push(`${destinationName} 목적지의 트럭운임 (KASHGAR → 최종목적지)`);
       } else {
-        missingRates.push(`${input.pol} → ${input.pod} → ${destinationName} 경로의 철도+트럭 통합운임`);
+        missingRates.push(`${input.pol} → ${input.pod} → ${destinationName} 경로의 통합운임`);
       }
       
       setError(`선택한 경로에 대한 운임 조합이 없습니다.\n\n누락된 운임:\n• ${missingRates.join('\n• ')}\n\n관리자 대시보드에서 해당 운임을 먼저 등록해주세요.`);
@@ -900,7 +900,7 @@ export default function CostCalculatorWithTabs() {
     if (date) {
       toast({
         title: '타임머신 활성화',
-        description: `${date} 날짜 기준으로 유효했던 운임으로 계산합니다.`,
+        description: `${date} 날짜의 운임으로 계산합니다.`,
       });
     } else {
       toast({
@@ -1174,7 +1174,7 @@ export default function CostCalculatorWithTabs() {
                     <div>• <strong>트럭운임</strong>: KASHGAR → {getDestinationName(input.destinationId)} 경로의 트럭운임이 등록되지 않았습니다</div>
                   </>
                 ) : (
-                  <div>• <strong>철도+트럭 통합운임</strong>: {input.pol} → {input.pod} → {getDestinationName(input.destinationId)} 경로의 철도+트럭 통합운임이 등록되지 않았습니다</div>
+                  <div>• <strong>통합운임</strong>: {input.pol} → {input.pod} → {getDestinationName(input.destinationId)} 경로의 통합운임이 등록되지 않았습니다</div>
                 )}
                 <div className="mt-2 text-blue-700">관리자 대시보드에서 해당 운임을 먼저 등록해주세요.</div>
               </div>
@@ -1304,7 +1304,7 @@ export default function CostCalculatorWithTabs() {
                     >
                       <div className="flex flex-col items-end gap-1">
                         <Merge className="h-4 w-4" />
-                        <span>철도+트럭 통합운임</span>
+                        <span>통합운임</span>
                       </div>
                     </TableHead>
                     <TableHead 
@@ -1393,7 +1393,7 @@ export default function CostCalculatorWithTabs() {
                             {breakdown.isCombinedFreight ? (
                               <span className="inline-flex items-center gap-1 px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs">
                                 <Merge className="h-3 w-3" />
-                                철도+트럭 통합운임
+                                통합운임
                               </span>
                             ) : (
                               <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">
@@ -1433,8 +1433,6 @@ export default function CostCalculatorWithTabs() {
                           <div className="flex items-center justify-end gap-1">
                             {excludedCosts.seaFreight || isCellExcluded(originalIndex, 'seaFreight') ? (
                               '$0'
-                            ) : breakdown.seaFreight === 0 ? (
-                              <span>$0</span>
                             ) : (
                               <>
                                 <span className={isExpired(breakdown, '해상운임') ? 'text-red-600 font-bold' : ''}>
@@ -1445,8 +1443,7 @@ export default function CostCalculatorWithTabs() {
                                 )}
                               </>
                             )}
-                            {/* CRITICAL FIX: Only show star icon if NOT expired */}
-                            {breakdown.isAgentSpecificSeaFreight && !excludedCosts.seaFreight && !isCellExcluded(originalIndex, 'seaFreight') && !isExpired(breakdown, '해상운임') && (
+                            {breakdown.isAgentSpecificSeaFreight && !excludedCosts.seaFreight && !isCellExcluded(originalIndex, 'seaFreight') && breakdown.seaFreight !== 0 && (
                               <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded text-xs">
                                 <Star className="h-3 w-3" />
                               </span>
@@ -1466,21 +1463,23 @@ export default function CostCalculatorWithTabs() {
                             {excludedCosts.localCharge || isCellExcluded(originalIndex, 'localCharge') ? (
                               <span>$0</span>
                             ) : breakdown.isAgentSpecificSeaFreight ? (
-                              // For agent-specific freight, apply same conditions as sea freight
-                              <>
-                                <span className={isExpired(breakdown, 'L.LOCAL') ? 'text-red-600 font-bold' : ''}>
-                                  ${breakdown.llocal || 0}
+                              // For agent-specific freight, show llocal value
+                              (breakdown.llocal || 0) < 0 ? (
+                                // If llocal is negative, show as positive green (because minus negative = plus)
+                                <span className="text-green-600 font-bold">
+                                  +${Math.abs(breakdown.llocal || 0)}
                                 </span>
-                                {isExpired(breakdown, 'L.LOCAL') && (
-                                  <AlertTriangle className="h-3 w-3 text-red-600" title="만료된 운임" />
-                                )}
-                              </>
+                              ) : (
+                                // If llocal is positive or zero, show as red negative
+                                <span className="text-red-600 font-bold">
+                                  -${breakdown.llocal || 0}
+                                </span>
+                              )
                             ) : (
                               // For general freight, show localCharge normally
                               <span>${breakdown.localCharge || 0}</span>
                             )}
-                            {/* CRITICAL FIX: Only show star icon if NOT expired */}
-                            {breakdown.isAgentSpecificSeaFreight && !excludedCosts.localCharge && !isCellExcluded(originalIndex, 'localCharge') && (breakdown.llocal || 0) !== 0 && !isExpired(breakdown, 'L.LOCAL') && (
+                            {breakdown.isAgentSpecificSeaFreight && !excludedCosts.localCharge && !isCellExcluded(originalIndex, 'localCharge') && (breakdown.llocal || 0) !== 0 && (
                               <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded text-xs">
                                 <Star className="h-3 w-3" />
                               </span>
@@ -1579,10 +1578,10 @@ export default function CostCalculatorWithTabs() {
                               <span className="text-amber-600">운임 없음</span>
                             ) : (
                               <div className="flex items-center justify-end gap-1">
-                                <span className={isExpired(breakdown, '철도+트럭 통합운임') ? 'text-red-600 font-bold' : ''}>
+                                <span className={isExpired(breakdown, '통합운임') ? 'text-red-600 font-bold' : ''}>
                                   ${excludedCosts.combinedFreight || isCellExcluded(originalIndex, 'combinedFreight') ? 0 : breakdown.combinedFreight}
                                 </span>
-                                {isExpired(breakdown, '철도+트럭 통합운임') && !excludedCosts.combinedFreight && !isCellExcluded(originalIndex, 'combinedFreight') && (
+                                {isExpired(breakdown, '통합운임') && !excludedCosts.combinedFreight && !isCellExcluded(originalIndex, 'combinedFreight') && (
                                   <AlertTriangle className="h-3 w-3 text-red-600" title="만료된 운임" />
                                 )}
                                 <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-purple-100 text-purple-700 rounded text-xs">
@@ -1691,18 +1690,18 @@ export default function CostCalculatorWithTabs() {
               </p>
               <p className="text-xs text-gray-600 mt-1 flex items-center gap-1">
                 <Merge className="h-3 w-3 text-purple-600" />
-                <span>철도+트럭 통합운임 아이콘은 철도+트럭 일괄 운임이 적용되었음을 나타냅니다</span>
+                <span>통합운임 아이콘은 철도+트럭 일괄 운임이 적용되었음을 나타냅니다</span>
               </p>
               {showDpColumn && (
                 <p className="text-xs text-blue-600 mt-2 flex items-center gap-1 font-semibold">
                   <Info className="h-3 w-3" />
-                  <span>DP 포함 조합은 실제 DP 값이 표시되며, 철도+트럭 통합운임 조합은 DP가 0입니다</span>
+                  <span>DP 포함 조합은 실제 DP 값이 표시되며, 통합운임 조합은 DP가 0입니다</span>
                 </p>
               )}
               {resultData.breakdown.some(b => b.hasExpiredRates) && (
                 <p className="text-xs text-red-600 mt-2 flex items-center gap-1 font-semibold">
                   <AlertTriangle className="h-3 w-3" />
-                  <span>빨간색 굵은 글씨와 경고 아이콘은 만료된 운임을 나타냅니다. 만료된 운임에는 별표 아이콘이 표시되지 않습니다.</span>
+                  <span>빨간색 굵은 글씨와 경고 아이콘은 만료된 운임을 나타냅니다</span>
                 </p>
               )}
               {(Object.values(excludedCosts).some(v => v) || Object.keys(cellExclusions).length > 0) && (
@@ -1729,21 +1728,9 @@ export default function CostCalculatorWithTabs() {
 
   return (
     <div className="space-y-6">
-      {/* Beautiful Header */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-500 p-6 shadow-xl">
-        <div className="absolute inset-0 bg-grid-white/10"></div>
-        <div className="relative">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-white/20 backdrop-blur-sm rounded-xl">
-              <Calculator className="h-6 w-6 text-white" />
-            </div>
-            <h2 className="text-3xl font-bold text-white flex items-center gap-2">
-              원가 계산기
-              <Sparkles className="h-5 w-5 text-yellow-300 animate-pulse" />
-            </h2>
-          </div>
-          <p className="text-cyan-50 ml-14">경로와 추가 비용을 입력하여 대리점별 총 운임을 계산하세요</p>
-        </div>
+      <div>
+        <h2 className="text-2xl font-bold mb-2">원가 계산기</h2>
+        <p className="text-gray-600">경로와 추가 비용을 입력하여 대리점별 총 운임을 계산하세요.</p>
       </div>
 
       <Card>
@@ -1763,8 +1750,8 @@ export default function CostCalculatorWithTabs() {
                   <p className="font-semibold text-purple-900">타임머신</p>
                   <p className="text-xs text-purple-700">
                     {historicalDate 
-                      ? `${historicalDate} 날짜 기준으로 유효했던 운임으로 계산 중` 
-                      : '과거 날짜 기준으로 유효했던 운임으로 계산할 수 있습니다'}
+                      ? `${historicalDate} 날짜의 운임으로 계산 중` 
+                      : '과거 날짜의 운임으로 계산할 수 있습니다'}
                   </p>
                 </div>
               </div>
@@ -1781,11 +1768,11 @@ export default function CostCalculatorWithTabs() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label>선적포트 (POL)</Label>
+              <Label>출발항 (POL)</Label>
               {polPorts.length > 0 ? (
                 <Select value={input.pol} onValueChange={(value) => setInput({ ...input, pol: value })}>
                   <SelectTrigger>
-                    <SelectValue placeholder="선적포트 선택" />
+                    <SelectValue placeholder="출발항 선택" />
                   </SelectTrigger>
                   <SelectContent>
                     {polPorts.map((port) => (
@@ -1797,17 +1784,17 @@ export default function CostCalculatorWithTabs() {
                 </Select>
               ) : (
                 <div className="text-sm text-gray-500 p-3 bg-gray-50 rounded border">
-                  선적포트(POL)를 먼저 등록해주세요. (운송사 탭 → 포트 관리)
+                  출발항(POL)을 먼저 등록해주세요. (운송사 탭 → 포트 관리)
                 </div>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label>하역포트 (POD)</Label>
+              <Label>중국항 (POD)</Label>
               {podPorts.length > 0 ? (
                 <Select value={input.pod} onValueChange={(value) => setInput({ ...input, pod: value })}>
                   <SelectTrigger>
-                    <SelectValue placeholder="하역포트 선택" />
+                    <SelectValue placeholder="중국항 선택" />
                   </SelectTrigger>
                   <SelectContent>
                     {podPorts.map((port) => (
@@ -1819,7 +1806,7 @@ export default function CostCalculatorWithTabs() {
                 </Select>
               ) : (
                 <div className="text-sm text-gray-500 p-3 bg-gray-50 rounded border">
-                  하역포트(POD)를 먼저 등록해주세요. (운송사 탭 → 포트 관리)
+                  도착항(POD)을 먼저 등록해주세요. (운송사 탭 → 포트 관리)
                 </div>
               )}
               {seaFreightOptions.length > 1 && (
@@ -1892,10 +1879,10 @@ export default function CostCalculatorWithTabs() {
                 </label>
               </div>
               <p className="text-xs text-gray-500">
-                {input.pol ? `${input.pol} DP: $${dpCost}` : '선적포트를 먼저 선택하세요'}
+                {input.pol ? `${input.pol} DP: $${dpCost}` : '출발항을 먼저 선택하세요'}
               </p>
               <p className="text-xs text-blue-600 font-medium">
-                ※ DP 포함 시 철도+트럭 분리 운임만 표시 / DP 미포함 시 철도+트럭 통합 운임만 표시
+                ※ DP 포함 시 철도+트럭 분리 운임만 표시 / DP 미포함 시 통합 운임만 표시
               </p>
             </div>
 
@@ -1974,7 +1961,7 @@ export default function CostCalculatorWithTabs() {
               <strong>자동 계산 항목:</strong>
               <ul className="mt-2 space-y-1 text-sm">
                 <li>• <strong>D/O(DTHC):</strong> 대리점별로 설정된 금액이 자동 적용됩니다</li>
-                <li>• <strong>철도+트럭 통합 운임:</strong> 설정된 경우 철도+트럭 분리 운임 대신 철도+트럭 통합 운임이 적용됩니다</li>
+                <li>• <strong>통합 운임:</strong> 설정된 경우 철도+트럭 분리 운임 대신 통합 운임이 적용됩니다</li>
                 <li>• <strong>중량할증:</strong> 입력한 중량에 따라 자동 계산됩니다</li>
                 <li>• <strong>해상운임:</strong> 같은 항로에 여러 운임이 있는 경우 복수 선택할 수 있습니다</li>
                 <li>• <strong>DP:</strong> 관리자 대시보드에서 설정한 부산/인천 DP 금액이 자동 적용됩니다</li>
@@ -2013,41 +2000,28 @@ export default function CostCalculatorWithTabs() {
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
-              <div className="flex-1">
-                <div className="flex items-center gap-3 mb-2">
-                  <CardTitle className="text-2xl">조회 결과</CardTitle>
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  조회 결과
                   {(result?.isHistorical || allFreightsResult?.isHistorical) && (
-                    <span className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg text-lg font-bold shadow-lg animate-pulse">
-                      <Clock className="h-5 w-5" />
-                      타임머신
+                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-purple-100 text-purple-700 rounded text-sm font-normal">
+                      <Clock className="h-3 w-3" />
+                      과거 운임
                     </span>
                   )}
-                </div>
-                <div className="p-3 bg-gray-100 rounded-lg border-2 border-gray-300">
-                  <p className="text-blue-700 font-bold text-lg">
-                    경로: {input.pol} → {input.pod} → {getDestinationName(input.destinationId)} | 중량: {input.weight.toLocaleString()}kg
-                    {input.includeDP && ` | DP 포함 ($${dpCost})`}
-                    {input.domesticTransport > 0 && ` | 국내운송 $${input.domesticTransport}`}
-                  </p>
+                </CardTitle>
+                <CardDescription>
+                  경로: {input.pol} → {input.pod} → {getDestinationName(input.destinationId)} | 중량: {input.weight.toLocaleString()}kg
+                  {input.includeDP && ` | DP 포함 ($${dpCost})`}
+                  {input.domesticTransport > 0 && ` | 국내운송 $${input.domesticTransport}`}
                   {(result?.isHistorical || allFreightsResult?.isHistorical) && (result?.historicalDate || allFreightsResult?.historicalDate) && (
-                    <div className="mt-2 p-3 bg-gradient-to-r from-purple-100 to-purple-200 rounded-lg border-2 border-purple-400 flex items-center justify-between">
-                      <p className="text-purple-900 font-bold text-xl flex items-center gap-2">
-                        <Clock className="h-6 w-6 animate-pulse" />
-                        📅 {result?.historicalDate || allFreightsResult?.historicalDate} 날짜 기준으로 유효했던 운임으로 계산됨
-                      </p>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleTimeMachineSelect('')}
-                        className="bg-white hover:bg-gray-50 border-purple-300 text-purple-700 font-semibold"
-                      >
-                        현재 운임으로 복귀
-                      </Button>
-                    </div>
+                    <span className="block mt-1 text-purple-600">
+                      📅 {result?.historicalDate || allFreightsResult?.historicalDate} 날짜의 운임으로 계산됨
+                    </span>
                   )}
-                </div>
+                </CardDescription>
               </div>
-              <Button onClick={handleSaveResult} variant="outline" className="flex items-center gap-2 ml-4">
+              <Button onClick={handleSaveResult} variant="outline" className="flex items-center gap-2">
                 <Save className="h-4 w-4" />
                 결과 저장
               </Button>
@@ -2075,7 +2049,7 @@ export default function CostCalculatorWithTabs() {
                       <AlertDescription className="text-blue-900">
                         {input.includeDP 
                           ? '✅ DP 포함: 철도+트럭 분리 운임만 표시됩니다'
-                          : '✅ DP 미포함: 철도+트럭 통합 운임만 표시됩니다'
+                          : '✅ DP 미포함: 통합 운임만 표시됩니다'
                         }
                       </AlertDescription>
                     </Alert>
@@ -2090,7 +2064,7 @@ export default function CostCalculatorWithTabs() {
                     <Alert className="bg-purple-50 border-purple-200">
                       <Sparkles className="h-4 w-4 text-purple-600" />
                       <AlertDescription className="text-purple-900">
-                        <strong>✨ 제약 없이 보기:</strong> DP 필터를 무시하고 모든 운임 조합(철도+트럭 통합 운임 + 분리 운임)을 표시합니다. "운임 유형" 컬럼에서 각 조합이 철도+트럭 통합운임인지 DP 포함 분리운임인지 확인할 수 있으며, DP 컬럼에서 실제 DP 값을 확인할 수 있습니다.
+                        <strong>✨ 제약 없이 보기:</strong> DP 필터를 무시하고 모든 운임 조합(통합 운임 + 분리 운임)을 표시합니다. "운임 유형" 컬럼에서 각 조합이 통합운임인지 DP 포함 분리운임인지 확인할 수 있으며, DP 컬럼에서 실제 DP 값을 확인할 수 있습니다.
                       </AlertDescription>
                     </Alert>
                     {renderResultTable(allFreightsResult, true)}
@@ -2121,7 +2095,7 @@ export default function CostCalculatorWithTabs() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
                 <div className="space-y-1">
-                  <Label className="text-xs">선적포트 (POL)</Label>
+                  <Label className="text-xs">출발항 (POL)</Label>
                   <Select value={searchFilters.pol} onValueChange={(value) => setSearchFilters(prev => ({ ...prev, pol: value }))}>
                     <SelectTrigger className="h-9">
                       <SelectValue placeholder="전체" />
@@ -2137,7 +2111,7 @@ export default function CostCalculatorWithTabs() {
                   </Select>
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-xs">하역포트 (POD)</Label>
+                  <Label className="text-xs">중국항 (POD)</Label>
                   <Select value={searchFilters.pod} onValueChange={(value) => setSearchFilters(prev => ({ ...prev, pod: value }))}>
                     <SelectTrigger className="h-9">
                       <SelectValue placeholder="전체" />
@@ -2277,9 +2251,9 @@ export default function CostCalculatorWithTabs() {
                               {history.result.input.weight.toLocaleString()}kg
                             </span>
                             {history.result.isHistorical && (
-                              <span className="text-xs bg-gradient-to-r from-purple-600 to-purple-700 text-white px-3 py-1 rounded-full flex items-center gap-1 font-bold shadow-md">
+                              <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded flex items-center gap-1">
                                 <Clock className="h-3 w-3" />
-                                타임머신
+                                과거 운임
                               </span>
                             )}
                           </div>

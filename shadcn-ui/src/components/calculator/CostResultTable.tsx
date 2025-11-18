@@ -225,7 +225,7 @@ export default function CostResultTable({
                 <TableHeader>
                   <TableRow>
                     <TableHead 
-                      className="min-w-[140px] cursor-pointer hover:bg-gray-100 transition-colors"
+                      className="cursor-pointer hover:bg-gray-100 transition-colors whitespace-nowrap"
                       onClick={() => onSort('agent')}
                     >
                       <div className="flex items-center gap-2">
@@ -238,21 +238,21 @@ export default function CostResultTable({
                       </div>
                     </TableHead>
                     {showDpColumn && (
-                      <TableHead className="text-center min-w-[100px]">
+                      <TableHead className="text-center whitespace-nowrap">
                         <div className="flex flex-col items-center gap-1">
                           <Package className="h-4 w-4" />
                           <span>운임 유형</span>
                         </div>
                       </TableHead>
                     )}
-                    <TableHead className="text-center min-w-[100px]">
+                    <TableHead className="text-center whitespace-nowrap">
                       <div className="flex flex-col items-center gap-1">
                         <Ship className="h-4 w-4" />
                         <span>선사</span>
                       </div>
                     </TableHead>
                     <TableHead 
-                      className="text-center min-w-[100px] cursor-pointer hover:bg-gray-100 transition-colors"
+                      className="text-center cursor-pointer hover:bg-gray-100 transition-colors whitespace-nowrap"
                       onClick={() => onSort('rail')}
                     >
                       <div className="flex flex-col items-center gap-1">
@@ -268,7 +268,7 @@ export default function CostResultTable({
                       </div>
                     </TableHead>
                     <TableHead 
-                      className="text-center min-w-[100px] cursor-pointer hover:bg-gray-100 transition-colors"
+                      className="text-center cursor-pointer hover:bg-gray-100 transition-colors whitespace-nowrap"
                       onClick={() => onSort('truck')}
                     >
                       <div className="flex flex-col items-center gap-1">
@@ -284,7 +284,7 @@ export default function CostResultTable({
                       </div>
                     </TableHead>
                     <TableHead 
-                      className={`text-right cursor-pointer hover:bg-gray-100 transition-colors ${excludedCosts.seaFreight ? 'bg-gray-200 line-through opacity-50' : ''}`}
+                      className={`text-right cursor-pointer hover:bg-gray-100 transition-colors whitespace-nowrap ${excludedCosts.seaFreight ? 'bg-gray-200 line-through opacity-50' : ''}`}
                       onClick={() => onToggleCostExclusion('seaFreight')}
                       title="클릭하여 전체 제외/포함"
                     >
@@ -294,7 +294,7 @@ export default function CostResultTable({
                       </div>
                     </TableHead>
                     <TableHead 
-                      className={`text-right cursor-pointer hover:bg-gray-100 transition-colors ${excludedCosts.localCharge ? 'bg-gray-200 line-through opacity-50' : ''}`}
+                      className={`text-right cursor-pointer hover:bg-gray-100 transition-colors whitespace-nowrap ${excludedCosts.localCharge ? 'bg-gray-200 line-through opacity-50' : ''}`}
                       onClick={() => onToggleCostExclusion('localCharge')}
                       title="클릭하여 전체 제외/포함"
                     >
@@ -304,7 +304,7 @@ export default function CostResultTable({
                       </div>
                     </TableHead>
                     <TableHead 
-                      className={`text-right cursor-pointer hover:bg-gray-100 transition-colors ${excludedCosts.dthc ? 'bg-gray-200 line-through opacity-50' : ''}`}
+                      className={`text-right cursor-pointer hover:bg-gray-100 transition-colors whitespace-nowrap ${excludedCosts.dthc ? 'bg-gray-200 line-through opacity-50' : ''}`}
                       onClick={() => onToggleCostExclusion('dthc')}
                       title="클릭하여 전체 제외/포함"
                     >
@@ -314,7 +314,7 @@ export default function CostResultTable({
                       </div>
                     </TableHead>
                     <TableHead 
-                      className={`text-right cursor-pointer hover:bg-gray-100 transition-colors ${excludedCosts.portBorder ? 'bg-gray-200 line-through opacity-50' : ''}`}
+                      className={`text-right cursor-pointer hover:bg-gray-100 transition-colors whitespace-nowrap ${excludedCosts.portBorder ? 'bg-gray-200 line-through opacity-50' : ''}`}
                       onClick={() => onToggleCostExclusion('portBorder')}
                       title="클릭하여 전체 제외/포함"
                     >
@@ -324,7 +324,7 @@ export default function CostResultTable({
                       </div>
                     </TableHead>
                     <TableHead 
-                      className={`text-right cursor-pointer hover:bg-gray-100 transition-colors ${excludedCosts.borderDestination ? 'bg-gray-200 line-through opacity-50' : ''}`}
+                      className={`text-right cursor-pointer hover:bg-gray-100 transition-colors whitespace-nowrap ${excludedCosts.borderDestination ? 'bg-gray-200 line-through opacity-50' : ''}`}
                       onClick={() => onToggleCostExclusion('borderDestination')}
                       title="클릭하여 전체 제외/포함"
                     >
@@ -334,7 +334,7 @@ export default function CostResultTable({
                       </div>
                     </TableHead>
                     <TableHead 
-                      className={`text-right cursor-pointer hover:bg-gray-100 transition-colors ${excludedCosts.combinedFreight ? 'bg-gray-200 line-through opacity-50' : ''}`}
+                      className={`text-right cursor-pointer hover:bg-gray-100 transition-colors whitespace-nowrap ${excludedCosts.combinedFreight ? 'bg-gray-200 line-through opacity-50' : ''}`}
                       onClick={() => onToggleCostExclusion('combinedFreight')}
                       title="클릭하여 전체 제외/포함"
                     >
@@ -344,7 +344,7 @@ export default function CostResultTable({
                       </div>
                     </TableHead>
                     <TableHead 
-                      className={`text-right cursor-pointer hover:bg-gray-100 transition-colors ${excludedCosts.weightSurcharge ? 'bg-gray-200 line-through opacity-50' : ''}`}
+                      className={`text-right cursor-pointer hover:bg-gray-100 transition-colors whitespace-nowrap ${excludedCosts.weightSurcharge ? 'bg-gray-200 line-through opacity-50' : ''}`}
                       onClick={() => onToggleCostExclusion('weightSurcharge')}
                       title="클릭하여 전체 제외/포함"
                     >
@@ -354,7 +354,7 @@ export default function CostResultTable({
                       </div>
                     </TableHead>
                     <TableHead 
-                      className={`text-right cursor-pointer hover:bg-gray-100 transition-colors ${excludedCosts.dp ? 'bg-gray-200 line-through opacity-50' : ''}`}
+                      className={`text-right cursor-pointer hover:bg-gray-100 transition-colors whitespace-nowrap ${excludedCosts.dp ? 'bg-gray-200 line-through opacity-50' : ''}`}
                       onClick={() => onToggleCostExclusion('dp')}
                       title="클릭하여 전체 제외/포함"
                     >
@@ -364,7 +364,7 @@ export default function CostResultTable({
                       </div>
                     </TableHead>
                     <TableHead 
-                      className={`text-right cursor-pointer hover:bg-gray-100 transition-colors ${excludedCosts.domesticTransport ? 'bg-gray-200 line-through opacity-50' : ''}`}
+                      className={`text-right cursor-pointer hover:bg-gray-100 transition-colors whitespace-nowrap ${excludedCosts.domesticTransport ? 'bg-gray-200 line-through opacity-50' : ''}`}
                       onClick={() => onToggleCostExclusion('domesticTransport')}
                       title="클릭하여 전체 제외/포함"
                     >
@@ -376,7 +376,7 @@ export default function CostResultTable({
                     {otherCostItems.map((item, index) => (
                       <TableHead 
                         key={index}
-                        className={`text-right cursor-pointer hover:bg-gray-100 transition-colors ${excludedCosts[`other_${index}`] ? 'bg-gray-200 line-through opacity-50' : ''}`}
+                        className={`text-right cursor-pointer hover:bg-gray-100 transition-colors whitespace-nowrap ${excludedCosts[`other_${index}`] ? 'bg-gray-200 line-through opacity-50' : ''}`}
                         onClick={() => onToggleCostExclusion(`other_${index}`)}
                         title="클릭하여 전체 제외/포함"
                       >
@@ -387,7 +387,7 @@ export default function CostResultTable({
                       </TableHead>
                     ))}
                     <TableHead 
-                      className="text-right font-bold cursor-pointer hover:bg-gray-100 transition-colors"
+                      className="text-right font-bold cursor-pointer hover:bg-gray-100 transition-colors whitespace-nowrap"
                       onClick={() => onSort('total')}
                     >
                       <div className="flex items-center justify-end gap-2">
@@ -399,7 +399,7 @@ export default function CostResultTable({
                         )}
                       </div>
                     </TableHead>
-                    <TableHead className="text-center">작업</TableHead>
+                    <TableHead className="text-center whitespace-nowrap">작업</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -413,7 +413,7 @@ export default function CostResultTable({
                         key={index}
                         className={isLowest ? 'bg-green-50 font-semibold' : ''}
                       >
-                        <TableCell>
+                        <TableCell className="whitespace-nowrap">
                           <div className="flex items-center gap-2">
                             <span className="font-mono text-sm">{generateCombinationCode(breakdown, originalIndex)}</span>
                             {isLowest && (
@@ -425,7 +425,7 @@ export default function CostResultTable({
                           </div>
                         </TableCell>
                         {showDpColumn && (
-                          <TableCell className="text-center">
+                          <TableCell className="text-center whitespace-nowrap">
                             {breakdown.isCombinedFreight ? (
                               <span className="inline-flex items-center gap-1 px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs">
                                 <Merge className="h-3 w-3" />
@@ -439,26 +439,26 @@ export default function CostResultTable({
                             )}
                           </TableCell>
                         )}
-                        <TableCell className="text-center">
+                        <TableCell className="text-center whitespace-nowrap">
                           <span className="inline-flex items-center gap-1 px-2 py-1 bg-cyan-100 text-cyan-700 rounded text-xs">
                             <Ship className="h-3 w-3" />
                             {breakdown.seaFreightCarrier || 'N/A'}
                           </span>
                         </TableCell>
-                        <TableCell className="text-center">
+                        <TableCell className="text-center whitespace-nowrap">
                           <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">
                             <Train className="h-3 w-3" />
                             {breakdown.railAgent}
                           </span>
                         </TableCell>
-                        <TableCell className="text-center">
+                        <TableCell className="text-center whitespace-nowrap">
                           <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 rounded text-xs">
                             <Truck className="h-3 w-3" />
                             {breakdown.truckAgent}
                           </span>
                         </TableCell>
                         <TableCell 
-                          className={`text-right cursor-pointer hover:bg-gray-200 transition-colors ${
+                          className={`text-right cursor-pointer hover:bg-gray-200 transition-colors whitespace-nowrap ${
                             excludedCosts.seaFreight || isCellExcluded(originalIndex, 'seaFreight') 
                               ? 'text-gray-400 line-through bg-gray-100' 
                               : ''
@@ -489,7 +489,7 @@ export default function CostResultTable({
                           </div>
                         </TableCell>
                         <TableCell 
-                          className={`text-right cursor-pointer hover:bg-gray-200 transition-colors ${
+                          className={`text-right cursor-pointer hover:bg-gray-200 transition-colors whitespace-nowrap ${
                             excludedCosts.localCharge || isCellExcluded(originalIndex, 'localCharge')
                               ? 'text-gray-400 line-through bg-gray-100' 
                               : ''
@@ -520,7 +520,7 @@ export default function CostResultTable({
                           </div>
                         </TableCell>
                         <TableCell 
-                          className={`text-right cursor-pointer hover:bg-gray-200 transition-colors ${
+                          className={`text-right cursor-pointer hover:bg-gray-200 transition-colors whitespace-nowrap ${
                             excludedCosts.dthc || isCellExcluded(originalIndex, 'dthc')
                               ? 'text-gray-400 line-through bg-gray-100' 
                               : ''
@@ -538,7 +538,7 @@ export default function CostResultTable({
                           </div>
                         </TableCell>
                         <TableCell 
-                          className={`text-right ${
+                          className={`text-right whitespace-nowrap ${
                             breakdown.isCombinedFreight 
                               ? 'text-gray-400' 
                               : `cursor-pointer hover:bg-gray-200 transition-colors ${
@@ -566,7 +566,7 @@ export default function CostResultTable({
                           )}
                         </TableCell>
                         <TableCell 
-                          className={`text-right ${
+                          className={`text-right whitespace-nowrap ${
                             breakdown.isCombinedFreight 
                               ? 'text-gray-400' 
                               : `cursor-pointer hover:bg-gray-200 transition-colors ${
@@ -594,7 +594,7 @@ export default function CostResultTable({
                           )}
                         </TableCell>
                         <TableCell 
-                          className={`text-right ${
+                          className={`text-right whitespace-nowrap ${
                             !breakdown.isCombinedFreight 
                               ? 'text-gray-400' 
                               : `cursor-pointer hover:bg-gray-200 transition-colors ${
@@ -627,7 +627,7 @@ export default function CostResultTable({
                           )}
                         </TableCell>
                         <TableCell 
-                          className={`text-right cursor-pointer hover:bg-gray-200 transition-colors ${
+                          className={`text-right cursor-pointer hover:bg-gray-200 transition-colors whitespace-nowrap ${
                             excludedCosts.weightSurcharge || isCellExcluded(originalIndex, 'weightSurcharge')
                               ? 'text-gray-400 line-through bg-gray-100' 
                               : ''
@@ -645,7 +645,7 @@ export default function CostResultTable({
                           </div>
                         </TableCell>
                         <TableCell 
-                          className={`text-right cursor-pointer hover:bg-gray-200 transition-colors ${
+                          className={`text-right cursor-pointer hover:bg-gray-200 transition-colors whitespace-nowrap ${
                             excludedCosts.dp || isCellExcluded(originalIndex, 'dp')
                               ? 'text-gray-400 line-through bg-gray-100' 
                               : ''
@@ -663,7 +663,7 @@ export default function CostResultTable({
                           </div>
                         </TableCell>
                         <TableCell 
-                          className={`text-right cursor-pointer hover:bg-gray-200 transition-colors ${
+                          className={`text-right cursor-pointer hover:bg-gray-200 transition-colors whitespace-nowrap ${
                             excludedCosts.domesticTransport || isCellExcluded(originalIndex, 'domesticTransport')
                               ? 'text-gray-400 line-through bg-gray-100' 
                               : ''
@@ -676,7 +676,7 @@ export default function CostResultTable({
                         {breakdown.otherCosts && breakdown.otherCosts.map((item, idx) => (
                           <TableCell 
                             key={idx}
-                            className={`text-right cursor-pointer hover:bg-gray-200 transition-colors ${
+                            className={`text-right cursor-pointer hover:bg-gray-200 transition-colors whitespace-nowrap ${
                               excludedCosts[`other_${idx}`] || isCellExcluded(originalIndex, `other_${idx}`)
                                 ? 'text-gray-400 line-through bg-gray-100' 
                                 : ''
@@ -687,12 +687,12 @@ export default function CostResultTable({
                             ${excludedCosts[`other_${idx}`] || isCellExcluded(originalIndex, `other_${idx}`) ? 0 : item.amount}
                           </TableCell>
                         ))}
-                        <TableCell className="text-right font-bold">
+                        <TableCell className="text-right font-bold whitespace-nowrap">
                           <span className={adjustedTotal < 0 ? "text-red-600 font-bold" : ""}>
                             ${adjustedTotal.toLocaleString()}
                           </span>
                         </TableCell>
-                        <TableCell className="text-center">
+                        <TableCell className="text-center whitespace-nowrap">
                           <Button
                             size="sm"
                             variant="outline"

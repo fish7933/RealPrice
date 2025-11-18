@@ -272,9 +272,20 @@ export default function BorderDestinationTable() {
     setValidationError(null);
   };
 
-  const handleDelete = (id: string) => {
-    if (confirm('이 운임을 삭제하시겠습니까?')) {
-      deleteBorderDestinationFreight(id);
+  const handleDeleteAgent = (agent: string, freights: { [destinationId: string]: BorderDestinationFreight | undefined }) => {
+    const freightIds = Object.values(freights).filter(f => f).map(f => f!.id);
+    const destinationNames = Object.keys(freights)
+      .filter(destId => freights[destId])
+      .map(destId => {
+        const dest = destinations.find(d => d.id === destId);
+        return dest ? dest.name : destId;
+      })
+      .join(', ');
+
+    if (confirm(`"${agent}" 트럭 대리점의 모든 운임을 삭제하시겠습니까?\n\n삭제될 목적지: ${destinationNames}\n총 ${freightIds.length}개의 운임이 삭제됩니다.`)) {
+      freightIds.forEach(id => {
+        deleteBorderDestinationFreight(id);
+      });
     }
   };
 
@@ -436,11 +447,7 @@ export default function BorderDestinationTable() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => {
-                              Object.values(freights).forEach(freight => {
-                                if (freight) handleDelete(freight.id);
-                              });
-                            }}
+                            onClick={() => handleDeleteAgent(agent, freights)}
                             className="hover:bg-red-50 hover:text-red-700 transition-all hover:scale-105"
                           >
                             <Trash2 className="h-4 w-4 text-red-600" />

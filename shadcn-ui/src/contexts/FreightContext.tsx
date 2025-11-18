@@ -1081,7 +1081,9 @@ export function FreightProvider({ children }: { children: ReactNode }) {
 
       if (error) throw error;
 
-      setBorderDestinationFreights(borderDestinationFreights.map(freight => freight.id === id ? { ...freight, ...updates } : freight));
+      // Reload the data from database to ensure consistency
+      const reloadedData = await loadBorderDestinationFreights();
+      setBorderDestinationFreights(reloadedData);
     } catch (error) {
       console.error('Error updating border destination freight:', error);
       throw error;

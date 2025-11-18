@@ -4,6 +4,7 @@ import {
   AppVersion,
   RailAgent,
   TruckAgent,
+  ShippingLine,
   SeaFreight,
   AgentSeaFreight,
   DTHC,
@@ -55,6 +56,12 @@ interface FreightContextType {
   addTruckAgent: (agent: Omit<TruckAgent, 'id' | 'createdAt'>) => void;
   updateTruckAgent: (id: string, updates: Partial<TruckAgent>) => void;
   deleteTruckAgent: (id: string) => void;
+  
+  // Shipping Lines
+  shippingLines: ShippingLine[];
+  addShippingLine: (line: Omit<ShippingLine, 'id' | 'createdAt'>) => void;
+  updateShippingLine: (id: string, updates: Partial<ShippingLine>) => void;
+  deleteShippingLine: (id: string) => void;
   
   // Sea Freight
   seaFreights: SeaFreight[];
@@ -160,6 +167,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
   const [users, setUsers] = useState<User[]>([]);
   const [railAgents, setRailAgents] = useState<RailAgent[]>([]);
   const [truckAgents, setTruckAgents] = useState<TruckAgent[]>([]);
+  const [shippingLines, setShippingLines] = useState<ShippingLine[]>([]);
   const [seaFreights, setSeaFreights] = useState<SeaFreight[]>([]);
   const [agentSeaFreights, setAgentSeaFreights] = useState<AgentSeaFreight[]>([]);
   const [dthcList, setDthcList] = useState<DTHC[]>([]);
@@ -208,6 +216,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
       const storedUsers = localStorage.getItem('users');
       const storedRailAgents = localStorage.getItem('railAgents');
       const storedTruckAgents = localStorage.getItem('truckAgents');
+      const storedShippingLines = localStorage.getItem('shippingLines');
       const storedSeaFreights = localStorage.getItem('seaFreights');
       const storedAgentSeaFreights = localStorage.getItem('agentSeaFreights');
       const storedDthcList = localStorage.getItem('dthcList');
@@ -228,6 +237,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
       if (storedUsers) setUsers(JSON.parse(storedUsers));
       if (storedRailAgents) setRailAgents(JSON.parse(storedRailAgents));
       if (storedTruckAgents) setTruckAgents(JSON.parse(storedTruckAgents));
+      if (storedShippingLines) setShippingLines(JSON.parse(storedShippingLines));
       if (storedSeaFreights) setSeaFreights(JSON.parse(storedSeaFreights));
       if (storedAgentSeaFreights) setAgentSeaFreights(JSON.parse(storedAgentSeaFreights));
       if (storedDthcList) setDthcList(JSON.parse(storedDthcList));
@@ -254,6 +264,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
   useEffect(() => { localStorage.setItem('users', JSON.stringify(users)); }, [users]);
   useEffect(() => { localStorage.setItem('railAgents', JSON.stringify(railAgents)); }, [railAgents]);
   useEffect(() => { localStorage.setItem('truckAgents', JSON.stringify(truckAgents)); }, [truckAgents]);
+  useEffect(() => { localStorage.setItem('shippingLines', JSON.stringify(shippingLines)); }, [shippingLines]);
   useEffect(() => { localStorage.setItem('seaFreights', JSON.stringify(seaFreights)); }, [seaFreights]);
   useEffect(() => { localStorage.setItem('agentSeaFreights', JSON.stringify(agentSeaFreights)); }, [agentSeaFreights]);
   useEffect(() => { localStorage.setItem('dthcList', JSON.stringify(dthcList)); }, [dthcList]);
@@ -305,6 +316,18 @@ export function FreightProvider({ children }: { children: ReactNode }) {
   };
   const deleteTruckAgent = (id: string) => {
     setTruckAgents(truckAgents.filter(agent => agent.id !== id));
+  };
+
+  // Shipping Line management
+  const addShippingLine = (line: Omit<ShippingLine, 'id' | 'createdAt'>) => {
+    const newLine: ShippingLine = { ...line, id: crypto.randomUUID(), createdAt: new Date().toISOString() };
+    setShippingLines([...shippingLines, newLine]);
+  };
+  const updateShippingLine = (id: string, updates: Partial<ShippingLine>) => {
+    setShippingLines(shippingLines.map(line => line.id === id ? { ...line, ...updates } : line));
+  };
+  const deleteShippingLine = (id: string) => {
+    setShippingLines(shippingLines.filter(line => line.id !== id));
   };
 
   // Sea Freight management
@@ -562,6 +585,10 @@ export function FreightProvider({ children }: { children: ReactNode }) {
     addTruckAgent,
     updateTruckAgent,
     deleteTruckAgent,
+    shippingLines,
+    addShippingLine,
+    updateShippingLine,
+    deleteShippingLine,
     seaFreights,
     addSeaFreight,
     updateSeaFreight,

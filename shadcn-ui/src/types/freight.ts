@@ -32,6 +32,15 @@ export interface TruckAgent {
   createdAt: string;
 }
 
+// Shipping Line types
+export interface ShippingLine {
+  id: string;
+  name: string;
+  code?: string;
+  description?: string;
+  createdAt: string;
+}
+
 // Port and Destination types
 export interface Port {
   id: string;

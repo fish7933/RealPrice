@@ -4,7 +4,7 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Calculator, Clock, Ship, Weight, Package, DollarSign, Plus, X, Info, AlertTriangle, Sparkles } from 'lucide-react';
+import { Calculator, Clock, Ship, Weight, Package, DollarSign, Plus, X, AlertTriangle, Sparkles } from 'lucide-react';
 import { CostCalculationInput, Port, Destination, SeaFreight, CostCalculationResult } from '@/types/freight';
 
 interface CostInputFormProps {
@@ -96,7 +96,7 @@ export default function CostInputForm({
               : "border-2 border-purple-300 hover:bg-purple-50 flex items-center justify-center"}
           >
             <Clock className="h-4 w-4 mr-2" />
-            {historicalDate ? '날짜 변경' : '날짜 선택'}
+            과거로 출발
           </Button>
         </div>
       </div>
@@ -186,13 +186,15 @@ export default function CostInputForm({
         </div>
       </div>
 
-      {/* Cost Details Section */}
+      {/* Cost Details Section - 기타비용 통합 */}
       <div className="p-5 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border-2 border-green-200">
         <div className="flex items-center gap-2 mb-4">
           <DollarSign className="h-5 w-5 text-green-600" />
           <h3 className="font-bold text-lg text-green-900">비용 상세</h3>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        
+        {/* 기본 비용 입력 */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           <div className="space-y-2">
             <Label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
               <Weight className="h-4 w-4 text-green-600" />
@@ -252,59 +254,61 @@ export default function CostInputForm({
             </p>
           </div>
         </div>
-      </div>
 
-      {/* Other Costs Section */}
-      <div className="p-5 bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl border-2 border-amber-200">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <Plus className="h-5 w-5 text-amber-600" />
-            <h3 className="font-bold text-lg text-amber-900">기타비용</h3>
+        {/* 기타비용 섹션 */}
+        <div className="border-t-2 border-green-300 pt-4">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Plus className="h-4 w-4 text-green-600" />
+              <h4 className="font-semibold text-sm text-green-900">기타비용</h4>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={addOtherCost}
+              className="h-8 text-xs border-2 border-green-300 hover:bg-green-100 flex items-center justify-center"
+            >
+              <Plus className="h-3 w-3 mr-1" />
+              항목 추가
+            </Button>
           </div>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={addOtherCost}
-            className="border-2 border-amber-300 hover:bg-amber-100 flex items-center justify-center"
-          >
-            <Plus className="h-4 w-4 mr-1" />
-            항목 추가
-          </Button>
+          
+          {input.otherCosts.length > 0 ? (
+            <div className="space-y-2">
+              {input.otherCosts.map((cost, index) => (
+                <div key={index} className="flex gap-2 items-center">
+                  <Input
+                    placeholder="비용 항목 (예: 통관비용)"
+                    value={cost.category}
+                    onChange={(e) => updateOtherCost(index, 'category', e.target.value)}
+                    className="flex-1 border-2 border-green-200"
+                  />
+                  <Input
+                    type="number"
+                    placeholder="금액 (USD)"
+                    value={cost.amount || ''}
+                    onChange={(e) => updateOtherCost(index, 'amount', Number(e.target.value))}
+                    className="w-32 border-2 border-green-200"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => removeOtherCost(index)}
+                    className="h-10 w-10 p-0 hover:bg-red-100 flex items-center justify-center"
+                  >
+                    <X className="h-4 w-4 text-red-600" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-xs text-gray-500">
+              통관비용, 보험료 등 추가 비용을 입력하세요
+            </p>
+          )}
         </div>
-        {input.otherCosts.length > 0 && (
-          <div className="space-y-2">
-            {input.otherCosts.map((cost, index) => (
-              <div key={index} className="flex gap-2 items-center">
-                <Input
-                  placeholder="비용 항목 (예: 통관비용)"
-                  value={cost.category}
-                  onChange={(e) => updateOtherCost(index, 'category', e.target.value)}
-                  className="flex-1 border-2 border-amber-200"
-                />
-                <Input
-                  type="number"
-                  placeholder="금액 (USD)"
-                  value={cost.amount || ''}
-                  onChange={(e) => updateOtherCost(index, 'amount', Number(e.target.value))}
-                  className="w-32 border-2 border-amber-200"
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => removeOtherCost(index)}
-                  className="h-10 w-10 p-0 hover:bg-red-100 flex items-center justify-center"
-                >
-                  <X className="h-4 w-4 text-red-600" />
-                </Button>
-              </div>
-            ))}
-          </div>
-        )}
-        <p className="text-xs text-gray-500 mt-3">
-          통관비용, 보험료 등 추가 비용을 입력하세요
-        </p>
       </div>
 
       {error && (
@@ -341,22 +345,6 @@ export default function CostInputForm({
           초기화
         </Button>
       </div>
-
-      <Alert className="bg-gradient-to-r from-blue-50 to-cyan-50 border-2 border-blue-200">
-        <div className="flex items-start gap-2">
-          <Info className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
-          <AlertDescription className="text-sm">
-            <strong className="text-blue-900">자동 계산 항목:</strong>
-            <ul className="mt-2 space-y-1">
-              <li>• <strong>D/O(DTHC):</strong> 대리점별로 설정된 금액이 자동 적용됩니다</li>
-              <li>• <strong>철도+트럭 통합 운임:</strong> 설정된 경우 철도+트럭 분리 운임 대신 철도+트럭 통합 운임이 적용됩니다</li>
-              <li>• <strong>중량할증:</strong> 입력한 중량에 따라 자동 계산됩니다</li>
-              <li>• <strong>해상운임:</strong> 같은 항로에 여러 운임이 있는 경우 복수 선택할 수 있습니다</li>
-              <li>• <strong>DP:</strong> 관리자 대시보드에서 설정한 부산/인천 DP 금액이 자동 적용됩니다</li>
-            </ul>
-          </AlertDescription>
-        </div>
-      </Alert>
     </div>
   );
 }

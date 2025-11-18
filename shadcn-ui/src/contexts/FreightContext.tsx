@@ -27,7 +27,7 @@ import {
 } from '@/types/freight';
 import { createClient } from '@supabase/supabase-js';
 import { calculateCost } from './freight/freightCalculations';
-import { getHistoricalSnapshot, getDPCost as getDPCostHelper, getSeaFreightOptions as getSeaFreightOptionsHelper } from './freight/freightHelpers';
+import { getHistoricalSnapshot, getDPCost as getDPCostHelper, getSeaFreightOptions as getSeaFreightOptionsHelper, getAuditLogsByType as getAuditLogsByTypeHelper } from './freight/freightHelpers';
 import {
   loadShippingLines,
   loadPorts,
@@ -166,6 +166,7 @@ interface FreightContextType {
   // Freight Audit Logs
   freightAuditLogs: FreightAuditLog[];
   addFreightAuditLog: (log: Omit<FreightAuditLog, 'id' | 'timestamp'>) => void;
+  getAuditLogsByType: (entityType: FreightAuditLog['entityType']) => FreightAuditLog[];
   
   // Audit Logs (legacy)
   auditLogs: AuditLog[];
@@ -552,6 +553,10 @@ export function FreightProvider({ children }: { children: ReactNode }) {
     setFreightAuditLogs([newLog, ...freightAuditLogs]);
   };
 
+  const getAuditLogsByType = (entityType: FreightAuditLog['entityType']): FreightAuditLog[] => {
+    return getAuditLogsByTypeHelper(freightAuditLogs, entityType);
+  };
+
   // Audit Log management (legacy)
   const addAuditLog = (log: Omit<AuditLog, 'id' | 'timestamp'>) => {
     const newLog: AuditLog = { ...log, id: crypto.randomUUID(), timestamp: new Date().toISOString() };
@@ -712,6 +717,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
     deleteSystemSetting,
     freightAuditLogs,
     addFreightAuditLog,
+    getAuditLogsByType,
     auditLogs,
     addAuditLog,
     calculationHistory,

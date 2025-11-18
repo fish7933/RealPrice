@@ -33,7 +33,8 @@ import {
   getSeaFreightOptions as getSeaFreightOptionsHelper, 
   getAuditLogsByType as getAuditLogsByTypeHelper,
   getDefaultBorderCity as getDefaultBorderCityHelper,
-  getSystemSettingValue as getSystemSettingValueHelper
+  getSystemSettingValue as getSystemSettingValueHelper,
+  detectChanges
 } from './freight/freightHelpers';
 import {
   loadShippingLines,
@@ -54,7 +55,7 @@ import {
   loadBorderCities,
   loadSystemSettings,
 } from './freight/freightLoaders';
-import { deleteCalculationHistory as deleteCalculationHistoryOp, addCalculationHistory as addCalculationHistoryOp } from './freight/freightOperations';
+import { deleteCalculationHistory as deleteCalculationHistoryOp, addCalculationHistory as addCalculationHistoryOp, createAuditLog } from './freight/freightOperations';
 import { useAuth } from './AuthContext';
 import { supabase as supabaseClient, TABLES } from '@/lib/supabase';
 
@@ -1121,10 +1122,14 @@ export function FreightProvider({ children }: { children: ReactNode }) {
     updates?: Partial<BorderDestinationFreight>;
   }>) => {
     try {
-      // Execute all operations sequentially
+      console.log('🔄 [BATCH] Starting batch operations for border destination freights:', operations.length);
+      
+      // Execute all operations sequentially and create audit logs
       for (const op of operations) {
         if (op.type === 'add' && op.data) {
-          await supabaseClient
+          console.log('➕ [BATCH] Adding freight:', op.data);
+          
+          const { data, error } = await supabaseClient
             .from(TABLES.BORDER_DESTINATION_FREIGHTS)
             .insert({
               agent: op.data.agent,
@@ -1133,9 +1138,44 @@ export function FreightProvider({ children }: { children: ReactNode }) {
               version: op.data.version,
               valid_from: op.data.validFrom,
               valid_to: op.data.validTo,
-            });
+            })
+            .select()
+            .single();
+
+          if (error) throw error;
+
+          if (data) {
+            const newFreight: BorderDestinationFreight = {
+              id: data.id,
+              agent: data.agent,
+              destinationId: data.destination_id,
+              rate: data.rate,
+              version: data.version,
+              validFrom: data.valid_from,
+              validTo: data.valid_to,
+              createdAt: data.created_at,
+            };
+
+            // Create audit log for add operation
+            await createAuditLog(
+              'borderDestinationFreight',
+              newFreight.id,
+              'create',
+              detectChanges(null, newFreight as unknown as Record<string, unknown>),
+              newFreight as unknown as Record<string, unknown>,
+              user,
+              op.data.version
+            );
+            
+            console.log('✅ [BATCH] Freight added with audit log:', newFreight.id);
+          }
         } else if (op.type === 'update' && op.id && op.updates) {
-          await supabaseClient
+          console.log('🔄 [BATCH] Updating freight:', op.id, op.updates);
+          
+          // Get old freight data for audit log
+          const oldFreight = borderDestinationFreights.find(f => f.id === op.id);
+          
+          const { data, error } = await supabaseClient
             .from(TABLES.BORDER_DESTINATION_FREIGHTS)
             .update({
               agent: op.updates.agent,
@@ -1145,20 +1185,79 @@ export function FreightProvider({ children }: { children: ReactNode }) {
               valid_from: op.updates.validFrom,
               valid_to: op.updates.validTo,
             })
-            .eq('id', op.id);
+            .eq('id', op.id)
+            .select()
+            .single();
+
+          if (error) throw error;
+
+          if (data && oldFreight) {
+            const updatedFreight: BorderDestinationFreight = {
+              id: data.id,
+              agent: data.agent,
+              destinationId: data.destination_id,
+              rate: data.rate,
+              version: data.version,
+              validFrom: data.valid_from,
+              validTo: data.valid_to,
+              createdAt: data.created_at,
+            };
+
+            // Create audit log for update operation
+            await createAuditLog(
+              'borderDestinationFreight',
+              op.id,
+              'update',
+              detectChanges(oldFreight as unknown as Record<string, unknown>, updatedFreight as unknown as Record<string, unknown>),
+              updatedFreight as unknown as Record<string, unknown>,
+              user,
+              op.updates.version
+            );
+            
+            console.log('✅ [BATCH] Freight updated with audit log:', op.id);
+          }
         } else if (op.type === 'delete' && op.id) {
-          await supabaseClient
+          console.log('🗑️ [BATCH] Deleting freight:', op.id);
+          
+          // Get freight data before deletion for audit log
+          const freight = borderDestinationFreights.find(f => f.id === op.id);
+          
+          const { error } = await supabaseClient
             .from(TABLES.BORDER_DESTINATION_FREIGHTS)
             .delete()
             .eq('id', op.id);
+
+          if (error) throw error;
+
+          if (freight) {
+            // Create audit log for delete operation
+            await createAuditLog(
+              'borderDestinationFreight',
+              op.id,
+              'delete',
+              [],
+              freight as unknown as Record<string, unknown>,
+              user,
+              freight.version
+            );
+            
+            console.log('✅ [BATCH] Freight deleted with audit log:', op.id);
+          }
         }
       }
 
       // Reload data once after all operations
+      console.log('🔄 [BATCH] Reloading data after batch operations...');
       const reloadedData = await loadBorderDestinationFreights();
       setBorderDestinationFreights(reloadedData);
+      
+      // Reload audit logs to show new entries
+      const reloadedAuditLogs = await loadAuditLogs();
+      setFreightAuditLogs(reloadedAuditLogs);
+      
+      console.log('✅ [BATCH] Batch operations completed successfully');
     } catch (error) {
-      console.error('Error in batch operations:', error);
+      console.error('❌ [BATCH] Error in batch operations:', error);
       throw error;
     }
   };

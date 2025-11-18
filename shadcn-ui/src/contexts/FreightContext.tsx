@@ -27,7 +27,14 @@ import {
 } from '@/types/freight';
 import { createClient } from '@supabase/supabase-js';
 import { calculateCost } from './freight/freightCalculations';
-import { getHistoricalSnapshot, getDPCost as getDPCostHelper, getSeaFreightOptions as getSeaFreightOptionsHelper, getAuditLogsByType as getAuditLogsByTypeHelper } from './freight/freightHelpers';
+import { 
+  getHistoricalSnapshot, 
+  getDPCost as getDPCostHelper, 
+  getSeaFreightOptions as getSeaFreightOptionsHelper, 
+  getAuditLogsByType as getAuditLogsByTypeHelper,
+  getDefaultBorderCity as getDefaultBorderCityHelper,
+  getSystemSettingValue as getSystemSettingValueHelper
+} from './freight/freightHelpers';
 import {
   loadShippingLines,
   loadPorts,
@@ -156,12 +163,14 @@ interface FreightContextType {
   addBorderCity: (city: Omit<BorderCity, 'id'>) => void;
   updateBorderCity: (id: string, updates: Partial<BorderCity>) => void;
   deleteBorderCity: (id: string) => void;
+  getDefaultBorderCity: () => BorderCity | undefined;
   
   // System Settings
   systemSettings: SystemSetting[];
   addSystemSetting: (setting: Omit<SystemSetting, 'id' | 'createdAt' | 'updatedAt'>) => void;
   updateSystemSetting: (id: string, updates: Partial<SystemSetting>) => void;
   deleteSystemSetting: (id: string) => void;
+  getSystemSettingValue: (key: string, defaultValue?: string) => string;
   
   // Freight Audit Logs
   freightAuditLogs: FreightAuditLog[];
@@ -527,6 +536,9 @@ export function FreightProvider({ children }: { children: ReactNode }) {
   const deleteBorderCity = (id: string) => {
     setBorderCities(borderCities.filter(city => city.id !== id));
   };
+  const getDefaultBorderCity = (): BorderCity | undefined => {
+    return getDefaultBorderCityHelper(borderCities);
+  };
 
   // System Setting management
   const addSystemSetting = (setting: Omit<SystemSetting, 'id' | 'createdAt' | 'updatedAt'>) => {
@@ -545,6 +557,9 @@ export function FreightProvider({ children }: { children: ReactNode }) {
   };
   const deleteSystemSetting = (id: string) => {
     setSystemSettings(systemSettings.filter(setting => setting.id !== id));
+  };
+  const getSystemSettingValue = (key: string, defaultValue: string = ''): string => {
+    return getSystemSettingValueHelper(systemSettings, key, defaultValue);
   };
 
   // Freight Audit Log management
@@ -711,10 +726,12 @@ export function FreightProvider({ children }: { children: ReactNode }) {
     addBorderCity,
     updateBorderCity,
     deleteBorderCity,
+    getDefaultBorderCity,
     systemSettings,
     addSystemSetting,
     updateSystemSetting,
     deleteSystemSetting,
+    getSystemSettingValue,
     freightAuditLogs,
     addFreightAuditLog,
     getAuditLogsByType,

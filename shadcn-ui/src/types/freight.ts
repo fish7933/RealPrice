@@ -32,47 +32,145 @@ export interface TruckAgent {
   createdAt: string;
 }
 
+// Port and Destination types
+export interface Port {
+  id: string;
+  code: string;
+  name: string;
+  country: string;
+}
+
+export interface Destination {
+  id: string;
+  name: string;
+  code: string;
+  province?: string;
+  city?: string;
+}
+
+export interface BorderCity {
+  id: string;
+  name: string;
+  code: string;
+  isDefault: boolean;
+  isActive: boolean;
+}
+
 // Freight types
 export interface SeaFreight {
   id: string;
-  departurePort: string;
-  arrivalPort: string;
-  containerSize: string;
-  price: number;
-  currency: string;
+  carrier: string;
+  pol: string;
+  pod: string;
+  rate: number;
+  localCharge?: number;
+  llocal?: number;
   validFrom: string;
   validTo: string;
   createdAt: string;
-  railAgentId: string;
+  version?: number;
+  // Legacy fields for backward compatibility
+  departurePort?: string;
+  arrivalPort?: string;
+  containerSize?: string;
+  price?: number;
+  currency?: string;
+  railAgentId?: string;
   railAgentName?: string;
+}
+
+export interface AgentSeaFreight {
+  id: string;
+  agent: string;
+  carrier?: string;
+  pol: string;
+  pod: string;
+  rate: number;
+  localCharge?: number;
+  llocal?: number;
+  validFrom: string;
+  validTo: string;
+  createdAt: string;
+  version?: number;
+}
+
+export interface DTHC {
+  id: string;
+  agent: string;
+  pol: string;
+  pod: string;
+  amount: number;
+  validFrom: string;
+  validTo: string;
+  createdAt: string;
+}
+
+export interface DPCost {
+  id: string;
+  port: string;
+  amount: number;
+  validFrom: string;
+  validTo: string;
+  createdAt: string;
+}
+
+export interface CombinedFreight {
+  id: string;
+  agent: string;
+  pol: string;
+  pod: string;
+  destinationId: string;
+  rate: number;
+  validFrom: string;
+  validTo: string;
+  createdAt: string;
 }
 
 export interface PortBorderFreight {
   id: string;
-  arrivalPort: string;
-  borderPoint: string;
-  containerSize: string;
-  price: number;
-  currency: string;
+  agent: string;
+  pod: string;
+  rate: number;
   validFrom: string;
   validTo: string;
   createdAt: string;
-  railAgentId: string;
+  // Legacy fields for backward compatibility
+  arrivalPort?: string;
+  borderPoint?: string;
+  containerSize?: string;
+  price?: number;
+  currency?: string;
+  railAgentId?: string;
   railAgentName?: string;
 }
 
 export interface BorderDestinationFreight {
   id: string;
-  borderPoint: string;
-  destination: string;
-  containerSize: string;
-  price: number;
-  currency: string;
+  agent: string;
+  destinationId: string;
+  rate: number;
   validFrom: string;
   validTo: string;
   createdAt: string;
-  truckAgentId: string;
+  // Legacy fields for backward compatibility
+  borderPoint?: string;
+  destination?: string;
+  containerSize?: string;
+  price?: number;
+  currency?: string;
+  truckAgentId?: string;
   truckAgentName?: string;
+}
+
+export interface WeightSurchargeRule {
+  id: string;
+  agent: string;
+  minWeight: number;
+  maxWeight: number;
+  surcharge: number;
+  validFrom: string;
+  validTo: string;
+  createdAt: string;
 }
 
 export interface WeightSurcharge {
@@ -91,7 +189,33 @@ export interface WeightSurcharge {
   createdAt: string;
 }
 
+// System settings
+export interface SystemSetting {
+  id: string;
+  settingKey: string;
+  settingValue: string;
+  description?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // Audit log types
+export interface FreightAuditLog {
+  id: string;
+  userId: string;
+  username: string;
+  action: 'create' | 'update' | 'delete';
+  entityType: 'seaFreight' | 'agentSeaFreight' | 'dthc' | 'dpCost' | 'combinedFreight' | 'portBorderFreight' | 'borderDestinationFreight' | 'weightSurcharge';
+  entityId: string;
+  entitySnapshot: Record<string, unknown>;
+  changes: Array<{
+    field: string;
+    oldValue?: string | number | boolean;
+    newValue?: string | number | boolean;
+  }>;
+  timestamp: string;
+}
+
 export interface AuditLog {
   id: string;
   userId: string;
@@ -103,6 +227,78 @@ export interface AuditLog {
   timestamp: string;
 }
 
+// Historical snapshot
+export interface HistoricalFreightSnapshot {
+  date: string;
+  seaFreights: SeaFreight[];
+  agentSeaFreights: AgentSeaFreight[];
+  dthcList: DTHC[];
+  dpCosts: DPCost[];
+  combinedFreights: CombinedFreight[];
+  portBorderFreights: PortBorderFreight[];
+  borderDestinationFreights: BorderDestinationFreight[];
+  weightSurchargeRules: WeightSurchargeRule[];
+}
+
+// Calculation types
+export interface OtherCost {
+  name: string;
+  amount: number;
+}
+
+export interface CostCalculationInput {
+  pol: string;
+  pod: string;
+  destinationId: string;
+  weight: number;
+  domesticTransport: number;
+  otherCosts: OtherCost[];
+  selectedSeaFreightId?: string;
+  historicalDate?: string;
+}
+
+export interface AgentCostBreakdown {
+  agent: string;
+  railAgent: string;
+  truckAgent: string;
+  seaFreight: number;
+  localCharge: number;
+  llocal: number;
+  seaFreightId?: string;
+  seaFreightCarrier?: string;
+  isAgentSpecificSeaFreight: boolean;
+  dthc: number;
+  portBorder: number;
+  borderDestination: number;
+  combinedFreight: number;
+  isCombinedFreight: boolean;
+  weightSurcharge: number;
+  dp: number;
+  domesticTransport: number;
+  otherCosts: OtherCost[];
+  total: number;
+  hasExpiredRates?: boolean;
+  expiredRateDetails?: string[];
+}
+
+export interface CostCalculationResult {
+  input: CostCalculationInput;
+  breakdown: AgentCostBreakdown[];
+  lowestCostAgent: string;
+  lowestCost: number;
+  isHistorical: boolean;
+  historicalDate?: string;
+}
+
+export interface CalculationHistory {
+  id: string;
+  timestamp: string;
+  input: CostCalculationInput;
+  result: CostCalculationResult;
+  userId?: string;
+  username?: string;
+}
+
 // Local charge types
 export interface LocalCharge {
   id: string;
@@ -111,7 +307,7 @@ export interface LocalCharge {
   currency: string;
 }
 
-// Calculation types
+// Legacy calculation result type
 export interface CalculationResult {
   railAgentId: string;
   railAgentName: string;

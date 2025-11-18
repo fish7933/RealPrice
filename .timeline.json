@@ -1,5 +1,5 @@
 {
-  "timeline_index": 1205,
+  "timeline_index": 1207,
   "planner": {},
   "gallery_last_file": {},
   "timeline_status": {
@@ -1206,7 +1206,9 @@
     "1202": 1,
     "1203": 1,
     "1204": 1,
-    "1205": 0
+    "1205": 1,
+    "1206": 1,
+    "1207": 1
   },
   "preview_servers": {},
   "preview_server": {

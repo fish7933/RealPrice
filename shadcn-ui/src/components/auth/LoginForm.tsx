@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useFreight } from '@/contexts/FreightContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Ship, Lock, User, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Ship, Lock, User, Sparkles } from 'lucide-react';
 
 export default function LoginForm() {
   const [username, setUsername] = useState('');
@@ -14,6 +15,7 @@ export default function LoginForm() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
+  const { appVersion } = useFreight();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -47,6 +49,20 @@ export default function LoginForm() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Format date to Seoul timezone (KST)
+  const formatSeoulDate = (isoDate: string) => {
+    const date = new Date(isoDate);
+    return date.toLocaleString('ko-KR', {
+      timeZone: 'Asia/Seoul',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    });
   };
 
   return (
@@ -123,47 +139,21 @@ export default function LoginForm() {
             </Button>
           </form>
 
-          {/* Version and Update Information */}
-          <div className="mt-6 pt-6 border-t border-gray-200">
-            <div className="space-y-3 text-sm">
-              <div className="flex justify-between items-center p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg">
-                <span className="text-gray-700 font-semibold">프로그램 버전:</span>
-                <span className="text-blue-600 font-bold text-base">v2.5.0</span>
-              </div>
-              <div className="space-y-2">
-                <div className="text-gray-700 font-semibold flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 text-purple-600" />
-                  최근 업데이트:
+          {/* Version Information */}
+          {appVersion && (
+            <div className="mt-6 pt-6 border-t border-gray-200">
+              <div className="space-y-3 text-sm">
+                <div className="flex justify-between items-center p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg">
+                  <span className="text-gray-700 font-semibold">프로그램 버전:</span>
+                  <span className="text-blue-600 font-bold text-base">{appVersion.version}</span>
                 </div>
-                <ul className="space-y-2 text-gray-700">
-                  <li className="flex items-start p-2 hover:bg-blue-50 rounded transition-colors">
-                    <CheckCircle2 className="h-4 w-4 mr-2 mt-0.5 text-blue-600 flex-shrink-0" />
-                    <span>사용자 프로필 설정 및 비밀번호 변경 기능 추가</span>
-                  </li>
-                  <li className="flex items-start p-2 hover:bg-purple-50 rounded transition-colors">
-                    <CheckCircle2 className="h-4 w-4 mr-2 mt-0.5 text-purple-600 flex-shrink-0" />
-                    <span>감사 로그 페이지네이션 및 타임머신 기능 개선</span>
-                  </li>
-                  <li className="flex items-start p-2 hover:bg-pink-50 rounded transition-colors">
-                    <CheckCircle2 className="h-4 w-4 mr-2 mt-0.5 text-pink-600 flex-shrink-0" />
-                    <span>비용 계산기 로컬 차지 입력 기능 강화</span>
-                  </li>
-                  <li className="flex items-start p-2 hover:bg-cyan-50 rounded transition-colors">
-                    <CheckCircle2 className="h-4 w-4 mr-2 mt-0.5 text-cyan-600 flex-shrink-0" />
-                    <span>해상 운임 테이블 검색 필터 및 페이지네이션 추가</span>
-                  </li>
-                  <li className="flex items-start p-2 hover:bg-indigo-50 rounded transition-colors">
-                    <CheckCircle2 className="h-4 w-4 mr-2 mt-0.5 text-indigo-600 flex-shrink-0" />
-                    <span>슈퍼관리자 권한 관리 개선</span>
-                  </li>
-                </ul>
-              </div>
-              <div className="flex justify-between items-center p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg">
-                <span className="text-gray-700 font-semibold">업데이트 날짜:</span>
-                <span className="text-purple-600 font-bold">2025-01-15</span>
+                <div className="flex justify-between items-center p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg">
+                  <span className="text-gray-700 font-semibold">업데이트 날짜:</span>
+                  <span className="text-purple-600 font-bold">{formatSeoulDate(appVersion.updatedAt)}</span>
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </CardContent>
       </Card>
     </div>

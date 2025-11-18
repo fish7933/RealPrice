@@ -157,6 +157,11 @@ export default function CostResultTable({
     return breakdown.expiredRateDetails?.includes(field) || false;
   };
 
+  // Helper function to truncate text to 3 characters
+  const truncateText = (text: string, maxLength: number = 3): string => {
+    return text.substring(0, maxLength);
+  };
+
   const renderResultTable = (resultData: CostCalculationResult, showDpColumn: boolean = false) => {
     const lowestCostInfo = getLowestCostAgent(resultData.breakdown);
     const otherCostItems = resultData.breakdown.length > 0 && resultData.breakdown[0].otherCosts ? resultData.breakdown[0].otherCosts : [];
@@ -167,8 +172,8 @@ export default function CostResultTable({
         <DebugLLocal breakdown={resultData.breakdown} />
 
         <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
-          <div className="flex items-center gap-2 text-xs text-blue-900 mb-1.5">
-            <Info className="h-3.5 w-3.5" />
+          <div className="flex items-center gap-2 text-sm text-blue-900 mb-2">
+            <Info className="h-4 w-4" />
             <span className="font-semibold">비용 항목 제외 기능:</span>
           </div>
           <div className="text-xs text-blue-700 space-y-0.5">
@@ -214,7 +219,7 @@ export default function CostResultTable({
             <div className="border rounded-lg overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow className="text-xs">
+                  <TableRow className="text-sm">
                     <TableHead 
                       className="cursor-pointer hover:bg-gray-100 transition-colors whitespace-nowrap w-32 p-2"
                       onClick={() => onSort('agent')}
@@ -223,23 +228,23 @@ export default function CostResultTable({
                         <span>조합</span>
                         {sortConfig.key === 'agent' && (
                           sortConfig.direction === 'asc' ? 
-                            <ArrowUp className="h-3 w-3" /> : 
-                            <ArrowDown className="h-3 w-3" />
+                            <ArrowUp className="h-3.5 w-3.5" /> : 
+                            <ArrowDown className="h-3.5 w-3.5" />
                         )}
                       </div>
                     </TableHead>
                     {showDpColumn && (
                       <TableHead className="text-center whitespace-nowrap w-24 p-2">
                         <div className="flex flex-col items-center gap-0.5">
-                          <Package className="h-3 w-3" />
-                          <span className="text-[10px]">유형</span>
+                          <Package className="h-3.5 w-3.5" />
+                          <span className="text-xs">유형</span>
                         </div>
                       </TableHead>
                     )}
                     <TableHead className="text-center whitespace-nowrap w-16 p-2">
                       <div className="flex flex-col items-center gap-0.5">
-                        <Ship className="h-3 w-3" />
-                        <span className="text-[10px]">선사</span>
+                        <Ship className="h-3.5 w-3.5" />
+                        <span className="text-xs">선사</span>
                       </div>
                     </TableHead>
                     <TableHead 
@@ -248,14 +253,14 @@ export default function CostResultTable({
                     >
                       <div className="flex flex-col items-center gap-0.5">
                         <div className="flex items-center gap-0.5">
-                          <Train className="h-3 w-3" />
+                          <Train className="h-3.5 w-3.5" />
                           {sortConfig.key === 'rail' && (
                             sortConfig.direction === 'asc' ? 
-                              <ArrowUp className="h-2.5 w-2.5" /> : 
-                              <ArrowDown className="h-2.5 w-2.5" />
+                              <ArrowUp className="h-3 w-3" /> : 
+                              <ArrowDown className="h-3 w-3" />
                           )}
                         </div>
-                        <span className="text-[10px]">철도</span>
+                        <span className="text-xs">철도</span>
                       </div>
                     </TableHead>
                     <TableHead 
@@ -264,14 +269,14 @@ export default function CostResultTable({
                     >
                       <div className="flex flex-col items-center gap-0.5">
                         <div className="flex items-center gap-0.5">
-                          <Truck className="h-3 w-3" />
+                          <Truck className="h-3.5 w-3.5" />
                           {sortConfig.key === 'truck' && (
                             sortConfig.direction === 'asc' ? 
-                              <ArrowUp className="h-2.5 w-2.5" /> : 
-                              <ArrowDown className="h-2.5 w-2.5" />
+                              <ArrowUp className="h-3 w-3" /> : 
+                              <ArrowDown className="h-3 w-3" />
                           )}
                         </div>
-                        <span className="text-[10px]">트럭</span>
+                        <span className="text-xs">트럭</span>
                       </div>
                     </TableHead>
                     <TableHead 
@@ -280,8 +285,8 @@ export default function CostResultTable({
                       title="클릭하여 전체 제외/포함"
                     >
                       <div className="flex flex-col items-end gap-0.5">
-                        <Ship className="h-3 w-3" />
-                        <span className="text-[10px]">해상</span>
+                        <Ship className="h-3.5 w-3.5" />
+                        <span className="text-xs">해상</span>
                       </div>
                     </TableHead>
                     <TableHead 
@@ -290,8 +295,8 @@ export default function CostResultTable({
                       title="클릭하여 전체 제외/포함"
                     >
                       <div className="flex flex-col items-end gap-0.5">
-                        <DollarSign className="h-3 w-3" />
-                        <span className="text-[10px]">LOCAL</span>
+                        <DollarSign className="h-3.5 w-3.5" />
+                        <span className="text-xs">LOCAL</span>
                       </div>
                     </TableHead>
                     <TableHead 
@@ -300,8 +305,8 @@ export default function CostResultTable({
                       title="클릭하여 전체 제외/포함"
                     >
                       <div className="flex flex-col items-end gap-0.5">
-                        <FileText className="h-3 w-3" />
-                        <span className="text-[10px]">D/O</span>
+                        <FileText className="h-3.5 w-3.5" />
+                        <span className="text-xs">D/O</span>
                       </div>
                     </TableHead>
                     <TableHead 
@@ -310,8 +315,8 @@ export default function CostResultTable({
                       title="클릭하여 전체 제외/포함"
                     >
                       <div className="flex flex-col items-end gap-0.5">
-                        <Train className="h-3 w-3" />
-                        <span className="text-[10px]">철도</span>
+                        <Train className="h-3.5 w-3.5" />
+                        <span className="text-xs">철도</span>
                       </div>
                     </TableHead>
                     <TableHead 
@@ -320,8 +325,8 @@ export default function CostResultTable({
                       title="클릭하여 전체 제외/포함"
                     >
                       <div className="flex flex-col items-end gap-0.5">
-                        <Truck className="h-3 w-3" />
-                        <span className="text-[10px]">트럭</span>
+                        <Truck className="h-3.5 w-3.5" />
+                        <span className="text-xs">트럭</span>
                       </div>
                     </TableHead>
                     <TableHead 
@@ -330,8 +335,8 @@ export default function CostResultTable({
                       title="클릭하여 전체 제외/포함"
                     >
                       <div className="flex flex-col items-end gap-0.5">
-                        <Merge className="h-3 w-3" />
-                        <span className="text-[10px]">통합</span>
+                        <Merge className="h-3.5 w-3.5" />
+                        <span className="text-xs">통합</span>
                       </div>
                     </TableHead>
                     <TableHead 
@@ -340,8 +345,8 @@ export default function CostResultTable({
                       title="클릭하여 전체 제외/포함"
                     >
                       <div className="flex flex-col items-end gap-0.5">
-                        <Weight className="h-3 w-3" />
-                        <span className="text-[10px]">할증</span>
+                        <Weight className="h-3.5 w-3.5" />
+                        <span className="text-xs">할증</span>
                       </div>
                     </TableHead>
                     <TableHead 
@@ -350,8 +355,8 @@ export default function CostResultTable({
                       title="클릭하여 전체 제외/포함"
                     >
                       <div className="flex flex-col items-end gap-0.5">
-                        <Package className="h-3 w-3" />
-                        <span className="text-[10px]">DP</span>
+                        <Package className="h-3.5 w-3.5" />
+                        <span className="text-xs">DP</span>
                       </div>
                     </TableHead>
                     <TableHead 
@@ -360,8 +365,8 @@ export default function CostResultTable({
                       title="클릭하여 전체 제외/포함"
                     >
                       <div className="flex flex-col items-end gap-0.5">
-                        <DollarSign className="h-3 w-3" />
-                        <span className="text-[10px]">국내</span>
+                        <DollarSign className="h-3.5 w-3.5" />
+                        <span className="text-xs">국내</span>
                       </div>
                     </TableHead>
                     {otherCostItems.map((item, index) => (
@@ -372,8 +377,8 @@ export default function CostResultTable({
                         title="클릭하여 전체 제외/포함"
                       >
                         <div className="flex flex-col items-end gap-0.5">
-                          <DollarSign className="h-3 w-3" />
-                          <span className="text-[10px]">{item.category}</span>
+                          <DollarSign className="h-3.5 w-3.5" />
+                          <span className="text-xs">{item.category}</span>
                         </div>
                       </TableHead>
                     ))}
@@ -385,12 +390,12 @@ export default function CostResultTable({
                         <span>총액</span>
                         {sortConfig.key === 'total' && (
                           sortConfig.direction === 'asc' ? 
-                            <ArrowUp className="h-3 w-3" /> : 
-                            <ArrowDown className="h-3 w-3" />
+                            <ArrowUp className="h-3.5 w-3.5" /> : 
+                            <ArrowDown className="h-3.5 w-3.5" />
                         )}
                       </div>
                     </TableHead>
-                    <TableHead className="text-center whitespace-nowrap w-20 p-2 text-[10px]">작업</TableHead>
+                    <TableHead className="text-center whitespace-nowrap w-20 p-2 text-xs">작업</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -402,14 +407,14 @@ export default function CostResultTable({
                     return (
                       <TableRow
                         key={index}
-                        className={`text-xs ${isLowest ? 'bg-green-50 font-semibold' : ''}`}
+                        className={`text-sm ${isLowest ? 'bg-green-50 font-semibold' : ''}`}
                       >
                         <TableCell className="whitespace-nowrap p-2">
                           <div className="flex items-center gap-1">
-                            <span className="font-mono text-[10px]">{generateCombinationCode(breakdown, originalIndex)}</span>
+                            <span className="font-mono text-xs">{generateCombinationCode(breakdown, originalIndex)}</span>
                             {isLowest && (
-                              <span className="flex items-center gap-0.5 text-[9px] bg-green-600 text-white px-1 py-0.5 rounded whitespace-nowrap">
-                                <TrendingDown className="h-2.5 w-2.5" />
+                              <span className="flex items-center gap-0.5 text-[10px] bg-green-600 text-white px-1.5 py-0.5 rounded whitespace-nowrap">
+                                <TrendingDown className="h-3 w-3" />
                                 최저
                               </span>
                             )}
@@ -418,34 +423,31 @@ export default function CostResultTable({
                         {showDpColumn && (
                           <TableCell className="text-center whitespace-nowrap p-2">
                             {breakdown.isCombinedFreight ? (
-                              <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-purple-100 text-purple-700 rounded text-[9px]">
-                                <Merge className="h-2.5 w-2.5" />
+                              <span className="inline-flex items-center gap-0.5 px-2 py-0.5 bg-purple-100 text-purple-700 rounded text-[10px]">
+                                <Merge className="h-3 w-3" />
                                 통합
                               </span>
                             ) : (
-                              <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded text-[9px]">
-                                <Package className="h-2.5 w-2.5" />
+                              <span className="inline-flex items-center gap-0.5 px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-[10px]">
+                                <Package className="h-3 w-3" />
                                 DP
                               </span>
                             )}
                           </TableCell>
                         )}
                         <TableCell className="text-center whitespace-nowrap p-2">
-                          <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-cyan-100 text-cyan-700 rounded text-[9px]">
-                            <Ship className="h-2.5 w-2.5" />
-                            {breakdown.seaFreightCarrier || 'N/A'}
+                          <span className="inline-flex items-center justify-center gap-0.5 px-2 py-0.5 bg-cyan-100 text-cyan-700 rounded text-xs w-14">
+                            {truncateText(breakdown.seaFreightCarrier || 'N/A', 3)}
                           </span>
                         </TableCell>
                         <TableCell className="text-center whitespace-nowrap p-2">
-                          <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded text-[9px]">
-                            <Train className="h-2.5 w-2.5" />
-                            {breakdown.railAgent}
+                          <span className="inline-flex items-center justify-center gap-0.5 px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs w-14">
+                            {truncateText(breakdown.railAgent, 3)}
                           </span>
                         </TableCell>
                         <TableCell className="text-center whitespace-nowrap p-2">
-                          <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-green-100 text-green-700 rounded text-[9px]">
-                            <Truck className="h-2.5 w-2.5" />
-                            {breakdown.truckAgent}
+                          <span className="inline-flex items-center justify-center gap-0.5 px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs w-14">
+                            {truncateText(breakdown.truckAgent, 3)}
                           </span>
                         </TableCell>
                         <TableCell 
@@ -468,12 +470,12 @@ export default function CostResultTable({
                                   ${breakdown.seaFreight}
                                 </span>
                                 {isExpired(breakdown, '해상운임') && (
-                                  <AlertTriangle className="h-2.5 w-2.5 text-red-600" title="만료된 운임" />
+                                  <AlertTriangle className="h-3 w-3 text-red-600" title="만료된 운임" />
                                 )}
                               </>
                             )}
                             {breakdown.isAgentSpecificSeaFreight && !excludedCosts.seaFreight && !isCellExcluded(originalIndex, 'seaFreight') && !isExpired(breakdown, '해상운임') && (
-                              <Star className="h-2.5 w-2.5 text-amber-600" />
+                              <Star className="h-3 w-3 text-amber-600" />
                             )}
                           </div>
                         </TableCell>
@@ -495,14 +497,14 @@ export default function CostResultTable({
                                   ${breakdown.llocal || 0}
                                 </span>
                                 {isExpired(breakdown, 'L.LOCAL') && (
-                                  <AlertTriangle className="h-2.5 w-2.5 text-red-600" title="만료된 운임" />
+                                  <AlertTriangle className="h-3 w-3 text-red-600" title="만료된 운임" />
                                 )}
                               </>
                             ) : (
                               <span>${breakdown.localCharge || 0}</span>
                             )}
                             {breakdown.isAgentSpecificSeaFreight && !excludedCosts.localCharge && !isCellExcluded(originalIndex, 'localCharge') && (breakdown.llocal || 0) !== 0 && !isExpired(breakdown, 'L.LOCAL') && (
-                              <Star className="h-2.5 w-2.5 text-amber-600" />
+                              <Star className="h-3 w-3 text-amber-600" />
                             )}
                           </div>
                         </TableCell>
@@ -520,7 +522,7 @@ export default function CostResultTable({
                               ${excludedCosts.dthc || isCellExcluded(originalIndex, 'dthc') ? 0 : breakdown.dthc}
                             </span>
                             {isExpired(breakdown, 'DTHC') && !excludedCosts.dthc && !isCellExcluded(originalIndex, 'dthc') && (
-                              <AlertTriangle className="h-2.5 w-2.5 text-red-600" title="만료된 운임" />
+                              <AlertTriangle className="h-3 w-3 text-red-600" title="만료된 운임" />
                             )}
                           </div>
                         </TableCell>
@@ -540,14 +542,14 @@ export default function CostResultTable({
                           {breakdown.isCombinedFreight ? (
                             <span className="text-gray-400">-</span>
                           ) : breakdown.portBorder === 0 ? (
-                            <span className="text-amber-600 text-[10px]">없음</span>
+                            <span className="text-amber-600 text-xs">없음</span>
                           ) : (
                             <div className="flex items-center justify-end gap-0.5">
                               <span className={isExpired(breakdown, '철도운임') ? 'text-red-600 font-bold' : ''}>
                                 ${excludedCosts.portBorder || isCellExcluded(originalIndex, 'portBorder') ? 0 : breakdown.portBorder}
                               </span>
                               {isExpired(breakdown, '철도운임') && !excludedCosts.portBorder && !isCellExcluded(originalIndex, 'portBorder') && (
-                                <AlertTriangle className="h-2.5 w-2.5 text-red-600" title="만료된 운임" />
+                                <AlertTriangle className="h-3 w-3 text-red-600" title="만료된 운임" />
                               )}
                             </div>
                           )}
@@ -568,14 +570,14 @@ export default function CostResultTable({
                           {breakdown.isCombinedFreight ? (
                             <span className="text-gray-400">-</span>
                           ) : breakdown.borderDestination === 0 ? (
-                            <span className="text-amber-600 text-[10px]">없음</span>
+                            <span className="text-amber-600 text-xs">없음</span>
                           ) : (
                             <div className="flex items-center justify-end gap-0.5">
                               <span className={isExpired(breakdown, '트럭운임') ? 'text-red-600 font-bold' : ''}>
                                 ${excludedCosts.borderDestination || isCellExcluded(originalIndex, 'borderDestination') ? 0 : breakdown.borderDestination}
                               </span>
                               {isExpired(breakdown, '트럭운임') && !excludedCosts.borderDestination && !isCellExcluded(originalIndex, 'borderDestination') && (
-                                <AlertTriangle className="h-2.5 w-2.5 text-red-600" title="만료된 운임" />
+                                <AlertTriangle className="h-3 w-3 text-red-600" title="만료된 운임" />
                               )}
                             </div>
                           )}
@@ -595,16 +597,16 @@ export default function CostResultTable({
                         >
                           {breakdown.isCombinedFreight ? (
                             breakdown.combinedFreight === 0 ? (
-                              <span className="text-amber-600 text-[10px]">없음</span>
+                              <span className="text-amber-600 text-xs">없음</span>
                             ) : (
                               <div className="flex items-center justify-end gap-0.5">
                                 <span className={isExpired(breakdown, '철도+트럭 통합운임') ? 'text-red-600 font-bold' : ''}>
                                   ${excludedCosts.combinedFreight || isCellExcluded(originalIndex, 'combinedFreight') ? 0 : breakdown.combinedFreight}
                                 </span>
                                 {isExpired(breakdown, '철도+트럭 통합운임') && !excludedCosts.combinedFreight && !isCellExcluded(originalIndex, 'combinedFreight') && (
-                                  <AlertTriangle className="h-2.5 w-2.5 text-red-600" title="만료된 운임" />
+                                  <AlertTriangle className="h-3 w-3 text-red-600" title="만료된 운임" />
                                 )}
-                                <Merge className="h-2.5 w-2.5 text-purple-600" />
+                                <Merge className="h-3 w-3 text-purple-600" />
                               </div>
                             )
                           ) : (
@@ -625,7 +627,7 @@ export default function CostResultTable({
                               ${excludedCosts.weightSurcharge || isCellExcluded(originalIndex, 'weightSurcharge') ? 0 : breakdown.weightSurcharge}
                             </span>
                             {isExpired(breakdown, '중량할증') && !excludedCosts.weightSurcharge && !isCellExcluded(originalIndex, 'weightSurcharge') && (
-                              <AlertTriangle className="h-2.5 w-2.5 text-red-600" title="만료된 운임" />
+                              <AlertTriangle className="h-3 w-3 text-red-600" title="만료된 운임" />
                             )}
                           </div>
                         </TableCell>
@@ -643,7 +645,7 @@ export default function CostResultTable({
                               ${excludedCosts.dp || isCellExcluded(originalIndex, 'dp') ? 0 : breakdown.dp}
                             </span>
                             {isExpired(breakdown, 'DP') && !excludedCosts.dp && !isCellExcluded(originalIndex, 'dp') && (
-                              <AlertTriangle className="h-2.5 w-2.5 text-red-600" title="만료된 운임" />
+                              <AlertTriangle className="h-3 w-3 text-red-600" title="만료된 운임" />
                             )}
                           </div>
                         </TableCell>
@@ -682,9 +684,9 @@ export default function CostResultTable({
                             size="sm"
                             variant="outline"
                             onClick={() => onCreateQuotation(breakdown)}
-                            className="whitespace-nowrap h-7 px-2 text-[10px]"
+                            className="whitespace-nowrap h-8 px-2 text-xs"
                           >
-                            <FileSpreadsheet className="h-2.5 w-2.5 mr-0.5" />
+                            <FileSpreadsheet className="h-3 w-3 mr-1" />
                             견적서
                           </Button>
                         </TableCell>
@@ -695,35 +697,35 @@ export default function CostResultTable({
               </Table>
             </div>
 
-            <div className="p-3 bg-green-50 rounded-lg border border-green-200 text-xs space-y-1">
+            <div className="p-3 bg-green-50 rounded-lg border border-green-200 text-sm space-y-1.5">
               <p className="text-gray-700">
                 <span className="font-semibold">최저가 조합:</span> {lowestCostInfo.agent}
               </p>
               <p className="text-gray-700">
                 <span className="font-semibold">최저 총액:</span> ${lowestCostInfo.cost.toLocaleString()}
               </p>
-              <p className="text-gray-600 flex items-center gap-1">
+              <p className="text-xs text-gray-600 flex items-center gap-1">
                 <Star className="h-3 w-3 text-amber-600" />
                 <span>별표는 특별 해상운임 또는 L.LOCAL 적용</span>
               </p>
-              <p className="text-gray-600 flex items-center gap-1">
+              <p className="text-xs text-gray-600 flex items-center gap-1">
                 <Merge className="h-3 w-3 text-purple-600" />
                 <span>철도+트럭 통합운임 적용</span>
               </p>
               {showDpColumn && (
-                <p className="text-blue-600 flex items-center gap-1 font-semibold">
+                <p className="text-xs text-blue-600 flex items-center gap-1 font-semibold">
                   <Info className="h-3 w-3" />
                   <span>DP 포함 조합은 실제 DP 값 표시, 통합운임은 DP=0</span>
                 </p>
               )}
               {resultData.breakdown.some(b => b.hasExpiredRates) && (
-                <p className="text-red-600 flex items-center gap-1 font-semibold">
+                <p className="text-xs text-red-600 flex items-center gap-1 font-semibold">
                   <AlertTriangle className="h-3 w-3" />
                   <span>빨간색 굵은 글씨와 경고 아이콘은 만료된 운임</span>
                 </p>
               )}
               {(Object.values(excludedCosts).some(v => v) || Object.keys(cellExclusions).length > 0) && (
-                <p className="text-gray-600 flex items-center gap-1">
+                <p className="text-xs text-gray-600 flex items-center gap-1">
                   <Info className="h-3 w-3 text-blue-600" />
                   <span>일부 비용 항목이 제외되어 계산됨</span>
                 </p>

@@ -78,13 +78,13 @@ interface FreightContextType {
   railAgents: RailAgent[];
   addRailAgent: (agent: Omit<RailAgent, 'id' | 'createdAt'>) => Promise<void>;
   updateRailAgent: (id: string, updates: Partial<RailAgent>) => Promise<void>;
-  deleteRailAgent: (id: string) => void;
+  deleteRailAgent: (id: string) => Promise<void>;
   
   // Truck Agents
   truckAgents: TruckAgent[];
   addTruckAgent: (agent: Omit<TruckAgent, 'id' | 'createdAt'>) => Promise<void>;
   updateTruckAgent: (id: string, updates: Partial<TruckAgent>) => Promise<void>;
-  deleteTruckAgent: (id: string) => void;
+  deleteTruckAgent: (id: string) => Promise<void>;
   
   // Shipping Lines
   shippingLines: ShippingLine[];
@@ -94,51 +94,51 @@ interface FreightContextType {
   
   // Sea Freight
   seaFreights: SeaFreight[];
-  addSeaFreight: (freight: Omit<SeaFreight, 'id' | 'createdAt'>) => void;
-  updateSeaFreight: (id: string, updates: Partial<SeaFreight>) => void;
-  deleteSeaFreight: (id: string) => void;
+  addSeaFreight: (freight: Omit<SeaFreight, 'id' | 'createdAt'>) => Promise<void>;
+  updateSeaFreight: (id: string, updates: Partial<SeaFreight>) => Promise<void>;
+  deleteSeaFreight: (id: string) => Promise<void>;
   
   // Agent Sea Freight
   agentSeaFreights: AgentSeaFreight[];
-  addAgentSeaFreight: (freight: Omit<AgentSeaFreight, 'id' | 'createdAt'>) => void;
-  updateAgentSeaFreight: (id: string, updates: Partial<AgentSeaFreight>) => void;
-  deleteAgentSeaFreight: (id: string) => void;
+  addAgentSeaFreight: (freight: Omit<AgentSeaFreight, 'id' | 'createdAt'>) => Promise<void>;
+  updateAgentSeaFreight: (id: string, updates: Partial<AgentSeaFreight>) => Promise<void>;
+  deleteAgentSeaFreight: (id: string) => Promise<void>;
   
   // DTHC
   dthcList: DTHC[];
-  addDTHC: (dthc: Omit<DTHC, 'id' | 'createdAt'>) => void;
-  updateDTHC: (id: string, updates: Partial<DTHC>) => void;
-  deleteDTHC: (id: string) => void;
+  addDTHC: (dthc: Omit<DTHC, 'id' | 'createdAt'>) => Promise<void>;
+  updateDTHC: (id: string, updates: Partial<DTHC>) => Promise<void>;
+  deleteDTHC: (id: string) => Promise<void>;
   
   // DP Cost
   dpCosts: DPCost[];
-  addDPCost: (cost: Omit<DPCost, 'id' | 'createdAt'>) => void;
-  updateDPCost: (id: string, updates: Partial<DPCost>) => void;
-  deleteDPCost: (id: string) => void;
+  addDPCost: (cost: Omit<DPCost, 'id' | 'createdAt'>) => Promise<void>;
+  updateDPCost: (id: string, updates: Partial<DPCost>) => Promise<void>;
+  deleteDPCost: (id: string) => Promise<void>;
   
   // Combined Freight
   combinedFreights: CombinedFreight[];
-  addCombinedFreight: (freight: Omit<CombinedFreight, 'id' | 'createdAt'>) => void;
-  updateCombinedFreight: (id: string, updates: Partial<CombinedFreight>) => void;
-  deleteCombinedFreight: (id: string) => void;
+  addCombinedFreight: (freight: Omit<CombinedFreight, 'id' | 'createdAt'>) => Promise<void>;
+  updateCombinedFreight: (id: string, updates: Partial<CombinedFreight>) => Promise<void>;
+  deleteCombinedFreight: (id: string) => Promise<void>;
   
   // Port Border Freight
   portBorderFreights: PortBorderFreight[];
-  addPortBorderFreight: (freight: Omit<PortBorderFreight, 'id' | 'createdAt'>) => void;
-  updatePortBorderFreight: (id: string, updates: Partial<PortBorderFreight>) => void;
-  deletePortBorderFreight: (id: string) => void;
+  addPortBorderFreight: (freight: Omit<PortBorderFreight, 'id' | 'createdAt'>) => Promise<void>;
+  updatePortBorderFreight: (id: string, updates: Partial<PortBorderFreight>) => Promise<void>;
+  deletePortBorderFreight: (id: string) => Promise<void>;
   
   // Border Destination Freight
   borderDestinationFreights: BorderDestinationFreight[];
-  addBorderDestinationFreight: (freight: Omit<BorderDestinationFreight, 'id' | 'createdAt'>) => void;
-  updateBorderDestinationFreight: (id: string, updates: Partial<BorderDestinationFreight>) => void;
-  deleteBorderDestinationFreight: (id: string) => void;
+  addBorderDestinationFreight: (freight: Omit<BorderDestinationFreight, 'id' | 'createdAt'>) => Promise<void>;
+  updateBorderDestinationFreight: (id: string, updates: Partial<BorderDestinationFreight>) => Promise<void>;
+  deleteBorderDestinationFreight: (id: string) => Promise<void>;
   
   // Weight Surcharge Rules
   weightSurchargeRules: WeightSurchargeRule[];
-  addWeightSurchargeRule: (rule: Omit<WeightSurchargeRule, 'id' | 'createdAt'>) => void;
-  updateWeightSurchargeRule: (id: string, updates: Partial<WeightSurchargeRule>) => void;
-  deleteWeightSurchargeRule: (id: string) => void;
+  addWeightSurchargeRule: (rule: Omit<WeightSurchargeRule, 'id' | 'createdAt'>) => Promise<void>;
+  updateWeightSurchargeRule: (id: string, updates: Partial<WeightSurchargeRule>) => Promise<void>;
+  deleteWeightSurchargeRule: (id: string) => Promise<void>;
   
   // Weight Surcharge (legacy)
   weightSurcharges: WeightSurcharge[];
@@ -148,29 +148,29 @@ interface FreightContextType {
   
   // Ports
   ports: Port[];
-  addPort: (port: Omit<Port, 'id'>) => void;
-  updatePort: (id: string, updates: Partial<Port>) => void;
-  deletePort: (id: string) => void;
+  addPort: (port: Omit<Port, 'id'>) => Promise<void>;
+  updatePort: (id: string, updates: Partial<Port>) => Promise<void>;
+  deletePort: (id: string) => Promise<void>;
   
   // Destinations
   destinations: Destination[];
-  addDestination: (destination: Omit<Destination, 'id'>) => void;
-  updateDestination: (id: string, updates: Partial<Destination>) => void;
-  deleteDestination: (id: string) => void;
+  addDestination: (destination: Omit<Destination, 'id'>) => Promise<void>;
+  updateDestination: (id: string, updates: Partial<Destination>) => Promise<void>;
+  deleteDestination: (id: string) => Promise<void>;
   getDestinationById: (id: string) => Destination | undefined;
   
   // Border Cities
   borderCities: BorderCity[];
-  addBorderCity: (city: Omit<BorderCity, 'id'>) => void;
-  updateBorderCity: (id: string, updates: Partial<BorderCity>) => void;
-  deleteBorderCity: (id: string) => void;
+  addBorderCity: (city: Omit<BorderCity, 'id'>) => Promise<void>;
+  updateBorderCity: (id: string, updates: Partial<BorderCity>) => Promise<void>;
+  deleteBorderCity: (id: string) => Promise<void>;
   getDefaultBorderCity: () => BorderCity | undefined;
   
   // System Settings
   systemSettings: SystemSetting[];
-  addSystemSetting: (setting: Omit<SystemSetting, 'id' | 'createdAt' | 'updatedAt'>) => void;
-  updateSystemSetting: (id: string, updates: Partial<SystemSetting>) => void;
-  deleteSystemSetting: (id: string) => void;
+  addSystemSetting: (setting: Omit<SystemSetting, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
+  updateSystemSetting: (id: string, updates: Partial<SystemSetting>) => Promise<void>;
+  deleteSystemSetting: (id: string) => Promise<void>;
   getSystemSettingValue: (key: string, defaultValue?: string) => string;
   
   // Freight Audit Logs
@@ -404,8 +404,20 @@ export function FreightProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const deleteRailAgent = (id: string) => {
-    setRailAgents(railAgents.filter(agent => agent.id !== id));
+  const deleteRailAgent = async (id: string) => {
+    try {
+      const { error } = await supabaseClient
+        .from(TABLES.RAIL_AGENTS)
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setRailAgents(railAgents.filter(agent => agent.id !== id));
+    } catch (error) {
+      console.error('Error deleting rail agent:', error);
+      throw error;
+    }
   };
 
   // Truck Agent management
@@ -457,8 +469,20 @@ export function FreightProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const deleteTruckAgent = (id: string) => {
-    setTruckAgents(truckAgents.filter(agent => agent.id !== id));
+  const deleteTruckAgent = async (id: string) => {
+    try {
+      const { error } = await supabaseClient
+        .from(TABLES.TRUCK_AGENTS)
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setTruckAgents(truckAgents.filter(agent => agent.id !== id));
+    } catch (error) {
+      console.error('Error deleting truck agent:', error);
+      throw error;
+    }
   };
 
   // Shipping Line management
@@ -527,99 +551,634 @@ export function FreightProvider({ children }: { children: ReactNode }) {
   };
 
   // Sea Freight management
-  const addSeaFreight = (freight: Omit<SeaFreight, 'id' | 'createdAt'>) => {
-    const newFreight: SeaFreight = { ...freight, id: crypto.randomUUID(), createdAt: new Date().toISOString() };
-    setSeaFreights([...seaFreights, newFreight]);
+  const addSeaFreight = async (freight: Omit<SeaFreight, 'id' | 'createdAt'>) => {
+    try {
+      const { data, error } = await supabaseClient
+        .from(TABLES.SEA_FREIGHTS)
+        .insert({
+          pol: freight.pol,
+          pod: freight.pod,
+          rate: freight.rate,
+          carrier: freight.carrier,
+          note: freight.note,
+          version: freight.version,
+          valid_from: freight.validFrom,
+          valid_to: freight.validTo,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      const newFreight: SeaFreight = {
+        id: data.id,
+        pol: data.pol,
+        pod: data.pod,
+        rate: data.rate,
+        carrier: data.carrier,
+        note: data.note,
+        version: data.version,
+        validFrom: data.valid_from,
+        validTo: data.valid_to,
+        createdAt: data.created_at,
+      };
+      setSeaFreights([...seaFreights, newFreight]);
+    } catch (error) {
+      console.error('Error adding sea freight:', error);
+      throw error;
+    }
   };
-  const updateSeaFreight = (id: string, updates: Partial<SeaFreight>) => {
-    setSeaFreights(seaFreights.map(freight => freight.id === id ? { ...freight, ...updates } : freight));
+
+  const updateSeaFreight = async (id: string, updates: Partial<SeaFreight>) => {
+    try {
+      const { error } = await supabaseClient
+        .from(TABLES.SEA_FREIGHTS)
+        .update({
+          pol: updates.pol,
+          pod: updates.pod,
+          rate: updates.rate,
+          carrier: updates.carrier,
+          note: updates.note,
+          version: updates.version,
+          valid_from: updates.validFrom,
+          valid_to: updates.validTo,
+        })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setSeaFreights(seaFreights.map(freight => freight.id === id ? { ...freight, ...updates } : freight));
+    } catch (error) {
+      console.error('Error updating sea freight:', error);
+      throw error;
+    }
   };
-  const deleteSeaFreight = (id: string) => {
-    setSeaFreights(seaFreights.filter(freight => freight.id !== id));
+
+  const deleteSeaFreight = async (id: string) => {
+    try {
+      const { error } = await supabaseClient
+        .from(TABLES.SEA_FREIGHTS)
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setSeaFreights(seaFreights.filter(freight => freight.id !== id));
+    } catch (error) {
+      console.error('Error deleting sea freight:', error);
+      throw error;
+    }
   };
 
   // Agent Sea Freight management
-  const addAgentSeaFreight = (freight: Omit<AgentSeaFreight, 'id' | 'createdAt'>) => {
-    const newFreight: AgentSeaFreight = { ...freight, id: crypto.randomUUID(), createdAt: new Date().toISOString() };
-    setAgentSeaFreights([...agentSeaFreights, newFreight]);
+  const addAgentSeaFreight = async (freight: Omit<AgentSeaFreight, 'id' | 'createdAt'>) => {
+    try {
+      const { data, error } = await supabaseClient
+        .from(TABLES.AGENT_SEA_FREIGHTS)
+        .insert({
+          agent: freight.agent,
+          pol: freight.pol,
+          pod: freight.pod,
+          rate: freight.rate,
+          carrier: freight.carrier,
+          note: freight.note,
+          version: freight.version,
+          valid_from: freight.validFrom,
+          valid_to: freight.validTo,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      const newFreight: AgentSeaFreight = {
+        id: data.id,
+        agent: data.agent,
+        pol: data.pol,
+        pod: data.pod,
+        rate: data.rate,
+        carrier: data.carrier,
+        note: data.note,
+        version: data.version,
+        validFrom: data.valid_from,
+        validTo: data.valid_to,
+        createdAt: data.created_at,
+      };
+      setAgentSeaFreights([...agentSeaFreights, newFreight]);
+    } catch (error) {
+      console.error('Error adding agent sea freight:', error);
+      throw error;
+    }
   };
-  const updateAgentSeaFreight = (id: string, updates: Partial<AgentSeaFreight>) => {
-    setAgentSeaFreights(agentSeaFreights.map(freight => freight.id === id ? { ...freight, ...updates } : freight));
+
+  const updateAgentSeaFreight = async (id: string, updates: Partial<AgentSeaFreight>) => {
+    try {
+      const { error } = await supabaseClient
+        .from(TABLES.AGENT_SEA_FREIGHTS)
+        .update({
+          agent: updates.agent,
+          pol: updates.pol,
+          pod: updates.pod,
+          rate: updates.rate,
+          carrier: updates.carrier,
+          note: updates.note,
+          version: updates.version,
+          valid_from: updates.validFrom,
+          valid_to: updates.validTo,
+        })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setAgentSeaFreights(agentSeaFreights.map(freight => freight.id === id ? { ...freight, ...updates } : freight));
+    } catch (error) {
+      console.error('Error updating agent sea freight:', error);
+      throw error;
+    }
   };
-  const deleteAgentSeaFreight = (id: string) => {
-    setAgentSeaFreights(agentSeaFreights.filter(freight => freight.id !== id));
+
+  const deleteAgentSeaFreight = async (id: string) => {
+    try {
+      const { error } = await supabaseClient
+        .from(TABLES.AGENT_SEA_FREIGHTS)
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setAgentSeaFreights(agentSeaFreights.filter(freight => freight.id !== id));
+    } catch (error) {
+      console.error('Error deleting agent sea freight:', error);
+      throw error;
+    }
   };
 
   // DTHC management
-  const addDTHC = (dthc: Omit<DTHC, 'id' | 'createdAt'>) => {
-    const newDTHC: DTHC = { ...dthc, id: crypto.randomUUID(), createdAt: new Date().toISOString() };
-    setDthcList([...dthcList, newDTHC]);
+  const addDTHC = async (dthc: Omit<DTHC, 'id' | 'createdAt'>) => {
+    try {
+      const { data, error } = await supabaseClient
+        .from(TABLES.DTHC)
+        .insert({
+          agent: dthc.agent,
+          pol: dthc.pol,
+          pod: dthc.pod,
+          carrier: dthc.carrier,
+          amount: dthc.amount,
+          description: dthc.description,
+          version: dthc.version,
+          valid_from: dthc.validFrom,
+          valid_to: dthc.validTo,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      const newDTHC: DTHC = {
+        id: data.id,
+        agent: data.agent,
+        pol: data.pol,
+        pod: data.pod,
+        carrier: data.carrier,
+        amount: data.amount,
+        description: data.description,
+        version: data.version,
+        validFrom: data.valid_from,
+        validTo: data.valid_to,
+        createdAt: data.created_at,
+      };
+      setDthcList([...dthcList, newDTHC]);
+    } catch (error) {
+      console.error('Error adding DTHC:', error);
+      throw error;
+    }
   };
-  const updateDTHC = (id: string, updates: Partial<DTHC>) => {
-    setDthcList(dthcList.map(dthc => dthc.id === id ? { ...dthc, ...updates } : dthc));
+
+  const updateDTHC = async (id: string, updates: Partial<DTHC>) => {
+    try {
+      const { error } = await supabaseClient
+        .from(TABLES.DTHC)
+        .update({
+          agent: updates.agent,
+          pol: updates.pol,
+          pod: updates.pod,
+          carrier: updates.carrier,
+          amount: updates.amount,
+          description: updates.description,
+          version: updates.version,
+          valid_from: updates.validFrom,
+          valid_to: updates.validTo,
+        })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setDthcList(dthcList.map(dthc => dthc.id === id ? { ...dthc, ...updates } : dthc));
+    } catch (error) {
+      console.error('Error updating DTHC:', error);
+      throw error;
+    }
   };
-  const deleteDTHC = (id: string) => {
-    setDthcList(dthcList.filter(dthc => dthc.id !== id));
+
+  const deleteDTHC = async (id: string) => {
+    try {
+      const { error } = await supabaseClient
+        .from(TABLES.DTHC)
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setDthcList(dthcList.filter(dthc => dthc.id !== id));
+    } catch (error) {
+      console.error('Error deleting DTHC:', error);
+      throw error;
+    }
   };
 
   // DP Cost management
-  const addDPCost = (cost: Omit<DPCost, 'id' | 'createdAt'>) => {
-    const newCost: DPCost = { ...cost, id: crypto.randomUUID(), createdAt: new Date().toISOString() };
-    setDpCosts([...dpCosts, newCost]);
+  const addDPCost = async (cost: Omit<DPCost, 'id' | 'createdAt'>) => {
+    try {
+      const { data, error } = await supabaseClient
+        .from(TABLES.DP_COSTS)
+        .insert({
+          port: cost.port,
+          amount: cost.amount,
+          description: cost.description,
+          version: cost.version,
+          valid_from: cost.validFrom,
+          valid_to: cost.validTo,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      const newCost: DPCost = {
+        id: data.id,
+        port: data.port,
+        amount: data.amount,
+        description: data.description,
+        version: data.version,
+        validFrom: data.valid_from,
+        validTo: data.valid_to,
+        createdAt: data.created_at,
+      };
+      setDpCosts([...dpCosts, newCost]);
+    } catch (error) {
+      console.error('Error adding DP cost:', error);
+      throw error;
+    }
   };
-  const updateDPCost = (id: string, updates: Partial<DPCost>) => {
-    setDpCosts(dpCosts.map(cost => cost.id === id ? { ...cost, ...updates } : cost));
+
+  const updateDPCost = async (id: string, updates: Partial<DPCost>) => {
+    try {
+      const { error } = await supabaseClient
+        .from(TABLES.DP_COSTS)
+        .update({
+          port: updates.port,
+          amount: updates.amount,
+          description: updates.description,
+          version: updates.version,
+          valid_from: updates.validFrom,
+          valid_to: updates.validTo,
+        })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setDpCosts(dpCosts.map(cost => cost.id === id ? { ...cost, ...updates } : cost));
+    } catch (error) {
+      console.error('Error updating DP cost:', error);
+      throw error;
+    }
   };
-  const deleteDPCost = (id: string) => {
-    setDpCosts(dpCosts.filter(cost => cost.id !== id));
+
+  const deleteDPCost = async (id: string) => {
+    try {
+      const { error } = await supabaseClient
+        .from(TABLES.DP_COSTS)
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setDpCosts(dpCosts.filter(cost => cost.id !== id));
+    } catch (error) {
+      console.error('Error deleting DP cost:', error);
+      throw error;
+    }
   };
 
   // Combined Freight management
-  const addCombinedFreight = (freight: Omit<CombinedFreight, 'id' | 'createdAt'>) => {
-    const newFreight: CombinedFreight = { ...freight, id: crypto.randomUUID(), createdAt: new Date().toISOString() };
-    setCombinedFreights([...combinedFreights, newFreight]);
+  const addCombinedFreight = async (freight: Omit<CombinedFreight, 'id' | 'createdAt'>) => {
+    try {
+      const { data, error } = await supabaseClient
+        .from(TABLES.COMBINED_FREIGHTS)
+        .insert({
+          agent: freight.agent,
+          pod: freight.pod,
+          destination_id: freight.destinationId,
+          rate: freight.rate,
+          description: freight.description,
+          version: freight.version,
+          valid_from: freight.validFrom,
+          valid_to: freight.validTo,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      const newFreight: CombinedFreight = {
+        id: data.id,
+        agent: data.agent,
+        pod: data.pod,
+        destinationId: data.destination_id,
+        rate: data.rate,
+        description: data.description,
+        version: data.version,
+        validFrom: data.valid_from,
+        validTo: data.valid_to,
+        createdAt: data.created_at,
+      };
+      setCombinedFreights([...combinedFreights, newFreight]);
+    } catch (error) {
+      console.error('Error adding combined freight:', error);
+      throw error;
+    }
   };
-  const updateCombinedFreight = (id: string, updates: Partial<CombinedFreight>) => {
-    setCombinedFreights(combinedFreights.map(freight => freight.id === id ? { ...freight, ...updates } : freight));
+
+  const updateCombinedFreight = async (id: string, updates: Partial<CombinedFreight>) => {
+    try {
+      const { error } = await supabaseClient
+        .from(TABLES.COMBINED_FREIGHTS)
+        .update({
+          agent: updates.agent,
+          pod: updates.pod,
+          destination_id: updates.destinationId,
+          rate: updates.rate,
+          description: updates.description,
+          version: updates.version,
+          valid_from: updates.validFrom,
+          valid_to: updates.validTo,
+        })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setCombinedFreights(combinedFreights.map(freight => freight.id === id ? { ...freight, ...updates } : freight));
+    } catch (error) {
+      console.error('Error updating combined freight:', error);
+      throw error;
+    }
   };
-  const deleteCombinedFreight = (id: string) => {
-    setCombinedFreights(combinedFreights.filter(freight => freight.id !== id));
+
+  const deleteCombinedFreight = async (id: string) => {
+    try {
+      const { error } = await supabaseClient
+        .from(TABLES.COMBINED_FREIGHTS)
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setCombinedFreights(combinedFreights.filter(freight => freight.id !== id));
+    } catch (error) {
+      console.error('Error deleting combined freight:', error);
+      throw error;
+    }
   };
 
   // Port Border Freight management
-  const addPortBorderFreight = (freight: Omit<PortBorderFreight, 'id' | 'createdAt'>) => {
-    const newFreight: PortBorderFreight = { ...freight, id: crypto.randomUUID(), createdAt: new Date().toISOString() };
-    setPortBorderFreights([...portBorderFreights, newFreight]);
+  const addPortBorderFreight = async (freight: Omit<PortBorderFreight, 'id' | 'createdAt'>) => {
+    try {
+      const { data, error } = await supabaseClient
+        .from(TABLES.PORT_BORDER_FREIGHTS)
+        .insert({
+          agent: freight.agent,
+          qingdao: freight.qingdao,
+          tianjin: freight.tianjin,
+          lianyungang: freight.lianyungang,
+          dandong: freight.dandong,
+          version: freight.version,
+          valid_from: freight.validFrom,
+          valid_to: freight.validTo,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      const newFreight: PortBorderFreight = {
+        id: data.id,
+        agent: data.agent,
+        qingdao: data.qingdao,
+        tianjin: data.tianjin,
+        lianyungang: data.lianyungang,
+        dandong: data.dandong,
+        version: data.version,
+        validFrom: data.valid_from,
+        validTo: data.valid_to,
+        createdAt: data.created_at,
+      };
+      setPortBorderFreights([...portBorderFreights, newFreight]);
+    } catch (error) {
+      console.error('Error adding port border freight:', error);
+      throw error;
+    }
   };
-  const updatePortBorderFreight = (id: string, updates: Partial<PortBorderFreight>) => {
-    setPortBorderFreights(portBorderFreights.map(freight => freight.id === id ? { ...freight, ...updates } : freight));
+
+  const updatePortBorderFreight = async (id: string, updates: Partial<PortBorderFreight>) => {
+    try {
+      const { error } = await supabaseClient
+        .from(TABLES.PORT_BORDER_FREIGHTS)
+        .update({
+          agent: updates.agent,
+          qingdao: updates.qingdao,
+          tianjin: updates.tianjin,
+          lianyungang: updates.lianyungang,
+          dandong: updates.dandong,
+          version: updates.version,
+          valid_from: updates.validFrom,
+          valid_to: updates.validTo,
+        })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setPortBorderFreights(portBorderFreights.map(freight => freight.id === id ? { ...freight, ...updates } : freight));
+    } catch (error) {
+      console.error('Error updating port border freight:', error);
+      throw error;
+    }
   };
-  const deletePortBorderFreight = (id: string) => {
-    setPortBorderFreights(portBorderFreights.filter(freight => freight.id !== id));
+
+  const deletePortBorderFreight = async (id: string) => {
+    try {
+      const { error } = await supabaseClient
+        .from(TABLES.PORT_BORDER_FREIGHTS)
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setPortBorderFreights(portBorderFreights.filter(freight => freight.id !== id));
+    } catch (error) {
+      console.error('Error deleting port border freight:', error);
+      throw error;
+    }
   };
 
   // Border Destination Freight management
-  const addBorderDestinationFreight = (freight: Omit<BorderDestinationFreight, 'id' | 'createdAt'>) => {
-    const newFreight: BorderDestinationFreight = { ...freight, id: crypto.randomUUID(), createdAt: new Date().toISOString() };
-    setBorderDestinationFreights([...borderDestinationFreights, newFreight]);
+  const addBorderDestinationFreight = async (freight: Omit<BorderDestinationFreight, 'id' | 'createdAt'>) => {
+    try {
+      const { data, error } = await supabaseClient
+        .from(TABLES.BORDER_DESTINATION_FREIGHTS)
+        .insert({
+          agent: freight.agent,
+          destination_id: freight.destinationId,
+          rate: freight.rate,
+          version: freight.version,
+          valid_from: freight.validFrom,
+          valid_to: freight.validTo,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      const newFreight: BorderDestinationFreight = {
+        id: data.id,
+        agent: data.agent,
+        destinationId: data.destination_id,
+        rate: data.rate,
+        version: data.version,
+        validFrom: data.valid_from,
+        validTo: data.valid_to,
+        createdAt: data.created_at,
+      };
+      setBorderDestinationFreights([...borderDestinationFreights, newFreight]);
+    } catch (error) {
+      console.error('Error adding border destination freight:', error);
+      throw error;
+    }
   };
-  const updateBorderDestinationFreight = (id: string, updates: Partial<BorderDestinationFreight>) => {
-    setBorderDestinationFreights(borderDestinationFreights.map(freight => freight.id === id ? { ...freight, ...updates } : freight));
+
+  const updateBorderDestinationFreight = async (id: string, updates: Partial<BorderDestinationFreight>) => {
+    try {
+      const { error } = await supabaseClient
+        .from(TABLES.BORDER_DESTINATION_FREIGHTS)
+        .update({
+          agent: updates.agent,
+          destination_id: updates.destinationId,
+          rate: updates.rate,
+          version: updates.version,
+          valid_from: updates.validFrom,
+          valid_to: updates.validTo,
+        })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setBorderDestinationFreights(borderDestinationFreights.map(freight => freight.id === id ? { ...freight, ...updates } : freight));
+    } catch (error) {
+      console.error('Error updating border destination freight:', error);
+      throw error;
+    }
   };
-  const deleteBorderDestinationFreight = (id: string) => {
-    setBorderDestinationFreights(borderDestinationFreights.filter(freight => freight.id !== id));
+
+  const deleteBorderDestinationFreight = async (id: string) => {
+    try {
+      const { error } = await supabaseClient
+        .from(TABLES.BORDER_DESTINATION_FREIGHTS)
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setBorderDestinationFreights(borderDestinationFreights.filter(freight => freight.id !== id));
+    } catch (error) {
+      console.error('Error deleting border destination freight:', error);
+      throw error;
+    }
   };
 
   // Weight Surcharge Rule management
-  const addWeightSurchargeRule = (rule: Omit<WeightSurchargeRule, 'id' | 'createdAt'>) => {
-    const newRule: WeightSurchargeRule = { ...rule, id: crypto.randomUUID(), createdAt: new Date().toISOString() };
-    setWeightSurchargeRules([...weightSurchargeRules, newRule]);
+  const addWeightSurchargeRule = async (rule: Omit<WeightSurchargeRule, 'id' | 'createdAt'>) => {
+    try {
+      const { data, error } = await supabaseClient
+        .from(TABLES.WEIGHT_SURCHARGE_RULES)
+        .insert({
+          agent: rule.agent,
+          min_weight: rule.minWeight,
+          max_weight: rule.maxWeight,
+          surcharge: rule.surcharge,
+          version: rule.version,
+          valid_from: rule.validFrom,
+          valid_to: rule.validTo,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      const newRule: WeightSurchargeRule = {
+        id: data.id,
+        agent: data.agent,
+        minWeight: data.min_weight,
+        maxWeight: data.max_weight,
+        surcharge: data.surcharge,
+        version: data.version,
+        validFrom: data.valid_from,
+        validTo: data.valid_to,
+        createdAt: data.created_at,
+      };
+      setWeightSurchargeRules([...weightSurchargeRules, newRule]);
+    } catch (error) {
+      console.error('Error adding weight surcharge rule:', error);
+      throw error;
+    }
   };
-  const updateWeightSurchargeRule = (id: string, updates: Partial<WeightSurchargeRule>) => {
-    setWeightSurchargeRules(weightSurchargeRules.map(rule => rule.id === id ? { ...rule, ...updates } : rule));
+
+  const updateWeightSurchargeRule = async (id: string, updates: Partial<WeightSurchargeRule>) => {
+    try {
+      const { error } = await supabaseClient
+        .from(TABLES.WEIGHT_SURCHARGE_RULES)
+        .update({
+          agent: updates.agent,
+          min_weight: updates.minWeight,
+          max_weight: updates.maxWeight,
+          surcharge: updates.surcharge,
+          version: updates.version,
+          valid_from: updates.validFrom,
+          valid_to: updates.validTo,
+        })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setWeightSurchargeRules(weightSurchargeRules.map(rule => rule.id === id ? { ...rule, ...updates } : rule));
+    } catch (error) {
+      console.error('Error updating weight surcharge rule:', error);
+      throw error;
+    }
   };
-  const deleteWeightSurchargeRule = (id: string) => {
-    setWeightSurchargeRules(weightSurchargeRules.filter(rule => rule.id !== id));
+
+  const deleteWeightSurchargeRule = async (id: string) => {
+    try {
+      const { error } = await supabaseClient
+        .from(TABLES.WEIGHT_SURCHARGE_RULES)
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setWeightSurchargeRules(weightSurchargeRules.filter(rule => rule.id !== id));
+    } catch (error) {
+      console.error('Error deleting weight surcharge rule:', error);
+      throw error;
+    }
   };
 
   // Weight Surcharge management (legacy)
@@ -635,65 +1194,288 @@ export function FreightProvider({ children }: { children: ReactNode }) {
   };
 
   // Port management
-  const addPort = (port: Omit<Port, 'id'>) => {
-    const newPort: Port = { ...port, id: crypto.randomUUID() };
-    setPorts([...ports, newPort]);
+  const addPort = async (port: Omit<Port, 'id'>) => {
+    try {
+      const { data, error } = await supabaseClient
+        .from(TABLES.PORTS)
+        .insert({
+          name: port.name,
+          type: port.type,
+          country: port.country,
+          description: port.description,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      const newPort: Port = {
+        id: data.id,
+        name: data.name,
+        type: data.type,
+        country: data.country,
+        description: data.description,
+      };
+      setPorts([...ports, newPort]);
+    } catch (error) {
+      console.error('Error adding port:', error);
+      throw error;
+    }
   };
-  const updatePort = (id: string, updates: Partial<Port>) => {
-    setPorts(ports.map(port => port.id === id ? { ...port, ...updates } : port));
+
+  const updatePort = async (id: string, updates: Partial<Port>) => {
+    try {
+      const { error } = await supabaseClient
+        .from(TABLES.PORTS)
+        .update({
+          name: updates.name,
+          type: updates.type,
+          country: updates.country,
+          description: updates.description,
+        })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setPorts(ports.map(port => port.id === id ? { ...port, ...updates } : port));
+    } catch (error) {
+      console.error('Error updating port:', error);
+      throw error;
+    }
   };
-  const deletePort = (id: string) => {
-    setPorts(ports.filter(port => port.id !== id));
+
+  const deletePort = async (id: string) => {
+    try {
+      const { error } = await supabaseClient
+        .from(TABLES.PORTS)
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setPorts(ports.filter(port => port.id !== id));
+    } catch (error) {
+      console.error('Error deleting port:', error);
+      throw error;
+    }
   };
 
   // Destination management
-  const addDestination = (destination: Omit<Destination, 'id'>) => {
-    const newDestination: Destination = { ...destination, id: crypto.randomUUID() };
-    setDestinations([...destinations, newDestination]);
+  const addDestination = async (destination: Omit<Destination, 'id'>) => {
+    try {
+      const { data, error } = await supabaseClient
+        .from(TABLES.DESTINATIONS)
+        .insert({
+          name: destination.name,
+          description: destination.description,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      const newDestination: Destination = {
+        id: data.id,
+        name: data.name,
+        description: data.description,
+      };
+      setDestinations([...destinations, newDestination]);
+    } catch (error) {
+      console.error('Error adding destination:', error);
+      throw error;
+    }
   };
-  const updateDestination = (id: string, updates: Partial<Destination>) => {
-    setDestinations(destinations.map(dest => dest.id === id ? { ...dest, ...updates } : dest));
+
+  const updateDestination = async (id: string, updates: Partial<Destination>) => {
+    try {
+      const { error } = await supabaseClient
+        .from(TABLES.DESTINATIONS)
+        .update({
+          name: updates.name,
+          description: updates.description,
+        })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setDestinations(destinations.map(dest => dest.id === id ? { ...dest, ...updates } : dest));
+    } catch (error) {
+      console.error('Error updating destination:', error);
+      throw error;
+    }
   };
-  const deleteDestination = (id: string) => {
-    setDestinations(destinations.filter(dest => dest.id !== id));
+
+  const deleteDestination = async (id: string) => {
+    try {
+      const { error } = await supabaseClient
+        .from(TABLES.DESTINATIONS)
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setDestinations(destinations.filter(dest => dest.id !== id));
+    } catch (error) {
+      console.error('Error deleting destination:', error);
+      throw error;
+    }
   };
+
   const getDestinationById = (id: string): Destination | undefined => {
     return destinations.find(dest => dest.id === id);
   };
 
   // Border City management
-  const addBorderCity = (city: Omit<BorderCity, 'id'>) => {
-    const newCity: BorderCity = { ...city, id: crypto.randomUUID() };
-    setBorderCities([...borderCities, newCity]);
+  const addBorderCity = async (city: Omit<BorderCity, 'id'>) => {
+    try {
+      const { data, error } = await supabaseClient
+        .from(TABLES.BORDER_CITIES)
+        .insert({
+          name: city.name,
+          country: city.country,
+          description: city.description,
+          is_default: city.isDefault,
+          is_active: city.isActive,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      const newCity: BorderCity = {
+        id: data.id,
+        name: data.name,
+        country: data.country,
+        description: data.description,
+        isDefault: data.is_default,
+        isActive: data.is_active,
+      };
+      setBorderCities([...borderCities, newCity]);
+    } catch (error) {
+      console.error('Error adding border city:', error);
+      throw error;
+    }
   };
-  const updateBorderCity = (id: string, updates: Partial<BorderCity>) => {
-    setBorderCities(borderCities.map(city => city.id === id ? { ...city, ...updates } : city));
+
+  const updateBorderCity = async (id: string, updates: Partial<BorderCity>) => {
+    try {
+      const { error } = await supabaseClient
+        .from(TABLES.BORDER_CITIES)
+        .update({
+          name: updates.name,
+          country: updates.country,
+          description: updates.description,
+          is_default: updates.isDefault,
+          is_active: updates.isActive,
+        })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setBorderCities(borderCities.map(city => city.id === id ? { ...city, ...updates } : city));
+    } catch (error) {
+      console.error('Error updating border city:', error);
+      throw error;
+    }
   };
-  const deleteBorderCity = (id: string) => {
-    setBorderCities(borderCities.filter(city => city.id !== id));
+
+  const deleteBorderCity = async (id: string) => {
+    try {
+      const { error } = await supabaseClient
+        .from(TABLES.BORDER_CITIES)
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setBorderCities(borderCities.filter(city => city.id !== id));
+    } catch (error) {
+      console.error('Error deleting border city:', error);
+      throw error;
+    }
   };
+
   const getDefaultBorderCity = (): BorderCity | undefined => {
     return getDefaultBorderCityHelper(borderCities);
   };
 
   // System Setting management
-  const addSystemSetting = (setting: Omit<SystemSetting, 'id' | 'createdAt' | 'updatedAt'>) => {
-    const newSetting: SystemSetting = {
-      ...setting,
-      id: crypto.randomUUID(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    setSystemSettings([...systemSettings, newSetting]);
+  const addSystemSetting = async (setting: Omit<SystemSetting, 'id' | 'createdAt' | 'updatedAt'>) => {
+    try {
+      const { data, error } = await supabaseClient
+        .from(TABLES.SYSTEM_SETTINGS)
+        .insert({
+          setting_key: setting.key,
+          setting_value: setting.value,
+          setting_type: setting.type,
+          category: setting.category,
+          description: setting.description,
+          is_editable: setting.isEditable,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      const newSetting: SystemSetting = {
+        id: data.id,
+        key: data.setting_key,
+        value: data.setting_value,
+        type: data.setting_type,
+        category: data.category,
+        description: data.description,
+        isEditable: data.is_editable,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at,
+      };
+      setSystemSettings([...systemSettings, newSetting]);
+    } catch (error) {
+      console.error('Error adding system setting:', error);
+      throw error;
+    }
   };
-  const updateSystemSetting = (id: string, updates: Partial<SystemSetting>) => {
-    setSystemSettings(systemSettings.map(setting => 
-      setting.id === id ? { ...setting, ...updates, updatedAt: new Date().toISOString() } : setting
-    ));
+
+  const updateSystemSetting = async (id: string, updates: Partial<SystemSetting>) => {
+    try {
+      const { error } = await supabaseClient
+        .from(TABLES.SYSTEM_SETTINGS)
+        .update({
+          setting_key: updates.key,
+          setting_value: updates.value,
+          setting_type: updates.type,
+          category: updates.category,
+          description: updates.description,
+          is_editable: updates.isEditable,
+        })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setSystemSettings(systemSettings.map(setting => 
+        setting.id === id ? { ...setting, ...updates, updatedAt: new Date().toISOString() } : setting
+      ));
+    } catch (error) {
+      console.error('Error updating system setting:', error);
+      throw error;
+    }
   };
-  const deleteSystemSetting = (id: string) => {
-    setSystemSettings(systemSettings.filter(setting => setting.id !== id));
+
+  const deleteSystemSetting = async (id: string) => {
+    try {
+      const { error } = await supabaseClient
+        .from(TABLES.SYSTEM_SETTINGS)
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setSystemSettings(systemSettings.filter(setting => setting.id !== id));
+    } catch (error) {
+      console.error('Error deleting system setting:', error);
+      throw error;
+    }
   };
+
   const getSystemSettingValue = (key: string, defaultValue: string = ''): string => {
     return getSystemSettingValueHelper(systemSettings, key, defaultValue);
   };

@@ -174,10 +174,9 @@ export interface CombinedFreight {
 export interface PortBorderFreight {
   id: string;
   agent: string;
-  qingdao: number;
-  tianjin: number;
-  lianyungang: number;
-  dandong: number;
+  pol: string;
+  pod: string;
+  rate: number;
   version: number;
   valid_from: string;
   valid_to: string;

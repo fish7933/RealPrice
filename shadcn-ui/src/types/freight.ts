@@ -140,11 +140,13 @@ export interface CombinedFreight {
 export interface PortBorderFreight {
   id: string;
   agent: string;
+  pol: string;
   pod: string;
   rate: number;
   validFrom: string;
   validTo: string;
   createdAt: string;
+  version?: number;
   // Legacy fields for backward compatibility
   arrivalPort?: string;
   borderPoint?: string;

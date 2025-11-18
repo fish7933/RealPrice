@@ -37,6 +37,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface VersionChangeData {
   agent: string;
+  pol: string;
   rates: { [pod: string]: number };
   validFrom: string;
   validTo: string;
@@ -65,11 +66,13 @@ export default function PortBorderTable() {
   const [validationError, setValidationError] = useState<string | null>(null);
   const [formData, setFormData] = useState<{
     agent: string;
+    pol: string;
     validFrom: string;
     validTo: string;
     [key: string]: string;
   }>({
     agent: '',
+    pol: '',
     validFrom: '',
     validTo: '',
   });
@@ -80,12 +83,14 @@ export default function PortBorderTable() {
   const borderCity = getDefaultBorderCity();
   const borderCityName = borderCity?.name || getSystemSettingValue('default_border_city', 'KASHGAR');
 
-  // Get all POD ports (type === 'POD')
+  // Get POL ports (type === 'POL') and POD ports (type === 'POD')
+  const polPorts = ports.filter(p => p.type === 'POL');
   const podPorts = ports.filter(p => p.type === 'POD');
 
   const initializeFormData = () => {
-    const data: { agent: string; validFrom: string; validTo: string; [key: string]: string } = { 
+    const data: { agent: string; pol: string; validFrom: string; validTo: string; [key: string]: string } = { 
       agent: '', 
+      pol: '',
       validFrom: '', 
       validTo: '' 
     };
@@ -95,20 +100,21 @@ export default function PortBorderTable() {
     return data;
   };
 
-  // Load existing data when agent is selected - FIX: Remove formData from dependencies
+  // Load existing data when agent and pol are selected
   useEffect(() => {
-    if (formData.agent && isAddDialogOpen) {
-      const firstFreight = portBorderFreights.find(f => f.agent === formData.agent);
+    if (formData.agent && formData.pol && isAddDialogOpen) {
+      const firstFreight = portBorderFreights.find(f => f.agent === formData.agent && f.pol === formData.pol);
       
-      const newFormData: { agent: string; validFrom: string; validTo: string; [key: string]: string } = { 
+      const newFormData: { agent: string; pol: string; validFrom: string; validTo: string; [key: string]: string } = { 
         agent: formData.agent,
+        pol: formData.pol,
         validFrom: firstFreight?.validFrom || '',
         validTo: firstFreight?.validTo || '',
       };
       
       podPorts.forEach(pod => {
         const existingFreight = portBorderFreights.find(
-          f => f.agent === formData.agent && f.pod === pod.name
+          f => f.agent === formData.agent && f.pol === formData.pol && f.pod === pod.name
         );
         newFormData[pod.name] = existingFreight ? existingFreight.rate.toString() : '';
       });
@@ -116,10 +122,10 @@ export default function PortBorderTable() {
       setFormData(newFormData);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formData.agent, isAddDialogOpen]);
+  }, [formData.agent, formData.pol, isAddDialogOpen]);
 
   const handleAdd = () => {
-    if (!formData.agent || !formData.validFrom || !formData.validTo) return;
+    if (!formData.agent || !formData.pol || !formData.validFrom || !formData.validTo) return;
 
     const hasAnyRate = podPorts.some(pod => formData[pod.name] && formData[pod.name] !== '');
     if (!hasAnyRate) return;
@@ -127,7 +133,7 @@ export default function PortBorderTable() {
     for (const pod of podPorts) {
       if (formData[pod.name] && formData[pod.name] !== '') {
         const existingFreight = portBorderFreights.find(
-          f => f.agent === formData.agent && f.pod === pod.name
+          f => f.agent === formData.agent && f.pol === formData.pol && f.pod === pod.name
         );
         
         const error = validateNoOverlap(
@@ -135,7 +141,7 @@ export default function PortBorderTable() {
           formData.validTo,
           existingFreight?.id || '',
           portBorderFreights,
-          (item) => item.agent === formData.agent && item.pod === pod.name
+          (item) => item.agent === formData.agent && item.pol === formData.pol && item.pod === pod.name
         );
 
         if (error) {
@@ -148,12 +154,13 @@ export default function PortBorderTable() {
     podPorts.forEach(pod => {
       if (formData[pod.name] && formData[pod.name] !== '') {
         const existingFreight = portBorderFreights.find(
-          f => f.agent === formData.agent && f.pod === pod.name
+          f => f.agent === formData.agent && f.pol === formData.pol && f.pod === pod.name
         );
 
         if (existingFreight) {
           updatePortBorderFreight(existingFreight.id, {
             agent: formData.agent,
+            pol: formData.pol,
             pod: pod.name,
             rate: Number(formData[pod.name]),
             validFrom: formData.validFrom,
@@ -162,6 +169,7 @@ export default function PortBorderTable() {
         } else {
           addPortBorderFreight({
             agent: formData.agent,
+            pol: formData.pol,
             pod: pod.name,
             rate: Number(formData[pod.name]),
             validFrom: formData.validFrom,
@@ -176,8 +184,8 @@ export default function PortBorderTable() {
     setIsAddDialogOpen(false);
   };
 
-  const handleVersionChangeClick = (agent: string, freights: { [pod: string]: PortBorderFreight | undefined }) => {
-    const agentFreights = portBorderFreights.filter(f => f.agent === agent);
+  const handleVersionChangeClick = (agent: string, pol: string, freights: { [pod: string]: PortBorderFreight | undefined }) => {
+    const agentFreights = portBorderFreights.filter(f => f.agent === agent && f.pol === pol);
     const maxVersion = Math.max(...agentFreights.map(item => item.version || 1), 0);
     const nextVersion = maxVersion + 1;
 
@@ -224,6 +232,7 @@ export default function PortBorderTable() {
 
     setVersionChangeData({
       agent,
+      pol,
       rates,
       validFrom,
       validTo,
@@ -247,7 +256,7 @@ export default function PortBorderTable() {
     podPorts.forEach(pod => {
       if (versionChangeData.rates[pod.name] && versionChangeData.rates[pod.name] > 0) {
         const existingFreight = portBorderFreights.find(
-          f => f.agent === versionChangeData.agent && f.pod === pod.name
+          f => f.agent === versionChangeData.agent && f.pol === versionChangeData.pol && f.pod === pod.name
         );
 
         if (existingFreight) {
@@ -273,15 +282,14 @@ export default function PortBorderTable() {
     setValidationError(null);
   };
 
-  // FIX: Delete all freights for an agent with a single confirmation
-  const handleDeleteAgent = (agent: string, freights: { [pod: string]: PortBorderFreight | undefined }) => {
+  const handleDeleteAgent = (agent: string, pol: string, freights: { [pod: string]: PortBorderFreight | undefined }) => {
     const freightIds = Object.values(freights)
       .filter(f => f !== undefined)
       .map(f => f!.id);
     
     if (freightIds.length === 0) return;
     
-    if (confirm(`${agent}의 모든 철도운임(${freightIds.length}개)을 삭제하시겠습니까?`)) {
+    if (confirm(`${agent} (${pol})의 모든 철도운임(${freightIds.length}개)을 삭제하시겠습니까?`)) {
       freightIds.forEach(id => {
         deletePortBorderFreight(id);
       });
@@ -294,34 +302,41 @@ export default function PortBorderTable() {
     setIsAddDialogOpen(true);
   };
 
-  const freightsByAgent = railAgents.map((agent) => {
-    const agentFreights: { [pod: string]: PortBorderFreight | undefined } = {};
-    podPorts.forEach(pod => {
-      agentFreights[pod.name] = portBorderFreights.find(
-        f => f.agent === agent.name && f.pod === pod.name
-      );
-    });
+  // Group freights by agent and POL
+  const freightsByAgentAndPol = railAgents.flatMap((agent) => {
+    const agentPolGroups = polPorts.map(pol => {
+      const agentFreights: { [pod: string]: PortBorderFreight | undefined } = {};
+      podPorts.forEach(pod => {
+        agentFreights[pod.name] = portBorderFreights.find(
+          f => f.agent === agent.name && f.pol === pol.name && f.pod === pod.name
+        );
+      });
+      
+      const firstFreight = Object.values(agentFreights).find(f => f);
+      const validityStatus = firstFreight ? getValidityStatus(firstFreight.validFrom, firstFreight.validTo) : null;
+      
+      return {
+        agent: agent.name,
+        pol: pol.name,
+        freights: agentFreights,
+        validityStatus,
+        validFrom: firstFreight?.validFrom || '',
+        validTo: firstFreight?.validTo || '',
+        version: firstFreight?.version || 1,
+        hasData: Object.values(agentFreights).some(f => f)
+      };
+    }).filter(group => group.hasData);
     
-    const firstFreight = Object.values(agentFreights).find(f => f);
-    const validityStatus = firstFreight ? getValidityStatus(firstFreight.validFrom, firstFreight.validTo) : null;
-    
-    return {
-      agent: agent.name,
-      freights: agentFreights,
-      validityStatus,
-      validFrom: firstFreight?.validFrom || '',
-      validTo: firstFreight?.validTo || '',
-      version: firstFreight?.version || 1,
-    };
+    return agentPolGroups;
   });
 
-  const hasExistingData = (agentName: string) => {
-    return portBorderFreights.some(f => f.agent === agentName);
+  const hasExistingData = (agentName: string, polName: string) => {
+    return portBorderFreights.some(f => f.agent === agentName && f.pol === polName);
   };
 
   const auditLogs = getAuditLogsByType('portBorderFreight');
-  const expiredRates = freightsByAgent.filter(f => f.validityStatus?.status === 'expired');
-  const expiringRates = freightsByAgent.filter(f => f.validityStatus?.status === 'expiring');
+  const expiredRates = freightsByAgentAndPol.filter(f => f.validityStatus?.status === 'expired');
+  const expiringRates = freightsByAgentAndPol.filter(f => f.validityStatus?.status === 'expiring');
 
   return (
     <div className="space-y-6">
@@ -382,6 +397,7 @@ export default function PortBorderTable() {
                   철도 대리점
                 </div>
               </TableHead>
+              <TableHead className="font-bold">선적항 (POL)</TableHead>
               {podPorts.map(pod => (
                 <TableHead key={pod.id} className="font-bold">
                   {pod.name} → {borderCityName}
@@ -393,14 +409,15 @@ export default function PortBorderTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {freightsByAgent.map(({ agent, freights, validityStatus, validFrom, validTo, version }) => {
+            {freightsByAgentAndPol.map(({ agent, pol, freights, validityStatus, validFrom, validTo, version }) => {
               const hasData = Object.values(freights).some(f => f);
               return (
-                <TableRow key={agent} className="hover:bg-green-50/50 transition-colors">
+                <TableRow key={`${agent}-${pol}`} className="hover:bg-green-50/50 transition-colors">
                   <TableCell>
                     {hasData && <Badge variant="outline" className="font-semibold">v{version}</Badge>}
                   </TableCell>
                   <TableCell className="font-medium">{agent}</TableCell>
+                  <TableCell className="font-medium text-blue-700">{pol}</TableCell>
                   {podPorts.map(pod => {
                     const freight = freights[pod.name];
                     return (
@@ -437,7 +454,7 @@ export default function PortBorderTable() {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => handleVersionChangeClick(agent, freights)}
+                            onClick={() => handleVersionChangeClick(agent, pol, freights)}
                             className="bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-300 transition-all hover:scale-105"
                           >
                             <RefreshCw className="h-4 w-4 mr-1" />
@@ -446,7 +463,7 @@ export default function PortBorderTable() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => handleDeleteAgent(agent, freights)}
+                            onClick={() => handleDeleteAgent(agent, pol, freights)}
                             className="hover:bg-red-50 hover:text-red-700 transition-all hover:scale-105"
                           >
                             <Trash2 className="h-4 w-4 text-red-600" />
@@ -501,7 +518,25 @@ export default function PortBorderTable() {
                   {railAgents.map((agent) => (
                     <SelectItem key={agent.id} value={agent.name}>
                       {agent.name}
-                      {hasExistingData(agent.name) && <span className="ml-2 text-xs text-blue-600">(기존 데이터 있음)</span>}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>선적항 (POL)</Label>
+              <Select value={formData.pol} onValueChange={(value) => {
+                setFormData({ ...formData, pol: value });
+                setValidationError(null);
+              }}>
+                <SelectTrigger>
+                  <SelectValue placeholder="선적항 선택" />
+                </SelectTrigger>
+                <SelectContent>
+                  {polPorts.map((port) => (
+                    <SelectItem key={port.id} value={port.name}>
+                      {port.name}
+                      {hasExistingData(formData.agent, port.name) && <span className="ml-2 text-xs text-blue-600">(기존 데이터 있음)</span>}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -545,7 +580,7 @@ export default function PortBorderTable() {
               취소
             </Button>
             <Button onClick={handleAdd}>
-              {formData.agent && hasExistingData(formData.agent) ? '수정' : '추가'}
+              {formData.agent && formData.pol && hasExistingData(formData.agent, formData.pol) ? '수정' : '추가'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -595,6 +630,11 @@ export default function PortBorderTable() {
               <div className="space-y-2">
                 <Label>철도 대리점</Label>
                 <Input value={versionChangeData.agent} disabled className="bg-gray-50" />
+              </div>
+
+              <div className="space-y-2">
+                <Label>선적항 (POL)</Label>
+                <Input value={versionChangeData.pol} disabled className="bg-gray-50" />
               </div>
 
               <div className="space-y-2">

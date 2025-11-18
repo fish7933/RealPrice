@@ -21,8 +21,8 @@ interface CostInputFormProps {
   onCalculate: () => void;
   onViewAllFreights: () => void;
   onReset: () => void;
-  onTimeMachineOpen: () => void;
-  onSeaFreightDialogOpen: () => void;
+  onOpenTimeMachine: () => void;
+  onOpenSeaFreightDialog: () => void;
   result: CostCalculationResult | null;
 }
 
@@ -40,8 +40,8 @@ export default function CostInputForm({
   onCalculate,
   onViewAllFreights,
   onReset,
-  onTimeMachineOpen,
-  onSeaFreightDialogOpen,
+  onOpenTimeMachine,
+  onOpenSeaFreightDialog,
   result,
 }: CostInputFormProps) {
   const addOtherCost = () => {
@@ -90,7 +90,7 @@ export default function CostInputForm({
           </div>
           <Button
             variant={historicalDate ? "default" : "outline"}
-            onClick={onTimeMachineOpen}
+            onClick={onOpenTimeMachine}
             className={historicalDate 
               ? "bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white shadow-lg flex items-center justify-center" 
               : "border-2 border-purple-300 hover:bg-purple-50 flex items-center justify-center"}
@@ -158,7 +158,7 @@ export default function CostInputForm({
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={onSeaFreightDialogOpen}
+                  onClick={onOpenSeaFreightDialog}
                   className="h-7 text-xs border-amber-300 hover:bg-amber-50 flex items-center justify-center"
                 >
                   <Ship className="h-3 w-3 mr-1" />
@@ -265,11 +265,11 @@ export default function CostInputForm({
             <Button
               type="button"
               variant="outline"
-              size="sm"
+              size="default"
               onClick={addOtherCost}
-              className="h-8 text-xs border-2 border-green-300 hover:bg-green-100 flex items-center justify-center"
+              className="h-10 px-4 text-sm border-2 border-green-300 hover:bg-green-100 flex items-center justify-center"
             >
-              <Plus className="h-3 w-3 mr-1" />
+              <Plus className="h-4 w-4 mr-2" />
               항목 추가
             </Button>
           </div>
@@ -282,14 +282,14 @@ export default function CostInputForm({
                     placeholder="비용 항목 (예: 통관비용)"
                     value={cost.category}
                     onChange={(e) => updateOtherCost(index, 'category', e.target.value)}
-                    className="flex-1 border-2 border-green-200"
+                    className="flex-1 h-10 border-2 border-green-200"
                   />
                   <Input
                     type="number"
                     placeholder="금액 (USD)"
                     value={cost.amount || ''}
                     onChange={(e) => updateOtherCost(index, 'amount', Number(e.target.value))}
-                    className="w-32 border-2 border-green-200"
+                    className="flex-1 h-10 border-2 border-green-200"
                   />
                   <Button
                     type="button"

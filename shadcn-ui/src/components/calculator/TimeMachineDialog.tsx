@@ -27,12 +27,12 @@ interface TimeMachineDialogProps {
 }
 
 export default function TimeMachineDialog({ open, onOpenChange, onSelectDate, currentDate }: TimeMachineDialogProps) {
-  const { getAvailableHistoricalDates, auditLogs } = useFreight();
+  const { getAvailableHistoricalDates, freightAuditLogs } = useFreight();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(
     currentDate ? new Date(currentDate + 'T00:00:00') : undefined
   );
   const [availableDates, setAvailableDates] = useState<string[]>([]);
-  const [dateChanges, setDateChanges] = useState<typeof auditLogs>([]);
+  const [dateChanges, setDateChanges] = useState<typeof freightAuditLogs>([]);
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
   useEffect(() => {
@@ -47,7 +47,7 @@ export default function TimeMachineDialog({ open, onOpenChange, onSelectDate, cu
       const day = String(selectedDate.getDate()).padStart(2, '0');
       const dateStr = `${year}-${month}-${day}`;
       
-      const changes = auditLogs.filter(log => {
+      const changes = freightAuditLogs.filter(log => {
         const logDate = log.timestamp.split('T')[0];
         return logDate === dateStr;
       });
@@ -55,7 +55,7 @@ export default function TimeMachineDialog({ open, onOpenChange, onSelectDate, cu
     } else {
       setDateChanges([]);
     }
-  }, [selectedDate, auditLogs]);
+  }, [selectedDate, freightAuditLogs]);
 
   const handleDateSelect = (date: Date) => {
     setSelectedDate(date);
@@ -385,7 +385,7 @@ export default function TimeMachineDialog({ open, onOpenChange, onSelectDate, cu
                                 </Badge>
                               </TableCell>
                               <TableCell className="text-xs font-medium text-gray-700 py-2">
-                                {log.changedByName}
+                                {log.username}
                               </TableCell>
                             </TableRow>
                           );

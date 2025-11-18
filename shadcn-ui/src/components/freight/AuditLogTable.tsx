@@ -11,7 +11,7 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { History, Plus, Edit, Trash2, Trash, Eye, ChevronLeft, ChevronRight } from 'lucide-react';
+import { History, Plus, Edit, Trash2, Trash, Eye, ChevronLeft, ChevronRight, ShieldAlert } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useAuth } from '@/contexts/AuthContext';
 import { useFreight } from '@/contexts/FreightContext';
@@ -32,6 +32,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface AuditLogTableProps {
   logs: FreightAuditLog[];
@@ -62,7 +63,8 @@ export default function AuditLogTable({ logs, title = '운임 변경 기록', de
   const [selectedGroupedLog, setSelectedGroupedLog] = useState<GroupedLog | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
 
-  const isAdmin = user?.role === 'admin' || user?.role === 'superadmin';
+  // Only super admin can delete version history
+  const isSuperAdmin = user?.role === 'superadmin';
 
   // Check if this is a rail or truck freight log that needs grouping
   const needsGrouping = logs.length > 0 && 
@@ -208,12 +210,15 @@ export default function AuditLogTable({ logs, title = '운임 변경 기록', de
   };
 
   const handleDeleteLog = (logId: string) => {
+    if (!isSuperAdmin) {
+      return;
+    }
     setSelectedLogId(logId);
     setDeleteDialogOpen(true);
   };
 
   const confirmDeleteLog = () => {
-    if (selectedLogId) {
+    if (selectedLogId && isSuperAdmin) {
       deleteAuditLog(selectedLogId);
       setSelectedLogId(null);
     }
@@ -221,10 +226,17 @@ export default function AuditLogTable({ logs, title = '운임 변경 기록', de
   };
 
   const handleClearAll = () => {
+    if (!isSuperAdmin) {
+      return;
+    }
     setClearDialogOpen(true);
   };
 
   const confirmClearAll = () => {
+    if (!isSuperAdmin) {
+      setClearDialogOpen(false);
+      return;
+    }
     // Get entity type from first log if exists
     const entityType = logs.length > 0 ? logs[0].entityType : undefined;
     clearAuditLogs(entityType);
@@ -262,7 +274,7 @@ export default function AuditLogTable({ logs, title = '운임 변경 기록', de
               </CardTitle>
               <CardDescription>{description}</CardDescription>
             </div>
-            {isAdmin && logs.length > 0 && (
+            {isSuperAdmin && logs.length > 0 && (
               <Button
                 variant="destructive"
                 size="sm"
@@ -275,6 +287,18 @@ export default function AuditLogTable({ logs, title = '운임 변경 기록', de
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
+          {/* Super Admin Only Warning */}
+          {!isSuperAdmin && (
+            <Alert className="bg-amber-50 border-amber-200">
+              <ShieldAlert className="h-4 w-4 text-amber-600" />
+              <AlertDescription className="text-amber-800">
+                <span className="font-semibold">🔒 버전 기록 보호</span>
+                <br />
+                버전 기록은 데이터 추적성을 위한 귀중한 자료입니다. 삭제 권한은 슈퍼 관리자만 보유합니다.
+              </AlertDescription>
+            </Alert>
+          )}
+
           <ScrollArea className="h-[400px] w-full">
             <Table>
               <TableHeader>
@@ -322,7 +346,7 @@ export default function AuditLogTable({ logs, title = '운임 변경 기록', de
                           <Eye className="h-4 w-4 mr-1" />
                           보기
                         </Button>
-                        {isAdmin && !needsGrouping && (
+                        {isSuperAdmin && !needsGrouping && (
                           <Button
                             variant="ghost"
                             size="icon"
@@ -581,6 +605,10 @@ export default function AuditLogTable({ logs, title = '운임 변경 기록', de
             <AlertDialogTitle>변경 기록 삭제</AlertDialogTitle>
             <AlertDialogDescription>
               이 변경 기록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.
+              <br />
+              <span className="text-amber-600 font-semibold mt-2 block">
+                ⚠️ 버전 기록은 데이터 추적성을 위한 귀중한 자료입니다.
+              </span>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -599,6 +627,10 @@ export default function AuditLogTable({ logs, title = '운임 변경 기록', de
             <AlertDialogTitle>전체 기록 삭제</AlertDialogTitle>
             <AlertDialogDescription>
               이 테이블의 모든 변경 기록({logs.length}건)을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.
+              <br />
+              <span className="text-red-600 font-semibold mt-2 block">
+                🚨 경고: 모든 버전 기록이 영구적으로 삭제됩니다. 데이터 추적이 불가능해집니다.
+              </span>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

@@ -6,12 +6,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Ship, Train, Truck, Weight, Package, Star, FileText, DollarSign, 
   Info, ArrowUp, ArrowDown, Merge, TrendingDown, AlertTriangle, 
-  FileSpreadsheet, Sparkles, Trophy, Zap, Plus, Hash, Calculator, Database
+  FileSpreadsheet, Sparkles, Trophy, Zap, Plus, Hash, Calculator
 } from 'lucide-react';
 import { CostCalculationResult, AgentCostBreakdown, CostCalculationInput } from '@/types/freight';
 import { ExcludedCosts, CellExclusions, SortConfig } from './types';
 import { DebugLLocal } from './DebugLLocal';
-import FreightSqlDialog from './FreightSqlDialog';
 
 interface CostResultTableProps {
   result: CostCalculationResult | null;
@@ -44,9 +43,6 @@ export default function CostResultTable({
   onCreateQuotation,
   getDestinationName,
 }: CostResultTableProps) {
-  const [sqlDialogOpen, setSqlDialogOpen] = useState(false);
-  const [selectedBreakdown, setSelectedBreakdown] = useState<AgentCostBreakdown | null>(null);
-  
   const isCellExcluded = (agentIndex: number, costType: string): boolean => {
     return cellExclusions[agentIndex]?.[costType] || false;
   };
@@ -166,11 +162,6 @@ export default function CostResultTable({
 
   const isExpired = (breakdown: AgentCostBreakdown, field: string) => {
     return breakdown.expiredRateDetails?.includes(field) || false;
-  };
-
-  const handleShowSql = (breakdown: AgentCostBreakdown) => {
-    setSelectedBreakdown(breakdown);
-    setSqlDialogOpen(true);
   };
 
   const renderResultTable = (resultData: CostCalculationResult, showDpColumn: boolean = false) => {
@@ -395,12 +386,9 @@ export default function CostResultTable({
                         )}
                       </div>
                     </TableHead>
-                    <TableHead className="text-center whitespace-nowrap w-24 p-1 text-sm font-bold">
+                    <TableHead className="text-center whitespace-nowrap w-16 p-1 text-sm font-bold">
                       <div className="flex flex-col items-center gap-0.5">
-                        <div className="flex items-center gap-1">
-                          <FileSpreadsheet className="h-3.5 w-3.5" />
-                          <Database className="h-3.5 w-3.5" />
-                        </div>
+                        <FileSpreadsheet className="h-3.5 w-3.5" />
                         <span className="text-xs">작업</span>
                       </div>
                     </TableHead>
@@ -703,7 +691,7 @@ export default function CostResultTable({
                           )}
                         </TableCell>
                         <TableCell className="text-center whitespace-nowrap p-1">
-                          <div className="flex items-center justify-center gap-1">
+                          <div className="flex items-center justify-center">
                             {isLowest ? (
                               <Button
                                 size="sm"
@@ -724,15 +712,6 @@ export default function CostResultTable({
                                 <FileSpreadsheet className="h-4 w-4 text-gray-600" />
                               </Button>
                             )}
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => handleShowSql(breakdown)}
-                              className="h-8 w-8 p-0 hover:bg-blue-100 transition-colors"
-                              title="SQL 보기"
-                            >
-                              <Database className="h-4 w-4 text-blue-600" />
-                            </Button>
                           </div>
                         </TableCell>
                       </TableRow>
@@ -873,16 +852,6 @@ export default function CostResultTable({
           )}
         </TabsContent>
       </Tabs>
-
-      {selectedBreakdown && (
-        <FreightSqlDialog
-          open={sqlDialogOpen}
-          onOpenChange={setSqlDialogOpen}
-          breakdown={selectedBreakdown}
-          input={input}
-          historicalDate={result?.historicalDate || allFreightsResult?.historicalDate}
-        />
-      )}
     </>
   );
 }

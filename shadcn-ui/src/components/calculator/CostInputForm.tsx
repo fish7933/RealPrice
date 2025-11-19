@@ -3,11 +3,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Calculator, RotateCcw, Sparkles, Ship, Clock, Database, Plus, X } from 'lucide-react';
+import { Calculator, RotateCcw, Sparkles, Ship, Clock, Plus, X } from 'lucide-react';
 import { CostCalculationInput, Destination, Port, SeaFreight, CostCalculationResult, OtherCost } from '@/types/freight';
 import { Checkbox } from '@/components/ui/checkbox';
-import { useState } from 'react';
-import CalculationSqlPreviewDialog from './CalculationSqlPreviewDialog';
 
 interface CostInputFormProps {
   input: CostCalculationInput;
@@ -48,14 +46,10 @@ export default function CostInputForm({
   onOpenTimeMachine,
   result,
 }: CostInputFormProps) {
-  const [sqlPreviewOpen, setSqlPreviewOpen] = useState(false);
-
   const getDestinationName = (destinationId: string) => {
     const destination = destinations.find(d => d.id === destinationId);
     return destination ? destination.name : destinationId;
   };
-
-  const canShowSqlPreview = input.pol && input.pod && input.destinationId && input.weight > 0;
 
   const handleAddOtherCost = () => {
     if (input.otherCosts.length >= MAX_OTHER_COSTS) {
@@ -302,17 +296,6 @@ export default function CostInputForm({
           계산하기
         </Button>
 
-        {canShowSqlPreview && (
-          <Button 
-            onClick={() => setSqlPreviewOpen(true)} 
-            variant="outline"
-            className="flex items-center gap-2"
-          >
-            <Database className="h-4 w-4" />
-            SQL 미리보기
-          </Button>
-        )}
-
         {!historicalDate && (
           <Button
             onClick={onOpenTimeMachine}
@@ -340,14 +323,6 @@ export default function CostInputForm({
           초기화
         </Button>
       </div>
-
-      <CalculationSqlPreviewDialog
-        open={sqlPreviewOpen}
-        onOpenChange={setSqlPreviewOpen}
-        input={input}
-        historicalDate={historicalDate}
-        getDestinationName={getDestinationName}
-      />
     </div>
   );
 }

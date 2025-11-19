@@ -362,8 +362,8 @@ export default function QuotationDialog({
             </Table>
           </div>
 
-          <div className="space-y-2 text-sm text-gray-600 mt-4">
-            <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-1 text-xs text-gray-600 mt-2">
+            <div className="grid grid-cols-2 gap-2">
               <div>
                 <span className="font-semibold">중량:</span> {input.weight.toLocaleString()} kg
               </div>
@@ -401,7 +401,7 @@ export default function QuotationDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <DollarSign className="h-5 w-5" />
@@ -412,11 +412,11 @@ export default function QuotationDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6">
-          {/* Route Information */}
-          <div className="p-4 bg-gray-50 rounded-lg">
-            <h3 className="font-semibold mb-2">경로 정보</h3>
-            <div className="grid grid-cols-2 gap-2 text-sm">
+        <div className="space-y-4">
+          {/* Route Information - More Compact */}
+          <div className="p-3 bg-gray-50 rounded-lg">
+            <h3 className="font-semibold text-sm mb-2">경로 정보</h3>
+            <div className="grid grid-cols-2 gap-2 text-xs">
               <div>
                 <span className="text-gray-600">출발항:</span> <span className="font-medium">{input.pol}</span>
               </div>
@@ -440,83 +440,83 @@ export default function QuotationDialog({
             </div>
           </div>
 
-          {/* Cost Breakdown Table */}
+          {/* Cost Breakdown Table - More Compact */}
           <div>
-            <h3 className="font-semibold mb-2">비용 상세</h3>
+            <h3 className="font-semibold text-sm mb-2">비용 상세</h3>
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>항목</TableHead>
-                  <TableHead className="text-right">금액 (USD)</TableHead>
-                  <TableHead className="text-center">포함여부</TableHead>
+                <TableRow className="text-xs">
+                  <TableHead className="py-2">항목</TableHead>
+                  <TableHead className="text-right py-2">금액 (USD)</TableHead>
+                  <TableHead className="text-center py-2">포함여부</TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody>
+              <TableBody className="text-xs">
                 <TableRow className={excludedCosts.seaFreight ? 'opacity-50' : ''}>
-                  <TableCell>해상운임</TableCell>
-                  <TableCell className="text-right">${excludedCosts.seaFreight ? 0 : breakdown.seaFreight}</TableCell>
-                  <TableCell className="text-center">{excludedCosts.seaFreight ? '제외' : '포함'}</TableCell>
+                  <TableCell className="py-1.5">해상운임</TableCell>
+                  <TableCell className="text-right py-1.5">${excludedCosts.seaFreight ? 0 : breakdown.seaFreight}</TableCell>
+                  <TableCell className="text-center py-1.5">{excludedCosts.seaFreight ? '제외' : '포함'}</TableCell>
                 </TableRow>
                 <TableRow className={excludedCosts.dthc ? 'opacity-50' : ''}>
-                  <TableCell>D/O (DTHC)</TableCell>
-                  <TableCell className="text-right">${excludedCosts.dthc ? 0 : breakdown.dthc}</TableCell>
-                  <TableCell className="text-center">{excludedCosts.dthc ? '제외' : '포함'}</TableCell>
+                  <TableCell className="py-1.5">D/O (DTHC)</TableCell>
+                  <TableCell className="text-right py-1.5">${excludedCosts.dthc ? 0 : breakdown.dthc}</TableCell>
+                  <TableCell className="text-center py-1.5">{excludedCosts.dthc ? '제외' : '포함'}</TableCell>
                 </TableRow>
                 {breakdown.isCombinedFreight ? (
                   <TableRow className={excludedCosts.combinedFreight ? 'opacity-50' : ''}>
-                    <TableCell>통합운임</TableCell>
-                    <TableCell className="text-right">${excludedCosts.combinedFreight ? 0 : breakdown.combinedFreight}</TableCell>
-                    <TableCell className="text-center">{excludedCosts.combinedFreight ? '제외' : '포함'}</TableCell>
+                    <TableCell className="py-1.5">통합운임</TableCell>
+                    <TableCell className="text-right py-1.5">${excludedCosts.combinedFreight ? 0 : breakdown.combinedFreight}</TableCell>
+                    <TableCell className="text-center py-1.5">{excludedCosts.combinedFreight ? '제외' : '포함'}</TableCell>
                   </TableRow>
                 ) : (
                   <>
                     <TableRow className={excludedCosts.portBorder ? 'opacity-50' : ''}>
-                      <TableCell>철도운임</TableCell>
-                      <TableCell className="text-right">${excludedCosts.portBorder ? 0 : breakdown.portBorder}</TableCell>
-                      <TableCell className="text-center">{excludedCosts.portBorder ? '제외' : '포함'}</TableCell>
+                      <TableCell className="py-1.5">철도운임</TableCell>
+                      <TableCell className="text-right py-1.5">${excludedCosts.portBorder ? 0 : breakdown.portBorder}</TableCell>
+                      <TableCell className="text-center py-1.5">{excludedCosts.portBorder ? '제외' : '포함'}</TableCell>
                     </TableRow>
                     <TableRow className={excludedCosts.borderDestination ? 'opacity-50' : ''}>
-                      <TableCell>트럭운임</TableCell>
-                      <TableCell className="text-right">${excludedCosts.borderDestination ? 0 : breakdown.borderDestination}</TableCell>
-                      <TableCell className="text-center">{excludedCosts.borderDestination ? '제외' : '포함'}</TableCell>
+                      <TableCell className="py-1.5">트럭운임</TableCell>
+                      <TableCell className="text-right py-1.5">${excludedCosts.borderDestination ? 0 : breakdown.borderDestination}</TableCell>
+                      <TableCell className="text-center py-1.5">{excludedCosts.borderDestination ? '제외' : '포함'}</TableCell>
                     </TableRow>
                   </>
                 )}
                 <TableRow className={excludedCosts.weightSurcharge ? 'opacity-50' : ''}>
-                  <TableCell>중량할증</TableCell>
-                  <TableCell className="text-right">${excludedCosts.weightSurcharge ? 0 : breakdown.weightSurcharge}</TableCell>
-                  <TableCell className="text-center">{excludedCosts.weightSurcharge ? '제외' : '포함'}</TableCell>
+                  <TableCell className="py-1.5">중량할증</TableCell>
+                  <TableCell className="text-right py-1.5">${excludedCosts.weightSurcharge ? 0 : breakdown.weightSurcharge}</TableCell>
+                  <TableCell className="text-center py-1.5">{excludedCosts.weightSurcharge ? '제외' : '포함'}</TableCell>
                 </TableRow>
                 <TableRow className={excludedCosts.dp ? 'opacity-50' : ''}>
-                  <TableCell>DP</TableCell>
-                  <TableCell className="text-right">${excludedCosts.dp ? 0 : breakdown.dp}</TableCell>
-                  <TableCell className="text-center">{excludedCosts.dp ? '제외' : '포함'}</TableCell>
+                  <TableCell className="py-1.5">DP</TableCell>
+                  <TableCell className="text-right py-1.5">${excludedCosts.dp ? 0 : breakdown.dp}</TableCell>
+                  <TableCell className="text-center py-1.5">{excludedCosts.dp ? '제외' : '포함'}</TableCell>
                 </TableRow>
                 <TableRow className={excludedCosts.domesticTransport ? 'opacity-50' : ''}>
-                  <TableCell>국내운송료</TableCell>
-                  <TableCell className="text-right">${excludedCosts.domesticTransport ? 0 : breakdown.domesticTransport}</TableCell>
-                  <TableCell className="text-center">{excludedCosts.domesticTransport ? '제외' : '포함'}</TableCell>
+                  <TableCell className="py-1.5">국내운송료</TableCell>
+                  <TableCell className="text-right py-1.5">${excludedCosts.domesticTransport ? 0 : breakdown.domesticTransport}</TableCell>
+                  <TableCell className="text-center py-1.5">{excludedCosts.domesticTransport ? '제외' : '포함'}</TableCell>
                 </TableRow>
                 {breakdown.otherCosts.map((item, index) => (
                   <TableRow key={index} className={excludedCosts[`other_${index}`] ? 'opacity-50' : ''}>
-                    <TableCell>{item.category}</TableCell>
-                    <TableCell className="text-right">${excludedCosts[`other_${index}`] ? 0 : item.amount}</TableCell>
-                    <TableCell className="text-center">{excludedCosts[`other_${index}`] ? '제외' : '포함'}</TableCell>
+                    <TableCell className="py-1.5">{item.category}</TableCell>
+                    <TableCell className="text-right py-1.5">${excludedCosts[`other_${index}`] ? 0 : item.amount}</TableCell>
+                    <TableCell className="text-center py-1.5">{excludedCosts[`other_${index}`] ? '제외' : '포함'}</TableCell>
                   </TableRow>
                 ))}
                 <TableRow className="font-bold bg-gray-100">
-                  <TableCell>운임 원가 (Total Cost)</TableCell>
-                  <TableCell className="text-right">${costTotal.toLocaleString()}</TableCell>
-                  <TableCell></TableCell>
+                  <TableCell className="py-2">운임 원가 (Total Cost)</TableCell>
+                  <TableCell className="text-right py-2">${costTotal.toLocaleString()}</TableCell>
+                  <TableCell className="py-2"></TableCell>
                 </TableRow>
               </TableBody>
             </Table>
           </div>
 
-          {/* Selling Price Input */}
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="sellingPrice" className="text-base font-semibold">
+          {/* Selling Price Input - More Compact */}
+          <div className="space-y-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="sellingPrice" className="text-sm font-semibold">
                 제시운임 (Selling Price) *
               </Label>
               <Input
@@ -525,29 +525,29 @@ export default function QuotationDialog({
                 placeholder="0"
                 value={sellingPrice || ''}
                 onChange={(e) => setSellingPrice(Number(e.target.value))}
-                className="text-lg"
+                className="text-base"
               />
               <p className="text-xs text-gray-500">고객에게 제시할 운임을 입력하세요 (USD)</p>
             </div>
 
-            {/* Profit Calculation */}
+            {/* Profit Calculation - More Compact */}
             {sellingPrice > 0 && (
-              <div className="p-4 bg-green-50 rounded-lg border border-green-200 space-y-2">
-                <div className="flex items-center justify-between">
+              <div className="p-3 bg-green-50 rounded-lg border border-green-200 space-y-1.5">
+                <div className="flex items-center justify-between text-sm">
                   <span className="font-semibold">이윤 (Profit):</span>
-                  <span className={`text-lg font-bold ${profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  <span className={`text-base font-bold ${profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                     ${profit.toLocaleString()}
                   </span>
                 </div>
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between text-sm">
                   <span className="font-semibold">이윤율 (Profit Rate):</span>
-                  <span className={`text-lg font-bold flex items-center gap-1 ${profitRate >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    <TrendingUp className="h-4 w-4" />
+                  <span className={`text-base font-bold flex items-center gap-1 ${profitRate >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    <TrendingUp className="h-3.5 w-3.5" />
                     {profitRate.toFixed(2)}%
                   </span>
                 </div>
                 {profit < 0 && (
-                  <p className="text-xs text-red-600 mt-2">
+                  <p className="text-xs text-red-600 mt-1">
                     ⚠️ 제시운임이 원가보다 낮습니다. 손실이 발생합니다.
                   </p>
                 )}

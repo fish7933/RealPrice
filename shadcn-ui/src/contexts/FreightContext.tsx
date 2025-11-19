@@ -1041,10 +1041,13 @@ export function FreightProvider({ children }: { children: ReactNode }) {
   // Combined Freight management
   const addCombinedFreight = async (freight: Omit<CombinedFreight, 'id' | 'createdAt'>) => {
     try {
+      console.log('🔍 [addCombinedFreight] Starting to add combined freight:', freight);
+      
       const { data, error } = await supabaseClient
         .from(TABLES.COMBINED_FREIGHTS)
         .insert({
           agent: freight.agent,
+          pol: freight.pol,  // ✅ FIXED: Added missing pol field
           pod: freight.pod,
           destination_id: freight.destinationId,
           rate: freight.rate,
@@ -1056,11 +1059,17 @@ export function FreightProvider({ children }: { children: ReactNode }) {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ [addCombinedFreight] Database insert error:', error);
+        throw error;
+      }
+
+      console.log('✅ [addCombinedFreight] Database insert successful:', data);
 
       const newFreight: CombinedFreight = {
         id: data.id,
         agent: data.agent,
+        pol: data.pol,  // ✅ FIXED: Added pol to response mapping
         pod: data.pod,
         destinationId: data.destination_id,
         rate: data.rate,
@@ -1071,8 +1080,10 @@ export function FreightProvider({ children }: { children: ReactNode }) {
         createdAt: data.created_at,
       };
       setCombinedFreights([...combinedFreights, newFreight]);
+      
+      console.log('✅ [addCombinedFreight] Combined freight added successfully with POL:', data.pol);
     } catch (error) {
-      console.error('Error adding combined freight:', error);
+      console.error('💥 [addCombinedFreight] Error adding combined freight:', error);
       throw error;
     }
   };
@@ -1083,6 +1094,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
         .from(TABLES.COMBINED_FREIGHTS)
         .update({
           agent: updates.agent,
+          pol: updates.pol,  // ✅ FIXED: Added pol to update
           pod: updates.pod,
           destination_id: updates.destinationId,
           rate: updates.rate,

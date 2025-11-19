@@ -28,26 +28,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Trash2, Plus, AlertTriangle, RefreshCw, Search, X, ChevronLeft, ChevronRight, Merge, Sparkles } from 'lucide-react';
+import { Trash2, Plus, AlertTriangle, Search, X, ChevronLeft, ChevronRight, Merge, Sparkles, Edit } from 'lucide-react';
 import { CombinedFreight } from '@/types/freight';
 import AuditLogTable from './AuditLogTable';
 import { ValidityPeriodInput } from '@/components/ui/validity-period-input';
-import { getValidityStatus, formatValidityDate, validateNoOverlap } from '@/utils/validityHelper';
+import { getValidityStatus, formatValidityDate, checkOverlapWarning } from '@/utils/validityHelper';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-
-interface VersionChangeData {
-  agent: string;
-  pol: string;
-  pod: string;
-  destinationId: string;
-  rate: number;
-  description?: string;
-  validFrom: string;
-  validTo: string;
-  currentVersion: number;
-  nextVersion: number;
-}
 
 const ITEMS_PER_PAGE = 10;
 const FILTER_ALL_VALUE = '__all__';
@@ -66,10 +53,9 @@ export default function CombinedFreightTable() {
   } = useFreight();
 
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [isVersionChangeDialogOpen, setIsVersionChangeDialogOpen] = useState(false);
-  const [versionChangeData, setVersionChangeData] = useState<VersionChangeData | null>(null);
-  const [originalFreightId, setOriginalFreightId] = useState<string | null>(null);
-  const [validationError, setValidationError] = useState<string | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingFreight, setEditingFreight] = useState<CombinedFreight | null>(null);
+  const [validationWarning, setValidationWarning] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     agent: '',
     pol: '',
@@ -81,23 +67,20 @@ export default function CombinedFreightTable() {
     validTo: '',
   });
 
-  // Pagination and filter states
   const [currentPage, setCurrentPage] = useState(1);
   const [searchFilters, setSearchFilters] = useState({
     agent: FILTER_ALL_VALUE,
     pol: FILTER_ALL_VALUE,
     pod: FILTER_ALL_VALUE,
     destination: FILTER_ALL_VALUE,
-    status: FILTER_ALL_VALUE, // 'all', 'active', 'expiring', 'expired'
+    status: FILTER_ALL_VALUE,
   });
 
   const isAdmin = user?.role === 'admin' || user?.role === 'superadmin';
   
-  // Get POL and POD ports from the ports list
   const polPorts = ports.filter(p => p.type === 'POL');
   const podPorts = ports.filter(p => p.type === 'POD');
 
-  // Extract unique values for filter dropdowns
   const filterOptions = useMemo(() => {
     const agents = new Set<string>();
     const pols = new Set<string>();
@@ -122,30 +105,20 @@ export default function CombinedFreightTable() {
     };
   }, [combinedFreights, destinations]);
 
-  // Filter combined freights
   const filteredFreights = useMemo(() => {
     return combinedFreights.filter((freight) => {
-      // Agent filter
       if (searchFilters.agent !== FILTER_ALL_VALUE && freight.agent !== searchFilters.agent) {
         return false;
       }
-
-      // POL filter
       if (searchFilters.pol !== FILTER_ALL_VALUE && freight.pol !== searchFilters.pol) {
         return false;
       }
-
-      // POD filter
       if (searchFilters.pod !== FILTER_ALL_VALUE && freight.pod !== searchFilters.pod) {
         return false;
       }
-
-      // Destination filter
       if (searchFilters.destination !== FILTER_ALL_VALUE && freight.destinationId !== searchFilters.destination) {
         return false;
       }
-
-      // Status filter (expired rates)
       if (searchFilters.status !== FILTER_ALL_VALUE) {
         const validityStatus = getValidityStatus(freight.validFrom, freight.validTo);
         if (searchFilters.status === 'expired' && validityStatus.status !== 'expired') {
@@ -158,7 +131,6 @@ export default function CombinedFreightTable() {
           return false;
         }
       }
-
       return true;
     });
   }, [combinedFreights, searchFilters]);
@@ -170,7 +142,6 @@ export default function CombinedFreightTable() {
     return filteredFreights.slice(startIndex, endIndex);
   }, [filteredFreights, currentPage]);
 
-  // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
   }, [searchFilters]);
@@ -186,16 +157,16 @@ export default function CombinedFreightTable() {
       validFrom: '',
       validTo: '',
     });
-    setValidationError(null);
+    setValidationWarning(null);
   };
 
   const handleAdd = () => {
     if (!formData.agent || !formData.pol || !formData.pod || !formData.destinationId || !formData.rate || !formData.validFrom || !formData.validTo) {
-      alert('대리점, 선적항, 양하항, 목적지, 운임, 유효기간을 모두 입력해주세요.');
+      setValidationWarning('❌ 모든 필수 항목을 입력해주세요.');
       return;
     }
 
-    const error = validateNoOverlap(
+    const warning = checkOverlapWarning(
       formData.validFrom,
       formData.validTo,
       '',
@@ -203,8 +174,8 @@ export default function CombinedFreightTable() {
       (item) => item.agent === formData.agent && item.pol === formData.pol && item.pod === formData.pod && item.destinationId === formData.destinationId
     );
 
-    if (error) {
-      setValidationError(error);
+    if (warning) {
+      setValidationWarning(warning);
       return;
     }
 
@@ -223,86 +194,64 @@ export default function CombinedFreightTable() {
     setIsAddDialogOpen(false);
   };
 
-  const handleVersionChangeClick = (freight: CombinedFreight) => {
-    const relevantItems = combinedFreights.filter(
-      (item) => item.agent === freight.agent && item.pol === freight.pol && item.pod === freight.pod && item.destinationId === freight.destinationId
-    );
-    const maxVersion = Math.max(...relevantItems.map(item => item.version || 1), 0);
-    const nextVersion = maxVersion + 1;
+  const handleAddIgnoreWarning = () => {
+    if (!formData.agent || !formData.pol || !formData.pod || !formData.destinationId || !formData.rate || !formData.validFrom || !formData.validTo) return;
 
-    let validFrom = '';
-    let validTo = '';
+    addCombinedFreight({
+      agent: formData.agent,
+      pol: formData.pol,
+      pod: formData.pod,
+      destinationId: formData.destinationId,
+      rate: parseFloat(formData.rate),
+      description: formData.description,
+      validFrom: formData.validFrom,
+      validTo: formData.validTo,
+    });
 
-    try {
-      if (!freight.validTo || freight.validTo === '') {
-        const today = new Date();
-        validFrom = today.toISOString().split('T')[0];
-      } else {
-        const validFromDate = new Date(freight.validTo);
-        if (isNaN(validFromDate.getTime())) {
-          const today = new Date();
-          validFrom = today.toISOString().split('T')[0];
-        } else {
-          validFromDate.setDate(validFromDate.getDate() + 1);
-          validFrom = validFromDate.toISOString().split('T')[0];
-        }
-      }
+    resetForm();
+    setIsAddDialogOpen(false);
+  };
 
-      const validToDate = new Date(validFrom);
-      validToDate.setMonth(validToDate.getMonth() + 1);
-      validTo = validToDate.toISOString().split('T')[0];
-    } catch (error) {
-      console.error('Error calculating validity dates:', error);
-      const today = new Date();
-      validFrom = today.toISOString().split('T')[0];
-      const nextMonth = new Date(today);
-      nextMonth.setMonth(nextMonth.getMonth() + 1);
-      validTo = nextMonth.toISOString().split('T')[0];
-    }
-
-    setVersionChangeData({
+  const handleEditClick = (freight: CombinedFreight) => {
+    setEditingFreight(freight);
+    setFormData({
       agent: freight.agent,
       pol: freight.pol,
       pod: freight.pod,
       destinationId: freight.destinationId,
-      rate: freight.rate,
-      description: freight.description,
-      validFrom,
-      validTo,
-      currentVersion: freight.version || 1,
-      nextVersion,
+      rate: freight.rate.toString(),
+      description: freight.description || '',
+      validFrom: freight.validFrom,
+      validTo: freight.validTo,
     });
-    setOriginalFreightId(freight.id);
-    setValidationError(null);
-    setIsVersionChangeDialogOpen(true);
+    setValidationWarning(null);
+    setIsEditDialogOpen(true);
   };
 
-  const handleVersionChangeSave = () => {
-    if (!versionChangeData || !originalFreightId) return;
-
-    if (!versionChangeData.rate || !versionChangeData.validFrom || !versionChangeData.validTo) {
-      setValidationError('❌ 모든 필수 항목을 입력해주세요.');
+  const handleEditSave = () => {
+    if (!editingFreight) return;
+    
+    if (!formData.rate || !formData.validFrom || !formData.validTo) {
+      setValidationWarning('❌ 모든 필수 항목을 입력해주세요.');
       return;
     }
 
-    updateCombinedFreight(originalFreightId, {
-      rate: versionChangeData.rate,
-      description: versionChangeData.description,
-      validFrom: versionChangeData.validFrom,
-      validTo: versionChangeData.validTo,
+    updateCombinedFreight(editingFreight.id, {
+      rate: parseFloat(formData.rate),
+      description: formData.description,
+      validFrom: formData.validFrom,
+      validTo: formData.validTo,
     });
 
-    setIsVersionChangeDialogOpen(false);
-    setVersionChangeData(null);
-    setOriginalFreightId(null);
-    setValidationError(null);
+    setIsEditDialogOpen(false);
+    setEditingFreight(null);
+    resetForm();
   };
 
-  const handleVersionChangeCancel = () => {
-    setIsVersionChangeDialogOpen(false);
-    setVersionChangeData(null);
-    setOriginalFreightId(null);
-    setValidationError(null);
+  const handleEditCancel = () => {
+    setIsEditDialogOpen(false);
+    setEditingFreight(null);
+    resetForm();
   };
 
   const handleDelete = (id: string) => {
@@ -332,7 +281,6 @@ export default function CombinedFreightTable() {
 
   return (
     <div className="space-y-6">
-      {/* Beautiful Header */}
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 p-6 shadow-xl">
         <div className="absolute inset-0 bg-grid-white/10"></div>
         <div className="relative flex justify-between items-center">
@@ -351,7 +299,7 @@ export default function CombinedFreightTable() {
           {isAdmin && (
             <Dialog open={isAddDialogOpen} onOpenChange={(open) => {
               setIsAddDialogOpen(open);
-              if (!open) setValidationError(null);
+              if (!open) setValidationWarning(null);
             }}>
               <DialogTrigger asChild>
                 <Button 
@@ -370,12 +318,28 @@ export default function CombinedFreightTable() {
                   </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
-                  {validationError && (
+                  {validationWarning && (
                     <Alert variant="destructive">
                       <AlertTriangle className="h-4 w-4" />
                       <AlertDescription>
-                        <div className="font-semibold">유효기간 중복 오류</div>
-                        <div className="text-sm mt-1">{validationError}</div>
+                        <div className="font-semibold">유효기간 중복 경고</div>
+                        <div className="text-sm mt-1 whitespace-pre-line">{validationWarning}</div>
+                        <div className="flex gap-2 mt-3">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setValidationWarning(null)}
+                          >
+                            취소
+                          </Button>
+                          <Button
+                            size="sm"
+                            onClick={handleAddIgnoreWarning}
+                            className="bg-orange-600 hover:bg-orange-700"
+                          >
+                            경고 무시하고 계속
+                          </Button>
+                        </div>
                       </AlertDescription>
                     </Alert>
                   )}
@@ -383,7 +347,7 @@ export default function CombinedFreightTable() {
                     <Label htmlFor="agent">대리점 *</Label>
                     <Select value={formData.agent} onValueChange={(value) => {
                       setFormData({ ...formData, agent: value });
-                      setValidationError(null);
+                      setValidationWarning(null);
                     }}>
                       <SelectTrigger>
                         <SelectValue placeholder="대리점 선택" />
@@ -402,7 +366,7 @@ export default function CombinedFreightTable() {
                     {polPorts.length > 0 ? (
                       <Select value={formData.pol} onValueChange={(value) => {
                         setFormData({ ...formData, pol: value });
-                        setValidationError(null);
+                        setValidationWarning(null);
                       }}>
                         <SelectTrigger>
                           <SelectValue placeholder="선적항 선택" />
@@ -426,7 +390,7 @@ export default function CombinedFreightTable() {
                     {podPorts.length > 0 ? (
                       <Select value={formData.pod} onValueChange={(value) => {
                         setFormData({ ...formData, pod: value });
-                        setValidationError(null);
+                        setValidationWarning(null);
                       }}>
                         <SelectTrigger>
                           <SelectValue placeholder="양하항 선택" />
@@ -451,7 +415,7 @@ export default function CombinedFreightTable() {
                       value={formData.destinationId}
                       onValueChange={(value) => {
                         setFormData({ ...formData, destinationId: value });
-                        setValidationError(null);
+                        setValidationWarning(null);
                       }}
                     >
                       <SelectTrigger>
@@ -484,7 +448,7 @@ export default function CombinedFreightTable() {
                       validTo={formData.validTo}
                       onChange={(validFrom, validTo) => {
                         setFormData({ ...formData, validFrom, validTo });
-                        setValidationError(null);
+                        setValidationWarning(null);
                       }}
                     />
                   </div>
@@ -501,7 +465,7 @@ export default function CombinedFreightTable() {
                 <DialogFooter>
                   <Button variant="outline" onClick={() => {
                     setIsAddDialogOpen(false);
-                    setValidationError(null);
+                    setValidationWarning(null);
                   }}>
                     취소
                   </Button>
@@ -531,7 +495,6 @@ export default function CombinedFreightTable() {
         </Alert>
       )}
 
-      {/* Search Filters */}
       <div className="p-4 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-lg border-2 border-emerald-200">
         <div className="flex items-center gap-2 mb-3">
           <Search className="h-4 w-4 text-emerald-600" />
@@ -630,7 +593,6 @@ export default function CombinedFreightTable() {
         </div>
       </div>
 
-      {/* Results Summary */}
       <div className="text-sm text-gray-600 font-medium">
         총 {filteredFreights.length}개의 운임 (전체 {combinedFreights.length}개 중)
       </div>
@@ -639,7 +601,6 @@ export default function CombinedFreightTable() {
         <Table>
           <TableHeader>
             <TableRow className="bg-gradient-to-r from-emerald-50 to-teal-50">
-              <TableHead className="font-bold">버전</TableHead>
               <TableHead className="font-bold">대리점</TableHead>
               <TableHead className="font-bold">선적항</TableHead>
               <TableHead className="font-bold">양하항</TableHead>
@@ -654,7 +615,7 @@ export default function CombinedFreightTable() {
           <TableBody>
             {paginatedFreights.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={isAdmin ? 10 : 9} className="text-center py-12">
+                <TableCell colSpan={isAdmin ? 9 : 8} className="text-center py-12">
                   <div className="flex flex-col items-center gap-3">
                     <Merge className="h-16 w-16 text-emerald-400" />
                     <p className="text-xl font-semibold text-emerald-900">
@@ -669,9 +630,6 @@ export default function CombinedFreightTable() {
                 
                 return (
                   <TableRow key={freight.id} className="hover:bg-emerald-50/50 transition-colors">
-                    <TableCell>
-                      <Badge variant="outline" className="font-semibold">v{freight.version || 1}</Badge>
-                    </TableCell>
                     <TableCell className="font-medium">{freight.agent}</TableCell>
                     <TableCell>{freight.pol}</TableCell>
                     <TableCell>{freight.pod}</TableCell>
@@ -699,11 +657,11 @@ export default function CombinedFreightTable() {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => handleVersionChangeClick(freight)}
-                            className="bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-300 transition-all hover:scale-105"
+                            onClick={() => handleEditClick(freight)}
+                            className="bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-300"
                           >
-                            <RefreshCw className="h-4 w-4 mr-1" />
-                            버전 변경
+                            <Edit className="h-4 w-4 mr-1" />
+                            수정
                           </Button>
                           <Button 
                             variant="ghost" 
@@ -724,7 +682,6 @@ export default function CombinedFreightTable() {
         </Table>
       </div>
 
-      {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex items-center justify-between pt-4 border-t">
           <div className="text-sm text-gray-600">
@@ -768,67 +725,49 @@ export default function CombinedFreightTable() {
 
       <AuditLogTable 
         logs={auditLogs}
-        title="육상운송 통합운임 버전 기록"
-        description="육상운송 통합운임의 모든 변경 내역이 버전별로 기록됩니다. '버전 변경' 버튼을 클릭하면 플로팅 화면에서 새 버전의 정보를 수정할 수 있습니다."
+        title="육상운송 통합운임 변경 기록"
+        description="육상운송 통합운임의 모든 변경 내역이 기록됩니다."
       />
 
-      {/* Version Change Dialog */}
-      <Dialog open={isVersionChangeDialogOpen} onOpenChange={handleVersionChangeCancel}>
+      <Dialog open={isEditDialogOpen} onOpenChange={handleEditCancel}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <RefreshCw className="h-5 w-5 text-purple-600" />
-              버전 변경
+              <Edit className="h-5 w-5 text-blue-600" />
+              통합운임 수정
             </DialogTitle>
             <DialogDescription>
-              새로운 버전의 통합운임 정보를 수정하세요. 버전이 자동으로 증가하고 유효기간이 설정됩니다.
+              통합운임 정보를 수정하세요.
             </DialogDescription>
           </DialogHeader>
-          {versionChangeData && (
+          {editingFreight && (
             <div className="space-y-4 py-4">
-              {validationError && (
+              {validationWarning && (
                 <Alert variant="destructive">
                   <AlertTriangle className="h-4 w-4" />
                   <AlertDescription>
                     <div className="font-semibold">유효성 검증 오류</div>
-                    <div className="text-sm mt-1 whitespace-pre-line">{validationError}</div>
+                    <div className="text-sm mt-1 whitespace-pre-line">{validationWarning}</div>
                   </AlertDescription>
                 </Alert>
               )}
 
-              <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Badge variant="outline" className="text-base">
-                      v{versionChangeData.currentVersion}
-                    </Badge>
-                    <span className="text-purple-600 font-bold">→</span>
-                    <Badge variant="default" className="bg-purple-600 text-base">
-                      v{versionChangeData.nextVersion}
-                    </Badge>
-                  </div>
-                  <span className="text-sm text-purple-700 font-medium">
-                    🆕 새 버전 생성
-                  </span>
-                </div>
-              </div>
-
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>대리점</Label>
-                  <Input value={versionChangeData.agent} disabled className="bg-gray-50" />
+                  <Input value={formData.agent} disabled className="bg-gray-50" />
                 </div>
                 <div className="space-y-2">
                   <Label>선적항</Label>
-                  <Input value={versionChangeData.pol} disabled className="bg-gray-50" />
+                  <Input value={formData.pol} disabled className="bg-gray-50" />
                 </div>
                 <div className="space-y-2">
                   <Label>양하항</Label>
-                  <Input value={versionChangeData.pod} disabled className="bg-gray-50" />
+                  <Input value={formData.pod} disabled className="bg-gray-50" />
                 </div>
                 <div className="space-y-2">
                   <Label>최종목적지</Label>
-                  <Input value={getDestinationName(versionChangeData.destinationId)} disabled className="bg-gray-50" />
+                  <Input value={getDestinationName(formData.destinationId)} disabled className="bg-gray-50" />
                 </div>
               </div>
 
@@ -836,13 +775,13 @@ export default function CombinedFreightTable() {
                 <Label>통합 운임 (USD) *</Label>
                 <Input
                   type="number"
-                  value={versionChangeData.rate}
+                  value={formData.rate}
                   onChange={(e) => {
-                    setVersionChangeData({
-                      ...versionChangeData,
-                      rate: Number(e.target.value)
+                    setFormData({
+                      ...formData,
+                      rate: e.target.value
                     });
-                    setValidationError(null);
+                    setValidationWarning(null);
                   }}
                 />
               </div>
@@ -850,39 +789,28 @@ export default function CombinedFreightTable() {
               <div className="space-y-2">
                 <Label>유효기간 *</Label>
                 <ValidityPeriodInput
-                  validFrom={versionChangeData.validFrom}
-                  validTo={versionChangeData.validTo}
+                  validFrom={formData.validFrom}
+                  validTo={formData.validTo}
                   onChange={(validFrom, validTo) => {
-                    setVersionChangeData({
-                      ...versionChangeData,
+                    setFormData({
+                      ...formData,
                       validFrom,
                       validTo
                     });
-                    setValidationError(null);
+                    setValidationWarning(null);
                   }}
                 />
-                <div className="text-xs space-y-1 bg-blue-50 border border-blue-200 rounded p-3">
-                  <p className="text-blue-700 font-medium">
-                    📅 유효기간이 자동으로 설정되었습니다:
-                  </p>
-                  <p className="text-blue-600">
-                    • 시작일: 이전 버전 종료일 + 1일
-                  </p>
-                  <p className="text-blue-600">
-                    • 종료일: 시작일 + 1개월
-                  </p>
-                </div>
               </div>
 
               <div className="space-y-2">
                 <Label>설명</Label>
                 <Input
                   placeholder="예: 인천→청도→OSH 통합 운임"
-                  value={versionChangeData.description || ''}
+                  value={formData.description}
                   onChange={(e) => {
-                    setVersionChangeData({
-                      ...versionChangeData,
-                      description: e.target.value || undefined
+                    setFormData({
+                      ...formData,
+                      description: e.target.value
                     });
                   }}
                 />
@@ -890,15 +818,15 @@ export default function CombinedFreightTable() {
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={handleVersionChangeCancel}>
+            <Button variant="outline" onClick={handleEditCancel}>
               취소
             </Button>
             <Button 
-              onClick={handleVersionChangeSave}
-              className="bg-purple-600 hover:bg-purple-700"
+              onClick={handleEditSave}
+              className="bg-blue-600 hover:bg-blue-700"
             >
-              <RefreshCw className="h-4 w-4 mr-2" />
-              버전 변경 저장
+              <Edit className="h-4 w-4 mr-2" />
+              수정 저장
             </Button>
           </DialogFooter>
         </DialogContent>

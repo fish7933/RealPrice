@@ -28,32 +28,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Trash2, Plus, Weight, AlertTriangle, RefreshCw, Sparkles } from 'lucide-react';
+import { Trash2, Plus, Weight, AlertTriangle, Sparkles, Edit } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import AuditLogTable from './AuditLogTable';
 import { ValidityPeriodInput } from '@/components/ui/validity-period-input';
-import { getValidityStatus, formatValidityDate, validateNoOverlap } from '@/utils/validityHelper';
+import { getValidityStatus, formatValidityDate, checkOverlapWarning } from '@/utils/validityHelper';
 import { Badge } from '@/components/ui/badge';
-
-interface VersionChangeData {
-  agent: string;
-  minWeight: number;
-  maxWeight: number;
-  surcharge: number;
-  validFrom: string;
-  validTo: string;
-  currentVersion: number;
-  nextVersion: number;
-}
 
 export default function WeightSurchargeTable() {
   const { user } = useAuth();
   const { truckAgents, weightSurchargeRules, addWeightSurchargeRule, updateWeightSurchargeRule, deleteWeightSurchargeRule, getAuditLogsByType } = useFreight();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [isVersionChangeDialogOpen, setIsVersionChangeDialogOpen] = useState(false);
-  const [versionChangeData, setVersionChangeData] = useState<VersionChangeData | null>(null);
-  const [originalRuleId, setOriginalRuleId] = useState<string | null>(null);
-  const [validationError, setValidationError] = useState<string | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingRule, setEditingRule] = useState<WeightSurchargeRule | null>(null);
+  const [validationWarning, setValidationWarning] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     agent: '',
     minWeight: '',
@@ -73,9 +61,12 @@ export default function WeightSurchargeTable() {
   }));
 
   const handleAdd = () => {
-    if (!formData.agent || !formData.minWeight || !formData.maxWeight || !formData.surcharge || !formData.validFrom || !formData.validTo) return;
+    if (!formData.agent || !formData.minWeight || !formData.maxWeight || !formData.surcharge || !formData.validFrom || !formData.validTo) {
+      setValidationWarning('❌ 모든 필수 항목을 입력해주세요.');
+      return;
+    }
 
-    const error = validateNoOverlap(
+    const warning = checkOverlapWarning(
       formData.validFrom,
       formData.validTo,
       '',
@@ -85,8 +76,8 @@ export default function WeightSurchargeTable() {
         item.maxWeight === Number(formData.maxWeight)
     );
 
-    if (error) {
-      setValidationError(error);
+    if (warning) {
+      setValidationWarning(warning);
       return;
     }
 
@@ -100,89 +91,68 @@ export default function WeightSurchargeTable() {
     });
 
     setFormData({ agent: '', minWeight: '', maxWeight: '', surcharge: '', validFrom: '', validTo: '' });
-    setValidationError(null);
+    setValidationWarning(null);
     setIsAddDialogOpen(false);
   };
 
-  const handleVersionChangeClick = (rule: WeightSurchargeRule) => {
-    const relevantItems = weightSurchargeRules.filter(
-      (item) => item.agent === rule.agent && item.minWeight === rule.minWeight && item.maxWeight === rule.maxWeight
-    );
-    const maxVersion = Math.max(...relevantItems.map(item => item.version || 1), 0);
-    const nextVersion = maxVersion + 1;
+  const handleAddIgnoreWarning = () => {
+    if (!formData.agent || !formData.minWeight || !formData.maxWeight || !formData.surcharge || !formData.validFrom || !formData.validTo) return;
 
-    let validFrom = '';
-    let validTo = '';
-
-    try {
-      if (!rule.validTo || rule.validTo === '') {
-        const today = new Date();
-        validFrom = today.toISOString().split('T')[0];
-      } else {
-        const validFromDate = new Date(rule.validTo);
-        if (isNaN(validFromDate.getTime())) {
-          const today = new Date();
-          validFrom = today.toISOString().split('T')[0];
-        } else {
-          validFromDate.setDate(validFromDate.getDate() + 1);
-          validFrom = validFromDate.toISOString().split('T')[0];
-        }
-      }
-
-      const validToDate = new Date(validFrom);
-      validToDate.setMonth(validToDate.getMonth() + 1);
-      validTo = validToDate.toISOString().split('T')[0];
-    } catch (error) {
-      console.error('Error calculating validity dates:', error);
-      const today = new Date();
-      validFrom = today.toISOString().split('T')[0];
-      const nextMonth = new Date(today);
-      nextMonth.setMonth(nextMonth.getMonth() + 1);
-      validTo = nextMonth.toISOString().split('T')[0];
-    }
-
-    setVersionChangeData({
-      agent: rule.agent,
-      minWeight: rule.minWeight,
-      maxWeight: rule.maxWeight,
-      surcharge: rule.surcharge,
-      validFrom,
-      validTo,
-      currentVersion: rule.version || 1,
-      nextVersion,
+    addWeightSurchargeRule({
+      agent: formData.agent,
+      minWeight: Number(formData.minWeight),
+      maxWeight: Number(formData.maxWeight),
+      surcharge: Number(formData.surcharge),
+      validFrom: formData.validFrom,
+      validTo: formData.validTo,
     });
-    setOriginalRuleId(rule.id);
-    setValidationError(null);
-    setIsVersionChangeDialogOpen(true);
+
+    setFormData({ agent: '', minWeight: '', maxWeight: '', surcharge: '', validFrom: '', validTo: '' });
+    setValidationWarning(null);
+    setIsAddDialogOpen(false);
   };
 
-  const handleVersionChangeSave = () => {
-    if (!versionChangeData || !originalRuleId) return;
+  const handleEditClick = (rule: WeightSurchargeRule) => {
+    setEditingRule(rule);
+    setFormData({
+      agent: rule.agent,
+      minWeight: rule.minWeight.toString(),
+      maxWeight: rule.maxWeight.toString(),
+      surcharge: rule.surcharge.toString(),
+      validFrom: rule.validFrom,
+      validTo: rule.validTo,
+    });
+    setValidationWarning(null);
+    setIsEditDialogOpen(true);
+  };
 
-    if (!versionChangeData.surcharge || !versionChangeData.validFrom || !versionChangeData.validTo) {
-      setValidationError('❌ 모든 필수 항목을 입력해주세요.');
+  const handleEditSave = () => {
+    if (!editingRule) return;
+    
+    if (!formData.minWeight || !formData.maxWeight || !formData.surcharge || !formData.validFrom || !formData.validTo) {
+      setValidationWarning('❌ 모든 필수 항목을 입력해주세요.');
       return;
     }
 
-    updateWeightSurchargeRule(originalRuleId, {
-      minWeight: versionChangeData.minWeight,
-      maxWeight: versionChangeData.maxWeight,
-      surcharge: versionChangeData.surcharge,
-      validFrom: versionChangeData.validFrom,
-      validTo: versionChangeData.validTo,
+    updateWeightSurchargeRule(editingRule.id, {
+      minWeight: Number(formData.minWeight),
+      maxWeight: Number(formData.maxWeight),
+      surcharge: Number(formData.surcharge),
+      validFrom: formData.validFrom,
+      validTo: formData.validTo,
     });
 
-    setIsVersionChangeDialogOpen(false);
-    setVersionChangeData(null);
-    setOriginalRuleId(null);
-    setValidationError(null);
+    setIsEditDialogOpen(false);
+    setEditingRule(null);
+    setFormData({ agent: '', minWeight: '', maxWeight: '', surcharge: '', validFrom: '', validTo: '' });
+    setValidationWarning(null);
   };
 
-  const handleVersionChangeCancel = () => {
-    setIsVersionChangeDialogOpen(false);
-    setVersionChangeData(null);
-    setOriginalRuleId(null);
-    setValidationError(null);
+  const handleEditCancel = () => {
+    setIsEditDialogOpen(false);
+    setEditingRule(null);
+    setFormData({ agent: '', minWeight: '', maxWeight: '', surcharge: '', validFrom: '', validTo: '' });
+    setValidationWarning(null);
   };
 
   const handleDelete = (id: string) => {
@@ -197,7 +167,6 @@ export default function WeightSurchargeTable() {
 
   return (
     <div className="space-y-6">
-      {/* Beautiful Header */}
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 p-6 shadow-xl">
         <div className="absolute inset-0 bg-grid-white/10"></div>
         <div className="relative flex justify-between items-center">
@@ -217,7 +186,7 @@ export default function WeightSurchargeTable() {
             <Button 
               onClick={() => {
                 setIsAddDialogOpen(true);
-                setValidationError(null);
+                setValidationWarning(null);
               }}
               className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border-2 border-white/50 shadow-lg transition-all hover:scale-105"
             >
@@ -261,7 +230,6 @@ export default function WeightSurchargeTable() {
           <Table>
             <TableHeader>
               <TableRow className="bg-gray-50">
-                <TableHead className="font-bold">버전</TableHead>
                 <TableHead className="font-bold">최소 중량 (kg)</TableHead>
                 <TableHead className="font-bold">최대 중량 (kg)</TableHead>
                 <TableHead className="font-bold">할증 금액 (USD)</TableHead>
@@ -277,9 +245,6 @@ export default function WeightSurchargeTable() {
                   
                   return (
                     <TableRow key={rule.id} className="hover:bg-indigo-50/50 transition-colors">
-                      <TableCell>
-                        <Badge variant="outline" className="font-semibold">v{rule.version || 1}</Badge>
-                      </TableCell>
                       <TableCell className="font-medium">{rule.minWeight}</TableCell>
                       <TableCell className="font-medium">{rule.maxWeight === 999999 ? '∞' : rule.maxWeight}</TableCell>
                       <TableCell className="font-semibold text-purple-700">${rule.surcharge}</TableCell>
@@ -300,11 +265,11 @@ export default function WeightSurchargeTable() {
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => handleVersionChangeClick(rule)}
-                              className="bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-300 transition-all hover:scale-105"
+                              onClick={() => handleEditClick(rule)}
+                              className="bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-300"
                             >
-                              <RefreshCw className="h-4 w-4 mr-1" />
-                              버전 변경
+                              <Edit className="h-4 w-4 mr-1" />
+                              수정
                             </Button>
                             <Button
                               variant="ghost"
@@ -322,7 +287,7 @@ export default function WeightSurchargeTable() {
                 })
               ) : (
                 <TableRow>
-                  <TableCell colSpan={isAdmin ? 7 : 6} className="text-center text-gray-500 py-8">
+                  <TableCell colSpan={isAdmin ? 6 : 5} className="text-center text-gray-500 py-8">
                     설정된 규칙이 없습니다
                   </TableCell>
                 </TableRow>
@@ -334,14 +299,14 @@ export default function WeightSurchargeTable() {
 
       <AuditLogTable 
         logs={auditLogs}
-        title="중량할증 버전 기록"
-        description="중량할증 규칙의 모든 변경 내역이 버전별로 기록됩니다. '버전 변경' 버튼을 클릭하면 플로팅 화면에서 새 버전의 정보를 수정할 수 있습니다."
+        title="중량할증 변경 기록"
+        description="중량할증 규칙의 모든 변경 내역이 기록됩니다."
       />
 
       {/* Add Dialog */}
       <Dialog open={isAddDialogOpen} onOpenChange={(open) => {
         setIsAddDialogOpen(open);
-        if (!open) setValidationError(null);
+        if (!open) setValidationWarning(null);
       }}>
         <DialogContent>
           <DialogHeader>
@@ -349,12 +314,28 @@ export default function WeightSurchargeTable() {
             <DialogDescription>새로운 중량 구간과 할증 금액을 입력하세요.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            {validationError && (
+            {validationWarning && (
               <Alert variant="destructive">
                 <AlertTriangle className="h-4 w-4" />
                 <AlertDescription>
-                  <div className="font-semibold">유효기간 중복 오류</div>
-                  <div className="text-sm mt-1">{validationError}</div>
+                  <div className="font-semibold">유효기간 중복 경고</div>
+                  <div className="text-sm mt-1 whitespace-pre-line">{validationWarning}</div>
+                  <div className="flex gap-2 mt-3">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setValidationWarning(null)}
+                    >
+                      취소
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={handleAddIgnoreWarning}
+                      className="bg-orange-600 hover:bg-orange-700"
+                    >
+                      경고 무시하고 계속
+                    </Button>
+                  </div>
                 </AlertDescription>
               </Alert>
             )}
@@ -362,7 +343,7 @@ export default function WeightSurchargeTable() {
               <Label>트럭 대리점</Label>
               <Select value={formData.agent} onValueChange={(value) => {
                 setFormData({ ...formData, agent: value });
-                setValidationError(null);
+                setValidationWarning(null);
               }}>
                 <SelectTrigger>
                   <SelectValue placeholder="대리점 선택" />
@@ -410,7 +391,7 @@ export default function WeightSurchargeTable() {
                 validTo={formData.validTo}
                 onChange={(validFrom, validTo) => {
                   setFormData({ ...formData, validFrom, validTo });
-                  setValidationError(null);
+                  setValidationWarning(null);
                 }}
               />
             </div>
@@ -418,7 +399,7 @@ export default function WeightSurchargeTable() {
           <DialogFooter>
             <Button variant="outline" onClick={() => {
               setIsAddDialogOpen(false);
-              setValidationError(null);
+              setValidationWarning(null);
             }}>
               취소
             </Button>
@@ -427,79 +408,62 @@ export default function WeightSurchargeTable() {
         </DialogContent>
       </Dialog>
 
-      {/* Version Change Dialog */}
-      <Dialog open={isVersionChangeDialogOpen} onOpenChange={handleVersionChangeCancel}>
+      {/* Edit Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={handleEditCancel}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <RefreshCw className="h-5 w-5 text-purple-600" />
-              버전 변경
+              <Edit className="h-5 w-5 text-blue-600" />
+              중량할증 규칙 수정
             </DialogTitle>
             <DialogDescription>
-              새로운 버전의 중량할증 규칙을 수정하세요. 버전이 자동으로 증가하고 유효기간이 설정됩니다.
+              중량할증 규칙을 수정하세요.
             </DialogDescription>
           </DialogHeader>
-          {versionChangeData && (
+          {editingRule && (
             <div className="space-y-4 py-4">
-              {validationError && (
+              {validationWarning && (
                 <Alert variant="destructive">
                   <AlertTriangle className="h-4 w-4" />
                   <AlertDescription>
                     <div className="font-semibold">유효성 검증 오류</div>
-                    <div className="text-sm mt-1 whitespace-pre-line">{validationError}</div>
+                    <div className="text-sm mt-1 whitespace-pre-line">{validationWarning}</div>
                   </AlertDescription>
                 </Alert>
               )}
 
-              <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Badge variant="outline" className="text-base">
-                      v{versionChangeData.currentVersion}
-                    </Badge>
-                    <span className="text-purple-600 font-bold">→</span>
-                    <Badge variant="default" className="bg-purple-600 text-base">
-                      v{versionChangeData.nextVersion}
-                    </Badge>
-                  </div>
-                  <span className="text-sm text-purple-700 font-medium">
-                    🆕 새 버전 생성
-                  </span>
-                </div>
-              </div>
-
               <div className="space-y-2">
                 <Label>트럭 대리점</Label>
-                <Input value={versionChangeData.agent} disabled className="bg-gray-50" />
+                <Input value={formData.agent} disabled className="bg-gray-50" />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>최소 중량 (kg)</Label>
+                  <Label>최소 중량 (kg) *</Label>
                   <Input
                     type="number"
-                    value={versionChangeData.minWeight}
+                    value={formData.minWeight}
                     onChange={(e) => {
-                      setVersionChangeData({
-                        ...versionChangeData,
-                        minWeight: Number(e.target.value)
+                      setFormData({
+                        ...formData,
+                        minWeight: e.target.value
                       });
-                      setValidationError(null);
+                      setValidationWarning(null);
                     }}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>최대 중량 (kg)</Label>
+                  <Label>최대 중량 (kg) *</Label>
                   <Input
                     type="number"
                     placeholder="∞"
-                    value={versionChangeData.maxWeight === 999999 ? '' : versionChangeData.maxWeight}
+                    value={formData.maxWeight === '999999' ? '' : formData.maxWeight}
                     onChange={(e) => {
-                      setVersionChangeData({
-                        ...versionChangeData,
-                        maxWeight: e.target.value ? Number(e.target.value) : 999999
+                      setFormData({
+                        ...formData,
+                        maxWeight: e.target.value || '999999'
                       });
-                      setValidationError(null);
+                      setValidationWarning(null);
                     }}
                   />
                 </div>
@@ -509,13 +473,13 @@ export default function WeightSurchargeTable() {
                 <Label>할증 금액 (USD) *</Label>
                 <Input
                   type="number"
-                  value={versionChangeData.surcharge}
+                  value={formData.surcharge}
                   onChange={(e) => {
-                    setVersionChangeData({
-                      ...versionChangeData,
-                      surcharge: Number(e.target.value)
+                    setFormData({
+                      ...formData,
+                      surcharge: e.target.value
                     });
-                    setValidationError(null);
+                    setValidationWarning(null);
                   }}
                 />
               </div>
@@ -523,41 +487,30 @@ export default function WeightSurchargeTable() {
               <div className="space-y-2">
                 <Label>유효기간 *</Label>
                 <ValidityPeriodInput
-                  validFrom={versionChangeData.validFrom}
-                  validTo={versionChangeData.validTo}
+                  validFrom={formData.validFrom}
+                  validTo={formData.validTo}
                   onChange={(validFrom, validTo) => {
-                    setVersionChangeData({
-                      ...versionChangeData,
+                    setFormData({
+                      ...formData,
                       validFrom,
                       validTo
                     });
-                    setValidationError(null);
+                    setValidationWarning(null);
                   }}
                 />
-                <div className="text-xs space-y-1 bg-blue-50 border border-blue-200 rounded p-3">
-                  <p className="text-blue-700 font-medium">
-                    📅 유효기간이 자동으로 설정되었습니다:
-                  </p>
-                  <p className="text-blue-600">
-                    • 시작일: 이전 버전 종료일 + 1일
-                  </p>
-                  <p className="text-blue-600">
-                    • 종료일: 시작일 + 1개월
-                  </p>
-                </div>
               </div>
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={handleVersionChangeCancel}>
+            <Button variant="outline" onClick={handleEditCancel}>
               취소
             </Button>
             <Button 
-              onClick={handleVersionChangeSave}
-              className="bg-purple-600 hover:bg-purple-700"
+              onClick={handleEditSave}
+              className="bg-blue-600 hover:bg-blue-700"
             >
-              <RefreshCw className="h-4 w-4 mr-2" />
-              버전 변경 저장
+              <Edit className="h-4 w-4 mr-2" />
+              수정 저장
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -9,14 +9,6 @@ export interface User {
   email?: string;
 }
 
-// Version types
-export interface AppVersion {
-  id: string;
-  version: string;
-  updatedAt: string;
-  createdAt: string;
-}
-
 // Agent types
 export interface RailAgent {
   id: string;
@@ -80,7 +72,6 @@ export interface SeaFreight {
   validFrom: string;
   validTo: string;
   createdAt: string;
-  version?: number;
   note?: string;
   // Legacy fields for backward compatibility
   departurePort?: string;
@@ -105,7 +96,6 @@ export interface SeaFreightHistory {
   note?: string;
   validFrom: string;
   validTo: string;
-  version: number;
   archivedAt: string;
   archivedBy: string;
   archivedByUsername: string;
@@ -125,7 +115,6 @@ export interface AgentSeaFreight {
   validFrom: string;
   validTo: string;
   createdAt: string;
-  version?: number;
 }
 
 export interface DTHC {
@@ -169,7 +158,6 @@ export interface PortBorderFreight {
   validFrom: string;
   validTo: string;
   createdAt: string;
-  version?: number;
   // Legacy fields for backward compatibility
   arrivalPort?: string;
   borderPoint?: string;
@@ -250,7 +238,6 @@ export interface FreightAuditLog {
     newValue?: string | number | boolean;
   }>;
   timestamp: string;
-  version?: number;
 }
 
 export interface AuditLog {

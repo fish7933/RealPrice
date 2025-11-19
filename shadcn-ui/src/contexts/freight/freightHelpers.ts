@@ -45,46 +45,7 @@ export const detectChanges = (
   return changes;
 };
 
-// Get next version number for sea freight
-export const getSeaFreightVersion = (
-  seaFreights: SeaFreight[],
-  carrier: string,
-  pol: string,
-  pod: string,
-  excludeId?: string
-): number => {
-  const sameGroup = seaFreights.filter(f => 
-    f.carrier === carrier && 
-    f.pol === pol && 
-    f.pod === pod &&
-    f.id !== excludeId
-  );
-  if (sameGroup.length === 0) return 1;
-  const maxVersion = Math.max(...sameGroup.map(f => f.version || 1));
-  return maxVersion + 1;
-};
-
-// Get next version number for agent sea freight
-// Now includes carrier to treat different carriers as separate entities
-export const getAgentSeaFreightVersion = (
-  agentSeaFreights: AgentSeaFreight[],
-  agent: string,
-  pol: string,
-  pod: string,
-  carrier?: string,
-  excludeId?: string
-): number => {
-  const sameRoute = agentSeaFreights.filter(f => 
-    f.agent === agent && 
-    f.pol === pol && 
-    f.pod === pod &&
-    f.carrier === carrier &&
-    f.id !== excludeId
-  );
-  if (sameRoute.length === 0) return 1;
-  const maxVersion = Math.max(...sameRoute.map(f => f.version || 1));
-  return maxVersion + 1;
-};
+// ✅ REMOVED: Version-related functions (getSeaFreightVersion, getAgentSeaFreightVersion)
 
 // ✅ FIXED: Filter data by date - defaults to TODAY if no date provided
 export const filterByDate = <T extends { validFrom: string; validTo: string }>(

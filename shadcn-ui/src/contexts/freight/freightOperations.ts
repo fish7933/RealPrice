@@ -1,6 +1,6 @@
 import { supabase, TABLES } from '@/lib/supabase';
 import { handleError } from '@/lib/errorHandler';
-import { detectChanges, getSeaFreightVersion, getAgentSeaFreightVersion } from './freightHelpers';
+import { detectChanges } from './freightHelpers';
 import {
   ShippingLine,
   Port,
@@ -23,15 +23,14 @@ import {
   User,
 } from '@/types/freight';
 
-// Create audit log helper
+// Create audit log helper - REMOVED version parameter
 export const createAuditLog = async (
   entityType: FreightAuditLog['entityType'],
   entityId: string,
   action: FreightAuditLog['action'],
   changes: FreightAuditLog['changes'],
   entitySnapshot: Record<string, unknown>,
-  user: User | null,
-  version?: number
+  user: User | null
 ) => {
   console.log('🔍 [AUDIT LOG] createAuditLog called with:', {
     entityType,
@@ -39,7 +38,6 @@ export const createAuditLog = async (
     action,
     changes,
     entitySnapshot,
-    version,
     user
   });
 
@@ -58,7 +56,6 @@ export const createAuditLog = async (
       changed_by: user.id,
       changed_by_username: user.username,
       changed_by_name: user.name,
-      version,
     };
 
     console.log('📝 [AUDIT LOG] Inserting log into database:', log);
@@ -89,7 +86,6 @@ export const createAuditLog = async (
         changedByUsername: data.changed_by_username,
         changedByName: data.changed_by_name,
         timestamp: data.created_at,
-        version: data.version,
       } as FreightAuditLog;
     }
     return null;
@@ -401,15 +397,13 @@ export const deleteDestination = async (id: string) => {
   }
 };
 
-// Sea Freight Operations
+// Sea Freight Operations - REMOVED all version logic
 export const addSeaFreight = async (
-  freight: Omit<SeaFreight, 'id' | 'createdAt' | 'updatedAt' | 'version'>,
+  freight: Omit<SeaFreight, 'id' | 'createdAt' | 'updatedAt'>,
   seaFreights: SeaFreight[],
   user: User | null
 ) => {
   try {
-    const version = getSeaFreightVersion(seaFreights, freight.carrier || '', freight.pol, freight.pod);
-    
     const { data, error } = await supabase
       .from(TABLES.SEA_FREIGHTS)
       .insert({
@@ -419,7 +413,6 @@ export const addSeaFreight = async (
         carrier: freight.carrier,
         local_charge: freight.localCharge || 0,
         note: freight.note,
-        version,
         valid_from: freight.validFrom,
         valid_to: freight.validTo,
       })
@@ -439,7 +432,6 @@ export const addSeaFreight = async (
         rate: data.rate,
         carrier: data.carrier,
         note: data.note,
-        version: data.version,
         validFrom: data.valid_from,
         validTo: data.valid_to,
         localCharge: data.local_charge || 0,
@@ -453,8 +445,7 @@ export const addSeaFreight = async (
         'create',
         detectChanges(null, newFreight as unknown as Record<string, unknown>),
         newFreight as unknown as Record<string, unknown>,
-        user,
-        version
+        user
       );
     }
   } catch (error) {
@@ -472,18 +463,6 @@ export const updateSeaFreight = async (
     const oldFreight = seaFreights.find(f => f.id === id);
     if (!oldFreight) return;
 
-    const carrierChanged = freight.carrier !== undefined && freight.carrier !== oldFreight.carrier;
-    const rateChanged = freight.rate !== undefined && freight.rate !== oldFreight.rate;
-    const localChargeChanged = freight.localCharge !== undefined && freight.localCharge !== oldFreight.localCharge;
-    const validFromChanged = freight.validFrom !== undefined && freight.validFrom !== oldFreight.validFrom;
-    const validToChanged = freight.validTo !== undefined && freight.validTo !== oldFreight.validTo;
-    const validityChanged = validFromChanged || validToChanged;
-
-    let newVersion = oldFreight.version;
-    if (carrierChanged || rateChanged || localChargeChanged || validityChanged) {
-      newVersion = (oldFreight.version || 1) + 1;
-    }
-
     const { data, error } = await supabase
       .from(TABLES.SEA_FREIGHTS)
       .update({
@@ -493,7 +472,6 @@ export const updateSeaFreight = async (
         local_charge: freight.localCharge,
         carrier: freight.carrier,
         note: freight.note,
-        version: newVersion,
         valid_from: freight.validFrom,
         valid_to: freight.validTo,
         updated_at: new Date().toISOString(),
@@ -507,7 +485,7 @@ export const updateSeaFreight = async (
       return;
     }
 
-    if (data && (carrierChanged || rateChanged || localChargeChanged || validityChanged)) {
+    if (data) {
       const updatedFreight: SeaFreight = {
         id: data.id,
         pol: data.pol,
@@ -515,7 +493,6 @@ export const updateSeaFreight = async (
         rate: data.rate,
         carrier: data.carrier,
         note: data.note,
-        version: data.version,
         localCharge: data.local_charge || 0,
         validFrom: data.valid_from,
         validTo: data.valid_to,
@@ -529,8 +506,7 @@ export const updateSeaFreight = async (
         'update',
         detectChanges(oldFreight as unknown as Record<string, unknown>, updatedFreight as unknown as Record<string, unknown>),
         updatedFreight as unknown as Record<string, unknown>,
-        user,
-        newVersion
+        user
       );
     }
   } catch (error) {
@@ -559,8 +535,7 @@ export const deleteSeaFreight = async (id: string, seaFreights: SeaFreight[], us
         'delete',
         [],
         freight as unknown as Record<string, unknown>,
-        user,
-        freight.version
+        user
       );
     }
   } catch (error) {
@@ -568,22 +543,13 @@ export const deleteSeaFreight = async (id: string, seaFreights: SeaFreight[], us
   }
 };
 
-// Agent Sea Freight Operations
+// Agent Sea Freight Operations - REMOVED all version logic
 export const addAgentSeaFreight = async (
-  freight: Omit<AgentSeaFreight, 'id' | 'createdAt' | 'updatedAt' | 'version'>,
+  freight: Omit<AgentSeaFreight, 'id' | 'createdAt' | 'updatedAt'>,
   agentSeaFreights: AgentSeaFreight[],
   user: User | null
 ) => {
   try {
-    // Include carrier in version calculation
-    const version = getAgentSeaFreightVersion(
-      agentSeaFreights, 
-      freight.agent, 
-      freight.pol, 
-      freight.pod,
-      freight.carrier
-    );
-    
     const { data, error } = await supabase
       .from(TABLES.AGENT_SEA_FREIGHTS)
       .insert({
@@ -594,7 +560,6 @@ export const addAgentSeaFreight = async (
         llocal: freight.llocal,
         carrier: freight.carrier,
         note: freight.note,
-        version,
         valid_from: freight.validFrom,
         valid_to: freight.validTo,
       })
@@ -616,7 +581,6 @@ export const addAgentSeaFreight = async (
         llocal: data.llocal,
         carrier: data.carrier,
         note: data.note,
-        version: data.version,
         validFrom: data.valid_from,
         validTo: data.valid_to,
         createdAt: data.created_at,
@@ -629,8 +593,7 @@ export const addAgentSeaFreight = async (
         'create',
         detectChanges(null, newFreight as unknown as Record<string, unknown>),
         newFreight as unknown as Record<string, unknown>,
-        user,
-        version
+        user
       );
     }
   } catch (error) {
@@ -648,18 +611,6 @@ export const updateAgentSeaFreight = async (
     const oldFreight = agentSeaFreights.find(f => f.id === id);
     if (!oldFreight) return;
 
-    const rateChanged = freight.rate !== undefined && freight.rate !== oldFreight.rate;
-    const llocalChanged = freight.llocal !== undefined && freight.llocal !== oldFreight.llocal;
-    const carrierChanged = freight.carrier !== undefined && freight.carrier !== oldFreight.carrier;
-    const validFromChanged = freight.validFrom !== undefined && freight.validFrom !== oldFreight.validFrom;
-    const validToChanged = freight.validTo !== undefined && freight.validTo !== oldFreight.validTo;
-    const validityChanged = validFromChanged || validToChanged;
-
-    let newVersion = oldFreight.version;
-    if (rateChanged || llocalChanged || carrierChanged || validityChanged) {
-      newVersion = (oldFreight.version || 1) + 1;
-    }
-
     const { data, error } = await supabase
       .from(TABLES.AGENT_SEA_FREIGHTS)
       .update({
@@ -670,7 +621,6 @@ export const updateAgentSeaFreight = async (
         llocal: freight.llocal,
         carrier: freight.carrier,
         note: freight.note,
-        version: newVersion,
         valid_from: freight.validFrom,
         valid_to: freight.validTo,
         updated_at: new Date().toISOString(),
@@ -684,7 +634,7 @@ export const updateAgentSeaFreight = async (
       return;
     }
 
-    if (data && (rateChanged || llocalChanged || carrierChanged || validityChanged)) {
+    if (data) {
       const updatedFreight: AgentSeaFreight = {
         id: data.id,
         agent: data.agent,
@@ -694,7 +644,6 @@ export const updateAgentSeaFreight = async (
         llocal: data.llocal,
         carrier: data.carrier,
         note: data.note,
-        version: data.version,
         validFrom: data.valid_from,
         validTo: data.valid_to,
         createdAt: data.created_at,
@@ -707,8 +656,7 @@ export const updateAgentSeaFreight = async (
         'update',
         detectChanges(oldFreight as unknown as Record<string, unknown>, updatedFreight as unknown as Record<string, unknown>),
         updatedFreight as unknown as Record<string, unknown>,
-        user,
-        newVersion
+        user
       );
     }
   } catch (error) {
@@ -737,8 +685,7 @@ export const deleteAgentSeaFreight = async (id: string, agentSeaFreights: AgentS
         'delete',
         [],
         freight as unknown as Record<string, unknown>,
-        user,
-        freight.version
+        user
       );
     }
   } catch (error) {

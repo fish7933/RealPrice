@@ -87,7 +87,6 @@ export interface SeaFreight {
   carrier?: string;
   local_charge?: number;
   note?: string;
-  version: number;
   valid_from: string;
   valid_to: string;
   created_at: string;
@@ -107,7 +106,6 @@ export interface SeaFreightHistory {
   note?: string;
   valid_from: string;
   valid_to: string;
-  version: number;
   archived_at: string;
   archived_by: string;
   archived_by_username: string;
@@ -123,7 +121,6 @@ export interface AgentSeaFreight {
   rate: number;
   carrier?: string;
   note?: string;
-  version: number;
   valid_from: string;
   valid_to: string;
   created_at: string;
@@ -162,7 +159,6 @@ export interface DTHC {
   carrier: string;
   amount: number;
   description?: string;
-  version: number;
   valid_from: string;
   valid_to: string;
   created_at: string;
@@ -174,7 +170,6 @@ export interface DPCost {
   port: string;
   amount: number;
   description?: string;
-  version: number;
   valid_from: string;
   valid_to: string;
   created_at: string;
@@ -188,7 +183,6 @@ export interface CombinedFreight {
   destination_id: string;
   rate: number;
   description?: string;
-  version: number;
   valid_from: string;
   valid_to: string;
   created_at: string;
@@ -201,7 +195,6 @@ export interface PortBorderFreight {
   pol: string;
   pod: string;
   rate: number;
-  version: number;
   valid_from: string;
   valid_to: string;
   created_at: string;
@@ -213,7 +206,6 @@ export interface BorderDestinationFreight {
   agent: string;
   destination_id: string;
   rate: number;
-  version: number;
   valid_from: string;
   valid_to: string;
   created_at: string;
@@ -226,7 +218,6 @@ export interface WeightSurchargeRule {
   min_weight: number;
   max_weight: number;
   surcharge: number;
-  version: number;
   valid_from: string;
   valid_to: string;
   created_at: string;

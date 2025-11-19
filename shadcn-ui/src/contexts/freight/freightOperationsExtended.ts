@@ -12,8 +12,8 @@ import {
   User,
 } from '@/types/freight';
 
-// DTHC Operations
-export const addDTHC = async (dthc: Omit<DTHC, 'id' | 'createdAt' | 'updatedAt' | 'version'>, user: User | null) => {
+// DTHC Operations - REMOVED all version logic
+export const addDTHC = async (dthc: Omit<DTHC, 'id' | 'createdAt' | 'updatedAt'>, user: User | null) => {
   try {
     const { data, error } = await supabase
       .from(TABLES.DTHC)
@@ -24,7 +24,6 @@ export const addDTHC = async (dthc: Omit<DTHC, 'id' | 'createdAt' | 'updatedAt' 
         carrier: dthc.carrier,
         amount: dthc.amount,
         description: dthc.description,
-        version: 1,
         valid_from: dthc.validFrom,
         valid_to: dthc.validTo,
       })
@@ -45,7 +44,6 @@ export const addDTHC = async (dthc: Omit<DTHC, 'id' | 'createdAt' | 'updatedAt' 
         carrier: data.carrier,
         amount: data.amount,
         description: data.description,
-        version: data.version,
         validFrom: data.valid_from,
         validTo: data.valid_to,
         createdAt: data.created_at,
@@ -58,8 +56,7 @@ export const addDTHC = async (dthc: Omit<DTHC, 'id' | 'createdAt' | 'updatedAt' 
         'create',
         detectChanges(null, newDTHC as unknown as Record<string, unknown>),
         newDTHC as unknown as Record<string, unknown>,
-        user,
-        1
+        user
       );
     }
   } catch (error) {
@@ -72,17 +69,6 @@ export const updateDTHC = async (id: string, dthc: Partial<DTHC>, dthcList: DTHC
     const oldDTHC = dthcList.find(d => d.id === id);
     if (!oldDTHC) return;
 
-    const amountChanged = dthc.amount !== undefined && dthc.amount !== oldDTHC.amount;
-    const carrierChanged = dthc.carrier !== undefined && dthc.carrier !== oldDTHC.carrier;
-    const validFromChanged = dthc.validFrom !== undefined && dthc.validFrom !== oldDTHC.validFrom;
-    const validToChanged = dthc.validTo !== undefined && dthc.validTo !== oldDTHC.validTo;
-    const validityChanged = validFromChanged || validToChanged;
-
-    let newVersion = oldDTHC.version;
-    if (amountChanged || carrierChanged || validityChanged) {
-      newVersion = (oldDTHC.version || 1) + 1;
-    }
-
     const { data, error } = await supabase
       .from(TABLES.DTHC)
       .update({
@@ -92,7 +78,6 @@ export const updateDTHC = async (id: string, dthc: Partial<DTHC>, dthcList: DTHC
         carrier: dthc.carrier,
         amount: dthc.amount,
         description: dthc.description,
-        version: newVersion,
         valid_from: dthc.validFrom,
         valid_to: dthc.validTo,
         updated_at: new Date().toISOString(),
@@ -106,7 +91,7 @@ export const updateDTHC = async (id: string, dthc: Partial<DTHC>, dthcList: DTHC
       return;
     }
 
-    if (data && (amountChanged || carrierChanged || validityChanged)) {
+    if (data) {
       const updatedDTHC: DTHC = {
         id: data.id,
         agent: data.agent,
@@ -115,7 +100,6 @@ export const updateDTHC = async (id: string, dthc: Partial<DTHC>, dthcList: DTHC
         carrier: data.carrier,
         amount: data.amount,
         description: data.description,
-        version: data.version,
         validFrom: data.valid_from,
         validTo: data.valid_to,
         createdAt: data.created_at,
@@ -128,8 +112,7 @@ export const updateDTHC = async (id: string, dthc: Partial<DTHC>, dthcList: DTHC
         'update',
         detectChanges(oldDTHC as unknown as Record<string, unknown>, updatedDTHC as unknown as Record<string, unknown>),
         updatedDTHC as unknown as Record<string, unknown>,
-        user,
-        newVersion
+        user
       );
     }
   } catch (error) {
@@ -152,15 +135,15 @@ export const deleteDTHC = async (id: string, dthcList: DTHC[], user: User | null
     }
 
     if (dthc) {
-      await createAuditLog('dthc', id, 'delete', [], dthc as unknown as Record<string, unknown>, user, dthc.version);
+      await createAuditLog('dthc', id, 'delete', [], dthc as unknown as Record<string, unknown>, user);
     }
   } catch (error) {
     handleError(error, 'DTHC 삭제');
   }
 };
 
-// DP Cost Operations
-export const addDPCost = async (dp: Omit<DPCost, 'id' | 'createdAt' | 'updatedAt' | 'version'>, user: User | null) => {
+// DP Cost Operations - REMOVED all version logic
+export const addDPCost = async (dp: Omit<DPCost, 'id' | 'createdAt' | 'updatedAt'>, user: User | null) => {
   try {
     const { data, error } = await supabase
       .from(TABLES.DP_COSTS)
@@ -168,7 +151,6 @@ export const addDPCost = async (dp: Omit<DPCost, 'id' | 'createdAt' | 'updatedAt
         port: dp.port,
         amount: dp.amount,
         description: dp.description,
-        version: 1,
         valid_from: dp.validFrom,
         valid_to: dp.validTo,
       })
@@ -186,7 +168,6 @@ export const addDPCost = async (dp: Omit<DPCost, 'id' | 'createdAt' | 'updatedAt
         port: data.port,
         amount: data.amount,
         description: data.description,
-        version: data.version,
         validFrom: data.valid_from,
         validTo: data.valid_to,
         createdAt: data.created_at,
@@ -199,8 +180,7 @@ export const addDPCost = async (dp: Omit<DPCost, 'id' | 'createdAt' | 'updatedAt
         'create',
         detectChanges(null, newDP as unknown as Record<string, unknown>),
         newDP as unknown as Record<string, unknown>,
-        user,
-        1
+        user
       );
     }
   } catch (error) {
@@ -213,23 +193,12 @@ export const updateDPCost = async (id: string, dp: Partial<DPCost>, dpCosts: DPC
     const oldDP = dpCosts.find(d => d.id === id);
     if (!oldDP) return;
 
-    const amountChanged = dp.amount !== undefined && dp.amount !== oldDP.amount;
-    const validFromChanged = dp.validFrom !== undefined && dp.validFrom !== oldDP.validFrom;
-    const validToChanged = dp.validTo !== undefined && dp.validTo !== oldDP.validTo;
-    const validityChanged = validFromChanged || validToChanged;
-
-    let newVersion = oldDP.version;
-    if (amountChanged || validityChanged) {
-      newVersion = (oldDP.version || 1) + 1;
-    }
-
     const { data, error } = await supabase
       .from(TABLES.DP_COSTS)
       .update({
         port: dp.port,
         amount: dp.amount,
         description: dp.description,
-        version: newVersion,
         valid_from: dp.validFrom,
         valid_to: dp.validTo,
         updated_at: new Date().toISOString(),
@@ -243,13 +212,12 @@ export const updateDPCost = async (id: string, dp: Partial<DPCost>, dpCosts: DPC
       return;
     }
 
-    if (data && (amountChanged || validityChanged)) {
+    if (data) {
       const updatedDP: DPCost = {
         id: data.id,
         port: data.port,
         amount: data.amount,
         description: data.description,
-        version: data.version,
         validFrom: data.valid_from,
         validTo: data.valid_to,
         createdAt: data.created_at,
@@ -262,8 +230,7 @@ export const updateDPCost = async (id: string, dp: Partial<DPCost>, dpCosts: DPC
         'update',
         detectChanges(oldDP as unknown as Record<string, unknown>, updatedDP as unknown as Record<string, unknown>),
         updatedDP as unknown as Record<string, unknown>,
-        user,
-        newVersion
+        user
       );
     }
   } catch (error) {
@@ -286,15 +253,15 @@ export const deleteDPCost = async (id: string, dpCosts: DPCost[], user: User | n
     }
 
     if (dp) {
-      await createAuditLog('dpCost', id, 'delete', [], dp as unknown as Record<string, unknown>, user, dp.version);
+      await createAuditLog('dpCost', id, 'delete', [], dp as unknown as Record<string, unknown>, user);
     }
   } catch (error) {
     handleError(error, 'DP 비용 삭제');
   }
 };
 
-// Combined Freight Operations
-export const addCombinedFreight = async (freight: Omit<CombinedFreight, 'id' | 'createdAt' | 'updatedAt' | 'version'>, user: User | null) => {
+// Combined Freight Operations - REMOVED all version logic
+export const addCombinedFreight = async (freight: Omit<CombinedFreight, 'id' | 'createdAt' | 'updatedAt'>, user: User | null) => {
   try {
     const { data, error } = await supabase
       .from(TABLES.COMBINED_FREIGHTS)
@@ -305,7 +272,6 @@ export const addCombinedFreight = async (freight: Omit<CombinedFreight, 'id' | '
         destination_id: freight.destinationId,
         rate: freight.rate,
         description: freight.description,
-        version: 1,
         valid_from: freight.validFrom,
         valid_to: freight.validTo,
       })
@@ -326,7 +292,6 @@ export const addCombinedFreight = async (freight: Omit<CombinedFreight, 'id' | '
         destinationId: data.destination_id,
         rate: data.rate,
         description: data.description,
-        version: data.version,
         validFrom: data.valid_from,
         validTo: data.valid_to,
         createdAt: data.created_at,
@@ -339,8 +304,7 @@ export const addCombinedFreight = async (freight: Omit<CombinedFreight, 'id' | '
         'create',
         detectChanges(null, newFreight as unknown as Record<string, unknown>),
         newFreight as unknown as Record<string, unknown>,
-        user,
-        1
+        user
       );
     }
   } catch (error) {
@@ -353,16 +317,6 @@ export const updateCombinedFreight = async (id: string, freight: Partial<Combine
     const oldFreight = combinedFreights.find(f => f.id === id);
     if (!oldFreight) return;
 
-    const rateChanged = freight.rate !== undefined && freight.rate !== oldFreight.rate;
-    const validFromChanged = freight.validFrom !== undefined && freight.validFrom !== oldFreight.validFrom;
-    const validToChanged = freight.validTo !== undefined && freight.validTo !== oldFreight.validTo;
-    const validityChanged = validFromChanged || validToChanged;
-
-    let newVersion = oldFreight.version;
-    if (rateChanged || validityChanged) {
-      newVersion = (oldFreight.version || 1) + 1;
-    }
-
     const { data, error } = await supabase
       .from(TABLES.COMBINED_FREIGHTS)
       .update({
@@ -372,7 +326,6 @@ export const updateCombinedFreight = async (id: string, freight: Partial<Combine
         destination_id: freight.destinationId,
         rate: freight.rate,
         description: freight.description,
-        version: newVersion,
         valid_from: freight.validFrom,
         valid_to: freight.validTo,
         updated_at: new Date().toISOString(),
@@ -386,7 +339,7 @@ export const updateCombinedFreight = async (id: string, freight: Partial<Combine
       return;
     }
 
-    if (data && (rateChanged || validityChanged)) {
+    if (data) {
       const updatedFreight: CombinedFreight = {
         id: data.id,
         agent: data.agent,
@@ -395,7 +348,6 @@ export const updateCombinedFreight = async (id: string, freight: Partial<Combine
         destinationId: data.destination_id,
         rate: data.rate,
         description: data.description,
-        version: data.version,
         validFrom: data.valid_from,
         validTo: data.valid_to,
         createdAt: data.created_at,
@@ -408,8 +360,7 @@ export const updateCombinedFreight = async (id: string, freight: Partial<Combine
         'update',
         detectChanges(oldFreight as unknown as Record<string, unknown>, updatedFreight as unknown as Record<string, unknown>),
         updatedFreight as unknown as Record<string, unknown>,
-        user,
-        newVersion
+        user
       );
     }
   } catch (error) {
@@ -432,24 +383,23 @@ export const deleteCombinedFreight = async (id: string, combinedFreights: Combin
     }
 
     if (freight) {
-      await createAuditLog('combinedFreight', id, 'delete', [], freight as unknown as Record<string, unknown>, user, freight.version);
+      await createAuditLog('combinedFreight', id, 'delete', [], freight as unknown as Record<string, unknown>, user);
     }
   } catch (error) {
     handleError(error, '통합 운임 삭제');
   }
 };
 
-// Port Border Freight Operations
-export const addPortBorderFreight = async (freight: Omit<PortBorderFreight, 'id' | 'createdAt' | 'updatedAt' | 'version'>, user: User | null) => {
+// Port Border Freight Operations - REMOVED all version logic
+export const addPortBorderFreight = async (freight: Omit<PortBorderFreight, 'id' | 'createdAt' | 'updatedAt'>, user: User | null) => {
   try {
     const { data, error } = await supabase
       .from(TABLES.PORT_BORDER_FREIGHTS)
       .insert({
         agent: freight.agent,
-        pol: freight.pol, // ✅ Added POL field
+        pol: freight.pol,
         pod: freight.pod,
         rate: freight.rate,
-        version: 1,
         valid_from: freight.validFrom,
         valid_to: freight.validTo,
       })
@@ -465,10 +415,9 @@ export const addPortBorderFreight = async (freight: Omit<PortBorderFreight, 'id'
       const newFreight: PortBorderFreight = {
         id: data.id,
         agent: data.agent,
-        pol: data.pol || '인천', // ✅ Added POL field mapping
+        pol: data.pol || '인천',
         pod: data.pod,
         rate: data.rate,
-        version: data.version,
         validFrom: data.valid_from,
         validTo: data.valid_to,
         createdAt: data.created_at,
@@ -481,8 +430,7 @@ export const addPortBorderFreight = async (freight: Omit<PortBorderFreight, 'id'
         'create',
         detectChanges(null, newFreight as unknown as Record<string, unknown>),
         newFreight as unknown as Record<string, unknown>,
-        user,
-        1
+        user
       );
     }
   } catch (error) {
@@ -495,26 +443,13 @@ export const updatePortBorderFreight = async (id: string, freight: Partial<PortB
     const oldFreight = portBorderFreights.find(f => f.id === id);
     if (!oldFreight) return;
 
-    const rateChanged = freight.rate !== undefined && freight.rate !== oldFreight.rate;
-    const validFromChanged = freight.validFrom !== undefined && freight.validFrom !== oldFreight.validFrom;
-    const validToChanged = freight.validTo !== undefined && freight.validTo !== oldFreight.validTo;
-    const validityChanged = validFromChanged || validToChanged;
-
-    const versionWillChange = rateChanged || validityChanged;
-    let newVersion = oldFreight.version;
-    if (versionWillChange) {
-      newVersion = (oldFreight.version || 1) + 1;
-    }
-
     const updateData: Record<string, unknown> = {
       rate: freight.rate,
-      version: newVersion,
       valid_from: freight.validFrom,
       valid_to: freight.validTo,
       updated_at: new Date().toISOString(),
     };
 
-    // ✅ Only update pol if it's provided in the freight parameter
     if (freight.pol !== undefined) {
       updateData.pol = freight.pol;
     }
@@ -535,10 +470,9 @@ export const updatePortBorderFreight = async (id: string, freight: Partial<PortB
       const updatedFreight: PortBorderFreight = {
         id: data.id,
         agent: data.agent,
-        pol: data.pol || '인천', // ✅ Added POL field mapping
+        pol: data.pol || '인천',
         pod: data.pod,
         rate: data.rate,
-        version: data.version,
         validFrom: data.valid_from,
         validTo: data.valid_to,
         createdAt: data.created_at,
@@ -550,15 +484,14 @@ export const updatePortBorderFreight = async (id: string, freight: Partial<PortB
         updatedFreight as unknown as Record<string, unknown>
       );
 
-      if (versionWillChange || (changes.length > 0 && !versionWillChange)) {
+      if (changes.length > 0) {
         await createAuditLog(
           'portBorderFreight',
           id,
           'update',
           changes,
           updatedFreight as unknown as Record<string, unknown>,
-          user,
-          newVersion
+          user
         );
       }
     }
@@ -582,15 +515,15 @@ export const deletePortBorderFreight = async (id: string, portBorderFreights: Po
     }
 
     if (freight) {
-      await createAuditLog('portBorderFreight', id, 'delete', [], freight as unknown as Record<string, unknown>, user, freight.version);
+      await createAuditLog('portBorderFreight', id, 'delete', [], freight as unknown as Record<string, unknown>, user);
     }
   } catch (error) {
     handleError(error, '항구-국경 운임 삭제');
   }
 };
 
-// Border Destination Freight Operations
-export const addBorderDestinationFreight = async (freight: Omit<BorderDestinationFreight, 'id' | 'createdAt' | 'updatedAt' | 'version'>, user: User | null) => {
+// Border Destination Freight Operations - REMOVED all version logic
+export const addBorderDestinationFreight = async (freight: Omit<BorderDestinationFreight, 'id' | 'createdAt' | 'updatedAt'>, user: User | null) => {
   try {
     const { data, error } = await supabase
       .from(TABLES.BORDER_DESTINATION_FREIGHTS)
@@ -598,7 +531,6 @@ export const addBorderDestinationFreight = async (freight: Omit<BorderDestinatio
         agent: freight.agent,
         destination_id: freight.destinationId,
         rate: freight.rate,
-        version: 1,
         valid_from: freight.validFrom,
         valid_to: freight.validTo,
       })
@@ -616,7 +548,6 @@ export const addBorderDestinationFreight = async (freight: Omit<BorderDestinatio
         agent: data.agent,
         destinationId: data.destination_id,
         rate: data.rate,
-        version: data.version,
         validFrom: data.valid_from,
         validTo: data.valid_to,
         createdAt: data.created_at,
@@ -629,8 +560,7 @@ export const addBorderDestinationFreight = async (freight: Omit<BorderDestinatio
         'create',
         detectChanges(null, newFreight as unknown as Record<string, unknown>),
         newFreight as unknown as Record<string, unknown>,
-        user,
-        1
+        user
       );
     }
   } catch (error) {
@@ -643,24 +573,12 @@ export const updateBorderDestinationFreight = async (id: string, freight: Partia
     const oldFreight = borderDestinationFreights.find(f => f.id === id);
     if (!oldFreight) return;
 
-    const rateChanged = freight.rate !== undefined && freight.rate !== oldFreight.rate;
-    const validFromChanged = freight.validFrom !== undefined && freight.validFrom !== oldFreight.validFrom;
-    const validToChanged = freight.validTo !== undefined && freight.validTo !== oldFreight.validTo;
-    const validityChanged = validFromChanged || validToChanged;
-
-    const versionWillChange = rateChanged || validityChanged;
-    let newVersion = oldFreight.version;
-    if (versionWillChange) {
-      newVersion = (oldFreight.version || 1) + 1;
-    }
-
     const { data, error } = await supabase
       .from(TABLES.BORDER_DESTINATION_FREIGHTS)
       .update({
         agent: freight.agent,
         destination_id: freight.destinationId,
         rate: freight.rate,
-        version: newVersion,
         valid_from: freight.validFrom,
         valid_to: freight.validTo,
         updated_at: new Date().toISOString(),
@@ -680,7 +598,6 @@ export const updateBorderDestinationFreight = async (id: string, freight: Partia
         agent: data.agent,
         destinationId: data.destination_id,
         rate: data.rate,
-        version: data.version,
         validFrom: data.valid_from,
         validTo: data.valid_to,
         createdAt: data.created_at,
@@ -692,15 +609,14 @@ export const updateBorderDestinationFreight = async (id: string, freight: Partia
         updatedFreight as unknown as Record<string, unknown>
       );
 
-      if (versionWillChange || (changes.length > 0 && !versionWillChange)) {
+      if (changes.length > 0) {
         await createAuditLog(
           'borderDestinationFreight',
           id,
           'update',
           changes,
           updatedFreight as unknown as Record<string, unknown>,
-          user,
-          newVersion
+          user
         );
       }
     }
@@ -724,15 +640,15 @@ export const deleteBorderDestinationFreight = async (id: string, borderDestinati
     }
 
     if (freight) {
-      await createAuditLog('borderDestinationFreight', id, 'delete', [], freight as unknown as Record<string, unknown>, user, freight.version);
+      await createAuditLog('borderDestinationFreight', id, 'delete', [], freight as unknown as Record<string, unknown>, user);
     }
   } catch (error) {
     handleError(error, '국경-목적지 운임 삭제');
   }
 };
 
-// Weight Surcharge Operations
-export const addWeightSurchargeRule = async (rule: Omit<WeightSurchargeRule, 'id' | 'createdAt' | 'updatedAt' | 'version'>, user: User | null) => {
+// Weight Surcharge Operations - REMOVED all version logic
+export const addWeightSurchargeRule = async (rule: Omit<WeightSurchargeRule, 'id' | 'createdAt' | 'updatedAt'>, user: User | null) => {
   try {
     const { data, error } = await supabase
       .from(TABLES.WEIGHT_SURCHARGE_RULES)
@@ -741,7 +657,6 @@ export const addWeightSurchargeRule = async (rule: Omit<WeightSurchargeRule, 'id
         min_weight: rule.minWeight,
         max_weight: rule.maxWeight,
         surcharge: rule.surcharge,
-        version: 1,
         valid_from: rule.validFrom,
         valid_to: rule.validTo,
       })
@@ -760,7 +675,6 @@ export const addWeightSurchargeRule = async (rule: Omit<WeightSurchargeRule, 'id
         minWeight: data.min_weight,
         maxWeight: data.max_weight,
         surcharge: data.surcharge,
-        version: data.version,
         validFrom: data.valid_from,
         validTo: data.valid_to,
         createdAt: data.created_at,
@@ -773,8 +687,7 @@ export const addWeightSurchargeRule = async (rule: Omit<WeightSurchargeRule, 'id
         'create',
         detectChanges(null, newRule as unknown as Record<string, unknown>),
         newRule as unknown as Record<string, unknown>,
-        user,
-        1
+        user
       );
     }
   } catch (error) {
@@ -787,19 +700,6 @@ export const updateWeightSurchargeRule = async (id: string, rule: Partial<Weight
     const oldRule = weightSurchargeRules.find(r => r.id === id);
     if (!oldRule) return;
 
-    const surchargeChanged = rule.surcharge !== undefined && rule.surcharge !== oldRule.surcharge;
-    const minWeightChanged = rule.minWeight !== undefined && rule.minWeight !== oldRule.minWeight;
-    const maxWeightChanged = rule.maxWeight !== undefined && rule.maxWeight !== oldRule.maxWeight;
-    const weightRangeChanged = minWeightChanged || maxWeightChanged;
-    const validFromChanged = rule.validFrom !== undefined && rule.validFrom !== oldRule.validFrom;
-    const validToChanged = rule.validTo !== undefined && rule.validTo !== oldRule.validTo;
-    const validityChanged = validFromChanged || validToChanged;
-
-    let newVersion = oldRule.version;
-    if (surchargeChanged || weightRangeChanged || validityChanged) {
-      newVersion = (oldRule.version || 1) + 1;
-    }
-
     const { data, error } = await supabase
       .from(TABLES.WEIGHT_SURCHARGE_RULES)
       .update({
@@ -807,7 +707,6 @@ export const updateWeightSurchargeRule = async (id: string, rule: Partial<Weight
         min_weight: rule.minWeight,
         max_weight: rule.maxWeight,
         surcharge: rule.surcharge,
-        version: newVersion,
         valid_from: rule.validFrom,
         valid_to: rule.validTo,
         updated_at: new Date().toISOString(),
@@ -821,14 +720,13 @@ export const updateWeightSurchargeRule = async (id: string, rule: Partial<Weight
       return;
     }
 
-    if (data && (surchargeChanged || weightRangeChanged || validityChanged)) {
+    if (data) {
       const updatedRule: WeightSurchargeRule = {
         id: data.id,
         agent: data.agent,
         minWeight: data.min_weight,
         maxWeight: data.max_weight,
         surcharge: data.surcharge,
-        version: data.version,
         validFrom: data.valid_from,
         validTo: data.valid_to,
         createdAt: data.created_at,
@@ -841,8 +739,7 @@ export const updateWeightSurchargeRule = async (id: string, rule: Partial<Weight
         'update',
         detectChanges(oldRule as unknown as Record<string, unknown>, updatedRule as unknown as Record<string, unknown>),
         updatedRule as unknown as Record<string, unknown>,
-        user,
-        newVersion
+        user
       );
     }
   } catch (error) {
@@ -865,7 +762,7 @@ export const deleteWeightSurchargeRule = async (id: string, weightSurchargeRules
     }
 
     if (rule) {
-      await createAuditLog('weightSurcharge', id, 'delete', [], rule as unknown as Record<string, unknown>, user, rule.version);
+      await createAuditLog('weightSurcharge', id, 'delete', [], rule as unknown as Record<string, unknown>, user);
     }
   } catch (error) {
     handleError(error, '중량 할증 규칙 삭제');

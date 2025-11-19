@@ -29,26 +29,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Trash2, Plus, Star, AlertTriangle, RefreshCw, Search, X, ChevronLeft, ChevronRight, Ship, Anchor, TrendingUp } from 'lucide-react';
+import { Trash2, Plus, Star, AlertTriangle, Search, X, ChevronLeft, ChevronRight, Ship, Anchor, TrendingUp, Edit } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import AuditLogTable from './AuditLogTable';
 import { ValidityPeriodInput } from '@/components/ui/validity-period-input';
 import { getValidityStatus, formatValidityDate, checkOverlapWarning } from '@/utils/validityHelper';
 import { Badge } from '@/components/ui/badge';
-
-interface VersionChangeData {
-  agent: string;
-  pol: string;
-  pod: string;
-  rate: number;
-  llocal?: number;
-  carrier?: string;
-  note?: string;
-  validFrom: string;
-  validTo: string;
-  currentVersion: number;
-  nextVersion: number;
-}
 
 const ITEMS_PER_PAGE = 10;
 const FILTER_ALL_VALUE = '__all__';
@@ -57,9 +43,8 @@ export default function AgentSeaFreightTable() {
   const { user } = useAuth();
   const { railAgents, agentSeaFreights, addAgentSeaFreight, updateAgentSeaFreight, deleteAgentSeaFreight, getAuditLogsByType, shippingLines, ports } = useFreight();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [isVersionChangeDialogOpen, setIsVersionChangeDialogOpen] = useState(false);
-  const [versionChangeData, setVersionChangeData] = useState<VersionChangeData | null>(null);
-  const [originalFreightId, setOriginalFreightId] = useState<string | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingFreight, setEditingFreight] = useState<AgentSeaFreight | null>(null);
   const [validationWarning, setValidationWarning] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     agent: '',
@@ -80,7 +65,7 @@ export default function AgentSeaFreightTable() {
     pol: FILTER_ALL_VALUE,
     pod: FILTER_ALL_VALUE,
     carrier: FILTER_ALL_VALUE,
-    status: FILTER_ALL_VALUE, // 'all', 'active', 'expiring', 'expired'
+    status: FILTER_ALL_VALUE,
   });
 
   const isAdmin = user?.role === 'admin' || user?.role === 'superadmin';
@@ -114,27 +99,22 @@ export default function AgentSeaFreightTable() {
   // Filter agent sea freights
   const filteredFreights = useMemo(() => {
     return agentSeaFreights.filter((freight) => {
-      // Agent filter
       if (searchFilters.agent !== FILTER_ALL_VALUE && freight.agent !== searchFilters.agent) {
         return false;
       }
 
-      // POL filter
       if (searchFilters.pol !== FILTER_ALL_VALUE && freight.pol !== searchFilters.pol) {
         return false;
       }
 
-      // POD filter
       if (searchFilters.pod !== FILTER_ALL_VALUE && freight.pod !== searchFilters.pod) {
         return false;
       }
 
-      // Carrier filter
       if (searchFilters.carrier !== FILTER_ALL_VALUE && freight.carrier !== searchFilters.carrier) {
         return false;
       }
 
-      // Status filter (expired rates)
       if (searchFilters.status !== FILTER_ALL_VALUE) {
         const validityStatus = getValidityStatus(freight.validFrom, freight.validTo);
         if (searchFilters.status === 'expired' && validityStatus.status !== 'expired') {
@@ -159,7 +139,6 @@ export default function AgentSeaFreightTable() {
     return filteredFreights.slice(startIndex, endIndex);
   }, [filteredFreights, currentPage]);
 
-  // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
   }, [searchFilters]);
@@ -217,89 +196,50 @@ export default function AgentSeaFreightTable() {
     setIsAddDialogOpen(false);
   };
 
-  const handleVersionChangeClick = (freight: AgentSeaFreight) => {
-    const relevantItems = agentSeaFreights.filter(
-      (item) => item.agent === freight.agent && item.pol === freight.pol && item.pod === freight.pod
-    );
-    const maxVersion = Math.max(...relevantItems.map(item => item.version || 1), 0);
-    const nextVersion = maxVersion + 1;
-
-    let validFrom = '';
-    let validTo = '';
-
-    try {
-      if (!freight.validTo || freight.validTo === '') {
-        const today = new Date();
-        validFrom = today.toISOString().split('T')[0];
-      } else {
-        const validFromDate = new Date(freight.validTo);
-        if (isNaN(validFromDate.getTime())) {
-          const today = new Date();
-          validFrom = today.toISOString().split('T')[0];
-        } else {
-          validFromDate.setDate(validFromDate.getDate() + 1);
-          validFrom = validFromDate.toISOString().split('T')[0];
-        }
-      }
-
-      const validToDate = new Date(validFrom);
-      validToDate.setMonth(validToDate.getMonth() + 1);
-      validTo = validToDate.toISOString().split('T')[0];
-    } catch (error) {
-      console.error('Error calculating validity dates:', error);
-      const today = new Date();
-      validFrom = today.toISOString().split('T')[0];
-      const nextMonth = new Date(today);
-      nextMonth.setMonth(nextMonth.getMonth() + 1);
-      validTo = nextMonth.toISOString().split('T')[0];
-    }
-
-    setVersionChangeData({
+  const handleEditClick = (freight: AgentSeaFreight) => {
+    setEditingFreight(freight);
+    setFormData({
       agent: freight.agent,
       pol: freight.pol,
       pod: freight.pod,
-      rate: freight.rate,
-      llocal: freight.llocal,
-      carrier: freight.carrier,
-      note: freight.note,
-      validFrom,
-      validTo,
-      currentVersion: freight.version || 1,
-      nextVersion,
+      rate: freight.rate.toString(),
+      llocal: freight.llocal?.toString() || '',
+      carrier: freight.carrier || '',
+      note: freight.note || '',
+      validFrom: freight.validFrom,
+      validTo: freight.validTo,
     });
-    setOriginalFreightId(freight.id);
     setValidationWarning(null);
-    setIsVersionChangeDialogOpen(true);
+    setIsEditDialogOpen(true);
   };
 
-  const handleVersionChangeSave = () => {
-    if (!versionChangeData || !originalFreightId) return;
-
-    // Check for required fields - allow rate to be 0
-    if (versionChangeData.rate === null || versionChangeData.rate === undefined || !versionChangeData.validFrom || !versionChangeData.validTo) {
+  const handleEditSave = () => {
+    if (!editingFreight) return;
+    
+    if (!formData.rate || !formData.validFrom || !formData.validTo) {
       setValidationWarning('❌ 모든 필수 항목을 입력해주세요.');
       return;
     }
 
-    updateAgentSeaFreight(originalFreightId, {
-      rate: versionChangeData.rate,
-      llocal: versionChangeData.llocal,
-      carrier: versionChangeData.carrier,
-      note: versionChangeData.note,
-      validFrom: versionChangeData.validFrom,
-      validTo: versionChangeData.validTo,
+    updateAgentSeaFreight(editingFreight.id, {
+      rate: Number(formData.rate),
+      llocal: formData.llocal ? Number(formData.llocal) : undefined,
+      carrier: formData.carrier || undefined,
+      note: formData.note || undefined,
+      validFrom: formData.validFrom,
+      validTo: formData.validTo,
     });
 
-    setIsVersionChangeDialogOpen(false);
-    setVersionChangeData(null);
-    setOriginalFreightId(null);
+    setIsEditDialogOpen(false);
+    setEditingFreight(null);
+    setFormData({ agent: '', pol: '', pod: '', rate: '', llocal: '', carrier: '', note: '', validFrom: '', validTo: '' });
     setValidationWarning(null);
   };
 
-  const handleVersionChangeCancel = () => {
-    setIsVersionChangeDialogOpen(false);
-    setVersionChangeData(null);
-    setOriginalFreightId(null);
+  const handleEditCancel = () => {
+    setIsEditDialogOpen(false);
+    setEditingFreight(null);
+    setFormData({ agent: '', pol: '', pod: '', rate: '', llocal: '', carrier: '', note: '', validFrom: '', validTo: '' });
     setValidationWarning(null);
   };
 
@@ -544,7 +484,6 @@ export default function AgentSeaFreightTable() {
         <Table>
           <TableHeader>
             <TableRow className="bg-gradient-to-r from-amber-50 to-orange-50 hover:from-amber-100 hover:to-orange-100">
-              <TableHead className="font-semibold">버전</TableHead>
               <TableHead className="font-semibold">대리점</TableHead>
               <TableHead className="font-semibold">선적포트 (POL)</TableHead>
               <TableHead className="font-semibold">양하포트 (POD)</TableHead>
@@ -560,7 +499,7 @@ export default function AgentSeaFreightTable() {
           <TableBody>
             {paginatedFreights.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={isAdmin ? 11 : 10} className="text-center py-12">
+                <TableCell colSpan={isAdmin ? 10 : 9} className="text-center py-12">
                   <div className="flex flex-col items-center gap-3">
                     <Anchor className="h-12 w-12 text-gray-300" />
                     <p className="text-gray-500 font-medium">
@@ -575,9 +514,6 @@ export default function AgentSeaFreightTable() {
                 
                 return (
                   <TableRow key={freight.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}>
-                    <TableCell>
-                      <Badge variant="outline">v{freight.version || 1}</Badge>
-                    </TableCell>
                     <TableCell className="font-medium">
                       <div className="flex items-center gap-2">
                         <Star className="h-4 w-4 text-amber-600" />
@@ -615,11 +551,11 @@ export default function AgentSeaFreightTable() {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => handleVersionChangeClick(freight)}
-                            className="bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-300 hover:scale-105 transition-transform"
+                            onClick={() => handleEditClick(freight)}
+                            className="bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-300"
                           >
-                            <RefreshCw className="h-4 w-4 mr-1" />
-                            버전 변경
+                            <Edit className="h-4 w-4 mr-1" />
+                            수정
                           </Button>
                           <Button
                             variant="ghost"
@@ -684,8 +620,8 @@ export default function AgentSeaFreightTable() {
 
       <AuditLogTable 
         logs={auditLogs}
-        title="대리점별 해상운임 버전 기록"
-        description="대리점별 해상운임의 모든 변경 내역이 버전별로 기록됩니다. '버전 변경' 버튼을 클릭하면 플로팅 화면에서 새 버전의 정보를 수정할 수 있습니다."
+        title="대리점별 해상운임 변경 기록"
+        description="대리점별 해상운임의 모든 변경 내역이 기록됩니다."
       />
 
       {/* Add Dialog */}
@@ -866,19 +802,19 @@ export default function AgentSeaFreightTable() {
         </DialogContent>
       </Dialog>
 
-      {/* Version Change Dialog */}
-      <Dialog open={isVersionChangeDialogOpen} onOpenChange={handleVersionChangeCancel}>
+      {/* Edit Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={handleEditCancel}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <RefreshCw className="h-5 w-5 text-purple-600" />
-              버전 변경
+              <Edit className="h-5 w-5 text-blue-600" />
+              대리점별 해상운임 수정
             </DialogTitle>
             <DialogDescription>
-              새로운 버전의 운임 정보를 수정하세요. 버전이 자동으로 증가하고 유효기간이 설정됩니다.
+              운임 정보를 수정하세요.
             </DialogDescription>
           </DialogHeader>
-          {versionChangeData && (
+          {editingFreight && (
             <div className="space-y-4 py-4">
               {validationWarning && (
                 <Alert variant="destructive">
@@ -890,50 +826,29 @@ export default function AgentSeaFreightTable() {
                 </Alert>
               )}
 
-              <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Badge variant="outline" className="text-base">
-                      v{versionChangeData.currentVersion}
-                    </Badge>
-                    <span className="text-purple-600 font-bold">→</span>
-                    <Badge variant="default" className="bg-purple-600 text-base">
-                      v{versionChangeData.nextVersion}
-                    </Badge>
-                  </div>
-                  <span className="text-sm text-purple-700 font-medium">
-                    🆕 새 버전 생성
-                  </span>
-                </div>
-              </div>
-
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>대리점</Label>
-                  <Input value={versionChangeData.agent} disabled className="bg-gray-50" />
+                  <Input value={formData.agent} disabled className="bg-gray-50" />
                 </div>
                 <div className="space-y-2">
                   <Label>선적포트 (POL)</Label>
-                  <Input value={versionChangeData.pol} disabled className="bg-gray-50" />
+                  <Input value={formData.pol} disabled className="bg-gray-50" />
                 </div>
                 <div className="space-y-2">
                   <Label>양하포트 (POD)</Label>
-                  <Input value={versionChangeData.pod} disabled className="bg-gray-50" />
+                  <Input value={formData.pod} disabled className="bg-gray-50" />
                 </div>
                 <div className="space-y-2">
                   <Label>운임 (USD) *</Label>
                   <Input
                     type="number"
-                    value={versionChangeData.rate}
+                    value={formData.rate}
                     onChange={(e) => {
-                      setVersionChangeData({
-                        ...versionChangeData,
-                        rate: Number(e.target.value)
-                      });
+                      setFormData({ ...formData, rate: e.target.value });
                       setValidationWarning(null);
                     }}
                   />
-                  <p className="text-xs text-green-600">✅ 운임이 0이어도 유효합니다</p>
                 </div>
               </div>
 
@@ -941,11 +856,11 @@ export default function AgentSeaFreightTable() {
                 <div className="space-y-2">
                   <Label>선사</Label>
                   <Select 
-                    value={versionChangeData.carrier || 'NONE'} 
+                    value={formData.carrier || 'NONE'} 
                     onValueChange={(value) => {
-                      setVersionChangeData({
-                        ...versionChangeData,
-                        carrier: value === 'NONE' ? undefined : value
+                      setFormData({
+                        ...formData,
+                        carrier: value === 'NONE' ? '' : value
                       });
                     }}
                   >
@@ -967,11 +882,11 @@ export default function AgentSeaFreightTable() {
                   <Input
                     type="number"
                     placeholder="예: 50 또는 -50"
-                    value={versionChangeData.llocal || ''}
+                    value={formData.llocal}
                     onChange={(e) => {
-                      setVersionChangeData({
-                        ...versionChangeData,
-                        llocal: e.target.value ? Number(e.target.value) : undefined
+                      setFormData({
+                        ...formData,
+                        llocal: e.target.value
                       });
                     }}
                   />
@@ -981,39 +896,28 @@ export default function AgentSeaFreightTable() {
               <div className="space-y-2">
                 <Label>유효기간 *</Label>
                 <ValidityPeriodInput
-                  validFrom={versionChangeData.validFrom}
-                  validTo={versionChangeData.validTo}
+                  validFrom={formData.validFrom}
+                  validTo={formData.validTo}
                   onChange={(validFrom, validTo) => {
-                    setVersionChangeData({
-                      ...versionChangeData,
+                    setFormData({
+                      ...formData,
                       validFrom,
                       validTo
                     });
                     setValidationWarning(null);
                   }}
                 />
-                <div className="text-xs space-y-1 bg-blue-50 border border-blue-200 rounded p-3">
-                  <p className="text-blue-700 font-medium">
-                    📅 유효기간이 자동으로 설정되었습니다:
-                  </p>
-                  <p className="text-blue-600">
-                    • 시작일: 이전 버전 종료일 + 1일
-                  </p>
-                  <p className="text-blue-600">
-                    • 종료일: 시작일 + 1개월
-                  </p>
-                </div>
               </div>
 
               <div className="space-y-2">
                 <Label>비고</Label>
                 <Input
                   placeholder="비고를 입력하세요"
-                  value={versionChangeData.note || ''}
+                  value={formData.note}
                   onChange={(e) => {
-                    setVersionChangeData({
-                      ...versionChangeData,
-                      note: e.target.value || undefined
+                    setFormData({
+                      ...formData,
+                      note: e.target.value
                     });
                   }}
                 />
@@ -1021,15 +925,15 @@ export default function AgentSeaFreightTable() {
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={handleVersionChangeCancel}>
+            <Button variant="outline" onClick={handleEditCancel}>
               취소
             </Button>
             <Button 
-              onClick={handleVersionChangeSave}
-              className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800"
+              onClick={handleEditSave}
+              className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
             >
-              <RefreshCw className="h-4 w-4 mr-2" />
-              버전 변경 저장
+              <Edit className="h-4 w-4 mr-2" />
+              수정 저장
             </Button>
           </DialogFooter>
         </DialogContent>

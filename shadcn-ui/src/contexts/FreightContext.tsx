@@ -209,6 +209,8 @@ interface FreightContextType {
 const FreightContext = createContext<FreightContextType | undefined>(undefined);
 
 export function FreightProvider({ children }: { children: ReactNode }) {
+  console.log('🚀 [FreightProvider] Component mounting...');
+  
   const { user } = useAuth();
   const [appVersion, setAppVersion] = useState<AppVersion | null>(null);
   const [users, setUsers] = useState<User[]>([]);
@@ -259,10 +261,12 @@ export function FreightProvider({ children }: { children: ReactNode }) {
 
   // Load all data from database on mount
   useEffect(() => {
+    console.log('🔄 [FreightProvider useEffect] Starting data load...');
+    
     const loadAllData = async () => {
-      console.log('🔄 Loading all data from database...');
-      
       try {
+        console.log('🔄 Loading all data from database...');
+        
         // Load all data in parallel
         const [
           loadedShippingLines,
@@ -349,6 +353,11 @@ export function FreightProvider({ children }: { children: ReactNode }) {
     loadAllData();
     fetchAppVersion();
   }, []);
+
+  console.log('📊 [FreightProvider] Current state:', {
+    combinedFreights: combinedFreights.length,
+    portBorderFreights: portBorderFreights.length,
+  });
 
   // User management
   const addUser = (user: Omit<User, 'id' | 'createdAt'>) => {
@@ -2106,6 +2115,8 @@ export function FreightProvider({ children }: { children: ReactNode }) {
     getDPCost,
     getSeaFreightOptions,
   };
+
+  console.log('✅ [FreightProvider] Rendering with value');
 
   return <FreightContext.Provider value={value}>{children}</FreightContext.Provider>;
 }

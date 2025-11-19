@@ -387,66 +387,60 @@ export default function PortBorderTable() {
   const expiringRates = allFreightGroups.filter(f => f.validityStatus?.status === 'expiring');
 
   return (
-    <div className="space-y-6">
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 p-6 shadow-xl">
+    <div className="space-y-4">
+      <div className="relative overflow-hidden rounded-lg bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 p-4 shadow-lg">
         <div className="absolute inset-0 bg-grid-white/10"></div>
         <div className="relative flex justify-between items-center">
-          <div>
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 bg-white/20 backdrop-blur-sm rounded-xl">
-                <Train className="h-6 w-6 text-white" />
-              </div>
-              <h2 className="text-3xl font-bold text-white flex items-center gap-2">
-                철도운임 관리
-                <Sparkles className="h-5 w-5 text-yellow-300 animate-pulse" />
-              </h2>
+          <div className="flex items-center gap-3">
+            <div className="p-1.5 bg-white/20 backdrop-blur-sm rounded-lg">
+              <Train className="h-5 w-5 text-white" />
             </div>
-            <p className="text-green-50 ml-14">선적포트(POL) → 양하포트(POD) → {borderCityName} 철도 운임</p>
+            <div>
+              <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                철도운임 관리
+                <Sparkles className="h-4 w-4 text-yellow-300 animate-pulse" />
+              </h2>
+              <p className="text-xs text-green-50">선적포트(POL) → 양하포트(POD) → {borderCityName}</p>
+            </div>
           </div>
           {isAdmin && (
             <Button 
               onClick={handleOpenDialog}
-              className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border-2 border-white/50 shadow-lg transition-all hover:scale-105"
+              size="sm"
+              className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border border-white/50"
             >
-              <Plus className="h-4 w-4 mr-2" />
-              운임 추가
+              <Plus className="h-3 w-3 mr-1" />
+              추가
             </Button>
           )}
         </div>
       </div>
 
       {(expiredRates.length > 0 || expiringRates.length > 0) && (
-        <Alert variant="destructive">
+        <Alert variant="destructive" className="py-2">
           <AlertTriangle className="h-4 w-4" />
-          <AlertDescription>
-            {expiredRates.length > 0 && (
-              <div className="font-semibold">
-                ⚠️ {expiredRates.length}개의 철도운임이 만료되었습니다.
-              </div>
-            )}
-            {expiringRates.length > 0 && (
-              <div className="text-sm mt-1">
-                📅 {expiringRates.length}개의 철도운임이 7일 이내에 만료됩니다.
-              </div>
-            )}
+          <AlertDescription className="text-sm">
+            {expiredRates.length > 0 && <span>⚠️ {expiredRates.length}개 만료</span>}
+            {expiredRates.length > 0 && expiringRates.length > 0 && <span> · </span>}
+            {expiringRates.length > 0 && <span>📅 {expiringRates.length}개 만료임박</span>}
           </AlertDescription>
         </Alert>
       )}
 
       {/* Search and Filter Section */}
-      <div className="flex flex-col sm:flex-row gap-4">
+      <div className="flex gap-2">
         <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-gray-400" />
           <Input
-            placeholder="대리점명, POL 또는 유효기간으로 검색..."
+            placeholder="검색..."
             value={searchTerm}
             onChange={(e) => handleSearchChange(e.target.value)}
-            className="pl-10"
+            className="pl-7 h-8 text-sm"
           />
         </div>
         <Select value={statusFilter} onValueChange={handleStatusFilterChange}>
-          <SelectTrigger className="w-full sm:w-[180px]">
-            <SelectValue placeholder="상태 필터" />
+          <SelectTrigger className="w-[120px] h-8 text-sm">
+            <SelectValue placeholder="상태" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">전체</SelectItem>
@@ -457,81 +451,70 @@ export default function PortBorderTable() {
         </Select>
       </div>
 
-      <div className="rounded-xl border-2 shadow-lg overflow-hidden">
+      <div className="rounded-lg border shadow-sm overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow className="bg-gradient-to-r from-green-50 to-teal-50">
-              <TableHead className="font-bold">
-                <div className="flex items-center gap-2">
-                  <Train className="h-4 w-4" />
-                  철도 대리점
-                </div>
-              </TableHead>
-              <TableHead className="font-bold">선적포트 (POL)</TableHead>
+              <TableHead className="h-9 text-xs font-bold whitespace-nowrap">대리점</TableHead>
+              <TableHead className="h-9 text-xs font-bold whitespace-nowrap">POL</TableHead>
               {podPorts.map(pod => (
-                <TableHead key={pod.id} className="font-bold">
-                  양하포트 {pod.name} → {borderCityName}
+                <TableHead key={pod.id} className="h-9 text-xs font-bold whitespace-nowrap">
+                  {pod.name}
                 </TableHead>
               ))}
-              <TableHead className="font-bold">유효기간</TableHead>
-              <TableHead className="font-bold">상태</TableHead>
-              {isAdmin && <TableHead className="text-right font-bold">작업</TableHead>}
+              <TableHead className="h-9 text-xs font-bold whitespace-nowrap">유효기간</TableHead>
+              <TableHead className="h-9 text-xs font-bold whitespace-nowrap">상태</TableHead>
+              {isAdmin && <TableHead className="h-9 text-xs font-bold text-right whitespace-nowrap">작업</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
             {paginatedGroups.length > 0 ? (
               paginatedGroups.map((group, index) => (
-                <TableRow key={`${group.agent}-${group.pol}-${group.validFrom}-${index}`} className="hover:bg-green-50/50 transition-colors">
-                  <TableCell className="font-medium">{group.agent}</TableCell>
-                  <TableCell className="font-medium text-blue-700">{group.pol}</TableCell>
+                <TableRow key={`${group.agent}-${group.pol}-${group.validFrom}-${index}`} className="hover:bg-green-50/50">
+                  <TableCell className="py-2 text-xs font-medium whitespace-nowrap">{group.agent}</TableCell>
+                  <TableCell className="py-2 text-xs font-medium text-blue-700 whitespace-nowrap">{group.pol}</TableCell>
                   {podPorts.map(pod => {
                     const freight = group.freights[pod.name];
                     return (
-                      <TableCell key={pod.id}>
+                      <TableCell key={pod.id} className="py-2 text-xs whitespace-nowrap">
                         {freight ? (
-                          freight.rate === 0 ? (
-                            <span className="font-semibold text-orange-600">$0</span>
-                          ) : (
-                            <span className="font-semibold text-green-700">${freight.rate}</span>
-                          )
+                          <span className={`font-semibold ${freight.rate === 0 ? 'text-orange-600' : 'text-green-700'}`}>
+                            ${freight.rate}
+                          </span>
                         ) : (
                           <span className="text-gray-400">-</span>
                         )}
                       </TableCell>
                     );
                   })}
-                  <TableCell>
-                    <div className="text-sm">
-                      <div>{formatValidityDate(group.validFrom)}</div>
-                      <div className="text-gray-500">~ {formatValidityDate(group.validTo)}</div>
-                    </div>
+                  <TableCell className="py-2 text-xs whitespace-nowrap">
+                    {formatValidityDate(group.validFrom)} ~ {formatValidityDate(group.validTo)}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="py-2 whitespace-nowrap">
                     {group.validityStatus && (
-                      <Badge variant={group.validityStatus.variant}>
+                      <Badge variant={group.validityStatus.variant} className="text-xs px-1.5 py-0">
                         {group.validityStatus.label}
                       </Badge>
                     )}
                   </TableCell>
                   {isAdmin && (
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
+                    <TableCell className="py-2 text-right whitespace-nowrap">
+                      <div className="flex justify-end gap-1">
                         <Button
                           size="sm"
                           variant="outline"
                           onClick={() => handleEditClick(group)}
-                          className="bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-300"
+                          className="h-6 px-2 text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-300"
                         >
-                          <Edit className="h-4 w-4 mr-1" />
-                          수정
+                          <Edit className="h-3 w-3" />
                         </Button>
                         <Button
                           variant="ghost"
-                          size="icon"
+                          size="sm"
                           onClick={() => handleDeleteGroup(group)}
-                          className="hover:bg-red-50 hover:text-red-700 transition-all hover:scale-105"
+                          className="h-6 w-6 p-0 hover:bg-red-50 hover:text-red-700"
                         >
-                          <Trash2 className="h-4 w-4 text-red-600" />
+                          <Trash2 className="h-3 w-3 text-red-600" />
                         </Button>
                       </div>
                     </TableCell>
@@ -540,7 +523,7 @@ export default function PortBorderTable() {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={podPorts.length + (isAdmin ? 5 : 4)} className="text-center text-gray-500 py-8">
+                <TableCell colSpan={podPorts.length + (isAdmin ? 5 : 4)} className="text-center text-gray-500 py-6 text-sm">
                   {searchTerm || statusFilter !== 'all' ? '검색 결과가 없습니다' : '등록된 철도운임이 없습니다'}
                 </TableCell>
               </TableRow>
@@ -551,21 +534,21 @@ export default function PortBorderTable() {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between">
-          <div className="text-sm text-gray-600">
-            총 {filteredGroups.length}개 중 {((currentPage - 1) * ITEMS_PER_PAGE) + 1}-{Math.min(currentPage * ITEMS_PER_PAGE, filteredGroups.length)}개 표시
+        <div className="flex items-center justify-between text-xs">
+          <div className="text-gray-600">
+            총 {filteredGroups.length}개 중 {((currentPage - 1) * ITEMS_PER_PAGE) + 1}-{Math.min(currentPage * ITEMS_PER_PAGE, filteredGroups.length)}개
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             <Button
               variant="outline"
               size="sm"
               onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
               disabled={currentPage === 1}
+              className="h-7 px-2"
             >
-              <ChevronLeft className="h-4 w-4" />
-              이전
+              <ChevronLeft className="h-3 w-3" />
             </Button>
-            <div className="text-sm font-medium">
+            <div className="text-xs font-medium px-2">
               {currentPage} / {totalPages}
             </div>
             <Button
@@ -573,9 +556,9 @@ export default function PortBorderTable() {
               size="sm"
               onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
+              className="h-7 px-2"
             >
-              다음
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-3 w-3" />
             </Button>
           </div>
         </div>

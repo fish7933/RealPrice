@@ -280,21 +280,22 @@ export default function CombinedFreightTable() {
   const expiringRates = combinedFreights.filter(f => getValidityStatus(f.validFrom, f.validTo).status === 'expiring');
 
   return (
-    <div className="space-y-6">
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 p-6 shadow-xl">
+    <div className="space-y-4">
+      {/* Header - Compact */}
+      <div className="relative overflow-hidden rounded-lg bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 p-4 shadow-lg">
         <div className="absolute inset-0 bg-grid-white/10"></div>
         <div className="relative flex justify-between items-center">
-          <div>
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 bg-white/20 backdrop-blur-sm rounded-xl">
-                <Merge className="h-6 w-6 text-white" />
-              </div>
-              <h2 className="text-3xl font-bold text-white flex items-center gap-2">
-                철도+트럭 통합운임 관리
-                <Sparkles className="h-5 w-5 text-yellow-300 animate-pulse" />
-              </h2>
+          <div className="flex items-center gap-3">
+            <div className="p-1.5 bg-white/20 backdrop-blur-sm rounded-lg">
+              <Merge className="h-5 w-5 text-white" />
             </div>
-            <p className="text-emerald-50 ml-14">선적항 → 양하항 → 최종목적지 통합 운임 (철도+트럭 일괄)</p>
+            <div>
+              <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                철도+트럭 통합운임
+                <Sparkles className="h-4 w-4 text-yellow-300 animate-pulse" />
+              </h2>
+              <p className="text-xs text-emerald-50">POL → POD → 최종목적지</p>
+            </div>
           </div>
           {isAdmin && (
             <Dialog open={isAddDialogOpen} onOpenChange={(open) => {
@@ -304,9 +305,10 @@ export default function CombinedFreightTable() {
               <DialogTrigger asChild>
                 <Button 
                   onClick={() => resetForm()}
-                  className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border-2 border-white/50 shadow-lg transition-all hover:scale-105"
+                  size="sm"
+                  className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border border-white/50"
                 >
-                  <Plus className="mr-2 h-4 w-4" />
+                  <Plus className="h-3 w-3 mr-1" />
                   추가
                 </Button>
               </DialogTrigger>
@@ -477,148 +479,132 @@ export default function CombinedFreightTable() {
         </div>
       </div>
 
+      {/* Warning Alert - Compact */}
       {(expiredRates.length > 0 || expiringRates.length > 0) && (
-        <Alert variant="destructive">
+        <Alert variant="destructive" className="py-2">
           <AlertTriangle className="h-4 w-4" />
-          <AlertDescription>
-            {expiredRates.length > 0 && (
-              <div className="font-semibold">
-                ⚠️ {expiredRates.length}개의 통합운임이 만료되었습니다.
-              </div>
-            )}
-            {expiringRates.length > 0 && (
-              <div className="text-sm mt-1">
-                📅 {expiringRates.length}개의 통합운임이 7일 이내에 만료됩니다.
-              </div>
-            )}
+          <AlertDescription className="text-sm">
+            {expiredRates.length > 0 && <span>⚠️ {expiredRates.length}개 만료</span>}
+            {expiredRates.length > 0 && expiringRates.length > 0 && <span> · </span>}
+            {expiringRates.length > 0 && <span>📅 {expiringRates.length}개 만료임박</span>}
           </AlertDescription>
         </Alert>
       )}
 
-      <div className="p-4 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-lg border-2 border-emerald-200">
-        <div className="flex items-center gap-2 mb-3">
-          <Search className="h-4 w-4 text-emerald-600" />
-          <span className="font-semibold text-sm text-emerald-900">검색 필터</span>
+      {/* Search Filters - Compact */}
+      <div className="p-3 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-lg border border-emerald-200">
+        <div className="flex items-center gap-2 mb-2">
+          <Search className="h-3 w-3 text-emerald-600" />
+          <span className="text-xs font-semibold text-emerald-900">검색 필터</span>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2">
           <div className="space-y-1">
             <Label className="text-xs">대리점</Label>
             <Select value={searchFilters.agent} onValueChange={(value) => setSearchFilters(prev => ({ ...prev, agent: value }))}>
-              <SelectTrigger className="h-9">
+              <SelectTrigger className="h-8 text-xs">
                 <SelectValue placeholder="전체" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value={FILTER_ALL_VALUE}>전체</SelectItem>
                 {filterOptions.agents.map((agent) => (
-                  <SelectItem key={agent} value={agent}>
-                    {agent}
-                  </SelectItem>
+                  <SelectItem key={agent} value={agent}>{agent}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
           <div className="space-y-1">
-            <Label className="text-xs">선적항 (POL)</Label>
+            <Label className="text-xs">POL</Label>
             <Select value={searchFilters.pol} onValueChange={(value) => setSearchFilters(prev => ({ ...prev, pol: value }))}>
-              <SelectTrigger className="h-9">
+              <SelectTrigger className="h-8 text-xs">
                 <SelectValue placeholder="전체" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value={FILTER_ALL_VALUE}>전체</SelectItem>
                 {filterOptions.pols.map((pol) => (
-                  <SelectItem key={pol} value={pol}>
-                    {pol}
-                  </SelectItem>
+                  <SelectItem key={pol} value={pol}>{pol}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
           <div className="space-y-1">
-            <Label className="text-xs">양하항 (POD)</Label>
+            <Label className="text-xs">POD</Label>
             <Select value={searchFilters.pod} onValueChange={(value) => setSearchFilters(prev => ({ ...prev, pod: value }))}>
-              <SelectTrigger className="h-9">
+              <SelectTrigger className="h-8 text-xs">
                 <SelectValue placeholder="전체" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value={FILTER_ALL_VALUE}>전체</SelectItem>
                 {filterOptions.pods.map((pod) => (
-                  <SelectItem key={pod} value={pod}>
-                    {pod}
-                  </SelectItem>
+                  <SelectItem key={pod} value={pod}>{pod}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
           <div className="space-y-1">
-            <Label className="text-xs">최종목적지</Label>
+            <Label className="text-xs">목적지</Label>
             <Select value={searchFilters.destination} onValueChange={(value) => setSearchFilters(prev => ({ ...prev, destination: value }))}>
-              <SelectTrigger className="h-9">
+              <SelectTrigger className="h-8 text-xs">
                 <SelectValue placeholder="전체" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value={FILTER_ALL_VALUE}>전체</SelectItem>
                 {filterOptions.destinations.map((dest) => (
-                  <SelectItem key={dest.id} value={dest.id}>
-                    {dest.name}
-                  </SelectItem>
+                  <SelectItem key={dest.id} value={dest.id}>{dest.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
           <div className="space-y-1">
-            <Label className="text-xs">만료 상태</Label>
+            <Label className="text-xs">상태</Label>
             <Select value={searchFilters.status} onValueChange={(value) => setSearchFilters(prev => ({ ...prev, status: value }))}>
-              <SelectTrigger className="h-9">
+              <SelectTrigger className="h-8 text-xs">
                 <SelectValue placeholder="전체" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value={FILTER_ALL_VALUE}>전체</SelectItem>
                 <SelectItem value="active">유효</SelectItem>
-                <SelectItem value="expiring">만료 임박</SelectItem>
-                <SelectItem value="expired">만료됨</SelectItem>
+                <SelectItem value="expiring">만료임박</SelectItem>
+                <SelectItem value="expired">만료</SelectItem>
               </SelectContent>
             </Select>
           </div>
         </div>
-        <div className="mt-3 flex justify-end">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleClearFilters}
-            className="h-8"
-          >
+        <div className="mt-2 flex justify-end">
+          <Button variant="outline" size="sm" onClick={handleClearFilters} className="h-7 text-xs">
             <X className="h-3 w-3 mr-1" />
-            필터 초기화
+            초기화
           </Button>
         </div>
       </div>
 
-      <div className="text-sm text-gray-600 font-medium">
-        총 {filteredFreights.length}개의 운임 (전체 {combinedFreights.length}개 중)
+      {/* Results Summary */}
+      <div className="text-xs text-gray-600 font-medium">
+        총 {filteredFreights.length}개 (전체 {combinedFreights.length}개 중)
       </div>
 
-      <div className="rounded-xl border-2 shadow-lg overflow-hidden">
+      {/* Table - Compact */}
+      <div className="rounded-lg border overflow-hidden shadow-sm">
         <Table>
           <TableHeader>
             <TableRow className="bg-gradient-to-r from-emerald-50 to-teal-50">
-              <TableHead className="font-bold">대리점</TableHead>
-              <TableHead className="font-bold">선적항</TableHead>
-              <TableHead className="font-bold">양하항</TableHead>
-              <TableHead className="font-bold">최종목적지</TableHead>
-              <TableHead className="text-right font-bold">통합 운임 (USD)</TableHead>
-              <TableHead className="font-bold">유효기간</TableHead>
-              <TableHead className="font-bold">상태</TableHead>
-              <TableHead className="font-bold">설명</TableHead>
-              {isAdmin && <TableHead className="text-right font-bold">작업</TableHead>}
+              <TableHead className="h-9 text-xs font-bold whitespace-nowrap">대리점</TableHead>
+              <TableHead className="h-9 text-xs font-bold whitespace-nowrap">POL</TableHead>
+              <TableHead className="h-9 text-xs font-bold whitespace-nowrap">POD</TableHead>
+              <TableHead className="h-9 text-xs font-bold whitespace-nowrap">목적지</TableHead>
+              <TableHead className="h-9 text-xs text-right font-bold whitespace-nowrap">통합운임</TableHead>
+              <TableHead className="h-9 text-xs font-bold whitespace-nowrap">유효기간</TableHead>
+              <TableHead className="h-9 text-xs font-bold whitespace-nowrap">상태</TableHead>
+              <TableHead className="h-9 text-xs font-bold whitespace-nowrap">설명</TableHead>
+              {isAdmin && <TableHead className="h-9 text-xs text-right font-bold whitespace-nowrap">작업</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
             {paginatedFreights.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={isAdmin ? 9 : 8} className="text-center py-12">
-                  <div className="flex flex-col items-center gap-3">
-                    <Merge className="h-16 w-16 text-emerald-400" />
-                    <p className="text-xl font-semibold text-emerald-900">
+                <TableCell colSpan={isAdmin ? 9 : 8} className="text-center py-8">
+                  <div className="flex flex-col items-center gap-2">
+                    <Merge className="h-12 w-12 text-emerald-400" />
+                    <p className="text-base font-semibold text-emerald-900">
                       {combinedFreights.length === 0 ? '등록된 통합 운임이 없습니다.' : '검색 결과가 없습니다'}
                     </p>
                   </div>
@@ -629,47 +615,43 @@ export default function CombinedFreightTable() {
                 const validityStatus = getValidityStatus(freight.validFrom, freight.validTo);
                 
                 return (
-                  <TableRow key={freight.id} className="hover:bg-emerald-50/50 transition-colors">
-                    <TableCell className="font-medium">{freight.agent}</TableCell>
-                    <TableCell>{freight.pol}</TableCell>
-                    <TableCell>{freight.pod}</TableCell>
-                    <TableCell>{getDestinationName(freight.destinationId)}</TableCell>
-                    <TableCell className="text-right font-semibold text-emerald-700">${freight.rate}</TableCell>
-                    <TableCell>
-                      <div className="text-sm">
-                        <div>{formatValidityDate(freight.validFrom)}</div>
-                        <div className="text-gray-500">~ {formatValidityDate(freight.validTo)}</div>
-                      </div>
+                  <TableRow key={freight.id} className="hover:bg-emerald-50/50">
+                    <TableCell className="py-2 text-xs font-medium whitespace-nowrap">{freight.agent}</TableCell>
+                    <TableCell className="py-2 text-xs whitespace-nowrap">{freight.pol}</TableCell>
+                    <TableCell className="py-2 text-xs whitespace-nowrap">{freight.pod}</TableCell>
+                    <TableCell className="py-2 text-xs whitespace-nowrap">{getDestinationName(freight.destinationId)}</TableCell>
+                    <TableCell className="py-2 text-xs text-right font-semibold text-emerald-700 whitespace-nowrap">${freight.rate}</TableCell>
+                    <TableCell className="py-2 text-xs whitespace-nowrap">
+                      {formatValidityDate(freight.validFrom)} ~ {formatValidityDate(freight.validTo)}
                     </TableCell>
-                    <TableCell>
-                      <Badge variant={validityStatus.variant}>
+                    <TableCell className="py-2 whitespace-nowrap">
+                      <Badge variant={validityStatus.variant} className="text-xs px-1.5 py-0">
                         {validityStatus.label}
                       </Badge>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="py-2 text-xs whitespace-nowrap">
                       <span className={!freight.description ? 'text-gray-400' : ''}>
                         {freight.description || '-'}
                       </span>
                     </TableCell>
                     {isAdmin && (
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
+                      <TableCell className="py-2 text-right whitespace-nowrap">
+                        <div className="flex justify-end gap-1">
                           <Button
                             size="sm"
                             variant="outline"
                             onClick={() => handleEditClick(freight)}
-                            className="bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-300"
+                            className="h-6 px-2 text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-300"
                           >
-                            <Edit className="h-4 w-4 mr-1" />
-                            수정
+                            <Edit className="h-3 w-3" />
                           </Button>
                           <Button 
                             variant="ghost" 
-                            size="icon" 
+                            size="sm"
                             onClick={() => handleDelete(freight.id)}
-                            className="hover:bg-red-50 hover:text-red-700 transition-all hover:scale-105"
+                            className="h-6 w-6 p-0 hover:bg-red-50 hover:text-red-700"
                           >
-                            <Trash2 className="h-4 w-4 text-red-600" />
+                            <Trash2 className="h-3 w-3 text-red-600" />
                           </Button>
                         </div>
                       </TableCell>
@@ -682,42 +664,33 @@ export default function CombinedFreightTable() {
         </Table>
       </div>
 
+      {/* Pagination - Compact */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between pt-4 border-t">
-          <div className="text-sm text-gray-600">
-            {filteredFreights.length}개 중 {((currentPage - 1) * ITEMS_PER_PAGE) + 1}-{Math.min(currentPage * ITEMS_PER_PAGE, filteredFreights.length)}개 표시
+        <div className="flex items-center justify-between text-xs">
+          <div className="text-gray-600">
+            총 {filteredFreights.length}개 중 {((currentPage - 1) * ITEMS_PER_PAGE) + 1}-{Math.min(currentPage * ITEMS_PER_PAGE, filteredFreights.length)}개
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             <Button
               variant="outline"
               size="sm"
               onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
               disabled={currentPage === 1}
+              className="h-7 px-2"
             >
-              <ChevronLeft className="h-4 w-4" />
-              이전
+              <ChevronLeft className="h-3 w-3" />
             </Button>
-            <div className="flex items-center gap-1">
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                <Button
-                  key={page}
-                  variant={currentPage === page ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setCurrentPage(page)}
-                  className="w-8 h-8 p-0"
-                >
-                  {page}
-                </Button>
-              ))}
+            <div className="text-xs font-medium px-2">
+              {currentPage} / {totalPages}
             </div>
             <Button
               variant="outline"
               size="sm"
               onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
               disabled={currentPage === totalPages}
+              className="h-7 px-2"
             >
-              다음
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-3 w-3" />
             </Button>
           </div>
         </div>
@@ -729,6 +702,7 @@ export default function CombinedFreightTable() {
         description="육상운송 통합운임의 모든 변경 내역이 기록됩니다."
       />
 
+      {/* Edit Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={handleEditCancel}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>

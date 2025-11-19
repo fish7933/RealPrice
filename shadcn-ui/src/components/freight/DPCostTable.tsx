@@ -155,69 +155,66 @@ export default function DPCostTable() {
   const expiringRates = dpCosts.filter(d => getValidityStatus(d.validFrom, d.validTo).status === 'expiring');
 
   return (
-    <div className="space-y-6">
-      {/* Beautiful Header */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-rose-500 via-pink-500 to-fuchsia-500 p-6 shadow-xl">
+    <div className="space-y-4">
+      {/* Header - Compact */}
+      <div className="relative overflow-hidden rounded-lg bg-gradient-to-r from-rose-500 via-pink-500 to-fuchsia-500 p-4 shadow-lg">
         <div className="absolute inset-0 bg-grid-white/10"></div>
         <div className="relative flex justify-between items-center">
-          <div>
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 bg-white/20 backdrop-blur-sm rounded-xl">
-                <Package className="h-6 w-6 text-white" />
-              </div>
-              <h2 className="text-3xl font-bold text-white flex items-center gap-2">
-                DP 비용 관리
-                <Sparkles className="h-5 w-5 text-yellow-300 animate-pulse" />
-              </h2>
+          <div className="flex items-center gap-3">
+            <div className="p-1.5 bg-white/20 backdrop-blur-sm rounded-lg">
+              <Package className="h-5 w-5 text-white" />
             </div>
-            <p className="text-rose-50 ml-14">항구별 DP(Delivery Point) 비용 설정</p>
+            <div>
+              <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                DP 비용 관리
+                <Sparkles className="h-4 w-4 text-yellow-300 animate-pulse" />
+              </h2>
+              <p className="text-xs text-rose-50">항구별 DP 비용</p>
+            </div>
           </div>
           {isAdmin && (
             <Button 
               onClick={handleOpenDialog}
-              className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border-2 border-white/50 shadow-lg transition-all hover:scale-105"
+              size="sm"
+              className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border border-white/50"
             >
-              <Plus className="h-4 w-4 mr-2" />
-              DP 비용 추가
+              <Plus className="h-3 w-3 mr-1" />
+              추가
             </Button>
           )}
         </div>
       </div>
 
-      <Alert>
+      {/* Info Alert - Compact */}
+      <Alert className="py-2">
         <DollarSign className="h-4 w-4" />
-        <AlertDescription>
+        <AlertDescription className="text-xs">
           <strong>DP(Delivery Point):</strong> 항구에서 발생하는 배송 지점 비용입니다. 원가 계산 시 선택적으로 포함할 수 있습니다.
         </AlertDescription>
       </Alert>
 
+      {/* Warning Alert - Compact */}
       {(expiredRates.length > 0 || expiringRates.length > 0) && (
-        <Alert variant="destructive">
+        <Alert variant="destructive" className="py-2">
           <AlertTriangle className="h-4 w-4" />
-          <AlertDescription>
-            {expiredRates.length > 0 && (
-              <div className="font-semibold">
-                ⚠️ {expiredRates.length}개의 DP 비용이 만료되었습니다.
-              </div>
-            )}
-            {expiringRates.length > 0 && (
-              <div className="text-sm mt-1">
-                📅 {expiringRates.length}개의 DP 비용이 7일 이내에 만료됩니다.
-              </div>
-            )}
+          <AlertDescription className="text-sm">
+            {expiredRates.length > 0 && <span>⚠️ {expiredRates.length}개 만료</span>}
+            {expiredRates.length > 0 && expiringRates.length > 0 && <span> · </span>}
+            {expiringRates.length > 0 && <span>📅 {expiringRates.length}개 만료임박</span>}
           </AlertDescription>
         </Alert>
       )}
 
-      <div className="rounded-xl border-2 shadow-lg overflow-hidden">
+      {/* Table - Compact */}
+      <div className="rounded-lg border overflow-hidden shadow-sm">
         <Table>
           <TableHeader>
             <TableRow className="bg-gradient-to-r from-rose-50 to-pink-50">
-              <TableHead className="font-bold">항구</TableHead>
-              <TableHead className="font-bold">DP 비용 (USD)</TableHead>
-              <TableHead className="font-bold">유효기간</TableHead>
-              <TableHead className="font-bold">상태</TableHead>
-              {isAdmin && <TableHead className="text-right font-bold">작업</TableHead>}
+              <TableHead className="h-9 text-xs font-bold whitespace-nowrap">항구</TableHead>
+              <TableHead className="h-9 text-xs font-bold whitespace-nowrap">DP 비용</TableHead>
+              <TableHead className="h-9 text-xs font-bold whitespace-nowrap">유효기간</TableHead>
+              <TableHead className="h-9 text-xs font-bold whitespace-nowrap">상태</TableHead>
+              {isAdmin && <TableHead className="h-9 text-xs text-right font-bold whitespace-nowrap">작업</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -225,39 +222,35 @@ export default function DPCostTable() {
               const validityStatus = getValidityStatus(dpCost.validFrom, dpCost.validTo);
               
               return (
-                <TableRow key={dpCost.id} className="hover:bg-rose-50/50 transition-colors">
-                  <TableCell className="font-medium">{dpCost.port}</TableCell>
-                  <TableCell className="font-semibold text-rose-700">${dpCost.amount}</TableCell>
-                  <TableCell>
-                    <div className="text-sm">
-                      <div>{formatValidityDate(dpCost.validFrom)}</div>
-                      <div className="text-gray-500">~ {formatValidityDate(dpCost.validTo)}</div>
-                    </div>
+                <TableRow key={dpCost.id} className="hover:bg-rose-50/50">
+                  <TableCell className="py-2 text-xs font-medium whitespace-nowrap">{dpCost.port}</TableCell>
+                  <TableCell className="py-2 text-xs font-semibold text-rose-700 whitespace-nowrap">${dpCost.amount}</TableCell>
+                  <TableCell className="py-2 text-xs whitespace-nowrap">
+                    {formatValidityDate(dpCost.validFrom)} ~ {formatValidityDate(dpCost.validTo)}
                   </TableCell>
-                  <TableCell>
-                    <Badge variant={validityStatus.variant}>
+                  <TableCell className="py-2 whitespace-nowrap">
+                    <Badge variant={validityStatus.variant} className="text-xs px-1.5 py-0">
                       {validityStatus.label}
                     </Badge>
                   </TableCell>
                   {isAdmin && (
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
+                    <TableCell className="py-2 text-right whitespace-nowrap">
+                      <div className="flex justify-end gap-1">
                         <Button
                           size="sm"
                           variant="outline"
                           onClick={() => handleEditClick(dpCost)}
-                          className="bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-300"
+                          className="h-6 px-2 text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-300"
                         >
-                          <Edit className="h-4 w-4 mr-1" />
-                          수정
+                          <Edit className="h-3 w-3" />
                         </Button>
                         <Button
                           variant="ghost"
-                          size="icon"
+                          size="sm"
                           onClick={() => handleDelete(dpCost.id)}
-                          className="hover:bg-red-50 hover:text-red-700 transition-all hover:scale-105"
+                          className="h-6 w-6 p-0 hover:bg-red-50 hover:text-red-700"
                         >
-                          <Trash2 className="h-4 w-4 text-red-600" />
+                          <Trash2 className="h-3 w-3 text-red-600" />
                         </Button>
                       </div>
                     </TableCell>
@@ -267,10 +260,10 @@ export default function DPCostTable() {
             })}
             {dpCosts.length === 0 && (
               <TableRow>
-                <TableCell colSpan={isAdmin ? 5 : 4} className="text-center py-12">
-                  <div className="flex flex-col items-center gap-3">
-                    <Package className="h-16 w-16 text-rose-400" />
-                    <p className="text-xl font-semibold text-rose-900">설정된 DP 비용이 없습니다</p>
+                <TableCell colSpan={isAdmin ? 5 : 4} className="text-center py-8">
+                  <div className="flex flex-col items-center gap-2">
+                    <Package className="h-12 w-12 text-rose-400" />
+                    <p className="text-base font-semibold text-rose-900">설정된 DP 비용이 없습니다</p>
                   </div>
                 </TableCell>
               </TableRow>

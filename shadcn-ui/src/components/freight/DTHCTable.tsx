@@ -179,80 +179,73 @@ export default function DTHCTable() {
   const expiringRates = dthcList.filter(d => getValidityStatus(d.validFrom, d.validTo).status === 'expiring');
 
   return (
-    <div className="space-y-6">
-      {/* Beautiful Header */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 p-6 shadow-xl">
+    <div className="space-y-4">
+      {/* Header - Compact */}
+      <div className="relative overflow-hidden rounded-lg bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 p-4 shadow-lg">
         <div className="absolute inset-0 bg-grid-white/10"></div>
         <div className="relative flex justify-between items-center">
-          <div>
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 bg-white/20 backdrop-blur-sm rounded-xl">
-                <FileText className="h-6 w-6 text-white" />
-              </div>
-              <h2 className="text-3xl font-bold text-white flex items-center gap-2">
-                D/O(DTHC) 관리
-                <Sparkles className="h-5 w-5 text-yellow-300 animate-pulse" />
-              </h2>
+          <div className="flex items-center gap-3">
+            <div className="p-1.5 bg-white/20 backdrop-blur-sm rounded-lg">
+              <FileText className="h-5 w-5 text-white" />
             </div>
-            <p className="text-orange-50 ml-14">대리점, 출발항, 도착항 및 선사별 D/O(DTHC) 비용 설정</p>
+            <div>
+              <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                D/O(DTHC) 관리
+                <Sparkles className="h-4 w-4 text-yellow-300 animate-pulse" />
+              </h2>
+              <p className="text-xs text-orange-50">대리점별 D/O(DTHC) 비용</p>
+            </div>
           </div>
           {isAdmin && (
             <Button 
               onClick={() => setIsAddDialogOpen(true)}
-              className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border-2 border-white/50 shadow-lg transition-all hover:scale-105"
+              size="sm"
+              className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border border-white/50"
             >
-              <Plus className="h-4 w-4 mr-2" />
-              D/O(DTHC) 추가
+              <Plus className="h-3 w-3 mr-1" />
+              추가
             </Button>
           )}
         </div>
       </div>
 
-      <Alert className="border-2 border-orange-200 bg-gradient-to-r from-orange-50 to-red-50">
+      {/* Info Alert - Compact */}
+      <Alert className="border-orange-200 bg-gradient-to-r from-orange-50 to-red-50 py-2">
         <FileText className="h-4 w-4 text-orange-600" />
-        <AlertDescription>
+        <AlertDescription className="text-xs">
           <strong className="text-orange-900">D/O(DTHC):</strong> Document Only - Destination Terminal Handling Charge. 철도 대리점, 출발항, 도착항 및 선사별로 설정되며, 원가 계산 시 자동으로 적용됩니다.
-          <br />
-          <span className="text-sm text-orange-700 mt-1 block">
-            각 철도 대리점마다 경로(출발항→도착항) 및 선사에 따라 다른 D/O(DTHC) 금액을 설정할 수 있습니다.
-          </span>
         </AlertDescription>
       </Alert>
 
+      {/* Warning Alert - Compact */}
       {(expiredRates.length > 0 || expiringRates.length > 0) && (
-        <Alert variant="destructive">
+        <Alert variant="destructive" className="py-2">
           <AlertTriangle className="h-4 w-4" />
-          <AlertDescription>
-            {expiredRates.length > 0 && (
-              <div className="font-semibold">
-                ⚠️ {expiredRates.length}개의 D/O(DTHC)가 만료되었습니다.
-              </div>
-            )}
-            {expiringRates.length > 0 && (
-              <div className="text-sm mt-1">
-                📅 {expiringRates.length}개의 D/O(DTHC)가 7일 이내에 만료됩니다.
-              </div>
-            )}
+          <AlertDescription className="text-sm">
+            {expiredRates.length > 0 && <span>⚠️ {expiredRates.length}개 만료</span>}
+            {expiredRates.length > 0 && expiringRates.length > 0 && <span> · </span>}
+            {expiringRates.length > 0 && <span>📅 {expiringRates.length}개 만료임박</span>}
           </AlertDescription>
         </Alert>
       )}
 
+      {/* Tables by Agent - Compact */}
       {Object.keys(dthcByAgent).length > 0 ? (
         Object.entries(dthcByAgent).map(([agent, dthcs]) => (
-          <div key={agent} className="border-2 rounded-xl overflow-hidden bg-white shadow-lg hover:shadow-xl transition-shadow">
-            <div className="bg-gradient-to-r from-orange-100 via-red-100 to-pink-100 px-6 py-4 border-b-2 border-orange-200">
-              <h3 className="font-bold text-xl text-orange-900">{agent}</h3>
+          <div key={agent} className="border rounded-lg overflow-hidden bg-white shadow-sm">
+            <div className="bg-gradient-to-r from-orange-100 via-red-100 to-pink-100 px-4 py-2 border-b border-orange-200">
+              <h3 className="font-bold text-base text-orange-900">{agent}</h3>
             </div>
             <Table>
               <TableHeader>
                 <TableRow className="bg-gradient-to-r from-orange-50 to-red-50">
-                  <TableHead className="font-bold">경로 (POL → POD)</TableHead>
-                  <TableHead className="font-bold">선사</TableHead>
-                  <TableHead className="font-bold">D/O(DTHC) (USD)</TableHead>
-                  <TableHead className="font-bold">유효기간</TableHead>
-                  <TableHead className="font-bold">상태</TableHead>
-                  <TableHead className="font-bold">설명</TableHead>
-                  {isAdmin && <TableHead className="text-right font-bold">작업</TableHead>}
+                  <TableHead className="h-9 text-xs font-bold whitespace-nowrap">경로</TableHead>
+                  <TableHead className="h-9 text-xs font-bold whitespace-nowrap">선사</TableHead>
+                  <TableHead className="h-9 text-xs font-bold whitespace-nowrap">D/O(DTHC)</TableHead>
+                  <TableHead className="h-9 text-xs font-bold whitespace-nowrap">유효기간</TableHead>
+                  <TableHead className="h-9 text-xs font-bold whitespace-nowrap">상태</TableHead>
+                  <TableHead className="h-9 text-xs font-bold whitespace-nowrap">설명</TableHead>
+                  {isAdmin && <TableHead className="h-9 text-xs text-right font-bold whitespace-nowrap">작업</TableHead>}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -260,52 +253,48 @@ export default function DTHCTable() {
                   const validityStatus = getValidityStatus(dthc.validFrom, dthc.validTo);
                   
                   return (
-                    <TableRow key={dthc.id} className="hover:bg-orange-50/50 transition-colors">
-                      <TableCell className="font-medium">
+                    <TableRow key={dthc.id} className="hover:bg-orange-50/50">
+                      <TableCell className="py-2 text-xs font-medium whitespace-nowrap">
                         {dthc.pol || '-'} → {dthc.pod || '-'}
                       </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Ship className="h-4 w-4 text-cyan-600" />
+                      <TableCell className="py-2 text-xs whitespace-nowrap">
+                        <div className="flex items-center gap-1">
+                          <Ship className="h-3 w-3 text-cyan-600" />
                           <span className="font-medium">{dthc.carrier || '-'}</span>
                         </div>
                       </TableCell>
-                      <TableCell className="font-semibold text-orange-700">${dthc.amount ?? 0}</TableCell>
-                      <TableCell>
-                        <div className="text-sm">
-                          <div>{formatValidityDate(dthc.validFrom)}</div>
-                          <div className="text-gray-500">~ {formatValidityDate(dthc.validTo)}</div>
-                        </div>
+                      <TableCell className="py-2 text-xs font-semibold text-orange-700 whitespace-nowrap">${dthc.amount ?? 0}</TableCell>
+                      <TableCell className="py-2 text-xs whitespace-nowrap">
+                        {formatValidityDate(dthc.validFrom)} ~ {formatValidityDate(dthc.validTo)}
                       </TableCell>
-                      <TableCell>
-                        <Badge variant={validityStatus.variant}>
+                      <TableCell className="py-2 whitespace-nowrap">
+                        <Badge variant={validityStatus.variant} className="text-xs px-1.5 py-0">
                           {validityStatus.label}
                         </Badge>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="py-2 text-xs whitespace-nowrap">
                         <span className={!dthc.description ? 'text-gray-400' : ''}>
                           {dthc.description || '-'}
                         </span>
                       </TableCell>
                       {isAdmin && (
-                        <TableCell className="text-right">
-                          <div className="flex justify-end gap-2">
+                        <TableCell className="py-2 text-right whitespace-nowrap">
+                          <div className="flex justify-end gap-1">
                             <Button
                               size="sm"
                               variant="outline"
                               onClick={() => handleEditClick(dthc)}
-                              className="bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-300"
+                              className="h-6 px-2 text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-300"
                             >
-                              <Edit className="h-4 w-4 mr-1" />
-                              수정
+                              <Edit className="h-3 w-3" />
                             </Button>
                             <Button
                               variant="ghost"
-                              size="icon"
+                              size="sm"
                               onClick={() => handleDelete(dthc.id)}
-                              className="hover:bg-red-50 hover:text-red-700 transition-all hover:scale-105"
+                              className="h-6 w-6 p-0 hover:bg-red-50 hover:text-red-700"
                             >
-                              <Trash2 className="h-4 w-4 text-red-600" />
+                              <Trash2 className="h-3 w-3 text-red-600" />
                             </Button>
                           </div>
                         </TableCell>
@@ -318,10 +307,10 @@ export default function DTHCTable() {
           </div>
         ))
       ) : (
-        <div className="border-2 rounded-xl bg-gradient-to-br from-orange-50 to-red-50 p-12 text-center shadow-lg">
-          <FileText className="h-16 w-16 mx-auto mb-4 text-orange-400" />
-          <p className="text-xl font-semibold text-orange-900">설정된 D/O(DTHC)가 없습니다</p>
-          <p className="text-sm mt-2 text-orange-700">대리점, 경로 및 선사별로 D/O(DTHC)를 추가해보세요</p>
+        <div className="border rounded-lg bg-gradient-to-br from-orange-50 to-red-50 p-8 text-center shadow-sm">
+          <FileText className="h-12 w-12 mx-auto mb-3 text-orange-400" />
+          <p className="text-base font-semibold text-orange-900">설정된 D/O(DTHC)가 없습니다</p>
+          <p className="text-xs mt-1 text-orange-700">대리점, 경로 및 선사별로 D/O(DTHC)를 추가해보세요</p>
         </div>
       )}
 

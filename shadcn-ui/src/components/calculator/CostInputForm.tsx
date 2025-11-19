@@ -3,11 +3,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Calculator, RotateCcw, Sparkles, Ship, Clock, Database } from 'lucide-react';
-import { CostCalculationInput, Destination, Port, SeaFreight, CostCalculationResult } from '@/types/freight';
+import { Calculator, RotateCcw, Sparkles, Ship, Clock, Database, Plus, X } from 'lucide-react';
+import { CostCalculationInput, Destination, Port, SeaFreight, CostCalculationResult, OtherCost } from '@/types/freight';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useState } from 'react';
 import CalculationSqlPreviewDialog from './CalculationSqlPreviewDialog';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface CostInputFormProps {
   input: CostCalculationInput;
@@ -27,6 +28,8 @@ interface CostInputFormProps {
   onOpenTimeMachine: () => void;
   result: CostCalculationResult | null;
 }
+
+const MAX_OTHER_COSTS = 5;
 
 export default function CostInputForm({
   input,
@@ -54,6 +57,37 @@ export default function CostInputForm({
   };
 
   const canShowSqlPreview = input.pol && input.pod && input.destinationId && input.weight > 0;
+
+  const handleAddOtherCost = () => {
+    if (input.otherCosts.length >= MAX_OTHER_COSTS) {
+      return;
+    }
+    setInput({
+      ...input,
+      otherCosts: [...input.otherCosts, { name: '', amount: 0 }]
+    });
+  };
+
+  const handleRemoveOtherCost = (index: number) => {
+    const newOtherCosts = input.otherCosts.filter((_, i) => i !== index);
+    setInput({
+      ...input,
+      otherCosts: newOtherCosts
+    });
+  };
+
+  const handleOtherCostChange = (index: number, field: 'name' | 'amount', value: string | number) => {
+    const newOtherCosts = [...input.otherCosts];
+    if (field === 'name') {
+      newOtherCosts[index].name = value as string;
+    } else {
+      newOtherCosts[index].amount = typeof value === 'number' ? value : parseFloat(value as string) || 0;
+    }
+    setInput({
+      ...input,
+      otherCosts: newOtherCosts
+    });
+  };
 
   return (
     <div className="space-y-4">
@@ -137,6 +171,89 @@ export default function CostInputForm({
           DP 포함 {input.includeDP && dpCost > 0 && `($${dpCost})`}
         </Label>
       </div>
+
+      {/* 기타 비용 섹션 */}
+      <Card className="border-dashed">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-base">기타 비용</CardTitle>
+              <CardDescription className="text-xs">
+                추가 비용을 입력하세요 (최대 {MAX_OTHER_COSTS}개)
+              </CardDescription>
+            </div>
+            {input.otherCosts.length < MAX_OTHER_COSTS && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleAddOtherCost}
+                className="h-8"
+              >
+                <Plus className="h-4 w-4 mr-1" />
+                추가
+              </Button>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {input.otherCosts.length === 0 ? (
+            <div className="text-center text-gray-500 text-sm py-4">
+              추가 비용이 없습니다. "추가" 버튼을 클릭하여 비용을 추가하세요.
+            </div>
+          ) : (
+            input.otherCosts.map((cost, index) => (
+              <div key={index} className="flex items-end gap-2">
+                <div className="flex-1 space-y-2">
+                  <Label htmlFor={`other-cost-name-${index}`} className="text-xs">
+                    비용명
+                  </Label>
+                  <Input
+                    id={`other-cost-name-${index}`}
+                    type="text"
+                    value={cost.name}
+                    onChange={(e) => handleOtherCostChange(index, 'name', e.target.value)}
+                    placeholder="예: 보험료, 검역비 등"
+                    className="h-9"
+                  />
+                </div>
+                <div className="w-32 space-y-2">
+                  <Label htmlFor={`other-cost-amount-${index}`} className="text-xs">
+                    금액 ($)
+                  </Label>
+                  <Input
+                    id={`other-cost-amount-${index}`}
+                    type="number"
+                    value={cost.amount || ''}
+                    onChange={(e) => handleOtherCostChange(index, 'amount', e.target.value)}
+                    placeholder="0"
+                    className="h-9"
+                  />
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleRemoveOtherCost(index)}
+                  className="h-9 w-9 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ))
+          )}
+          {input.otherCosts.length > 0 && (
+            <div className="pt-2 border-t">
+              <div className="flex justify-between items-center text-sm">
+                <span className="font-medium text-gray-700">기타 비용 합계:</span>
+                <span className="font-semibold text-blue-600">
+                  ${input.otherCosts.reduce((sum, cost) => sum + (cost.amount || 0), 0).toFixed(2)}
+                </span>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {seaFreightOptions.length > 0 && (
         <Alert className="bg-blue-50 border-blue-200">

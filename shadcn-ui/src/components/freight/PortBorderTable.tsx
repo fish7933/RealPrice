@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useFreight } from '@/contexts/FreightContext';
 import { PortBorderFreight } from '@/types/freight';
@@ -28,7 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Trash2, Plus, Train, AlertTriangle, Sparkles, Edit } from 'lucide-react';
+import { Trash2, Plus, Train, AlertTriangle, Sparkles, Edit, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import AuditLogTable from './AuditLogTable';
 import { ValidityPeriodInput } from '@/components/ui/validity-period-input';
 import { getValidityStatus, formatValidityDate, checkOverlapWarning } from '@/utils/validityHelper';
@@ -43,6 +43,8 @@ interface FreightGroup {
   freights: { [pod: string]: PortBorderFreight | undefined };
   validityStatus: ReturnType<typeof getValidityStatus> | null;
 }
+
+const ITEMS_PER_PAGE = 10;
 
 export default function PortBorderTable() {
   const { user } = useAuth();
@@ -62,6 +64,9 @@ export default function PortBorderTable() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingGroup, setEditingGroup] = useState<FreightGroup | null>(null);
   const [validationWarning, setValidationWarning] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'valid' | 'expiring' | 'expired'>('all');
+  const [currentPage, setCurrentPage] = useState(1);
   const [formData, setFormData] = useState<{
     agent: string;
     pol: string;
@@ -287,52 +292,99 @@ export default function PortBorderTable() {
   };
 
   // Group freights by agent, POL, and validity period
-  const freightGroups: FreightGroup[] = [];
-  
-  // Get all unique combinations of agent + pol + validFrom + validTo
-  const uniqueCombinations = new Set<string>();
-  portBorderFreights.forEach(freight => {
-    uniqueCombinations.add(`${freight.agent}|${freight.pol}|${freight.validFrom}|${freight.validTo}`);
-  });
-
-  uniqueCombinations.forEach(combo => {
-    const [agent, pol, validFrom, validTo] = combo.split('|');
+  const allFreightGroups: FreightGroup[] = useMemo(() => {
+    const groups: FreightGroup[] = [];
     
-    const groupFreights: { [pod: string]: PortBorderFreight | undefined } = {};
-    podPorts.forEach(pod => {
-      groupFreights[pod.name] = portBorderFreights.find(
-        f => f.agent === agent && f.pol === pol && f.pod === pod.name && 
-             f.validFrom === validFrom && f.validTo === validTo
-      );
+    // Get all unique combinations of agent + pol + validFrom + validTo
+    const uniqueCombinations = new Set<string>();
+    portBorderFreights.forEach(freight => {
+      uniqueCombinations.add(`${freight.agent}|${freight.pol}|${freight.validFrom}|${freight.validTo}`);
     });
-    
-    const firstFreight = Object.values(groupFreights).find(f => f);
-    if (firstFreight) {
-      freightGroups.push({
-        agent,
-        pol,
-        validFrom,
-        validTo,
-        freights: groupFreights,
-        validityStatus: getValidityStatus(validFrom, validTo)
-      });
-    }
-  });
 
-  // Sort by agent name, then by POL, then by validFrom descending (newest first)
-  freightGroups.sort((a, b) => {
-    if (a.agent !== b.agent) {
-      return a.agent.localeCompare(b.agent);
+    uniqueCombinations.forEach(combo => {
+      const [agent, pol, validFrom, validTo] = combo.split('|');
+      
+      const groupFreights: { [pod: string]: PortBorderFreight | undefined } = {};
+      podPorts.forEach(pod => {
+        groupFreights[pod.name] = portBorderFreights.find(
+          f => f.agent === agent && f.pol === pol && f.pod === pod.name && 
+               f.validFrom === validFrom && f.validTo === validTo
+        );
+      });
+      
+      const firstFreight = Object.values(groupFreights).find(f => f);
+      if (firstFreight) {
+        groups.push({
+          agent,
+          pol,
+          validFrom,
+          validTo,
+          freights: groupFreights,
+          validityStatus: getValidityStatus(validFrom, validTo)
+        });
+      }
+    });
+
+    // Sort by agent name, then by POL, then by validFrom descending (newest first)
+    groups.sort((a, b) => {
+      if (a.agent !== b.agent) {
+        return a.agent.localeCompare(b.agent);
+      }
+      if (a.pol !== b.pol) {
+        return a.pol.localeCompare(b.pol);
+      }
+      return new Date(b.validFrom).getTime() - new Date(a.validFrom).getTime();
+    });
+
+    return groups;
+  }, [portBorderFreights, podPorts]);
+
+  // Apply filters
+  const filteredGroups = useMemo(() => {
+    let filtered = allFreightGroups;
+
+    // Search filter
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      filtered = filtered.filter(group => 
+        group.agent.toLowerCase().includes(term) ||
+        group.pol.toLowerCase().includes(term) ||
+        formatValidityDate(group.validFrom).includes(term) ||
+        formatValidityDate(group.validTo).includes(term)
+      );
     }
-    if (a.pol !== b.pol) {
-      return a.pol.localeCompare(b.pol);
+
+    // Status filter
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter(group => 
+        group.validityStatus?.status === statusFilter
+      );
     }
-    return new Date(b.validFrom).getTime() - new Date(a.validFrom).getTime();
-  });
+
+    return filtered;
+  }, [allFreightGroups, searchTerm, statusFilter]);
+
+  // Pagination
+  const totalPages = Math.ceil(filteredGroups.length / ITEMS_PER_PAGE);
+  const paginatedGroups = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredGroups.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [filteredGroups, currentPage]);
+
+  // Reset to page 1 when filters change
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+    setCurrentPage(1);
+  };
+
+  const handleStatusFilterChange = (value: 'all' | 'valid' | 'expiring' | 'expired') => {
+    setStatusFilter(value);
+    setCurrentPage(1);
+  };
 
   const auditLogs = getAuditLogsByType('portBorderFreight');
-  const expiredRates = freightGroups.filter(f => f.validityStatus?.status === 'expired');
-  const expiringRates = freightGroups.filter(f => f.validityStatus?.status === 'expiring');
+  const expiredRates = allFreightGroups.filter(f => f.validityStatus?.status === 'expired');
+  const expiringRates = allFreightGroups.filter(f => f.validityStatus?.status === 'expiring');
 
   return (
     <div className="space-y-6">
@@ -381,6 +433,30 @@ export default function PortBorderTable() {
         </Alert>
       )}
 
+      {/* Search and Filter Section */}
+      <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex-1 relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Input
+            placeholder="대리점명, POL 또는 유효기간으로 검색..."
+            value={searchTerm}
+            onChange={(e) => handleSearchChange(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+        <Select value={statusFilter} onValueChange={handleStatusFilterChange}>
+          <SelectTrigger className="w-full sm:w-[180px]">
+            <SelectValue placeholder="상태 필터" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">전체</SelectItem>
+            <SelectItem value="valid">유효</SelectItem>
+            <SelectItem value="expiring">만료임박</SelectItem>
+            <SelectItem value="expired">만료</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
       <div className="rounded-xl border-2 shadow-lg overflow-hidden">
         <Table>
           <TableHeader>
@@ -403,8 +479,8 @@ export default function PortBorderTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {freightGroups.length > 0 ? (
-              freightGroups.map((group, index) => (
+            {paginatedGroups.length > 0 ? (
+              paginatedGroups.map((group, index) => (
                 <TableRow key={`${group.agent}-${group.pol}-${group.validFrom}-${index}`} className="hover:bg-green-50/50 transition-colors">
                   <TableCell className="font-medium">{group.agent}</TableCell>
                   <TableCell className="font-medium text-blue-700">{group.pol}</TableCell>
@@ -465,13 +541,45 @@ export default function PortBorderTable() {
             ) : (
               <TableRow>
                 <TableCell colSpan={podPorts.length + (isAdmin ? 5 : 4)} className="text-center text-gray-500 py-8">
-                  등록된 철도운임이 없습니다
+                  {searchTerm || statusFilter !== 'all' ? '검색 결과가 없습니다' : '등록된 철도운임이 없습니다'}
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between">
+          <div className="text-sm text-gray-600">
+            총 {filteredGroups.length}개 중 {((currentPage - 1) * ITEMS_PER_PAGE) + 1}-{Math.min(currentPage * ITEMS_PER_PAGE, filteredGroups.length)}개 표시
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft className="h-4 w-4" />
+              이전
+            </Button>
+            <div className="text-sm font-medium">
+              {currentPage} / {totalPages}
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+            >
+              다음
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      )}
 
       <AuditLogTable 
         logs={auditLogs}

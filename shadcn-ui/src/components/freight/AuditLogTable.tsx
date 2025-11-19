@@ -218,7 +218,6 @@ export default function AuditLogTable({ logs, title = '운임 변경 기록', de
       description: '설명',
       validFrom: '시작일',
       validTo: '종료일',
-      version: '버전',
       localCharge: 'L.LOCAL',
     };
     return labels[field] || field;
@@ -429,8 +428,7 @@ export default function AuditLogTable({ logs, title = '운임 변경 기록', de
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-[50px]">선택</TableHead>
-                  <TableHead className="w-[80px]">버전</TableHead>
-                  <TableHead className="w-[180px]">버전일시</TableHead>
+                  <TableHead className="w-[180px]">변경일시</TableHead>
                   {hasAgentField && <TableHead className="w-[120px]">대리점</TableHead>}
                   {hasPolField && <TableHead className="w-[120px]">선적포트</TableHead>}
                   <TableHead className="w-[100px]">작업</TableHead>
@@ -451,15 +449,6 @@ export default function AuditLogTable({ logs, title = '운임 변경 기록', de
                           onCheckedChange={(checked) => handleVersionSelect(versionKey, checked as boolean)}
                           disabled={!isSelected && selectedVersions.size >= 2}
                         />
-                      </TableCell>
-                      <TableCell>
-                        {groupedLog.version ? (
-                          <Badge variant="outline" className="font-mono">
-                            v{groupedLog.version}
-                          </Badge>
-                        ) : (
-                          <span className="text-gray-400">-</span>
-                        )}
                       </TableCell>
                       <TableCell className="text-sm">
                         {formatTimestamp(groupedLog.timestamp)}
@@ -556,7 +545,7 @@ export default function AuditLogTable({ logs, title = '운임 변경 기록', de
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <History className="h-5 w-5" />
-              버전 상세 정보
+              변경 상세 정보
             </DialogTitle>
             <DialogDescription>
               운임 변경 기록의 상세 내용을 확인할 수 있습니다
@@ -567,19 +556,7 @@ export default function AuditLogTable({ logs, title = '운임 변경 기록', de
               {/* Basic Info */}
               <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
                 <div>
-                  <div className="text-sm text-gray-600 mb-1">버전</div>
-                  <div className="font-medium">
-                    {selectedGroupedLog.version ? (
-                      <Badge variant="outline" className="font-mono text-base">
-                        v{selectedGroupedLog.version}
-                      </Badge>
-                    ) : (
-                      <span className="text-gray-400">-</span>
-                    )}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-sm text-gray-600 mb-1">버전일시</div>
+                  <div className="text-sm text-gray-600 mb-1">변경일시</div>
                   <div className="font-medium">{formatTimestamp(selectedGroupedLog.timestamp)}</div>
                 </div>
                 {hasAgentField && (
@@ -679,10 +656,10 @@ export default function AuditLogTable({ logs, title = '운임 변경 기록', de
                 ) : (
                   <div className="space-y-3">
                     {selectedGroupedLog.logs.map((log, logIdx) => {
-                      // Filter out validFrom and validTo changes for grouped logs
+                      // Filter out validFrom, validTo, and version changes for grouped logs
                       const relevantChanges = needsGrouping 
                         ? log.changes.filter(c => c.field !== 'validFrom' && c.field !== 'validTo' && c.field !== 'version')
-                        : log.changes;
+                        : log.changes.filter(c => c.field !== 'version');
 
                       if (relevantChanges.length === 0 && needsGrouping) return null;
 
@@ -766,9 +743,6 @@ export default function AuditLogTable({ logs, title = '운임 변경 기록', de
                   <div className="text-sm text-blue-700 font-medium mb-2">이전 버전</div>
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="font-mono">
-                        v{selectedVersionsForComparison[0].version}
-                      </Badge>
                       {getActionBadge(selectedVersionsForComparison[0].action)}
                     </div>
                     <div className="text-sm text-gray-600">
@@ -783,9 +757,6 @@ export default function AuditLogTable({ logs, title = '운임 변경 기록', de
                   <div className="text-sm text-green-700 font-medium mb-2">이후 버전</div>
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="font-mono">
-                        v{selectedVersionsForComparison[1].version}
-                      </Badge>
                       {getActionBadge(selectedVersionsForComparison[1].action)}
                     </div>
                     <div className="text-sm text-gray-600">
@@ -812,9 +783,9 @@ export default function AuditLogTable({ logs, title = '운임 변경 기록', de
                       ...Object.keys(version2Snapshot)
                     ]);
 
-                    // Filter out internal fields
+                    // Filter out internal fields and version
                     const relevantFields = Array.from(allFields).filter(
-                      field => !['id', 'createdAt', 'updatedAt'].includes(field)
+                      field => !['id', 'createdAt', 'updatedAt', 'version'].includes(field)
                     );
 
                     return relevantFields.map(field => {

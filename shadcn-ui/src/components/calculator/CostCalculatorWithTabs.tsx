@@ -274,6 +274,12 @@ export default function CostCalculatorWithTabs() {
     }
 
     if (allBreakdowns.length === 0) {
+      // ✅ NEW: Clear previous results when there are no new results
+      setResult(null);
+      setAllFreightsResult(null);
+      setFullBreakdown([]);
+      localStorage.removeItem(STORAGE_KEY_RESULT);
+      
       const destination = getDestinationById(input.destinationId);
       const destinationName = destination?.name || input.destinationId;
       const missingRates: string[] = [];

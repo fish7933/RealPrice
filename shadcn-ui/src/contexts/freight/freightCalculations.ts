@@ -76,6 +76,33 @@ export const calculateCost = (
   }
   console.log('🔍 ===== 데이터 진단 완료 =====\n');
 
+  // ✅ NEW: Check if there are ANY valid sea freight rates (general or agent-specific) for this route
+  const hasValidGeneralSeaFreight = currentSeaFreights.some(f => 
+    f.pol === input.pol && 
+    f.pod === input.pod && 
+    isValidOnDate(f.validFrom, f.validTo, calculationDate)
+  );
+
+  const hasValidAgentSeaFreight = currentAgentSeaFreights.some(f => 
+    f.pol === input.pol && 
+    f.pod === input.pod && 
+    isValidOnDate(f.validFrom, f.validTo, calculationDate)
+  );
+
+  console.log('\n🔍 ===== 해상운임 유효성 검사 =====');
+  console.log(`📋 유효한 일반 해상운임: ${hasValidGeneralSeaFreight ? '✅ 있음' : '❌ 없음'}`);
+  console.log(`📋 유효한 대리점 해상운임: ${hasValidAgentSeaFreight ? '✅ 있음' : '❌ 없음'}`);
+
+  // ✅ NEW: If no valid sea freight rates exist, return null to exclude from results
+  if (!hasValidGeneralSeaFreight && !hasValidAgentSeaFreight) {
+    console.log('\n❌ 조회 날짜에 유효한 해상운임이 없어 계산을 중단합니다.');
+    console.log('🔍 ===== 원가 계산 완료 (결과 없음) =====\n');
+    return null;
+  }
+
+  console.log('✅ 유효한 해상운임이 존재하여 계산을 진행합니다.');
+  console.log('🔍 ===== 해상운임 유효성 검사 완료 =====\n');
+
   // Helper function to get agent code
   const getRailAgentCode = (agentName: string): string | undefined => {
     const agent = railAgents.find(a => a.name === agentName);

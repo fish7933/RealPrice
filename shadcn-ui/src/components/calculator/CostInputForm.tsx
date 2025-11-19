@@ -3,7 +3,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Calculator, RotateCcw, Sparkles, Ship, Clock, Plus, X, Package } from 'lucide-react';
+import { Calculator, RotateCcw, Sparkles, Ship, Clock, Plus, X, Package, Truck } from 'lucide-react';
 import { CostCalculationInput, Destination, Port, SeaFreight, CostCalculationResult, OtherCost } from '@/types/freight';
 import { Checkbox } from '@/components/ui/checkbox';
 
@@ -162,7 +162,7 @@ export default function CostInputForm({
           <h3 className="text-sm font-bold text-gray-900">운임 조건</h3>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           {/* DP 포함 */}
           <div className="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-300 hover:border-blue-400 transition-colors">
             <Checkbox
@@ -178,6 +178,24 @@ export default function CostInputForm({
                 <span className="text-blue-600 font-bold">($${dpCost})</span>
               )}
             </Label>
+          </div>
+
+          {/* 국내 비용 입력 */}
+          <div className="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-300">
+            <Truck className="h-4 w-4 text-green-600" />
+            <div className="flex-1 flex items-center gap-2">
+              <Label htmlFor="domesticTransport" className="text-sm font-semibold text-gray-900 whitespace-nowrap">
+                국내 비용
+              </Label>
+              <Input
+                id="domesticTransport"
+                type="number"
+                value={input.domesticTransport || ''}
+                onChange={(e) => setInput({ ...input, domesticTransport: parseFloat(e.target.value) || 0 })}
+                placeholder="0"
+                className="h-8 border-gray-300 text-sm"
+              />
+            </div>
           </div>
 
           {/* 기타 비용 추가 버튼 */}

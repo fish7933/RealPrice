@@ -266,17 +266,17 @@ export default function SeaFreightTable() {
 
   return (
     <div className="space-y-4">
-      {/* Header Section - Compact */}
-      <div className="relative overflow-hidden rounded-lg bg-gradient-to-br from-blue-500 via-cyan-500 to-teal-600 p-4 text-white shadow-lg">
+      {/* Header Section - More Compact */}
+      <div className="relative overflow-hidden rounded-lg bg-gradient-to-br from-blue-500 via-cyan-500 to-teal-600 p-3 text-white shadow-lg">
         <div className="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-white/10 blur-2xl"></div>
         <div className="absolute bottom-0 left-0 -mb-4 -ml-4 h-24 w-24 rounded-full bg-white/10 blur-2xl"></div>
         <div className="relative flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <div className="p-1.5 bg-white/20 backdrop-blur-sm rounded-lg">
-              <Ship className="h-5 w-5" />
+          <div className="flex items-center gap-2">
+            <div className="p-1 bg-white/20 backdrop-blur-sm rounded-lg">
+              <Ship className="h-4 w-4" />
             </div>
             <div>
-              <h2 className="text-xl font-bold">해상운임 관리</h2>
+              <h2 className="text-lg font-bold">해상운임</h2>
               <p className="text-xs text-blue-100">선적포트 → 양하포트</p>
             </div>
           </div>
@@ -284,7 +284,7 @@ export default function SeaFreightTable() {
             <Button 
               onClick={() => setIsAddDialogOpen(true)}
               size="sm"
-              className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border border-white/50"
+              className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border border-white/50 h-7 text-xs"
             >
               <Plus className="h-3 w-3 mr-1" />
               추가

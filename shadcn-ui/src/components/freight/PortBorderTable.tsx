@@ -411,17 +411,18 @@ export default function PortBorderTable() {
 
   return (
     <div className="space-y-4">
-      <div className="relative overflow-hidden rounded-lg bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 p-4 shadow-lg">
+      {/* Header Section - More Compact */}
+      <div className="relative overflow-hidden rounded-lg bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 p-3 shadow-lg">
         <div className="absolute inset-0 bg-grid-white/10"></div>
         <div className="relative flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <div className="p-1.5 bg-white/20 backdrop-blur-sm rounded-lg">
-              <Train className="h-5 w-5 text-white" />
+          <div className="flex items-center gap-2">
+            <div className="p-1 bg-white/20 backdrop-blur-sm rounded-lg">
+              <Train className="h-4 w-4 text-white" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                철도운임 관리
-                <Sparkles className="h-4 w-4 text-yellow-300 animate-pulse" />
+              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                철도운임
+                <Sparkles className="h-3 w-3 text-yellow-300 animate-pulse" />
               </h2>
               <p className="text-xs text-green-50">선적포트(POL) → 양하포트(POD) → {borderCityName}</p>
             </div>
@@ -430,7 +431,7 @@ export default function PortBorderTable() {
             <Button 
               onClick={handleOpenDialog}
               size="sm"
-              className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border border-white/50"
+              className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border border-white/50 h-7 text-xs"
             >
               <Plus className="h-3 w-3 mr-1" />
               추가

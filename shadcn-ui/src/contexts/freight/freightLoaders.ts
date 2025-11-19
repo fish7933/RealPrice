@@ -399,34 +399,51 @@ export const loadDPCosts = async (): Promise<DPCost[]> => {
 
 export const loadCombinedFreights = async (): Promise<CombinedFreight[]> => {
   try {
+    console.log('🔄 [loadCombinedFreights] Loading combined freights from database...');
+    
     const { data, error } = await supabase
       .from(TABLES.COMBINED_FREIGHTS)
       .select('*')
       .order('created_at', { ascending: false });
 
     if (error) {
+      console.error('❌ [loadCombinedFreights] Database error:', error);
       handleError(error, '통합 운임 목록 로드');
       return [];
     }
 
+    console.log('📦 [loadCombinedFreights] Raw data from database:', data);
+
     if (data) {
-      return data.map(d => ({
-        id: d.id,
-        agent: d.agent,
-        pol: d.pol || '인천', // Map POL field with default value
-        pod: d.pod,
-        destinationId: d.destination_id,
-        rate: d.rate,
-        description: d.description,
-        version: d.version,
-        validFrom: d.valid_from,
-        validTo: d.valid_to,
-        createdAt: d.created_at,
-        updatedAt: d.updated_at,
-      }));
+      const mappedData = data.map(d => {
+        const mapped = {
+          id: d.id,
+          agent: d.agent,
+          pol: d.pol || '인천', // Map POL field with default value
+          pod: d.pod,
+          destinationId: d.destination_id,
+          rate: d.rate,
+          description: d.description,
+          version: d.version,
+          validFrom: d.valid_from,
+          validTo: d.valid_to,
+          createdAt: d.created_at,
+          updatedAt: d.updated_at,
+        };
+        
+        console.log(`   📋 Mapped: agent="${mapped.agent}", pol="${mapped.pol}", pod="${mapped.pod}", destinationId="${mapped.destinationId}"`);
+        
+        return mapped;
+      });
+      
+      console.log(`✅ [loadCombinedFreights] Loaded ${mappedData.length} combined freights`);
+      return mappedData;
     }
+    
+    console.log('⚠️ [loadCombinedFreights] No data returned from database');
     return [];
   } catch (error) {
+    console.error('💥 [loadCombinedFreights] Exception:', error);
     handleError(error, '통합 운임 목록 로드');
     return [];
   }
@@ -434,32 +451,49 @@ export const loadCombinedFreights = async (): Promise<CombinedFreight[]> => {
 
 export const loadPortBorderFreights = async (): Promise<PortBorderFreight[]> => {
   try {
+    console.log('🔄 [loadPortBorderFreights] Loading port border freights from database...');
+    
     const { data, error } = await supabase
       .from(TABLES.PORT_BORDER_FREIGHTS)
       .select('*')
       .order('created_at', { ascending: false });
 
     if (error) {
+      console.error('❌ [loadPortBorderFreights] Database error:', error);
       handleError(error, '항구-국경 운임 목록 로드');
       return [];
     }
 
+    console.log('📦 [loadPortBorderFreights] Raw data from database:', data);
+
     if (data) {
-      return data.map(d => ({
-        id: d.id,
-        agent: d.agent,
-        pol: d.pol || '인천', // Added POL field mapping with default value
-        pod: d.pod,
-        rate: d.rate,
-        version: d.version,
-        validFrom: d.valid_from,
-        validTo: d.valid_to,
-        createdAt: d.created_at,
-        updatedAt: d.updated_at,
-      }));
+      const mappedData = data.map(d => {
+        const mapped = {
+          id: d.id,
+          agent: d.agent,
+          pol: d.pol || '인천', // Added POL field mapping with default value
+          pod: d.pod,
+          rate: d.rate,
+          version: d.version,
+          validFrom: d.valid_from,
+          validTo: d.valid_to,
+          createdAt: d.created_at,
+          updatedAt: d.updated_at,
+        };
+        
+        console.log(`   📋 Mapped: agent="${mapped.agent}", pol="${mapped.pol}", pod="${mapped.pod}"`);
+        
+        return mapped;
+      });
+      
+      console.log(`✅ [loadPortBorderFreights] Loaded ${mappedData.length} port border freights`);
+      return mappedData;
     }
+    
+    console.log('⚠️ [loadPortBorderFreights] No data returned from database');
     return [];
   } catch (error) {
+    console.error('💥 [loadPortBorderFreights] Exception:', error);
     handleError(error, '항구-국경 운임 목록 로드');
     return [];
   }

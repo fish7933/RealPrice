@@ -54,7 +54,7 @@ export default function Dashboard() {
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold">대시보드</h1>
-          <p className="text-gray-600 mt-2">중앙아시아 컨테이너 운임 관리 시스템</p>
+          <p className="text-gray-600 mt-2">중앙아시아 컨테이너 운임 시스템</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -82,8 +82,8 @@ export default function Dashboard() {
         {/* Agent Management Section */}
         <Card>
           <CardHeader>
-            <CardTitle>운송사 관리</CardTitle>
-            <CardDescription>철도 및 트럭 운송사를 관리합니다</CardDescription>
+            <CardTitle>운송사</CardTitle>
+            <CardDescription>철도 및 트럭 운송사 관리</CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="rail" className="w-full">
@@ -110,7 +110,7 @@ export default function Dashboard() {
         <Card>
           <CardHeader>
             <CardTitle>시스템 소개</CardTitle>
-            <CardDescription>중앙아시아 컨테이너 운임 계산 및 비교 시스템</CardDescription>
+            <CardDescription>중앙아시아 컨테이너 운임 계산 및 비교</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
@@ -118,19 +118,19 @@ export default function Dashboard() {
               <ul className="space-y-2 text-sm text-gray-700">
                 <li className="flex items-start gap-2">
                   <span className="text-blue-600 mt-0.5">•</span>
-                  <span><strong>해상운임 관리:</strong> 부산/인천 → 청도/천진/연운/다강 경로의 해상운임 관리</span>
+                  <span><strong>해상운임:</strong> 부산/인천 → 청도/천진/연운/다강 경로 관리</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-green-600 mt-0.5">•</span>
-                  <span><strong>포트국경운임 관리:</strong> 중국항 → KASHGAR 구간의 대리점별 운임 관리</span>
+                  <span><strong>포트국경운임:</strong> 중국항 → KASHGAR 구간 대리점별 운임 관리</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-purple-600 mt-0.5">•</span>
-                  <span><strong>국경목적지운임 관리:</strong> KASHGAR → 최종목적지(OSH/BISHKEK/ANDIJAN) 구간의 대리점별 운임 관리</span>
+                  <span><strong>국경목적지운임:</strong> KASHGAR → 최종목적지 구간 대리점별 운임 관리</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-orange-600 mt-0.5">•</span>
-                  <span><strong>원가 계산기:</strong> 전체 경로의 대리점별 총 운임 자동 계산 및 최저가 비교</span>
+                  <span><strong>원가 계산기:</strong> 전체 경로 대리점별 총 운임 자동 계산 및 최저가 비교</span>
                 </li>
               </ul>
             </div>

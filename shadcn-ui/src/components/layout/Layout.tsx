@@ -43,23 +43,23 @@ export default function Layout({ children }: LayoutProps) {
 
   // Define navigation items based on user role
   const superadminNavItems = [
-    { path: '/users', label: '사용자 관리', icon: Users, gradient: 'from-purple-500 to-pink-500' },
-    { path: '/dashboard', label: '관리자 대시보드', icon: LayoutDashboard, gradient: 'from-blue-500 to-cyan-500' },
+    { path: '/users', label: '사용자', icon: Users, gradient: 'from-purple-500 to-pink-500' },
+    { path: '/dashboard', label: '대시보드', icon: LayoutDashboard, gradient: 'from-blue-500 to-cyan-500' },
     { path: '/calculator', label: '운임 조회', icon: Calculator, gradient: 'from-green-500 to-emerald-500' },
-    { path: '/profile', label: '프로필 설정', icon: Settings, gradient: 'from-orange-500 to-red-500' },
+    { path: '/profile', label: '프로필', icon: Settings, gradient: 'from-orange-500 to-red-500' },
   ];
 
   const adminNavItems = [
-    { path: '/users', label: '사용자 관리', icon: Users, gradient: 'from-purple-500 to-pink-500' },
-    { path: '/dashboard', label: '관리자 대시보드', icon: LayoutDashboard, gradient: 'from-blue-500 to-cyan-500' },
+    { path: '/users', label: '사용자', icon: Users, gradient: 'from-purple-500 to-pink-500' },
+    { path: '/dashboard', label: '대시보드', icon: LayoutDashboard, gradient: 'from-blue-500 to-cyan-500' },
     { path: '/calculator', label: '운임 조회', icon: Calculator, gradient: 'from-green-500 to-emerald-500' },
-    { path: '/profile', label: '프로필 설정', icon: Settings, gradient: 'from-orange-500 to-red-500' },
+    { path: '/profile', label: '프로필', icon: Settings, gradient: 'from-orange-500 to-red-500' },
   ];
 
   const userNavItems = [
-    { path: '/dashboard', label: '사용자 대시보드', icon: LayoutDashboard, gradient: 'from-blue-500 to-cyan-500' },
+    { path: '/dashboard', label: '대시보드', icon: LayoutDashboard, gradient: 'from-blue-500 to-cyan-500' },
     { path: '/calculator', label: '운임 조회', icon: Calculator, gradient: 'from-green-500 to-emerald-500' },
-    { path: '/profile', label: '프로필 설정', icon: Settings, gradient: 'from-orange-500 to-red-500' },
+    { path: '/profile', label: '프로필', icon: Settings, gradient: 'from-orange-500 to-red-500' },
   ];
 
   const navItems = 
@@ -138,7 +138,7 @@ export default function Layout({ children }: LayoutProps) {
                       <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
                         <Ship className="h-6 w-6 text-white" />
                       </div>
-                      <span className="font-bold text-lg text-white">운임 관리</span>
+                      <span className="font-bold text-lg text-white">운임 시스템</span>
                     </div>
                   </div>
                   <nav className="flex-1 p-4 space-y-2">
@@ -158,9 +158,9 @@ export default function Layout({ children }: LayoutProps) {
               </div>
               <div className="hidden sm:block">
                 <div className="font-bold text-xl bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-                  운임 관리 시스템
+                  운임 시스템
                 </div>
-                <div className="text-xs text-gray-500 font-medium">Freight Management System</div>
+                <div className="text-xs text-gray-500 font-medium">Freight Management</div>
               </div>
             </Link>
           </div>

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { User, Lock, Info, Shield, Crown, CheckCircle2, Sparkles } from 'lucide-react';
+import { User, Lock, Info, Shield, Crown, CheckCircle2, Sparkles, UserCog } from 'lucide-react';
 
 export default function ProfileSettings() {
   const { user, changePassword } = useAuth();
@@ -95,10 +95,21 @@ export default function ProfileSettings() {
 
   return (
     <div className="space-y-6">
-      {/* Compact Header - Same size as Dashboard */}
-      <div className="py-1">
-        <h1 className="text-xl font-bold">프로필 설정</h1>
-        <p className="text-xs text-gray-600 mt-0.5">계정 정보 및 비밀번호를 관리하세요</p>
+      {/* Gradient Header - Same as AdminDashboard */}
+      <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-blue-600 via-cyan-600 to-teal-600 p-4 shadow-xl">
+        <div className="absolute inset-0 bg-grid-white/10"></div>
+        <div className="relative">
+          <div className="flex items-center gap-2">
+            <div className="p-1.5 bg-white/20 backdrop-blur-sm rounded-lg">
+              <UserCog className="h-5 w-5 text-white" />
+            </div>
+            <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+              프로필 설정
+              <Sparkles className="h-4 w-4 text-yellow-300 animate-pulse" />
+            </h1>
+          </div>
+          <p className="text-blue-50 text-sm ml-9">계정 정보 및 비밀번호를 관리하세요</p>
+        </div>
       </div>
 
       {/* User Info Card with Gradient */}

@@ -28,7 +28,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { UserPlus, Pencil, Trash2, Shield, User as UserIcon, ArrowRightLeft, Users as UsersIcon, Crown, Star } from 'lucide-react';
+import { UserPlus, Pencil, Trash2, Shield, User as UserIcon, ArrowRightLeft, Users as UsersIcon, Crown, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Layout from '@/components/layout/Layout';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -257,10 +257,21 @@ export default function UserManagement() {
   return (
     <Layout>
       <div className="space-y-6">
-        {/* Compact Header - Same as Dashboard */}
-        <div className="py-1">
-          <h1 className="text-xl font-bold">사용자 관리</h1>
-          <p className="text-xs text-gray-600 mt-0.5">시스템 사용자 및 권한 관리</p>
+        {/* Gradient Header - Same as AdminDashboard */}
+        <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-blue-600 via-cyan-600 to-teal-600 p-4 shadow-xl">
+          <div className="absolute inset-0 bg-grid-white/10"></div>
+          <div className="relative">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 bg-white/20 backdrop-blur-sm rounded-lg">
+                <UsersIcon className="h-5 w-5 text-white" />
+              </div>
+              <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+                사용자 관리
+                <Sparkles className="h-4 w-4 text-yellow-300 animate-pulse" />
+              </h1>
+            </div>
+            <p className="text-blue-50 text-sm ml-9">시스템 사용자 및 권한 관리</p>
+          </div>
         </div>
 
         {/* Statistics Cards */}

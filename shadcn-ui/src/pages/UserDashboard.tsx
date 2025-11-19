@@ -1,7 +1,7 @@
 import Layout from '@/components/layout/Layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useFreight } from '@/contexts/FreightContext';
-import { Calculator, History, TrendingDown, Package } from 'lucide-react';
+import { Calculator, History, TrendingDown, Package, Sparkles, Search } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
@@ -34,10 +34,21 @@ export default function UserDashboard() {
   return (
     <Layout>
       <div className="space-y-6">
-        {/* Compact Header - Same as Dashboard */}
-        <div className="py-1">
-          <h1 className="text-xl font-bold">운임 조회</h1>
-          <p className="text-xs text-gray-600 mt-0.5">운임 계산 및 이력 조회</p>
+        {/* Gradient Header - Same as AdminDashboard */}
+        <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-blue-600 via-cyan-600 to-teal-600 p-4 shadow-xl">
+          <div className="absolute inset-0 bg-grid-white/10"></div>
+          <div className="relative">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 bg-white/20 backdrop-blur-sm rounded-lg">
+                <Search className="h-5 w-5 text-white" />
+              </div>
+              <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+                운임 조회
+                <Sparkles className="h-4 w-4 text-yellow-300 animate-pulse" />
+              </h1>
+            </div>
+            <p className="text-blue-50 text-sm ml-9">운임 계산 및 이력 조회</p>
+          </div>
         </div>
 
         {/* Statistics */}

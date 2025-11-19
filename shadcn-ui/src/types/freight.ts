@@ -70,6 +70,7 @@ export interface BorderCity {
 // Freight types
 export interface SeaFreight {
   id: string;
+  freightCode?: string; // 🆕 운임표 코드
   carrier: string;
   pol: string;
   pod: string;
@@ -80,6 +81,7 @@ export interface SeaFreight {
   validTo: string;
   createdAt: string;
   version?: number;
+  note?: string;
   // Legacy fields for backward compatibility
   departurePort?: string;
   arrivalPort?: string;
@@ -88,6 +90,27 @@ export interface SeaFreight {
   currency?: string;
   railAgentId?: string;
   railAgentName?: string;
+}
+
+// 🆕 해상운임 히스토리 타입
+export interface SeaFreightHistory {
+  id: string;
+  freightCode: string;
+  originalId: string;
+  carrier: string;
+  pol: string;
+  pod: string;
+  rate: number;
+  localCharge?: number;
+  note?: string;
+  validFrom: string;
+  validTo: string;
+  version: number;
+  archivedAt: string;
+  archivedBy: string;
+  archivedByUsername: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface AgentSeaFreight {
@@ -227,6 +250,7 @@ export interface FreightAuditLog {
     newValue?: string | number | boolean;
   }>;
   timestamp: string;
+  version?: number;
 }
 
 export interface AuditLog {

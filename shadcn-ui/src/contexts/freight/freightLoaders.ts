@@ -7,6 +7,7 @@ import {
   TruckAgent,
   Destination,
   SeaFreight,
+  SeaFreightHistory,
   AgentSeaFreight,
   DTHC,
   DPCost,
@@ -181,6 +182,7 @@ export const loadSeaFreights = async (): Promise<SeaFreight[]> => {
     if (data) {
       return data.map(d => ({
         id: d.id,
+        freightCode: d.freight_code,
         pol: d.pol,
         pod: d.pod,
         rate: d.rate,
@@ -197,6 +199,96 @@ export const loadSeaFreights = async (): Promise<SeaFreight[]> => {
     return [];
   } catch (error) {
     handleError(error, '해상 운임 목록 로드');
+    return [];
+  }
+};
+
+// 🆕 해상운임 히스토리 로드
+export const loadSeaFreightHistory = async (freightCode?: string): Promise<SeaFreightHistory[]> => {
+  try {
+    let query = supabase
+      .from(TABLES.SEA_FREIGHT_HISTORY)
+      .select('*')
+      .order('archived_at', { ascending: false });
+
+    if (freightCode) {
+      query = query.eq('freight_code', freightCode);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      handleError(error, '해상 운임 히스토리 로드');
+      return [];
+    }
+
+    if (data) {
+      return data.map(d => ({
+        id: d.id,
+        freightCode: d.freight_code,
+        originalId: d.original_id,
+        carrier: d.carrier,
+        pol: d.pol,
+        pod: d.pod,
+        rate: d.rate,
+        localCharge: d.local_charge,
+        note: d.note,
+        validFrom: d.valid_from,
+        validTo: d.valid_to,
+        version: d.version,
+        archivedAt: d.archived_at,
+        archivedBy: d.archived_by,
+        archivedByUsername: d.archived_by_username,
+        createdAt: d.created_at,
+        updatedAt: d.updated_at,
+      }));
+    }
+    return [];
+  } catch (error) {
+    handleError(error, '해상 운임 히스토리 로드');
+    return [];
+  }
+};
+
+// 🆕 특정 날짜의 해상운임 히스토리 조회
+export const loadSeaFreightHistoryByDate = async (date: string): Promise<SeaFreightHistory[]> => {
+  try {
+    const { data, error } = await supabase
+      .from(TABLES.SEA_FREIGHT_HISTORY)
+      .select('*')
+      .lte('valid_from', date)
+      .gte('valid_to', date)
+      .order('archived_at', { ascending: false });
+
+    if (error) {
+      handleError(error, '날짜별 해상 운임 히스토리 로드');
+      return [];
+    }
+
+    if (data) {
+      return data.map(d => ({
+        id: d.id,
+        freightCode: d.freight_code,
+        originalId: d.original_id,
+        carrier: d.carrier,
+        pol: d.pol,
+        pod: d.pod,
+        rate: d.rate,
+        localCharge: d.local_charge,
+        note: d.note,
+        validFrom: d.valid_from,
+        validTo: d.valid_to,
+        version: d.version,
+        archivedAt: d.archived_at,
+        archivedBy: d.archived_by,
+        archivedByUsername: d.archived_by_username,
+        createdAt: d.created_at,
+        updatedAt: d.updated_at,
+      }));
+    }
+    return [];
+  } catch (error) {
+    handleError(error, '날짜별 해상 운임 히스토리 로드');
     return [];
   }
 };

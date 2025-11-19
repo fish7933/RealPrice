@@ -28,6 +28,7 @@ export const TABLES = {
   SHIPPING_LINES: 'app_51335ed80f_shipping_lines',
   PORTS: 'app_51335ed80f_ports',
   SEA_FREIGHTS: 'app_51335ed80f_sea_freights',
+  SEA_FREIGHT_HISTORY: 'app_51335ed80f_sea_freight_history', // 🆕 히스토리 테이블
   AGENT_SEA_FREIGHTS: 'app_51335ed80f_agent_sea_freights',
   RAIL_AGENTS: 'app_51335ed80f_rail_agents',
   TRUCK_AGENTS: 'app_51335ed80f_truck_agents',
@@ -79,14 +80,37 @@ export interface Quotation {
 
 export interface SeaFreight {
   id: string;
+  freight_code: string; // 🆕 운임표 코드
   pol: string;
   pod: string;
   rate: number;
   carrier?: string;
+  local_charge?: number;
   note?: string;
   version: number;
   valid_from: string;
   valid_to: string;
+  created_at: string;
+  updated_at: string;
+}
+
+// 🆕 해상운임 히스토리 타입
+export interface SeaFreightHistory {
+  id: string;
+  freight_code: string;
+  original_id: string;
+  carrier: string;
+  pol: string;
+  pod: string;
+  rate: number;
+  local_charge?: number;
+  note?: string;
+  valid_from: string;
+  valid_to: string;
+  version: number;
+  archived_at: string;
+  archived_by: string;
+  archived_by_username: string;
   created_at: string;
   updated_at: string;
 }
@@ -313,4 +337,11 @@ export function getSession(): Session | null {
 
 export function clearSession(): void {
   localStorage.removeItem(SESSION_KEY);
+}
+
+// 🆕 운임 코드 생성 헬퍼 함수
+export function generateFreightCode(carrier: string, pol: string, pod: string, id: string): string {
+  const date = new Date().toISOString().split('T')[0].replace(/-/g, '');
+  const shortId = id.substring(0, 8);
+  return `SEA_${carrier || 'UNKNOWN'}_${pol}_${pod}_${date}_${shortId}`;
 }

@@ -109,7 +109,7 @@ export const exportAuditLogsToExcel = (
   const wb = XLSX.utils.book_new();
 
   // Prepare data for Excel
-  const wsData: any[][] = [];
+  const wsData: (string | number)[][] = [];
 
   // Title row
   wsData.push([`${entityTypeName} 버전 기록`]);
@@ -142,7 +142,7 @@ export const exportAuditLogsToExcel = (
       })
     ).join('\n');
 
-    const row: any[] = [
+    const row: (string | number)[] = [
       `v${groupedLog.version}`,
       formatTimestamp(groupedLog.timestamp),
       getActionName(groupedLog.action),

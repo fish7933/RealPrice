@@ -816,10 +816,7 @@ export default function CostResultTable({
     );
   };
 
-  if (!result && !allFreightsResult) {
-    return null;
-  }
-
+  // Always show the tabs structure, even without results
   return (
     <>
       <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'filtered' | 'all')}>
@@ -836,7 +833,7 @@ export default function CostResultTable({
         </TabsList>
         
         <TabsContent value="filtered" className="space-y-4 mt-4">
-          {result && (
+          {result ? (
             <>
               <Alert className="bg-blue-50 border-blue-200">
                 <Info className="h-4 w-4 text-blue-600" />
@@ -849,11 +846,16 @@ export default function CostResultTable({
               </Alert>
               {renderResultTable(result, false)}
             </>
+          ) : (
+            <div className="text-center py-12 text-gray-500">
+              <Calculator className="h-12 w-12 mx-auto mb-3 opacity-50" />
+              <p>계산하기 버튼을 눌러 운임을 조회하세요</p>
+            </div>
           )}
         </TabsContent>
         
         <TabsContent value="all" className="space-y-4 mt-4">
-          {allFreightsResult && (
+          {allFreightsResult ? (
             <>
               <Alert className="bg-purple-50 border-purple-200">
                 <Sparkles className="h-4 w-4 text-purple-600" />
@@ -863,6 +865,11 @@ export default function CostResultTable({
               </Alert>
               {renderResultTable(allFreightsResult, true)}
             </>
+          ) : (
+            <div className="text-center py-12 text-gray-500">
+              <Sparkles className="h-12 w-12 mx-auto mb-3 opacity-50" />
+              <p>먼저 필터링된 결과를 조회한 후 이 탭을 사용하세요</p>
+            </div>
           )}
         </TabsContent>
       </Tabs>

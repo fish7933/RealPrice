@@ -95,18 +95,10 @@ export default function ProfileSettings() {
 
   return (
     <div className="space-y-6">
-      {/* Modern Header with Gradient */}
-      <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-orange-500 via-red-500 to-pink-500 p-8 text-white shadow-lg">
-        <div className="absolute inset-0 bg-black/10"></div>
-        <div className="relative z-10">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
-              <User className="h-8 w-8" />
-            </div>
-            <h2 className="text-3xl font-bold">프로필 설정</h2>
-          </div>
-          <p className="text-white/90 text-lg">계정 정보 및 비밀번호를 관리하세요</p>
-        </div>
+      {/* Compact Header - Same size as Dashboard */}
+      <div className="py-1">
+        <h1 className="text-xl font-bold">프로필 설정</h1>
+        <p className="text-xs text-gray-600 mt-0.5">계정 정보 및 비밀번호를 관리하세요</p>
       </div>
 
       {/* User Info Card with Gradient */}

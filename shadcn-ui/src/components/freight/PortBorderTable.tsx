@@ -28,7 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Trash2, Plus, Train, AlertTriangle, Sparkles, Edit, Search, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Trash2, Plus, Train, AlertTriangle, Sparkles, Edit, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import AuditLogTable from './AuditLogTable';
 import { ValidityPeriodInput } from '@/components/ui/validity-period-input';
 import { getValidityStatus, formatValidityDate, checkOverlapWarning } from '@/utils/validityHelper';
@@ -45,6 +45,7 @@ interface FreightGroup {
 }
 
 const ITEMS_PER_PAGE = 10;
+const FILTER_ALL_VALUE = '__all__';
 
 export default function PortBorderTable() {
   const { user } = useAuth();
@@ -64,9 +65,12 @@ export default function PortBorderTable() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingGroup, setEditingGroup] = useState<FreightGroup | null>(null);
   const [validationWarning, setValidationWarning] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'valid' | 'expiring' | 'expired'>('all');
   const [currentPage, setCurrentPage] = useState(1);
+  const [filters, setFilters] = useState({
+    agent: FILTER_ALL_VALUE,
+    pol: FILTER_ALL_VALUE,
+    status: FILTER_ALL_VALUE,
+  });
   const [formData, setFormData] = useState<{
     agent: string;
     pol: string;
@@ -291,6 +295,15 @@ export default function PortBorderTable() {
     setIsAddDialogOpen(true);
   };
 
+  const handleClearFilters = () => {
+    setFilters({
+      agent: FILTER_ALL_VALUE,
+      pol: FILTER_ALL_VALUE,
+      status: FILTER_ALL_VALUE,
+    });
+    setCurrentPage(1);
+  };
+
   // Group freights by agent, POL, and validity period
   const allFreightGroups: FreightGroup[] = useMemo(() => {
     const groups: FreightGroup[] = [];
@@ -339,30 +352,45 @@ export default function PortBorderTable() {
     return groups;
   }, [portBorderFreights, podPorts]);
 
+  // Extract unique filter options
+  const filterOptions = useMemo(() => {
+    const agents = new Set<string>();
+    const pols = new Set<string>();
+
+    allFreightGroups.forEach(group => {
+      agents.add(group.agent);
+      pols.add(group.pol);
+    });
+
+    return {
+      agents: Array.from(agents).sort((a, b) => a.localeCompare(b, 'ko')),
+      pols: Array.from(pols).sort((a, b) => a.localeCompare(b, 'ko')),
+    };
+  }, [allFreightGroups]);
+
   // Apply filters
   const filteredGroups = useMemo(() => {
     let filtered = allFreightGroups;
 
-    // Search filter
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase();
-      filtered = filtered.filter(group => 
-        group.agent.toLowerCase().includes(term) ||
-        group.pol.toLowerCase().includes(term) ||
-        formatValidityDate(group.validFrom).includes(term) ||
-        formatValidityDate(group.validTo).includes(term)
-      );
+    // Agent filter
+    if (filters.agent !== FILTER_ALL_VALUE) {
+      filtered = filtered.filter(group => group.agent === filters.agent);
+    }
+
+    // POL filter
+    if (filters.pol !== FILTER_ALL_VALUE) {
+      filtered = filtered.filter(group => group.pol === filters.pol);
     }
 
     // Status filter
-    if (statusFilter !== 'all') {
+    if (filters.status !== FILTER_ALL_VALUE) {
       filtered = filtered.filter(group => 
-        group.validityStatus?.status === statusFilter
+        group.validityStatus?.status === filters.status
       );
     }
 
     return filtered;
-  }, [allFreightGroups, searchTerm, statusFilter]);
+  }, [allFreightGroups, filters]);
 
   // Pagination
   const totalPages = Math.ceil(filteredGroups.length / ITEMS_PER_PAGE);
@@ -372,13 +400,8 @@ export default function PortBorderTable() {
   }, [filteredGroups, currentPage]);
 
   // Reset to page 1 when filters change
-  const handleSearchChange = (value: string) => {
-    setSearchTerm(value);
-    setCurrentPage(1);
-  };
-
-  const handleStatusFilterChange = (value: 'all' | 'valid' | 'expiring' | 'expired') => {
-    setStatusFilter(value);
+  const handleFilterChange = (key: string, value: string) => {
+    setFilters(prev => ({ ...prev, [key]: value }));
     setCurrentPage(1);
   };
 
@@ -427,28 +450,63 @@ export default function PortBorderTable() {
         </Alert>
       )}
 
-      {/* Search and Filter Section */}
-      <div className="flex gap-2">
-        <div className="flex-1 relative">
-          <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-gray-400" />
-          <Input
-            placeholder="검색..."
-            value={searchTerm}
-            onChange={(e) => handleSearchChange(e.target.value)}
-            className="pl-7 h-8 text-sm"
-          />
+      {/* Filter Section */}
+      <div className="p-3 bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg border border-gray-200">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
+          <div className="space-y-1">
+            <Label className="text-xs">대리점</Label>
+            <Select value={filters.agent} onValueChange={(value) => handleFilterChange('agent', value)}>
+              <SelectTrigger className="h-8 text-xs">
+                <SelectValue placeholder="전체" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={FILTER_ALL_VALUE}>전체</SelectItem>
+                {filterOptions.agents.map((agent) => (
+                  <SelectItem key={agent} value={agent}>{agent}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs">선적항 (POL)</Label>
+            <Select value={filters.pol} onValueChange={(value) => handleFilterChange('pol', value)}>
+              <SelectTrigger className="h-8 text-xs">
+                <SelectValue placeholder="전체" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={FILTER_ALL_VALUE}>전체</SelectItem>
+                {filterOptions.pols.map((pol) => (
+                  <SelectItem key={pol} value={pol}>{pol}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs">상태</Label>
+            <Select value={filters.status} onValueChange={(value) => handleFilterChange('status', value)}>
+              <SelectTrigger className="h-8 text-xs">
+                <SelectValue placeholder="전체" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={FILTER_ALL_VALUE}>전체</SelectItem>
+                <SelectItem value="valid">유효</SelectItem>
+                <SelectItem value="expiring">만료임박</SelectItem>
+                <SelectItem value="expired">만료</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex items-end">
+            <Button variant="outline" size="sm" onClick={handleClearFilters} className="h-8 text-xs w-full">
+              <X className="h-3 w-3 mr-1" />
+              초기화
+            </Button>
+          </div>
         </div>
-        <Select value={statusFilter} onValueChange={handleStatusFilterChange}>
-          <SelectTrigger className="w-[120px] h-8 text-sm">
-            <SelectValue placeholder="상태" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">전체</SelectItem>
-            <SelectItem value="valid">유효</SelectItem>
-            <SelectItem value="expiring">만료임박</SelectItem>
-            <SelectItem value="expired">만료</SelectItem>
-          </SelectContent>
-        </Select>
+      </div>
+
+      {/* Results Summary */}
+      <div className="text-xs text-gray-600">
+        총 {filteredGroups.length}개 (전체 {allFreightGroups.length}개 중)
       </div>
 
       <div className="rounded-lg border shadow-sm overflow-hidden">
@@ -524,7 +582,7 @@ export default function PortBorderTable() {
             ) : (
               <TableRow>
                 <TableCell colSpan={podPorts.length + (isAdmin ? 5 : 4)} className="text-center text-gray-500 py-6 text-sm">
-                  {searchTerm || statusFilter !== 'all' ? '검색 결과가 없습니다' : '등록된 철도운임이 없습니다'}
+                  {filters.agent !== FILTER_ALL_VALUE || filters.pol !== FILTER_ALL_VALUE || filters.status !== FILTER_ALL_VALUE ? '검색 결과가 없습니다' : '등록된 철도운임이 없습니다'}
                 </TableCell>
               </TableRow>
             )}

@@ -566,6 +566,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
           pol: freight.pol,
           pod: freight.pod,
           rate: freight.rate,
+          local_charge: freight.localCharge,
           carrier: freight.carrier,
           note: freight.note,
           version: freight.version,
@@ -582,6 +583,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
         pol: data.pol,
         pod: data.pod,
         rate: data.rate,
+        localCharge: data.local_charge,
         carrier: data.carrier,
         note: data.note,
         version: data.version,
@@ -590,6 +592,21 @@ export function FreightProvider({ children }: { children: ReactNode }) {
         createdAt: data.created_at,
       };
       setSeaFreights([...seaFreights, newFreight]);
+
+      // ✅ Create audit log for add operation
+      await createAuditLog(
+        'seaFreight',
+        newFreight.id,
+        'create',
+        detectChanges(null, newFreight as unknown as Record<string, unknown>),
+        newFreight as unknown as Record<string, unknown>,
+        user,
+        newFreight.version || 1
+      );
+
+      // Reload audit logs
+      const reloadedAuditLogs = await loadAuditLogs();
+      setFreightAuditLogs(reloadedAuditLogs);
     } catch (error) {
       console.error('Error adding sea freight:', error);
       throw error;
@@ -598,23 +615,66 @@ export function FreightProvider({ children }: { children: ReactNode }) {
 
   const updateSeaFreight = async (id: string, updates: Partial<SeaFreight>) => {
     try {
-      const { error } = await supabaseClient
+      // ✅ Get old freight data for audit log
+      const oldFreight = seaFreights.find(f => f.id === id);
+      if (!oldFreight) {
+        console.error('❌ Old freight not found for audit log');
+        return;
+      }
+
+      const { data, error } = await supabaseClient
         .from(TABLES.SEA_FREIGHTS)
         .update({
           pol: updates.pol,
           pod: updates.pod,
           rate: updates.rate,
+          local_charge: updates.localCharge,
           carrier: updates.carrier,
           note: updates.note,
           version: updates.version,
           valid_from: updates.validFrom,
           valid_to: updates.validTo,
+          updated_at: new Date().toISOString(),
         })
-        .eq('id', id);
+        .eq('id', id)
+        .select()
+        .single();
 
       if (error) throw error;
 
+      // ✅ Update local state
       setSeaFreights(seaFreights.map(freight => freight.id === id ? { ...freight, ...updates } : freight));
+
+      // ✅ Create audit log for update operation
+      if (data) {
+        const updatedFreight: SeaFreight = {
+          id: data.id,
+          pol: data.pol,
+          pod: data.pod,
+          rate: data.rate,
+          localCharge: data.local_charge,
+          carrier: data.carrier,
+          note: data.note,
+          version: data.version,
+          validFrom: data.valid_from,
+          validTo: data.valid_to,
+          createdAt: data.created_at,
+        };
+
+        await createAuditLog(
+          'seaFreight',
+          id,
+          'update',
+          detectChanges(oldFreight as unknown as Record<string, unknown>, updatedFreight as unknown as Record<string, unknown>),
+          updatedFreight as unknown as Record<string, unknown>,
+          user,
+          updatedFreight.version || 1
+        );
+
+        // Reload audit logs
+        const reloadedAuditLogs = await loadAuditLogs();
+        setFreightAuditLogs(reloadedAuditLogs);
+      }
     } catch (error) {
       console.error('Error updating sea freight:', error);
       throw error;
@@ -623,6 +683,9 @@ export function FreightProvider({ children }: { children: ReactNode }) {
 
   const deleteSeaFreight = async (id: string) => {
     try {
+      // ✅ Get freight data before deletion for audit log
+      const freight = seaFreights.find(f => f.id === id);
+
       const { error } = await supabaseClient
         .from(TABLES.SEA_FREIGHTS)
         .delete()
@@ -631,6 +694,23 @@ export function FreightProvider({ children }: { children: ReactNode }) {
       if (error) throw error;
 
       setSeaFreights(seaFreights.filter(freight => freight.id !== id));
+
+      // ✅ Create audit log for delete operation
+      if (freight) {
+        await createAuditLog(
+          'seaFreight',
+          id,
+          'delete',
+          [],
+          freight as unknown as Record<string, unknown>,
+          user,
+          freight.version || 1
+        );
+
+        // Reload audit logs
+        const reloadedAuditLogs = await loadAuditLogs();
+        setFreightAuditLogs(reloadedAuditLogs);
+      }
     } catch (error) {
       console.error('Error deleting sea freight:', error);
       throw error;

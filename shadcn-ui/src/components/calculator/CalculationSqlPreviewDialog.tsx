@@ -23,12 +23,12 @@ export default function CalculationSqlPreviewDialog({
   const [copied, setCopied] = useState(false);
 
   const generateCalculationSql = (): string => {
-    // ✅ FIXED: Use selected date or current date
-    const selectedDate = historicalDate && historicalDate.trim() !== '' 
+    // ✅ FIXED: Use historicalDate prop (not input.historicalDate) or current date
+    const targetDate = (historicalDate && historicalDate.trim() !== '') 
       ? historicalDate 
       : new Date().toISOString().split('T')[0];
     
-    const dateCondition = `'${selectedDate}' BETWEEN valid_from AND valid_to`;
+    const dateCondition = `'${targetDate}' BETWEEN valid_from AND valid_to`;
 
     let sql = `-- ========================================\n`;
     sql += `-- 운임 계산 SQL 미리보기\n`;
@@ -39,7 +39,7 @@ export default function CalculationSqlPreviewDialog({
     sql += `--   목적지: ${getDestinationName(input.destinationId)} (${input.destinationId})\n`;
     sql += `--   중량: ${input.weight} kg\n`;
     sql += `--   DP 포함: ${input.includeDP ? '예' : '아니오'}\n`;
-    sql += `--   조회 날짜: ${selectedDate}\n`;
+    sql += `--   조회 날짜: ${targetDate}\n`;
     sql += `-- ========================================\n\n`;
 
     // 1. Sea Freight Query

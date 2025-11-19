@@ -23,13 +23,12 @@ export default function FreightSqlDialog({
   const [copied, setCopied] = useState(false);
 
   const generateSql = (): string => {
-    // ✅ FIXED: Use selected date or current date
-    const historicalDate = input.historicalDate;
-    const selectedDate = historicalDate && historicalDate.trim() !== '' 
-      ? historicalDate 
+    // ✅ FIXED: Use input.historicalDate or current date
+    const targetDate = (input.historicalDate && input.historicalDate.trim() !== '')
+      ? input.historicalDate 
       : new Date().toISOString().split('T')[0];
     
-    const dateCondition = `'${selectedDate}' BETWEEN valid_from AND valid_to`;
+    const dateCondition = `'${targetDate}' BETWEEN valid_from AND valid_to`;
 
     let sql = `-- ========================================\n`;
     sql += `-- 운임 조합 상세 조회 SQL\n`;
@@ -38,7 +37,7 @@ export default function FreightSqlDialog({
     sql += `-- 경로: ${input.pol} → ${input.pod} → ${destinationName}\n`;
     sql += `-- 중량: ${input.weight} kg\n`;
     sql += `-- 운임 유형: ${breakdown.isCombinedFreight ? '통합운임' : '분리운임 (철도+트럭)'}\n`;
-    sql += `-- 조회 날짜: ${selectedDate}\n`;
+    sql += `-- 조회 날짜: ${targetDate}\n`;
     sql += `-- ========================================\n\n`;
 
     // 1. Sea Freight
@@ -46,7 +45,7 @@ export default function FreightSqlDialog({
     sql += `-- 1. 해상운임 조회\n`;
     sql += `-- ========================================\n`;
     sql += `-- 금액: $${breakdown.seaFreight}\n`;
-    sql += `-- 선사: ${breakdown.carrier || 'N/A'}\n\n`;
+    sql += `-- 선사: ${breakdown.seaFreightCarrier || 'N/A'}\n\n`;
     
     if (breakdown.agent === 'General') {
       sql += `SELECT \n`;
@@ -62,8 +61,8 @@ export default function FreightSqlDialog({
       sql += `FROM app_51335ed80f_sea_freights\n`;
       sql += `WHERE pol = '${input.pol}'\n`;
       sql += `  AND pod = '${input.pod}'\n`;
-      if (breakdown.carrier) {
-        sql += `  AND carrier = '${breakdown.carrier}'\n`;
+      if (breakdown.seaFreightCarrier) {
+        sql += `  AND carrier = '${breakdown.seaFreightCarrier}'\n`;
       }
       sql += `  AND ${dateCondition};\n\n`;
     } else {
@@ -82,8 +81,8 @@ export default function FreightSqlDialog({
       sql += `WHERE agent = '${breakdown.agent}'\n`;
       sql += `  AND pol = '${input.pol}'\n`;
       sql += `  AND pod = '${input.pod}'\n`;
-      if (breakdown.carrier) {
-        sql += `  AND carrier = '${breakdown.carrier}'\n`;
+      if (breakdown.seaFreightCarrier) {
+        sql += `  AND carrier = '${breakdown.seaFreightCarrier}'\n`;
       }
       sql += `  AND ${dateCondition};\n\n`;
     }
@@ -115,8 +114,8 @@ export default function FreightSqlDialog({
     sql += `WHERE agent = '${breakdown.agent}'\n`;
     sql += `  AND pol = '${input.pol}'\n`;
     sql += `  AND pod = '${input.pod}'\n`;
-    if (breakdown.carrier) {
-      sql += `  AND carrier = '${breakdown.carrier}'\n`;
+    if (breakdown.seaFreightCarrier) {
+      sql += `  AND carrier = '${breakdown.seaFreightCarrier}'\n`;
     }
     sql += `  AND ${dateCondition};\n\n`;
 

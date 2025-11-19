@@ -248,7 +248,7 @@ export const calculateCost = (
   const dpCostData = getDPCostWithExpiry(input.pol);
   const totalOtherCosts = input.otherCosts.reduce((sum, item) => sum + item.amount, 0);
 
-  // Collect agents from BOTH rail freight AND combined freight - POL removed from rail freight filtering
+  // ✅ FIXED: Collect agents from THREE sources - rail freight, combined freight, AND agent sea freight
   const railAgentsFromPortBorder = currentPortBorderFreights
     .filter(f => f.pod === input.pod)
     .map(f => f.agent);
@@ -257,11 +257,17 @@ export const calculateCost = (
     .filter(f => f.pol === input.pol && f.pod === input.pod && f.destinationId === input.destinationId)
     .map(f => f.agent);
   
+  // ✅ NEW: Also collect agents from agent sea freight
+  const railAgentsFromAgentSeaFreight = currentAgentSeaFreights
+    .filter(f => f.pol === input.pol && f.pod === input.pod)
+    .map(f => f.agent);
+  
   console.log('\n📋 철도운임 대리점 (POD 필터링만 적용):', railAgentsFromPortBorder);
   console.log('📋 통합운임 대리점 (POL 필터링 적용):', railAgentsFromCombined);
+  console.log('📋 대리점 해상운임 대리점 (POL+POD 필터링 적용):', railAgentsFromAgentSeaFreight);
   
-  // Merge and get unique agents
-  const allAgentNames = [...new Set([...railAgentsFromPortBorder, ...railAgentsFromCombined])];
+  // ✅ FIXED: Merge all three sources and get unique agents
+  const allAgentNames = [...new Set([...railAgentsFromPortBorder, ...railAgentsFromCombined, ...railAgentsFromAgentSeaFreight])];
   
   // Verify agents exist in railAgents list
   const railAgentsWithFreight = allAgentNames.filter(agentName => 
@@ -361,6 +367,15 @@ export const calculateCost = (
     
     const hasCombined = combinedResult.value !== null && combinedResult.value > 0;
     const hasSeparate = railResult.value > 0 && ownTruckResult.value > 0;
+    
+    // ✅ NEW: Check if agent has ONLY agent sea freight (no rail/combined freight)
+    const hasOnlyAgentSeaFreight = isAgentSpecific && !hasCombined && !hasSeparate;
+    
+    if (hasOnlyAgentSeaFreight) {
+      console.log(`\n⚠️ ${agentName}는 대리점 해상운임만 있고 철도/통합운임이 없습니다.`);
+      console.log(`   이 대리점은 계산에서 제외됩니다.`);
+      return; // Skip this agent
+    }
     
     // Get agent codes
     const railAgentCode = getRailAgentCode(agentName);

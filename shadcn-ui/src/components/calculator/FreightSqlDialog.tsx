@@ -10,7 +10,7 @@ interface FreightSqlDialogProps {
   onOpenChange: (open: boolean) => void;
   breakdown: AgentCostBreakdown;
   input: CostCalculationInput;
-  historicalDate?: string;
+  destinationName: string;
 }
 
 export default function FreightSqlDialog({
@@ -18,25 +18,52 @@ export default function FreightSqlDialog({
   onOpenChange,
   breakdown,
   input,
-  historicalDate,
+  destinationName,
 }: FreightSqlDialogProps) {
   const [copied, setCopied] = useState(false);
 
   const generateSql = (): string => {
-    const date = historicalDate || 'CURRENT_DATE';
+    const historicalDate = input.historicalDate;
     const dateCondition = historicalDate 
       ? `'${historicalDate}' BETWEEN valid_from AND valid_to`
       : `CURRENT_DATE BETWEEN valid_from AND valid_to`;
 
     let sql = `-- ========================================\n`;
-    sql += `-- 운임 조회 SQL (${breakdown.agent})\n`;
-    sql += `-- 경로: ${input.pol} → ${input.pod} → 목적지\n`;
+    sql += `-- 운임 조합 상세 조회 SQL\n`;
+    sql += `-- ========================================\n`;
+    sql += `-- 대리점: ${breakdown.agent}\n`;
+    sql += `-- 경로: ${input.pol} → ${input.pod} → ${destinationName}\n`;
+    sql += `-- 중량: ${input.weight} kg\n`;
+    sql += `-- 운임 유형: ${breakdown.isCombinedFreight ? '통합운임' : '분리운임 (철도+트럭)'}\n`;
     sql += `-- 조회 날짜: ${historicalDate || '현재'}\n`;
     sql += `-- ========================================\n\n`;
 
-    // 1. Sea Freight Query
-    if (breakdown.isAgentSpecificSeaFreight) {
-      sql += `-- 1. 대리점 해상운임 (Agent Sea Freight)\n`;
+    // 1. Sea Freight
+    sql += `-- ========================================\n`;
+    sql += `-- 1. 해상운임 조회\n`;
+    sql += `-- ========================================\n`;
+    sql += `-- 금액: $${breakdown.seaFreight}\n`;
+    sql += `-- 선사: ${breakdown.carrier || 'N/A'}\n\n`;
+    
+    if (breakdown.agent === 'General') {
+      sql += `SELECT \n`;
+      sql += `  id,\n`;
+      sql += `  freight_code,\n`;
+      sql += `  pol,\n`;
+      sql += `  pod,\n`;
+      sql += `  rate,\n`;
+      sql += `  local_charge,\n`;
+      sql += `  carrier,\n`;
+      sql += `  valid_from,\n`;
+      sql += `  valid_to\n`;
+      sql += `FROM app_51335ed80f_sea_freights\n`;
+      sql += `WHERE pol = '${input.pol}'\n`;
+      sql += `  AND pod = '${input.pod}'\n`;
+      if (breakdown.carrier) {
+        sql += `  AND carrier = '${breakdown.carrier}'\n`;
+      }
+      sql += `  AND ${dateCondition};\n\n`;
+    } else {
       sql += `SELECT \n`;
       sql += `  id,\n`;
       sql += `  agent,\n`;
@@ -48,31 +75,30 @@ export default function FreightSqlDialog({
       sql += `  carrier,\n`;
       sql += `  valid_from,\n`;
       sql += `  valid_to\n`;
-      sql += `FROM app_741545ec66_agent_sea_freights\n`;
-      sql += `WHERE agent = '${breakdown.railAgent}'\n`;
+      sql += `FROM app_51335ed80f_agent_sea_freights\n`;
+      sql += `WHERE agent = '${breakdown.agent}'\n`;
       sql += `  AND pol = '${input.pol}'\n`;
       sql += `  AND pod = '${input.pod}'\n`;
-      sql += `  AND ${dateCondition};\n\n`;
-    } else {
-      sql += `-- 1. 일반 해상운임 (Sea Freight)\n`;
-      sql += `SELECT \n`;
-      sql += `  id,\n`;
-      sql += `  freight_code,\n`;
-      sql += `  pol,\n`;
-      sql += `  pod,\n`;
-      sql += `  rate,\n`;
-      sql += `  local_charge,\n`;
-      sql += `  carrier,\n`;
-      sql += `  valid_from,\n`;
-      sql += `  valid_to\n`;
-      sql += `FROM app_741545ec66_sea_freights\n`;
-      sql += `WHERE pol = '${input.pol}'\n`;
-      sql += `  AND pod = '${input.pod}'\n`;
+      if (breakdown.carrier) {
+        sql += `  AND carrier = '${breakdown.carrier}'\n`;
+      }
       sql += `  AND ${dateCondition};\n\n`;
     }
 
-    // 2. DTHC Query
-    sql += `-- 2. DTHC (Destination Terminal Handling Charge)\n`;
+    // 2. Local Charge
+    if (breakdown.localCharge && breakdown.localCharge > 0) {
+      sql += `-- ========================================\n`;
+      sql += `-- 2. LOCAL 차지 조회\n`;
+      sql += `-- ========================================\n`;
+      sql += `-- 금액: $${breakdown.localCharge}\n`;
+      sql += `-- 참고: 해상운임 테이블의 local_charge 또는 llocal 컬럼에서 조회\n\n`;
+    }
+
+    // 3. DTHC
+    sql += `-- ========================================\n`;
+    sql += `-- 3. DTHC 조회\n`;
+    sql += `-- ========================================\n`;
+    sql += `-- 금액: $${breakdown.dthc}\n\n`;
     sql += `SELECT \n`;
     sql += `  id,\n`;
     sql += `  agent,\n`;
@@ -82,15 +108,21 @@ export default function FreightSqlDialog({
     sql += `  carrier,\n`;
     sql += `  valid_from,\n`;
     sql += `  valid_to\n`;
-    sql += `FROM app_741545ec66_dthc\n`;
-    sql += `WHERE agent = '${breakdown.railAgent}'\n`;
+    sql += `FROM app_51335ed80f_dthc\n`;
+    sql += `WHERE agent = '${breakdown.agent}'\n`;
     sql += `  AND pol = '${input.pol}'\n`;
     sql += `  AND pod = '${input.pod}'\n`;
+    if (breakdown.carrier) {
+      sql += `  AND carrier = '${breakdown.carrier}'\n`;
+    }
     sql += `  AND ${dateCondition};\n\n`;
 
-    // 3. Combined or Separate Freight
+    // 4. Combined or Separate Freight
     if (breakdown.isCombinedFreight) {
-      sql += `-- 3. 통합운임 (Combined Freight: 철도+트럭)\n`;
+      sql += `-- ========================================\n`;
+      sql += `-- 4. 통합운임 조회 (철도+트럭 통합)\n`;
+      sql += `-- ========================================\n`;
+      sql += `-- 금액: $${breakdown.combinedFreight}\n\n`;
       sql += `SELECT \n`;
       sql += `  id,\n`;
       sql += `  agent,\n`;
@@ -100,14 +132,17 @@ export default function FreightSqlDialog({
       sql += `  rate,\n`;
       sql += `  valid_from,\n`;
       sql += `  valid_to\n`;
-      sql += `FROM app_741545ec66_combined_freights\n`;
-      sql += `WHERE agent = '${breakdown.railAgent}'\n`;
+      sql += `FROM app_51335ed80f_combined_freights\n`;
+      sql += `WHERE agent = '${breakdown.agent}'\n`;
       sql += `  AND pol = '${input.pol}'\n`;
       sql += `  AND pod = '${input.pod}'\n`;
       sql += `  AND destination_id = '${input.destinationId}'\n`;
       sql += `  AND ${dateCondition};\n\n`;
     } else {
-      sql += `-- 3a. 철도운임 (Port to Border)\n`;
+      sql += `-- ========================================\n`;
+      sql += `-- 4-1. 철도운임 조회 (Port to Border)\n`;
+      sql += `-- ========================================\n`;
+      sql += `-- 금액: $${breakdown.portBorder}\n\n`;
       sql += `SELECT \n`;
       sql += `  id,\n`;
       sql += `  agent,\n`;
@@ -116,12 +151,15 @@ export default function FreightSqlDialog({
       sql += `  rate,\n`;
       sql += `  valid_from,\n`;
       sql += `  valid_to\n`;
-      sql += `FROM app_741545ec66_port_border_freights\n`;
-      sql += `WHERE agent = '${breakdown.railAgent}'\n`;
+      sql += `FROM app_51335ed80f_port_border_freights\n`;
+      sql += `WHERE agent = '${breakdown.agent}'\n`;
       sql += `  AND pod = '${input.pod}'\n`;
       sql += `  AND ${dateCondition};\n\n`;
 
-      sql += `-- 3b. 트럭운임 (Border to Destination)\n`;
+      sql += `-- ========================================\n`;
+      sql += `-- 4-2. 트럭운임 조회 (Border to Destination)\n`;
+      sql += `-- ========================================\n`;
+      sql += `-- 금액: $${breakdown.borderDestination}\n\n`;
       sql += `SELECT \n`;
       sql += `  id,\n`;
       sql += `  agent,\n`;
@@ -129,15 +167,18 @@ export default function FreightSqlDialog({
       sql += `  rate,\n`;
       sql += `  valid_from,\n`;
       sql += `  valid_to\n`;
-      sql += `FROM app_741545ec66_border_destination_freights\n`;
-      sql += `WHERE agent = '${breakdown.truckAgent}'\n`;
+      sql += `FROM app_51335ed80f_border_destination_freights\n`;
+      sql += `WHERE agent = '${breakdown.agent}'\n`;
       sql += `  AND destination_id = '${input.destinationId}'\n`;
       sql += `  AND ${dateCondition};\n\n`;
     }
 
-    // 4. Weight Surcharge
+    // 5. Weight Surcharge
     if (breakdown.weightSurcharge > 0) {
-      sql += `-- 4. 중량 할증 (Weight Surcharge)\n`;
+      sql += `-- ========================================\n`;
+      sql += `-- 5. 중량 할증 조회\n`;
+      sql += `-- ========================================\n`;
+      sql += `-- 금액: $${breakdown.weightSurcharge}\n\n`;
       sql += `SELECT \n`;
       sql += `  id,\n`;
       sql += `  agent,\n`;
@@ -146,28 +187,113 @@ export default function FreightSqlDialog({
       sql += `  surcharge,\n`;
       sql += `  valid_from,\n`;
       sql += `  valid_to\n`;
-      sql += `FROM app_741545ec66_weight_surcharge_rules\n`;
-      sql += `WHERE agent = '${breakdown.railAgent}'\n`;
+      sql += `FROM app_51335ed80f_weight_surcharge_rules\n`;
+      sql += `WHERE agent = '${breakdown.agent}'\n`;
       sql += `  AND ${input.weight} BETWEEN min_weight AND max_weight\n`;
       sql += `  AND ${dateCondition};\n\n`;
     }
 
-    // 5. DP Cost
+    // 6. DP Cost
     if (breakdown.dp > 0) {
-      sql += `-- 5. DP 비용 (Delivery Point Cost)\n`;
+      sql += `-- ========================================\n`;
+      sql += `-- 6. DP 비용 조회\n`;
+      sql += `-- ========================================\n`;
+      sql += `-- 금액: $${breakdown.dp}\n\n`;
       sql += `SELECT \n`;
       sql += `  id,\n`;
       sql += `  port,\n`;
       sql += `  amount,\n`;
       sql += `  valid_from,\n`;
       sql += `  valid_to\n`;
-      sql += `FROM app_741545ec66_dp_costs\n`;
+      sql += `FROM app_51335ed80f_dp_costs\n`;
       sql += `WHERE port = '${input.pol}'\n`;
       sql += `  AND ${dateCondition};\n\n`;
     }
 
+    // 7. Domestic Transport
+    if (breakdown.domesticTransport > 0) {
+      sql += `-- ========================================\n`;
+      sql += `-- 7. 국내운송비 조회\n`;
+      sql += `-- ========================================\n`;
+      sql += `-- 금액: $${breakdown.domesticTransport}\n\n`;
+      sql += `SELECT \n`;
+      sql += `  id,\n`;
+      sql += `  port,\n`;
+      sql += `  amount,\n`;
+      sql += `  valid_from,\n`;
+      sql += `  valid_to\n`;
+      sql += `FROM app_51335ed80f_domestic_transport\n`;
+      sql += `WHERE port = '${input.pol}'\n`;
+      sql += `  AND ${dateCondition};\n\n`;
+    }
+
+    // 8. Other Costs
+    if (breakdown.otherCosts && breakdown.otherCosts.length > 0) {
+      sql += `-- ========================================\n`;
+      sql += `-- 8. 기타 비용 조회\n`;
+      sql += `-- ========================================\n`;
+      breakdown.otherCosts.forEach((cost, index) => {
+        sql += `-- ${index + 1}. ${cost.category}: $${cost.amount}\n`;
+      });
+      sql += `\n`;
+      sql += `SELECT \n`;
+      sql += `  id,\n`;
+      sql += `  category,\n`;
+      sql += `  amount,\n`;
+      sql += `  valid_from,\n`;
+      sql += `  valid_to\n`;
+      sql += `FROM app_51335ed80f_other_costs\n`;
+      sql += `WHERE ${dateCondition};\n\n`;
+    }
+
+    // Summary
     sql += `-- ========================================\n`;
-    sql += `-- 총 운임: $${breakdown.total.toFixed(2)}\n`;
+    sql += `-- 총액 계산\n`;
+    sql += `-- ========================================\n`;
+    sql += `-- 해상운임: $${breakdown.seaFreight}\n`;
+    if (breakdown.localCharge && breakdown.localCharge > 0) {
+      sql += `-- LOCAL: $${breakdown.localCharge}\n`;
+    }
+    sql += `-- DTHC: $${breakdown.dthc}\n`;
+    if (breakdown.isCombinedFreight) {
+      sql += `-- 통합운임: $${breakdown.combinedFreight}\n`;
+    } else {
+      sql += `-- 철도운임: $${breakdown.portBorder}\n`;
+      sql += `-- 트럭운임: $${breakdown.borderDestination}\n`;
+    }
+    if (breakdown.weightSurcharge > 0) {
+      sql += `-- 중량할증: $${breakdown.weightSurcharge}\n`;
+    }
+    if (breakdown.dp > 0) {
+      sql += `-- DP: $${breakdown.dp}\n`;
+    }
+    if (breakdown.domesticTransport > 0) {
+      sql += `-- 국내운송: $${breakdown.domesticTransport}\n`;
+    }
+    if (breakdown.otherCosts && breakdown.otherCosts.length > 0) {
+      const otherTotal = breakdown.otherCosts.reduce((sum, cost) => sum + cost.amount, 0);
+      sql += `-- 기타비용: $${otherTotal}\n`;
+    }
+    
+    let total = breakdown.seaFreight + 
+                (breakdown.localCharge || 0) + 
+                breakdown.dthc + 
+                breakdown.weightSurcharge + 
+                breakdown.dp + 
+                breakdown.domesticTransport;
+    
+    if (breakdown.isCombinedFreight) {
+      total += breakdown.combinedFreight;
+    } else {
+      total += breakdown.portBorder + breakdown.borderDestination;
+    }
+    
+    if (breakdown.otherCosts) {
+      total += breakdown.otherCosts.reduce((sum, cost) => sum + cost.amount, 0);
+    }
+    
+    sql += `-- ========================================\n`;
+    sql += `-- 총액: $${total.toFixed(2)}\n`;
     sql += `-- ========================================\n`;
 
     return sql;
@@ -185,7 +311,7 @@ export default function FreightSqlDialog({
       <DialogContent className="max-w-4xl max-h-[80vh]">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
-            <span>운임 조회 SQL</span>
+            <span>운임 조합 SQL 상세</span>
             <Button
               variant="outline"
               size="sm"
@@ -206,8 +332,7 @@ export default function FreightSqlDialog({
             </Button>
           </DialogTitle>
           <DialogDescription>
-            {breakdown.agent} - {input.pol} → {input.pod} → 목적지
-            {historicalDate && ` (${historicalDate} 기준)`}
+            선택한 운임 조합의 상세 조회 SQL입니다.
           </DialogDescription>
         </DialogHeader>
 
@@ -219,11 +344,10 @@ export default function FreightSqlDialog({
 
         <div className="flex justify-between items-center text-sm text-muted-foreground">
           <div>
-            <strong>운임 구성:</strong>
-            {breakdown.isCombinedFreight ? ' 통합운임' : ' 철도+트럭 분리운임'}
+            <strong>대리점:</strong> {breakdown.agent}
           </div>
           <div>
-            <strong>총액:</strong> ${breakdown.total.toFixed(2)}
+            <strong>경로:</strong> {input.pol} → {input.pod} → {destinationName}
           </div>
         </div>
       </DialogContent>

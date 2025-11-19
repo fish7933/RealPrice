@@ -56,7 +56,7 @@ export default function CalculationSqlPreviewDialog({
     sql += `  carrier,\n`;
     sql += `  valid_from,\n`;
     sql += `  valid_to\n`;
-    sql += `FROM app_741545ec66_sea_freights\n`;
+    sql += `FROM app_51335ed80f_sea_freights\n`;
     sql += `WHERE pol = '${input.pol}'\n`;
     sql += `  AND pod = '${input.pod}'\n`;
     sql += `  AND ${dateCondition};\n\n`;
@@ -73,7 +73,7 @@ export default function CalculationSqlPreviewDialog({
     sql += `  carrier,\n`;
     sql += `  valid_from,\n`;
     sql += `  valid_to\n`;
-    sql += `FROM app_741545ec66_agent_sea_freights\n`;
+    sql += `FROM app_51335ed80f_agent_sea_freights\n`;
     sql += `WHERE pol = '${input.pol}'\n`;
     sql += `  AND pod = '${input.pod}'\n`;
     sql += `  AND ${dateCondition};\n\n`;
@@ -91,7 +91,7 @@ export default function CalculationSqlPreviewDialog({
     sql += `  carrier,\n`;
     sql += `  valid_from,\n`;
     sql += `  valid_to\n`;
-    sql += `FROM app_741545ec66_dthc\n`;
+    sql += `FROM app_51335ed80f_dthc\n`;
     sql += `WHERE pol = '${input.pol}'\n`;
     sql += `  AND pod = '${input.pod}'\n`;
     sql += `  AND ${dateCondition};\n\n`;
@@ -111,7 +111,7 @@ export default function CalculationSqlPreviewDialog({
       sql += `  rate,\n`;
       sql += `  valid_from,\n`;
       sql += `  valid_to\n`;
-      sql += `FROM app_741545ec66_port_border_freights\n`;
+      sql += `FROM app_51335ed80f_port_border_freights\n`;
       sql += `WHERE pod = '${input.pod}'\n`;
       sql += `  AND ${dateCondition};\n\n`;
 
@@ -123,7 +123,7 @@ export default function CalculationSqlPreviewDialog({
       sql += `  rate,\n`;
       sql += `  valid_from,\n`;
       sql += `  valid_to\n`;
-      sql += `FROM app_741545ec66_border_destination_freights\n`;
+      sql += `FROM app_51335ed80f_border_destination_freights\n`;
       sql += `WHERE destination_id = '${input.destinationId}'\n`;
       sql += `  AND ${dateCondition};\n\n`;
     } else {
@@ -139,7 +139,7 @@ export default function CalculationSqlPreviewDialog({
       sql += `  rate,\n`;
       sql += `  valid_from,\n`;
       sql += `  valid_to\n`;
-      sql += `FROM app_741545ec66_combined_freights\n`;
+      sql += `FROM app_51335ed80f_combined_freights\n`;
       sql += `WHERE pol = '${input.pol}'\n`;
       sql += `  AND pod = '${input.pod}'\n`;
       sql += `  AND destination_id = '${input.destinationId}'\n`;
@@ -158,7 +158,7 @@ export default function CalculationSqlPreviewDialog({
     sql += `  surcharge,\n`;
     sql += `  valid_from,\n`;
     sql += `  valid_to\n`;
-    sql += `FROM app_741545ec66_weight_surcharge_rules\n`;
+    sql += `FROM app_51335ed80f_weight_surcharge_rules\n`;
     sql += `WHERE ${input.weight} BETWEEN min_weight AND max_weight\n`;
     sql += `  AND ${dateCondition};\n\n`;
 
@@ -173,7 +173,7 @@ export default function CalculationSqlPreviewDialog({
       sql += `  amount,\n`;
       sql += `  valid_from,\n`;
       sql += `  valid_to\n`;
-      sql += `FROM app_741545ec66_dp_costs\n`;
+      sql += `FROM app_51335ed80f_dp_costs\n`;
       sql += `WHERE port = '${input.pol}'\n`;
       sql += `  AND ${dateCondition};\n\n`;
     }
@@ -188,7 +188,7 @@ export default function CalculationSqlPreviewDialog({
     sql += `  amount,\n`;
     sql += `  valid_from,\n`;
     sql += `  valid_to\n`;
-    sql += `FROM app_741545ec66_domestic_transport\n`;
+    sql += `FROM app_51335ed80f_domestic_transport\n`;
     sql += `WHERE port = '${input.pol}'\n`;
     sql += `  AND ${dateCondition};\n\n`;
 
@@ -202,7 +202,7 @@ export default function CalculationSqlPreviewDialog({
     sql += `  amount,\n`;
     sql += `  valid_from,\n`;
     sql += `  valid_to\n`;
-    sql += `FROM app_741545ec66_other_costs\n`;
+    sql += `FROM app_51335ed80f_other_costs\n`;
     sql += `WHERE ${dateCondition};\n\n`;
 
     sql += `-- ========================================\n`;

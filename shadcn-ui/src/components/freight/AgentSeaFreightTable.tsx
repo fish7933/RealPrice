@@ -269,7 +269,8 @@ export default function AgentSeaFreightTable() {
     <div className="space-y-4">
       {/* Header - Compact */}
       <div className="relative overflow-hidden rounded-lg bg-gray-100 p-3 text-gray-900 shadow-lg">
-        <div className="absolute inset-0 bg-black/10"></div>
+        <div className="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-white/10 blur-2xl"></div>
+        <div className="absolute bottom-0 left-0 -mb-4 -ml-4 h-24 w-24 rounded-full bg-white/10 blur-2xl"></div>
         <div className="relative flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="p-1 bg-gray-200/80 rounded-lg backdrop-blur-sm">
@@ -277,7 +278,7 @@ export default function AgentSeaFreightTable() {
             </div>
             <div>
               <h2 className="text-lg font-bold">대리점별 해상운임</h2>
-              <p className="text-xs text-gray-900/90">철도 대리점 특별 해상운임</p>
+              <p className="text-xs text-gray-600">철도 대리점 특별 해상운임</p>
             </div>
           </div>
           {isAdmin && (
@@ -306,16 +307,18 @@ export default function AgentSeaFreightTable() {
       )}
 
       {/* Search Filters - Compact */}
-      <div className="p-3 bg-gray-200 rounded-lg border border-gray-200">
+      <div className="p-4 bg-gradient-to-r from-gray-100 to-gray-200 rounded-lg border-2 border-gray-400 shadow-lg">
         <div className="flex items-center gap-2 mb-2">
-          <Search className="h-3 w-3 text-gray-600" />
-          <span className="text-xs font-semibold">검색 필터</span>
+          <div className="p-1 bg-blue-100 rounded">
+            <Search className="h-3 w-3 text-blue-600" />
+          </div>
+          <span className="text-xs font-semibold text-gray-800">검색 필터</span>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2">
           <div className="space-y-1">
-            <Label className="text-xs">대리점</Label>
+            <Label className="text-xs font-semibold text-gray-700">대리점</Label>
             <Select value={searchFilters.agent} onValueChange={(value) => setSearchFilters(prev => ({ ...prev, agent: value }))}>
-              <SelectTrigger className="h-8 text-xs">
+              <SelectTrigger className="h-8 text-xs bg-white">
                 <SelectValue placeholder="전체" />
               </SelectTrigger>
               <SelectContent>
@@ -327,9 +330,9 @@ export default function AgentSeaFreightTable() {
             </Select>
           </div>
           <div className="space-y-1">
-            <Label className="text-xs">POL</Label>
+            <Label className="text-xs font-semibold text-gray-700">POL</Label>
             <Select value={searchFilters.pol} onValueChange={(value) => setSearchFilters(prev => ({ ...prev, pol: value }))}>
-              <SelectTrigger className="h-8 text-xs">
+              <SelectTrigger className="h-8 text-xs bg-white">
                 <SelectValue placeholder="전체" />
               </SelectTrigger>
               <SelectContent>
@@ -341,9 +344,9 @@ export default function AgentSeaFreightTable() {
             </Select>
           </div>
           <div className="space-y-1">
-            <Label className="text-xs">POD</Label>
+            <Label className="text-xs font-semibold text-gray-700">POD</Label>
             <Select value={searchFilters.pod} onValueChange={(value) => setSearchFilters(prev => ({ ...prev, pod: value }))}>
-              <SelectTrigger className="h-8 text-xs">
+              <SelectTrigger className="h-8 text-xs bg-white">
                 <SelectValue placeholder="전체" />
               </SelectTrigger>
               <SelectContent>
@@ -355,9 +358,9 @@ export default function AgentSeaFreightTable() {
             </Select>
           </div>
           <div className="space-y-1">
-            <Label className="text-xs">선사</Label>
+            <Label className="text-xs font-semibold text-gray-700">선사</Label>
             <Select value={searchFilters.carrier} onValueChange={(value) => setSearchFilters(prev => ({ ...prev, carrier: value }))}>
-              <SelectTrigger className="h-8 text-xs">
+              <SelectTrigger className="h-8 text-xs bg-white">
                 <SelectValue placeholder="전체" />
               </SelectTrigger>
               <SelectContent>
@@ -369,9 +372,9 @@ export default function AgentSeaFreightTable() {
             </Select>
           </div>
           <div className="space-y-1">
-            <Label className="text-xs">상태</Label>
+            <Label className="text-xs font-semibold text-gray-700">상태</Label>
             <Select value={searchFilters.status} onValueChange={(value) => setSearchFilters(prev => ({ ...prev, status: value }))}>
-              <SelectTrigger className="h-8 text-xs">
+              <SelectTrigger className="h-8 text-xs bg-white">
                 <SelectValue placeholder="전체" />
               </SelectTrigger>
               <SelectContent>
@@ -392,34 +395,34 @@ export default function AgentSeaFreightTable() {
       </div>
 
       {/* Results Summary */}
-      <div className="text-xs text-gray-600">
+      <div className="text-xs text-gray-600 font-medium">
         총 {filteredFreights.length}개 (전체 {agentSeaFreights.length}개 중)
       </div>
 
       {/* Table - Compact */}
-      <div className="border rounded-lg overflow-hidden bg-white shadow-sm">
+      <div className="rounded-lg overflow-hidden shadow-md border-2 border-gray-300">
         <Table>
           <TableHeader>
             <TableRow className="bg-gray-200">
-              <TableHead className="h-9 text-xs font-bold whitespace-nowrap">대리점</TableHead>
-              <TableHead className="h-9 text-xs font-bold whitespace-nowrap">POL</TableHead>
-              <TableHead className="h-9 text-xs font-bold whitespace-nowrap">POD</TableHead>
-              <TableHead className="h-9 text-xs font-bold whitespace-nowrap">운임</TableHead>
-              <TableHead className="h-9 text-xs font-bold whitespace-nowrap">L.LOCAL</TableHead>
-              <TableHead className="h-9 text-xs font-bold whitespace-nowrap">선사</TableHead>
-              <TableHead className="h-9 text-xs font-bold whitespace-nowrap">유효기간</TableHead>
-              <TableHead className="h-9 text-xs font-bold whitespace-nowrap">상태</TableHead>
-              <TableHead className="h-9 text-xs font-bold whitespace-nowrap">비고</TableHead>
-              {isAdmin && <TableHead className="h-9 text-xs text-right font-bold whitespace-nowrap">작업</TableHead>}
+              <TableHead className="h-10 text-sm text-gray-900 font-extrabold whitespace-nowrap">대리점</TableHead>
+              <TableHead className="h-10 text-sm text-gray-900 font-extrabold whitespace-nowrap">POL</TableHead>
+              <TableHead className="h-10 text-sm text-gray-900 font-extrabold whitespace-nowrap">POD</TableHead>
+              <TableHead className="h-10 text-sm text-gray-900 font-extrabold whitespace-nowrap">운임</TableHead>
+              <TableHead className="h-10 text-sm text-gray-900 font-extrabold whitespace-nowrap">L.LOCAL</TableHead>
+              <TableHead className="h-10 text-sm text-gray-900 font-extrabold whitespace-nowrap">선사</TableHead>
+              <TableHead className="h-10 text-sm text-gray-900 font-extrabold whitespace-nowrap">유효기간</TableHead>
+              <TableHead className="h-10 text-sm text-gray-900 font-extrabold whitespace-nowrap">상태</TableHead>
+              <TableHead className="h-10 text-sm text-gray-900 font-extrabold whitespace-nowrap">비고</TableHead>
+              {isAdmin && <TableHead className="h-10 text-sm text-right text-gray-900 font-extrabold whitespace-nowrap">작업</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
             {paginatedFreights.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={isAdmin ? 10 : 9} className="text-center py-6">
-                  <div className="flex flex-col items-center gap-2">
-                    <Ship className="h-10 w-10 text-gray-600" />
-                    <p className="text-sm text-gray-800">
+                  <div className="flex flex-col items-center gap-2 text-gray-700">
+                    <Ship className="h-12 w-12 opacity-20" />
+                    <p className="text-sm">
                       {agentSeaFreights.length === 0 ? '설정된 대리점별 해상운임이 없습니다' : '검색 결과가 없습니다'}
                     </p>
                   </div>
@@ -439,7 +442,7 @@ export default function AgentSeaFreightTable() {
                     </TableCell>
                     <TableCell className="py-3 text-sm whitespace-nowrap">{freight.pol}</TableCell>
                     <TableCell className="py-3 text-sm whitespace-nowrap">{freight.pod}</TableCell>
-                    <TableCell className="py-3 text-sm font-semibold whitespace-nowrap">${freight.rate}</TableCell>
+                    <TableCell className="py-3 text-sm font-semibold text-blue-600 whitespace-nowrap">${freight.rate}</TableCell>
                     <TableCell className="py-3 text-sm whitespace-nowrap">
                       {freight.llocal !== undefined && freight.llocal !== null ? (
                         <span className="font-medium">
@@ -534,8 +537,10 @@ export default function AgentSeaFreightTable() {
       }}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Star className="h-5 w-5 text-amber-600" />
+            <DialogTitle className="flex items-center gap-2 text-2xl">
+              <div className="p-2 bg-gray-200 rounded-lg">
+                <Star className="h-5 w-5 text-gray-900" />
+              </div>
               대리점별 해상운임 추가
             </DialogTitle>
             <DialogDescription>철도 대리점이 지정한 특별 해상운임을 입력하세요.</DialogDescription>
@@ -569,12 +574,12 @@ export default function AgentSeaFreightTable() {
               </div>
             )}
             <div className="space-y-2">
-              <Label>철도 대리점 *</Label>
+              <Label className="text-sm font-semibold text-gray-700">철도 대리점 *</Label>
               <Select value={formData.agent} onValueChange={(value) => {
                 setFormData({ ...formData, agent: value });
                 setValidationWarning(null);
               }}>
-                <SelectTrigger>
+                <SelectTrigger className="border-gray-300 focus:border-blue-500">
                   <SelectValue placeholder="대리점 선택" />
                 </SelectTrigger>
                 <SelectContent>
@@ -587,13 +592,13 @@ export default function AgentSeaFreightTable() {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>선적포트 (POL) *</Label>
+              <Label className="text-sm font-semibold text-gray-700">선적포트 (POL) *</Label>
               {polPorts.length > 0 ? (
                 <Select value={formData.pol} onValueChange={(value) => {
                   setFormData({ ...formData, pol: value });
                   setValidationWarning(null);
                 }}>
-                  <SelectTrigger>
+                  <SelectTrigger className="border-gray-300 focus:border-blue-500">
                     <SelectValue placeholder="선적포트 선택" />
                   </SelectTrigger>
                   <SelectContent>
@@ -611,13 +616,13 @@ export default function AgentSeaFreightTable() {
               )}
             </div>
             <div className="space-y-2">
-              <Label>양하포트 (POD) *</Label>
+              <Label className="text-sm font-semibold text-gray-700">양하포트 (POD) *</Label>
               {podPorts.length > 0 ? (
                 <Select value={formData.pod} onValueChange={(value) => {
                   setFormData({ ...formData, pod: value });
                   setValidationWarning(null);
                 }}>
-                  <SelectTrigger>
+                  <SelectTrigger className="border-gray-300 focus:border-blue-500">
                     <SelectValue placeholder="양하포트 선택" />
                   </SelectTrigger>
                   <SelectContent>
@@ -635,19 +640,20 @@ export default function AgentSeaFreightTable() {
               )}
             </div>
             <div className="space-y-2">
-              <Label>해상운임 (USD) *</Label>
+              <Label className="text-sm font-semibold text-gray-700">해상운임 (USD) *</Label>
               <Input
                 type="number"
                 placeholder="예: 580"
                 value={formData.rate}
                 onChange={(e) => setFormData({ ...formData, rate: e.target.value })}
+                className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
             <div className="space-y-2">
-              <Label>선사 (선택)</Label>
+              <Label className="text-sm font-semibold text-gray-700">선사 (선택)</Label>
               {shippingLines.length > 0 ? (
                 <Select value={formData.carrier} onValueChange={(value) => setFormData({ ...formData, carrier: value })}>
-                  <SelectTrigger>
+                  <SelectTrigger className="border-gray-300 focus:border-blue-500">
                     <SelectValue placeholder="선사 선택" />
                   </SelectTrigger>
                   <SelectContent>
@@ -665,16 +671,17 @@ export default function AgentSeaFreightTable() {
               )}
             </div>
             <div className="space-y-2">
-              <Label>L.LOCAL (USD) <span className="text-xs text-gray-800">(선택)</span></Label>
+              <Label className="text-sm font-semibold text-gray-700">L.LOCAL (USD) <span className="text-xs text-gray-600">(선택)</span></Label>
               <Input
                 type="number"
                 placeholder="예: 50 또는 -50"
                 value={formData.llocal}
                 onChange={(e) => setFormData({ ...formData, llocal: e.target.value })}
+                className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
             <div className="col-span-2 space-y-2">
-              <Label>유효기간 *</Label>
+              <Label className="text-sm font-semibold text-gray-700">유효기간 *</Label>
               <ValidityPeriodInput
                 validFrom={formData.validFrom}
                 validTo={formData.validTo}
@@ -685,11 +692,12 @@ export default function AgentSeaFreightTable() {
               />
             </div>
             <div className="col-span-2 space-y-2">
-              <Label>비고</Label>
+              <Label className="text-sm font-semibold text-gray-700">비고</Label>
               <Textarea
                 placeholder="추가 정보를 입력하세요"
                 value={formData.note}
                 onChange={(e) => setFormData({ ...formData, note: e.target.value })}
+                className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
           </div>
@@ -700,10 +708,17 @@ export default function AgentSeaFreightTable() {
                 setIsAddDialogOpen(false);
                 setValidationWarning(null);
               }}
+              className="hover:bg-gray-100"
             >
               취소
             </Button>
-            <Button onClick={handleAdd} className="bg-gray-200 hover:bg-gray-200">추가</Button>
+            <Button 
+              onClick={handleAdd}
+              className="bg-gray-200 hover:bg-gray-300 text-gray-900 shadow-lg"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              추가
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -712,8 +727,10 @@ export default function AgentSeaFreightTable() {
       <Dialog open={isEditDialogOpen} onOpenChange={handleEditCancel}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Edit className="h-5 w-5 text-blue-600" />
+            <DialogTitle className="flex items-center gap-2 text-2xl">
+              <div className="p-2 bg-gray-200 rounded-lg">
+                <Edit className="h-5 w-5 text-gray-900" />
+              </div>
               대리점별 해상운임 수정
             </DialogTitle>
             <DialogDescription>
@@ -734,19 +751,19 @@ export default function AgentSeaFreightTable() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>대리점</Label>
+                  <Label className="text-sm font-semibold text-gray-700">대리점</Label>
                   <Input value={formData.agent} disabled className="bg-gray-50" />
                 </div>
                 <div className="space-y-2">
-                  <Label>선적포트 (POL)</Label>
+                  <Label className="text-sm font-semibold text-gray-700">선적포트 (POL)</Label>
                   <Input value={formData.pol} disabled className="bg-gray-50" />
                 </div>
                 <div className="space-y-2">
-                  <Label>양하포트 (POD)</Label>
+                  <Label className="text-sm font-semibold text-gray-700">양하포트 (POD)</Label>
                   <Input value={formData.pod} disabled className="bg-gray-50" />
                 </div>
                 <div className="space-y-2">
-                  <Label>운임 (USD) *</Label>
+                  <Label className="text-sm font-semibold text-gray-700">운임 (USD) *</Label>
                   <Input
                     type="number"
                     value={formData.rate}
@@ -754,13 +771,14 @@ export default function AgentSeaFreightTable() {
                       setFormData({ ...formData, rate: e.target.value });
                       setValidationWarning(null);
                     }}
+                    className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>선사</Label>
+                  <Label className="text-sm font-semibold text-gray-700">선사</Label>
                   <Select 
                     value={formData.carrier || 'NONE'} 
                     onValueChange={(value) => {
@@ -770,7 +788,7 @@ export default function AgentSeaFreightTable() {
                       });
                     }}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="border-gray-300 focus:border-blue-500">
                       <SelectValue placeholder="선사 선택" />
                     </SelectTrigger>
                     <SelectContent>
@@ -784,7 +802,7 @@ export default function AgentSeaFreightTable() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>L.LOCAL (USD)</Label>
+                  <Label className="text-sm font-semibold text-gray-700">L.LOCAL (USD)</Label>
                   <Input
                     type="number"
                     placeholder="예: 50 또는 -50"
@@ -795,12 +813,13 @@ export default function AgentSeaFreightTable() {
                         llocal: e.target.value
                       });
                     }}
+                    className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label>유효기간 *</Label>
+                <Label className="text-sm font-semibold text-gray-700">유효기간 *</Label>
                 <ValidityPeriodInput
                   validFrom={formData.validFrom}
                   validTo={formData.validTo}
@@ -816,7 +835,7 @@ export default function AgentSeaFreightTable() {
               </div>
 
               <div className="space-y-2">
-                <Label>비고</Label>
+                <Label className="text-sm font-semibold text-gray-700">비고</Label>
                 <Input
                   placeholder="비고를 입력하세요"
                   value={formData.note}
@@ -826,17 +845,22 @@ export default function AgentSeaFreightTable() {
                       note: e.target.value
                     });
                   }}
+                  className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                 />
               </div>
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={handleEditCancel}>
+            <Button 
+              variant="outline" 
+              onClick={handleEditCancel}
+              className="hover:bg-gray-100"
+            >
               취소
             </Button>
             <Button 
               onClick={handleEditSave}
-              className="bg-gray-200 hover:bg-gray-200"
+              className="bg-gray-200 hover:bg-gray-300 text-gray-900 shadow-lg"
             >
               <Edit className="h-4 w-4 mr-2" />
               수정 저장

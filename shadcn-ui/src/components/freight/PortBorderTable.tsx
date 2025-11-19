@@ -28,7 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Trash2, Plus, Train, AlertTriangle, Sparkles, Edit, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { Trash2, Plus, Train, AlertTriangle, Edit, ChevronLeft, ChevronRight, X, Search } from 'lucide-react';
 import AuditLogTable from './AuditLogTable';
 import { ValidityPeriodInput } from '@/components/ui/validity-period-input';
 import { getValidityStatus, formatValidityDate, checkOverlapWarning } from '@/utils/validityHelper';
@@ -411,20 +411,18 @@ export default function PortBorderTable() {
 
   return (
     <div className="space-y-4">
-      {/* Header Section - More Compact */}
-      <div className="relative overflow-hidden rounded-lg bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 p-3 shadow-lg">
-        <div className="absolute inset-0 bg-grid-white/10"></div>
+      {/* Header Section - Compact */}
+      <div className="relative overflow-hidden rounded-lg bg-gray-100 p-3 text-gray-900 shadow-lg">
+        <div className="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-white/10 blur-2xl"></div>
+        <div className="absolute bottom-0 left-0 -mb-4 -ml-4 h-24 w-24 rounded-full bg-white/10 blur-2xl"></div>
         <div className="relative flex justify-between items-center">
           <div className="flex items-center gap-2">
             <div className="p-1 bg-gray-200/80 backdrop-blur-sm rounded-lg">
-              <Train className="h-4 w-4 text-gray-900" />
+              <Train className="h-4 w-4" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                철도운임
-                <Sparkles className="h-3 w-3 text-yellow-300 animate-pulse" />
-              </h2>
-              <p className="text-xs text-green-50">선적포트(POL) → 양하포트(POD) → {borderCityName}</p>
+              <h2 className="text-lg font-bold">철도운임</h2>
+              <p className="text-xs text-gray-600">선적포트(POL) → 양하포트(POD) → {borderCityName}</p>
             </div>
           </div>
           {isAdmin && (
@@ -451,13 +449,19 @@ export default function PortBorderTable() {
         </Alert>
       )}
 
-      {/* Filter Section */}
-      <div className="p-3 bg-gray-600 rounded-lg border border-gray-200">
+      {/* Filter Section - Compact */}
+      <div className="p-4 bg-gradient-to-r from-gray-100 to-gray-200 rounded-lg border-2 border-gray-400 shadow-lg">
+        <div className="flex items-center gap-2 mb-2">
+          <div className="p-1 bg-blue-100 rounded">
+            <Search className="h-3 w-3 text-blue-600" />
+          </div>
+          <span className="text-xs font-semibold text-gray-800">검색 필터</span>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
           <div className="space-y-1">
-            <Label className="text-xs">대리점</Label>
+            <Label className="text-xs font-semibold text-gray-700">대리점</Label>
             <Select value={filters.agent} onValueChange={(value) => handleFilterChange('agent', value)}>
-              <SelectTrigger className="h-8 text-xs">
+              <SelectTrigger className="h-8 text-xs bg-white">
                 <SelectValue placeholder="전체" />
               </SelectTrigger>
               <SelectContent>
@@ -469,9 +473,9 @@ export default function PortBorderTable() {
             </Select>
           </div>
           <div className="space-y-1">
-            <Label className="text-xs">선적항 (POL)</Label>
+            <Label className="text-xs font-semibold text-gray-700">선적항 (POL)</Label>
             <Select value={filters.pol} onValueChange={(value) => handleFilterChange('pol', value)}>
-              <SelectTrigger className="h-8 text-xs">
+              <SelectTrigger className="h-8 text-xs bg-white">
                 <SelectValue placeholder="전체" />
               </SelectTrigger>
               <SelectContent>
@@ -483,21 +487,21 @@ export default function PortBorderTable() {
             </Select>
           </div>
           <div className="space-y-1">
-            <Label className="text-xs">상태</Label>
+            <Label className="text-xs font-semibold text-gray-700">상태</Label>
             <Select value={filters.status} onValueChange={(value) => handleFilterChange('status', value)}>
-              <SelectTrigger className="h-8 text-xs">
+              <SelectTrigger className="h-8 text-xs bg-white">
                 <SelectValue placeholder="전체" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value={FILTER_ALL_VALUE}>전체</SelectItem>
-                <SelectItem value="valid">유효</SelectItem>
+                <SelectItem value="active">유효</SelectItem>
                 <SelectItem value="expiring">만료임박</SelectItem>
                 <SelectItem value="expired">만료</SelectItem>
               </SelectContent>
             </Select>
           </div>
           <div className="flex items-end">
-            <Button variant="outline" size="sm" onClick={handleClearFilters} className="h-8 text-xs w-full">
+            <Button variant="outline" size="sm" onClick={handleClearFilters} className="h-7 text-xs w-full">
               <X className="h-3 w-3 mr-1" />
               초기화
             </Button>
@@ -506,38 +510,38 @@ export default function PortBorderTable() {
       </div>
 
       {/* Results Summary */}
-      <div className="text-xs text-gray-600">
+      <div className="text-xs text-gray-600 font-medium">
         총 {filteredGroups.length}개 (전체 {allFreightGroups.length}개 중)
       </div>
 
-      <div className="rounded-lg border shadow-sm overflow-hidden">
+      <div className="rounded-lg overflow-hidden shadow-md border-2 border-gray-300">
         <Table>
           <TableHeader>
             <TableRow className="bg-gray-200">
-              <TableHead className="h-9 text-xs font-bold whitespace-nowrap">대리점</TableHead>
-              <TableHead className="h-9 text-xs font-bold whitespace-nowrap">POL</TableHead>
+              <TableHead className="h-10 text-sm text-gray-900 font-extrabold whitespace-nowrap">대리점</TableHead>
+              <TableHead className="h-10 text-sm text-gray-900 font-extrabold whitespace-nowrap">POL</TableHead>
               {podPorts.map(pod => (
-                <TableHead key={pod.id} className="h-9 text-xs font-bold whitespace-nowrap">
+                <TableHead key={pod.id} className="h-10 text-sm text-gray-900 font-extrabold whitespace-nowrap">
                   {pod.name}
                 </TableHead>
               ))}
-              <TableHead className="h-9 text-xs font-bold whitespace-nowrap">유효기간</TableHead>
-              <TableHead className="h-9 text-xs font-bold whitespace-nowrap">상태</TableHead>
-              {isAdmin && <TableHead className="h-9 text-xs font-bold text-right whitespace-nowrap">작업</TableHead>}
+              <TableHead className="h-10 text-sm text-gray-900 font-extrabold whitespace-nowrap">유효기간</TableHead>
+              <TableHead className="h-10 text-sm text-gray-900 font-extrabold whitespace-nowrap">상태</TableHead>
+              {isAdmin && <TableHead className="h-10 text-sm text-right text-gray-900 font-extrabold whitespace-nowrap">작업</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
             {paginatedGroups.length > 0 ? (
               paginatedGroups.map((group, index) => (
-                <TableRow key={`${group.agent}-${group.pol}-${group.validFrom}-${index}`} className="hover:bg-blue-50 transition-colors duration-150/50">
+                <TableRow key={`${group.agent}-${group.pol}-${group.validFrom}-${index}`} className="hover:bg-blue-50 transition-colors duration-150">
                   <TableCell className="py-3 text-sm font-medium whitespace-nowrap">{group.agent}</TableCell>
-                  <TableCell className="py-3 text-sm font-medium text-blue-700 whitespace-nowrap">{group.pol}</TableCell>
+                  <TableCell className="py-3 text-sm font-medium whitespace-nowrap">{group.pol}</TableCell>
                   {podPorts.map(pod => {
                     const freight = group.freights[pod.name];
                     return (
                       <TableCell key={pod.id} className="py-3 text-sm whitespace-nowrap">
                         {freight ? (
-                          <span className={`font-semibold ${freight.rate === 0 ? 'text-orange-600' : 'text-green-700'}`}>
+                          <span className="font-semibold text-blue-600">
                             ${freight.rate}
                           </span>
                         ) : (
@@ -582,8 +586,13 @@ export default function PortBorderTable() {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={podPorts.length + (isAdmin ? 5 : 4)} className="text-center text-gray-800 py-6 text-sm">
-                  {filters.agent !== FILTER_ALL_VALUE || filters.pol !== FILTER_ALL_VALUE || filters.status !== FILTER_ALL_VALUE ? '검색 결과가 없습니다' : '등록된 철도운임이 없습니다'}
+                <TableCell colSpan={podPorts.length + (isAdmin ? 5 : 4)} className="text-center py-6">
+                  <div className="flex flex-col items-center gap-2 text-gray-700">
+                    <Train className="h-12 w-12 opacity-20" />
+                    <p className="text-sm">
+                      {filters.agent !== FILTER_ALL_VALUE || filters.pol !== FILTER_ALL_VALUE || filters.status !== FILTER_ALL_VALUE ? '검색 결과가 없습니다' : '등록된 철도운임이 없습니다'}
+                    </p>
+                  </div>
                 </TableCell>
               </TableRow>
             )}
@@ -636,7 +645,12 @@ export default function PortBorderTable() {
       }}>
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>철도운임 추가</DialogTitle>
+            <DialogTitle className="flex items-center gap-2 text-2xl">
+              <div className="p-2 bg-gray-200 rounded-lg">
+                <Train className="h-5 w-5 text-gray-900" />
+              </div>
+              철도운임 추가
+            </DialogTitle>
             <DialogDescription>새로운 철도운임을 추가합니다. 같은 대리점과 선적포트라도 유효기간이 겹치지 않으면 여러 개의 운임을 추가할 수 있습니다.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
@@ -666,12 +680,12 @@ export default function PortBorderTable() {
               </Alert>
             )}
             <div className="space-y-2">
-              <Label>철도 대리점 *</Label>
+              <Label className="text-sm font-semibold text-gray-700">철도 대리점 *</Label>
               <Select value={formData.agent} onValueChange={(value) => {
                 setFormData({ ...formData, agent: value });
                 setValidationWarning(null);
               }}>
-                <SelectTrigger>
+                <SelectTrigger className="border-gray-300 focus:border-blue-500">
                   <SelectValue placeholder="대리점 선택" />
                 </SelectTrigger>
                 <SelectContent>
@@ -684,12 +698,12 @@ export default function PortBorderTable() {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>선적포트 (POL) *</Label>
+              <Label className="text-sm font-semibold text-gray-700">선적포트 (POL) *</Label>
               <Select value={formData.pol} onValueChange={(value) => {
                 setFormData({ ...formData, pol: value });
                 setValidationWarning(null);
               }}>
-                <SelectTrigger>
+                <SelectTrigger className="border-gray-300 focus:border-blue-500">
                   <SelectValue placeholder="선적포트 선택" />
                 </SelectTrigger>
                 <SelectContent>
@@ -702,7 +716,7 @@ export default function PortBorderTable() {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>유효기간 *</Label>
+              <Label className="text-sm font-semibold text-gray-700">유효기간 *</Label>
               <ValidityPeriodInput
                 validFrom={formData.validFrom}
                 validTo={formData.validTo}
@@ -713,7 +727,7 @@ export default function PortBorderTable() {
               />
             </div>
             <div className="space-y-3">
-              <Label>각 양하포트별 운임 (USD) *</Label>
+              <Label className="text-sm font-semibold text-gray-700">각 양하포트별 운임 (USD) *</Label>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {podPorts.map(pod => (
                   <div key={pod.id} className="space-y-2">
@@ -725,6 +739,7 @@ export default function PortBorderTable() {
                       placeholder="운임을 입력하세요"
                       value={formData[pod.name] || ''}
                       onChange={(e) => setFormData({ ...formData, [pod.name]: e.target.value })}
+                      className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                     />
                   </div>
                 ))}
@@ -732,13 +747,23 @@ export default function PortBorderTable() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => {
-              setIsAddDialogOpen(false);
-              setValidationWarning(null);
-            }}>
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setIsAddDialogOpen(false);
+                setValidationWarning(null);
+              }}
+              className="hover:bg-gray-100"
+            >
               취소
             </Button>
-            <Button onClick={handleAdd}>추가</Button>
+            <Button 
+              onClick={handleAdd}
+              className="bg-gray-200 hover:bg-gray-300 text-gray-900 shadow-lg"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              추가
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -747,8 +772,10 @@ export default function PortBorderTable() {
       <Dialog open={isEditDialogOpen} onOpenChange={handleEditCancel}>
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Edit className="h-5 w-5 text-blue-600" />
+            <DialogTitle className="flex items-center gap-2 text-2xl">
+              <div className="p-2 bg-gray-200 rounded-lg">
+                <Edit className="h-5 w-5 text-gray-900" />
+              </div>
               철도운임 수정
             </DialogTitle>
             <DialogDescription>
@@ -767,17 +794,17 @@ export default function PortBorderTable() {
             )}
 
             <div className="space-y-2">
-              <Label>철도 대리점</Label>
+              <Label className="text-sm font-semibold text-gray-700">철도 대리점</Label>
               <Input value={formData.agent} disabled className="bg-gray-50" />
             </div>
 
             <div className="space-y-2">
-              <Label>선적포트 (POL)</Label>
+              <Label className="text-sm font-semibold text-gray-700">선적포트 (POL)</Label>
               <Input value={formData.pol} disabled className="bg-gray-50" />
             </div>
 
             <div className="space-y-2">
-              <Label>유효기간 *</Label>
+              <Label className="text-sm font-semibold text-gray-700">유효기간 *</Label>
               <ValidityPeriodInput
                 validFrom={formData.validFrom}
                 validTo={formData.validTo}
@@ -789,7 +816,7 @@ export default function PortBorderTable() {
             </div>
 
             <div className="space-y-3">
-              <Label>각 양하포트별 운임 (USD) *</Label>
+              <Label className="text-sm font-semibold text-gray-700">각 양하포트별 운임 (USD) *</Label>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {podPorts.map(pod => (
                   <div key={pod.id} className="space-y-2">
@@ -804,6 +831,7 @@ export default function PortBorderTable() {
                         setFormData({ ...formData, [pod.name]: e.target.value });
                         setValidationWarning(null);
                       }}
+                      className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                     />
                   </div>
                 ))}
@@ -811,12 +839,16 @@ export default function PortBorderTable() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={handleEditCancel}>
+            <Button 
+              variant="outline" 
+              onClick={handleEditCancel}
+              className="hover:bg-gray-100"
+            >
               취소
             </Button>
             <Button 
               onClick={handleEditSave}
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-gray-200 hover:bg-gray-300 text-gray-900 shadow-lg"
             >
               <Edit className="h-4 w-4 mr-2" />
               수정 저장

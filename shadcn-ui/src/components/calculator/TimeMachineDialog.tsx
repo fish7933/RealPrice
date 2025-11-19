@@ -109,7 +109,7 @@ export default function TimeMachineDialog({ open, onOpenChange, onSelectDate, cu
     });
   };
 
-  const isDateAvailable = (date: Date) => {
+  const hasChangesOnDate = (date: Date) => {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
@@ -187,13 +187,10 @@ export default function TimeMachineDialog({ open, onOpenChange, onSelectDate, cu
             </span>
           </DialogTitle>
           <DialogDescription className="text-sm text-gray-700">
-            🌟 과거의 운임 데이터로 시간을 되돌려 원가를 계산해보세요 🌟
-            {availableDates.length === 0 && (
-              <span className="flex items-center gap-2 mt-2 text-amber-700 bg-gradient-to-r from-amber-50 to-yellow-50 px-3 py-2 rounded-xl border-2 border-amber-200 text-xs shadow-sm">
-                <AlertCircle className="h-3 w-3" />
-                아직 운임 변경 기록이 없습니다. 운임을 수정하면 자동으로 기록됩니다.
-              </span>
-            )}
+            🌟 과거의 특정 날짜로 돌아가서 그 날짜에 유효했던 운임으로 원가를 계산해보세요 🌟
+            <span className="block mt-2 text-purple-700 bg-gradient-to-r from-purple-50 to-blue-50 px-3 py-2 rounded-xl border-2 border-purple-200 text-xs shadow-sm">
+              💡 <strong>모든 과거 날짜</strong>를 선택할 수 있습니다. 선택한 날짜의 <strong>유효기간(validFrom ~ validTo)</strong> 내에 있는 운임으로 계산됩니다.
+            </span>
           </DialogDescription>
         </DialogHeader>
 
@@ -265,16 +262,16 @@ export default function TimeMachineDialog({ open, onOpenChange, onSelectDate, cu
                       }
 
                       const today = new Date();
-                      const isDisabled = day > today || !isDateAvailable(day);
+                      const isFutureDate = day > today;
                       const isSelected = selectedDate && isSameDay(day, selectedDate);
                       const isTodayDate = isToday(day);
-                      const isAvailable = isDateAvailable(day);
+                      const hasChanges = hasChangesOnDate(day);
 
                       return (
                         <button
                           key={index}
-                          onClick={() => !isDisabled && handleDateSelect(day)}
-                          disabled={isDisabled}
+                          onClick={() => !isFutureDate && handleDateSelect(day)}
+                          disabled={isFutureDate}
                           className={`
                             h-10 w-full rounded-xl font-semibold text-sm
                             flex items-center justify-center
@@ -283,11 +280,11 @@ export default function TimeMachineDialog({ open, onOpenChange, onSelectDate, cu
                               ? 'bg-gradient-to-br from-pink-500 via-purple-500 to-blue-500 text-white shadow-lg scale-105'
                               : isTodayDate
                               ? 'bg-gradient-to-br from-yellow-100 to-orange-100 text-orange-900 border-2 border-orange-400 shadow-md'
-                              : isAvailable && !isDisabled
+                              : hasChanges && !isFutureDate
                               ? 'bg-gradient-to-br from-pink-400 via-purple-400 to-blue-400 text-white hover:from-pink-500 hover:via-purple-500 hover:to-blue-500 shadow-md hover:scale-110'
-                              : isDisabled
-                              ? 'text-gray-400 bg-gray-100 cursor-not-allowed'
-                              : 'text-gray-600 bg-gray-200 hover:bg-gray-300 hover:scale-105'
+                              : isFutureDate
+                              ? 'text-gray-300 bg-gray-50 cursor-not-allowed'
+                              : 'text-gray-700 bg-blue-50 hover:bg-blue-100 hover:scale-105 border border-blue-200'
                             }
                           `}
                         >
@@ -302,11 +299,15 @@ export default function TimeMachineDialog({ open, onOpenChange, onSelectDate, cu
               <div className="px-4 pb-4 space-y-2 text-xs">
                 <div className="flex items-center gap-2 p-2 bg-gradient-to-r from-pink-50 via-purple-50 to-blue-50 rounded-xl border-2 border-pink-200 shadow-sm">
                   <div className="w-5 h-5 rounded-xl bg-gradient-to-br from-pink-400 via-purple-400 to-blue-400 shadow-md flex-shrink-0"></div>
-                  <span className="text-gray-700 font-semibold">✨ 운임 변경이 있었던 날짜</span>
+                  <span className="text-gray-700 font-semibold">✨ 운임 변경이 있었던 날짜 (참고용)</span>
                 </div>
-                <div className="flex items-center gap-2 p-2 bg-gradient-to-r from-gray-100 to-gray-200 rounded-xl border-2 border-gray-300 shadow-sm">
-                  <div className="w-5 h-5 rounded-xl bg-gray-400 flex-shrink-0"></div>
-                  <span className="text-gray-700 font-semibold">변경 기록이 없는 날짜</span>
+                <div className="flex items-center gap-2 p-2 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl border-2 border-blue-200 shadow-sm">
+                  <div className="w-5 h-5 rounded-xl bg-blue-100 border border-blue-200 flex-shrink-0"></div>
+                  <span className="text-gray-700 font-semibold">📅 선택 가능한 모든 과거 날짜</span>
+                </div>
+                <div className="flex items-center gap-2 p-2 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border-2 border-gray-200 shadow-sm">
+                  <div className="w-5 h-5 rounded-xl bg-gray-50 flex-shrink-0"></div>
+                  <span className="text-gray-700 font-semibold">🚫 미래 날짜 (선택 불가)</span>
                 </div>
               </div>
             </div>
@@ -334,7 +335,7 @@ export default function TimeMachineDialog({ open, onOpenChange, onSelectDate, cu
                   </p>
                   <p className="text-xs text-pink-100 flex items-center gap-2 font-medium">
                     <Sparkles className="h-3 w-3 animate-pulse" />
-                    이 날짜의 운임 데이터로 원가를 계산합니다 ✨
+                    이 날짜에 유효했던 운임(validFrom ~ validTo)으로 계산합니다 ✨
                   </p>
                 </div>
               </div>
@@ -402,8 +403,8 @@ export default function TimeMachineDialog({ open, onOpenChange, onSelectDate, cu
                   <div className="inline-flex p-3 bg-gradient-to-br from-purple-100 to-blue-100 rounded-full mb-3 shadow-lg">
                     <Clock className="h-8 w-8 text-purple-600" />
                   </div>
-                  <p className="text-gray-700 font-bold text-base mb-1">🤔 이 날짜에는 운임 변경 기록이 없습니다</p>
-                  <p className="text-xs text-gray-500 font-medium">다른 날짜를 선택해보세요 ✨</p>
+                  <p className="text-gray-700 font-bold text-base mb-1">📅 이 날짜에는 운임 변경 기록이 없습니다</p>
+                  <p className="text-xs text-gray-500 font-medium">하지만 이 날짜에 유효했던 운임으로 계산할 수 있습니다 ✨</p>
                 </div>
               )
             ) : (

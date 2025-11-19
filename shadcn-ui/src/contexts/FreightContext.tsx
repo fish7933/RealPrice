@@ -820,6 +820,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
           pol: freight.pol,
           pod: freight.pod,
           rate: freight.rate,
+          llocal: freight.llocal,
           carrier: freight.carrier,
           note: freight.note,
           version: freight.version,
@@ -837,6 +838,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
         pol: data.pol,
         pod: data.pod,
         rate: data.rate,
+        llocal: data.llocal,
         carrier: data.carrier,
         note: data.note,
         version: data.version,
@@ -845,6 +847,21 @@ export function FreightProvider({ children }: { children: ReactNode }) {
         createdAt: data.created_at,
       };
       setAgentSeaFreights([...agentSeaFreights, newFreight]);
+
+      // ✅ Create audit log for add operation
+      await createAuditLog(
+        'agentSeaFreight',
+        newFreight.id,
+        'create',
+        detectChanges(null, newFreight as unknown as Record<string, unknown>),
+        newFreight as unknown as Record<string, unknown>,
+        user,
+        newFreight.version || 1
+      );
+
+      // Reload audit logs
+      const reloadedAuditLogs = await loadAuditLogs();
+      setFreightAuditLogs(reloadedAuditLogs);
     } catch (error) {
       console.error('Error adding agent sea freight:', error);
       throw error;
@@ -853,24 +870,62 @@ export function FreightProvider({ children }: { children: ReactNode }) {
 
   const updateAgentSeaFreight = async (id: string, updates: Partial<AgentSeaFreight>) => {
     try {
-      const { error } = await supabaseClient
+      // Get old freight data for audit log
+      const oldFreight = agentSeaFreights.find(f => f.id === id);
+
+      const { data, error } = await supabaseClient
         .from(TABLES.AGENT_SEA_FREIGHTS)
         .update({
           agent: updates.agent,
           pol: updates.pol,
           pod: updates.pod,
           rate: updates.rate,
+          llocal: updates.llocal,
           carrier: updates.carrier,
           note: updates.note,
           version: updates.version,
           valid_from: updates.validFrom,
           valid_to: updates.validTo,
         })
-        .eq('id', id);
+        .eq('id', id)
+        .select()
+        .single();
 
       if (error) throw error;
 
       setAgentSeaFreights(agentSeaFreights.map(freight => freight.id === id ? { ...freight, ...updates } : freight));
+
+      // ✅ Create audit log for update operation
+      if (data && oldFreight) {
+        const updatedFreight: AgentSeaFreight = {
+          id: data.id,
+          agent: data.agent,
+          pol: data.pol,
+          pod: data.pod,
+          rate: data.rate,
+          llocal: data.llocal,
+          carrier: data.carrier,
+          note: data.note,
+          version: data.version,
+          validFrom: data.valid_from,
+          validTo: data.valid_to,
+          createdAt: data.created_at,
+        };
+
+        await createAuditLog(
+          'agentSeaFreight',
+          id,
+          'update',
+          detectChanges(oldFreight as unknown as Record<string, unknown>, updatedFreight as unknown as Record<string, unknown>),
+          updatedFreight as unknown as Record<string, unknown>,
+          user,
+          updatedFreight.version || 1
+        );
+
+        // Reload audit logs
+        const reloadedAuditLogs = await loadAuditLogs();
+        setFreightAuditLogs(reloadedAuditLogs);
+      }
     } catch (error) {
       console.error('Error updating agent sea freight:', error);
       throw error;
@@ -879,6 +934,9 @@ export function FreightProvider({ children }: { children: ReactNode }) {
 
   const deleteAgentSeaFreight = async (id: string) => {
     try {
+      // Get freight data before deletion for audit log
+      const freight = agentSeaFreights.find(f => f.id === id);
+
       const { error } = await supabaseClient
         .from(TABLES.AGENT_SEA_FREIGHTS)
         .delete()
@@ -887,6 +945,23 @@ export function FreightProvider({ children }: { children: ReactNode }) {
       if (error) throw error;
 
       setAgentSeaFreights(agentSeaFreights.filter(freight => freight.id !== id));
+
+      // ✅ Create audit log for delete operation
+      if (freight) {
+        await createAuditLog(
+          'agentSeaFreight',
+          id,
+          'delete',
+          [],
+          freight as unknown as Record<string, unknown>,
+          user,
+          freight.version || 1
+        );
+
+        // Reload audit logs
+        const reloadedAuditLogs = await loadAuditLogs();
+        setFreightAuditLogs(reloadedAuditLogs);
+      }
     } catch (error) {
       console.error('Error deleting agent sea freight:', error);
       throw error;
@@ -928,6 +1003,21 @@ export function FreightProvider({ children }: { children: ReactNode }) {
         createdAt: data.created_at,
       };
       setDthcList([...dthcList, newDTHC]);
+
+      // ✅ Create audit log for add operation
+      await createAuditLog(
+        'dthc',
+        newDTHC.id,
+        'create',
+        detectChanges(null, newDTHC as unknown as Record<string, unknown>),
+        newDTHC as unknown as Record<string, unknown>,
+        user,
+        newDTHC.version || 1
+      );
+
+      // Reload audit logs
+      const reloadedAuditLogs = await loadAuditLogs();
+      setFreightAuditLogs(reloadedAuditLogs);
     } catch (error) {
       console.error('Error adding DTHC:', error);
       throw error;
@@ -936,7 +1026,10 @@ export function FreightProvider({ children }: { children: ReactNode }) {
 
   const updateDTHC = async (id: string, updates: Partial<DTHC>) => {
     try {
-      const { error } = await supabaseClient
+      // Get old DTHC data for audit log
+      const oldDTHC = dthcList.find(d => d.id === id);
+
+      const { data, error } = await supabaseClient
         .from(TABLES.DTHC)
         .update({
           agent: updates.agent,
@@ -949,11 +1042,44 @@ export function FreightProvider({ children }: { children: ReactNode }) {
           valid_from: updates.validFrom,
           valid_to: updates.validTo,
         })
-        .eq('id', id);
+        .eq('id', id)
+        .select()
+        .single();
 
       if (error) throw error;
 
       setDthcList(dthcList.map(dthc => dthc.id === id ? { ...dthc, ...updates } : dthc));
+
+      // ✅ Create audit log for update operation
+      if (data && oldDTHC) {
+        const updatedDTHC: DTHC = {
+          id: data.id,
+          agent: data.agent,
+          pol: data.pol,
+          pod: data.pod,
+          carrier: data.carrier,
+          amount: data.amount,
+          description: data.description,
+          version: data.version,
+          validFrom: data.valid_from,
+          validTo: data.valid_to,
+          createdAt: data.created_at,
+        };
+
+        await createAuditLog(
+          'dthc',
+          id,
+          'update',
+          detectChanges(oldDTHC as unknown as Record<string, unknown>, updatedDTHC as unknown as Record<string, unknown>),
+          updatedDTHC as unknown as Record<string, unknown>,
+          user,
+          updatedDTHC.version || 1
+        );
+
+        // Reload audit logs
+        const reloadedAuditLogs = await loadAuditLogs();
+        setFreightAuditLogs(reloadedAuditLogs);
+      }
     } catch (error) {
       console.error('Error updating DTHC:', error);
       throw error;
@@ -962,6 +1088,9 @@ export function FreightProvider({ children }: { children: ReactNode }) {
 
   const deleteDTHC = async (id: string) => {
     try {
+      // Get DTHC data before deletion for audit log
+      const dthc = dthcList.find(d => d.id === id);
+
       const { error } = await supabaseClient
         .from(TABLES.DTHC)
         .delete()
@@ -970,6 +1099,23 @@ export function FreightProvider({ children }: { children: ReactNode }) {
       if (error) throw error;
 
       setDthcList(dthcList.filter(dthc => dthc.id !== id));
+
+      // ✅ Create audit log for delete operation
+      if (dthc) {
+        await createAuditLog(
+          'dthc',
+          id,
+          'delete',
+          [],
+          dthc as unknown as Record<string, unknown>,
+          user,
+          dthc.version || 1
+        );
+
+        // Reload audit logs
+        const reloadedAuditLogs = await loadAuditLogs();
+        setFreightAuditLogs(reloadedAuditLogs);
+      }
     } catch (error) {
       console.error('Error deleting DTHC:', error);
       throw error;
@@ -1005,6 +1151,21 @@ export function FreightProvider({ children }: { children: ReactNode }) {
         createdAt: data.created_at,
       };
       setDpCosts([...dpCosts, newCost]);
+
+      // ✅ Create audit log for add operation
+      await createAuditLog(
+        'dpCost',
+        newCost.id,
+        'create',
+        detectChanges(null, newCost as unknown as Record<string, unknown>),
+        newCost as unknown as Record<string, unknown>,
+        user,
+        newCost.version || 1
+      );
+
+      // Reload audit logs
+      const reloadedAuditLogs = await loadAuditLogs();
+      setFreightAuditLogs(reloadedAuditLogs);
     } catch (error) {
       console.error('Error adding DP cost:', error);
       throw error;
@@ -1013,7 +1174,10 @@ export function FreightProvider({ children }: { children: ReactNode }) {
 
   const updateDPCost = async (id: string, updates: Partial<DPCost>) => {
     try {
-      const { error } = await supabaseClient
+      // Get old DP cost data for audit log
+      const oldCost = dpCosts.find(c => c.id === id);
+
+      const { data, error } = await supabaseClient
         .from(TABLES.DP_COSTS)
         .update({
           port: updates.port,
@@ -1023,11 +1187,41 @@ export function FreightProvider({ children }: { children: ReactNode }) {
           valid_from: updates.validFrom,
           valid_to: updates.validTo,
         })
-        .eq('id', id);
+        .eq('id', id)
+        .select()
+        .single();
 
       if (error) throw error;
 
       setDpCosts(dpCosts.map(cost => cost.id === id ? { ...cost, ...updates } : cost));
+
+      // ✅ Create audit log for update operation
+      if (data && oldCost) {
+        const updatedCost: DPCost = {
+          id: data.id,
+          port: data.port,
+          amount: data.amount,
+          description: data.description,
+          version: data.version,
+          validFrom: data.valid_from,
+          validTo: data.valid_to,
+          createdAt: data.created_at,
+        };
+
+        await createAuditLog(
+          'dpCost',
+          id,
+          'update',
+          detectChanges(oldCost as unknown as Record<string, unknown>, updatedCost as unknown as Record<string, unknown>),
+          updatedCost as unknown as Record<string, unknown>,
+          user,
+          updatedCost.version || 1
+        );
+
+        // Reload audit logs
+        const reloadedAuditLogs = await loadAuditLogs();
+        setFreightAuditLogs(reloadedAuditLogs);
+      }
     } catch (error) {
       console.error('Error updating DP cost:', error);
       throw error;
@@ -1036,6 +1230,9 @@ export function FreightProvider({ children }: { children: ReactNode }) {
 
   const deleteDPCost = async (id: string) => {
     try {
+      // Get DP cost data before deletion for audit log
+      const cost = dpCosts.find(c => c.id === id);
+
       const { error } = await supabaseClient
         .from(TABLES.DP_COSTS)
         .delete()
@@ -1044,6 +1241,23 @@ export function FreightProvider({ children }: { children: ReactNode }) {
       if (error) throw error;
 
       setDpCosts(dpCosts.filter(cost => cost.id !== id));
+
+      // ✅ Create audit log for delete operation
+      if (cost) {
+        await createAuditLog(
+          'dpCost',
+          id,
+          'delete',
+          [],
+          cost as unknown as Record<string, unknown>,
+          user,
+          cost.version || 1
+        );
+
+        // Reload audit logs
+        const reloadedAuditLogs = await loadAuditLogs();
+        setFreightAuditLogs(reloadedAuditLogs);
+      }
     } catch (error) {
       console.error('Error deleting DP cost:', error);
       throw error;
@@ -1059,7 +1273,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
         .from(TABLES.COMBINED_FREIGHTS)
         .insert({
           agent: freight.agent,
-          pol: freight.pol,  // ✅ FIXED: Added missing pol field
+          pol: freight.pol,
           pod: freight.pod,
           destination_id: freight.destinationId,
           rate: freight.rate,
@@ -1081,7 +1295,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
       const newFreight: CombinedFreight = {
         id: data.id,
         agent: data.agent,
-        pol: data.pol,  // ✅ FIXED: Added pol to response mapping
+        pol: data.pol,
         pod: data.pod,
         destinationId: data.destination_id,
         rate: data.rate,
@@ -1092,8 +1306,23 @@ export function FreightProvider({ children }: { children: ReactNode }) {
         createdAt: data.created_at,
       };
       setCombinedFreights([...combinedFreights, newFreight]);
+
+      // ✅ Create audit log for add operation
+      await createAuditLog(
+        'combinedFreight',
+        newFreight.id,
+        'create',
+        detectChanges(null, newFreight as unknown as Record<string, unknown>),
+        newFreight as unknown as Record<string, unknown>,
+        user,
+        newFreight.version || 1
+      );
+
+      // Reload audit logs
+      const reloadedAuditLogs = await loadAuditLogs();
+      setFreightAuditLogs(reloadedAuditLogs);
       
-      console.log('✅ [addCombinedFreight] Combined freight added successfully with POL:', data.pol);
+      console.log('✅ [addCombinedFreight] Combined freight added successfully with audit log');
     } catch (error) {
       console.error('💥 [addCombinedFreight] Error adding combined freight:', error);
       throw error;
@@ -1102,11 +1331,16 @@ export function FreightProvider({ children }: { children: ReactNode }) {
 
   const updateCombinedFreight = async (id: string, updates: Partial<CombinedFreight>) => {
     try {
-      const { error } = await supabaseClient
+      console.log('🔍 [updateCombinedFreight] Starting update for ID:', id);
+
+      // Get old freight data for audit log
+      const oldFreight = combinedFreights.find(f => f.id === id);
+
+      const { data, error } = await supabaseClient
         .from(TABLES.COMBINED_FREIGHTS)
         .update({
           agent: updates.agent,
-          pol: updates.pol,  // ✅ FIXED: Added pol to update
+          pol: updates.pol,
           pod: updates.pod,
           destination_id: updates.destinationId,
           rate: updates.rate,
@@ -1115,11 +1349,46 @@ export function FreightProvider({ children }: { children: ReactNode }) {
           valid_from: updates.validFrom,
           valid_to: updates.validTo,
         })
-        .eq('id', id);
+        .eq('id', id)
+        .select()
+        .single();
 
       if (error) throw error;
 
       setCombinedFreights(combinedFreights.map(freight => freight.id === id ? { ...freight, ...updates } : freight));
+
+      // ✅ Create audit log for update operation
+      if (data && oldFreight) {
+        const updatedFreight: CombinedFreight = {
+          id: data.id,
+          agent: data.agent,
+          pol: data.pol,
+          pod: data.pod,
+          destinationId: data.destination_id,
+          rate: data.rate,
+          description: data.description,
+          version: data.version,
+          validFrom: data.valid_from,
+          validTo: data.valid_to,
+          createdAt: data.created_at,
+        };
+
+        await createAuditLog(
+          'combinedFreight',
+          id,
+          'update',
+          detectChanges(oldFreight as unknown as Record<string, unknown>, updatedFreight as unknown as Record<string, unknown>),
+          updatedFreight as unknown as Record<string, unknown>,
+          user,
+          updatedFreight.version || 1
+        );
+
+        // Reload audit logs
+        const reloadedAuditLogs = await loadAuditLogs();
+        setFreightAuditLogs(reloadedAuditLogs);
+
+        console.log('✅ [updateCombinedFreight] Combined freight updated successfully with audit log');
+      }
     } catch (error) {
       console.error('Error updating combined freight:', error);
       throw error;
@@ -1128,6 +1397,11 @@ export function FreightProvider({ children }: { children: ReactNode }) {
 
   const deleteCombinedFreight = async (id: string) => {
     try {
+      console.log('🗑️ [deleteCombinedFreight] Starting delete for ID:', id);
+
+      // Get freight data before deletion for audit log
+      const freight = combinedFreights.find(f => f.id === id);
+
       const { error } = await supabaseClient
         .from(TABLES.COMBINED_FREIGHTS)
         .delete()
@@ -1136,6 +1410,25 @@ export function FreightProvider({ children }: { children: ReactNode }) {
       if (error) throw error;
 
       setCombinedFreights(combinedFreights.filter(freight => freight.id !== id));
+
+      // ✅ Create audit log for delete operation
+      if (freight) {
+        await createAuditLog(
+          'combinedFreight',
+          id,
+          'delete',
+          [],
+          freight as unknown as Record<string, unknown>,
+          user,
+          freight.version || 1
+        );
+
+        // Reload audit logs
+        const reloadedAuditLogs = await loadAuditLogs();
+        setFreightAuditLogs(reloadedAuditLogs);
+
+        console.log('✅ [deleteCombinedFreight] Combined freight deleted successfully with audit log');
+      }
     } catch (error) {
       console.error('Error deleting combined freight:', error);
       throw error;
@@ -1346,6 +1639,21 @@ export function FreightProvider({ children }: { children: ReactNode }) {
         createdAt: data.created_at,
       };
       setBorderDestinationFreights([...borderDestinationFreights, newFreight]);
+
+      // ✅ Create audit log for add operation
+      await createAuditLog(
+        'borderDestinationFreight',
+        newFreight.id,
+        'create',
+        detectChanges(null, newFreight as unknown as Record<string, unknown>),
+        newFreight as unknown as Record<string, unknown>,
+        user,
+        newFreight.version || 1
+      );
+
+      // Reload audit logs
+      const reloadedAuditLogs = await loadAuditLogs();
+      setFreightAuditLogs(reloadedAuditLogs);
     } catch (error) {
       console.error('Error adding border destination freight:', error);
       throw error;
@@ -1354,7 +1662,10 @@ export function FreightProvider({ children }: { children: ReactNode }) {
 
   const updateBorderDestinationFreight = async (id: string, updates: Partial<BorderDestinationFreight>) => {
     try {
-      const { error } = await supabaseClient
+      // Get old freight data for audit log
+      const oldFreight = borderDestinationFreights.find(f => f.id === id);
+
+      const { data, error } = await supabaseClient
         .from(TABLES.BORDER_DESTINATION_FREIGHTS)
         .update({
           agent: updates.agent,
@@ -1364,7 +1675,9 @@ export function FreightProvider({ children }: { children: ReactNode }) {
           valid_from: updates.validFrom,
           valid_to: updates.validTo,
         })
-        .eq('id', id);
+        .eq('id', id)
+        .select()
+        .single();
 
       if (error) throw error;
 
@@ -1372,6 +1685,34 @@ export function FreightProvider({ children }: { children: ReactNode }) {
       setBorderDestinationFreights(borderDestinationFreights.map(freight => 
         freight.id === id ? { ...freight, ...updates } : freight
       ));
+
+      // ✅ Create audit log for update operation
+      if (data && oldFreight) {
+        const updatedFreight: BorderDestinationFreight = {
+          id: data.id,
+          agent: data.agent,
+          destinationId: data.destination_id,
+          rate: data.rate,
+          version: data.version,
+          validFrom: data.valid_from,
+          validTo: data.valid_to,
+          createdAt: data.created_at,
+        };
+
+        await createAuditLog(
+          'borderDestinationFreight',
+          id,
+          'update',
+          detectChanges(oldFreight as unknown as Record<string, unknown>, updatedFreight as unknown as Record<string, unknown>),
+          updatedFreight as unknown as Record<string, unknown>,
+          user,
+          updatedFreight.version || 1
+        );
+
+        // Reload audit logs
+        const reloadedAuditLogs = await loadAuditLogs();
+        setFreightAuditLogs(reloadedAuditLogs);
+      }
     } catch (error) {
       console.error('Error updating border destination freight:', error);
       throw error;
@@ -1380,6 +1721,9 @@ export function FreightProvider({ children }: { children: ReactNode }) {
 
   const deleteBorderDestinationFreight = async (id: string) => {
     try {
+      // Get freight data before deletion for audit log
+      const freight = borderDestinationFreights.find(f => f.id === id);
+
       const { error } = await supabaseClient
         .from(TABLES.BORDER_DESTINATION_FREIGHTS)
         .delete()
@@ -1388,6 +1732,23 @@ export function FreightProvider({ children }: { children: ReactNode }) {
       if (error) throw error;
 
       setBorderDestinationFreights(borderDestinationFreights.filter(freight => freight.id !== id));
+
+      // ✅ Create audit log for delete operation
+      if (freight) {
+        await createAuditLog(
+          'borderDestinationFreight',
+          id,
+          'delete',
+          [],
+          freight as unknown as Record<string, unknown>,
+          user,
+          freight.version || 1
+        );
+
+        // Reload audit logs
+        const reloadedAuditLogs = await loadAuditLogs();
+        setFreightAuditLogs(reloadedAuditLogs);
+      }
     } catch (error) {
       console.error('Error deleting border destination freight:', error);
       throw error;
@@ -1573,6 +1934,21 @@ export function FreightProvider({ children }: { children: ReactNode }) {
         createdAt: data.created_at,
       };
       setWeightSurchargeRules([...weightSurchargeRules, newRule]);
+
+      // ✅ Create audit log for add operation
+      await createAuditLog(
+        'weightSurchargeRule',
+        newRule.id,
+        'create',
+        detectChanges(null, newRule as unknown as Record<string, unknown>),
+        newRule as unknown as Record<string, unknown>,
+        user,
+        newRule.version || 1
+      );
+
+      // Reload audit logs
+      const reloadedAuditLogs = await loadAuditLogs();
+      setFreightAuditLogs(reloadedAuditLogs);
     } catch (error) {
       console.error('Error adding weight surcharge rule:', error);
       throw error;
@@ -1581,7 +1957,10 @@ export function FreightProvider({ children }: { children: ReactNode }) {
 
   const updateWeightSurchargeRule = async (id: string, updates: Partial<WeightSurchargeRule>) => {
     try {
-      const { error } = await supabaseClient
+      // Get old rule data for audit log
+      const oldRule = weightSurchargeRules.find(r => r.id === id);
+
+      const { data, error } = await supabaseClient
         .from(TABLES.WEIGHT_SURCHARGE_RULES)
         .update({
           agent: updates.agent,
@@ -1592,11 +1971,42 @@ export function FreightProvider({ children }: { children: ReactNode }) {
           valid_from: updates.validFrom,
           valid_to: updates.validTo,
         })
-        .eq('id', id);
+        .eq('id', id)
+        .select()
+        .single();
 
       if (error) throw error;
 
       setWeightSurchargeRules(weightSurchargeRules.map(rule => rule.id === id ? { ...rule, ...updates } : rule));
+
+      // ✅ Create audit log for update operation
+      if (data && oldRule) {
+        const updatedRule: WeightSurchargeRule = {
+          id: data.id,
+          agent: data.agent,
+          minWeight: data.min_weight,
+          maxWeight: data.max_weight,
+          surcharge: data.surcharge,
+          version: data.version,
+          validFrom: data.valid_from,
+          validTo: data.valid_to,
+          createdAt: data.created_at,
+        };
+
+        await createAuditLog(
+          'weightSurchargeRule',
+          id,
+          'update',
+          detectChanges(oldRule as unknown as Record<string, unknown>, updatedRule as unknown as Record<string, unknown>),
+          updatedRule as unknown as Record<string, unknown>,
+          user,
+          updatedRule.version || 1
+        );
+
+        // Reload audit logs
+        const reloadedAuditLogs = await loadAuditLogs();
+        setFreightAuditLogs(reloadedAuditLogs);
+      }
     } catch (error) {
       console.error('Error updating weight surcharge rule:', error);
       throw error;
@@ -1605,6 +2015,9 @@ export function FreightProvider({ children }: { children: ReactNode }) {
 
   const deleteWeightSurchargeRule = async (id: string) => {
     try {
+      // Get rule data before deletion for audit log
+      const rule = weightSurchargeRules.find(r => r.id === id);
+
       const { error } = await supabaseClient
         .from(TABLES.WEIGHT_SURCHARGE_RULES)
         .delete()
@@ -1613,6 +2026,23 @@ export function FreightProvider({ children }: { children: ReactNode }) {
       if (error) throw error;
 
       setWeightSurchargeRules(weightSurchargeRules.filter(rule => rule.id !== id));
+
+      // ✅ Create audit log for delete operation
+      if (rule) {
+        await createAuditLog(
+          'weightSurchargeRule',
+          id,
+          'delete',
+          [],
+          rule as unknown as Record<string, unknown>,
+          user,
+          rule.version || 1
+        );
+
+        // Reload audit logs
+        const reloadedAuditLogs = await loadAuditLogs();
+        setFreightAuditLogs(reloadedAuditLogs);
+      }
     } catch (error) {
       console.error('Error deleting weight surcharge rule:', error);
       throw error;

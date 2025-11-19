@@ -52,6 +52,30 @@ export const calculateCost = (
   const currentBorderDestinationFreights = getDataSource(borderDestinationFreights, snapshot?.borderDestinationFreights);
   const currentWeightSurchargeRules = getDataSource(weightSurchargeRules, snapshot?.weightSurchargeRules);
 
+  // 🆕 DIAGNOSTIC: Log what data is actually available
+  console.log('\n🔍 ===== 데이터 진단 =====');
+  console.log('📦 combinedFreights 배열 길이:', currentCombinedFreights.length);
+  console.log('📦 portBorderFreights 배열 길이:', currentPortBorderFreights.length);
+  
+  if (currentCombinedFreights.length > 0) {
+    console.log('📋 통합운임 샘플 (처음 3개):');
+    currentCombinedFreights.slice(0, 3).forEach((f, i) => {
+      console.log(`   ${i + 1}. agent="${f.agent}", pol="${f.pol}", pod="${f.pod}", destinationId="${f.destinationId}"`);
+    });
+  } else {
+    console.log('⚠️ 통합운임 데이터가 비어있습니다!');
+  }
+  
+  if (currentPortBorderFreights.length > 0) {
+    console.log('📋 철도운임 샘플 (처음 3개):');
+    currentPortBorderFreights.slice(0, 3).forEach((f, i) => {
+      console.log(`   ${i + 1}. agent="${f.agent}", pol="${f.pol}", pod="${f.pod}"`);
+    });
+  } else {
+    console.log('⚠️ 철도운임 데이터가 비어있습니다!');
+  }
+  console.log('🔍 ===== 데이터 진단 완료 =====\n');
+
   // Helper function to get agent code
   const getRailAgentCode = (agentName: string): string | undefined => {
     const agent = railAgents.find(a => a.name === agentName);

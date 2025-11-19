@@ -86,13 +86,14 @@ export const getAgentSeaFreightVersion = (
   return maxVersion + 1;
 };
 
-// ✅ FIXED: Filter data by date BEFORE calculation
+// ✅ FIXED: Filter data by date - defaults to TODAY if no date provided
 export const filterByDate = <T extends { validFrom: string; validTo: string }>(
   items: T[],
   date?: string
 ): T[] => {
-  if (!date) return items;
-  return items.filter(item => isValidOnDate(item.validFrom, item.validTo, date));
+  // ✅ If no date provided, use today's date
+  const targetDate = date || new Date().toISOString().split('T')[0];
+  return items.filter(item => isValidOnDate(item.validFrom, item.validTo, targetDate));
 };
 
 // Get sea freight options

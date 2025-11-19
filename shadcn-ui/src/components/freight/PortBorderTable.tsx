@@ -38,7 +38,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 interface VersionChangeData {
   agent: string;
   pol: string;
-  rates: { [pod: string]: number };
+  rates: { [pod: string]: number | null };  // ✅ null을 허용하여 "운임 없음" 표현
   validFrom: string;
   validTo: string;
   currentVersion: number;
@@ -125,15 +125,9 @@ export default function PortBorderTable() {
   }, [formData.agent, formData.pol, isAddDialogOpen]);
 
   const handleAdd = () => {
-    // 🔍 DEBUG: Log the entire formData at the start
     console.log('=== handleAdd 시작 ===');
     console.log('전체 formData:', JSON.stringify(formData, null, 2));
-    console.log('formData.agent:', formData.agent, '(type:', typeof formData.agent, ')');
-    console.log('formData.pol:', formData.pol, '(type:', typeof formData.pol, ')');
-    console.log('formData.validFrom:', formData.validFrom);
-    console.log('formData.validTo:', formData.validTo);
     
-    // ✅ Enhanced validation with explicit checks and error messages
     if (!formData.agent || formData.agent.trim() === '') {
       console.error('❌ 검증 실패: agent가 비어있음');
       setValidationError('❌ 철도 대리점을 선택해주세요.');
@@ -142,13 +136,9 @@ export default function PortBorderTable() {
     
     if (!formData.pol || formData.pol.trim() === '') {
       console.error('❌ 검증 실패: pol이 비어있음');
-      console.log('현재 pol 값:', formData.pol);
-      console.log('사용 가능한 POL 포트:', polPorts.map(p => p.name));
       setValidationError('❌ 선적포트(POL)를 선택해주세요.');
       return;
     }
-    
-    console.log('✅ agent 및 pol 검증 통과');
     
     if (!formData.validFrom || formData.validFrom.trim() === '') {
       console.error('❌ 검증 실패: validFrom이 비어있음');
@@ -163,14 +153,11 @@ export default function PortBorderTable() {
     }
 
     const hasAnyRate = podPorts.some(pod => formData[pod.name] && formData[pod.name] !== '');
-    console.log('운임 입력 확인:', hasAnyRate);
     if (!hasAnyRate) {
       console.error('❌ 검증 실패: 운임이 하나도 입력되지 않음');
       setValidationError('❌ 최소 하나 이상의 양하포트 운임을 입력해주세요.');
       return;
     }
-
-    console.log('✅ 모든 필수 필드 검증 통과');
 
     // Validate no overlap for each POD
     for (const pod of podPorts) {
@@ -195,7 +182,6 @@ export default function PortBorderTable() {
       }
     }
 
-    console.log('✅ 유효기간 중복 검증 통과');
     console.log('=== 운임 추가/수정 시작 ===');
 
     // Add or update freights for each POD
@@ -214,15 +200,9 @@ export default function PortBorderTable() {
           validTo: formData.validTo,
         };
 
-        console.log(`\n--- ${pod.name} 처리 ---`);
-        console.log('운임 데이터:', JSON.stringify(freightData, null, 2));
-
         if (existingFreight) {
-          console.log(`기존 운임 수정 (ID: ${existingFreight.id})`);
           updatePortBorderFreight(existingFreight.id, freightData);
         } else {
-          console.log('새 운임 추가');
-          console.log('addPortBorderFreight 호출 전 pol 값:', freightData.pol);
           addPortBorderFreight(freightData);
         }
       }
@@ -270,13 +250,16 @@ export default function PortBorderTable() {
       validTo = nextMonth.toISOString().split('T')[0];
     }
 
-    const rates: { [pod: string]: number } = {};
+    // ✅ rates를 null을 포함하도록 초기화 (운임 없음 = null, 운임 0 = 0)
+    const rates: { [pod: string]: number | null } = {};
     const ids: string[] = [];
     podPorts.forEach(pod => {
       const freight = freights[pod.name];
       if (freight) {
         rates[pod.name] = freight.rate;
         ids.push(freight.id);
+      } else {
+        rates[pod.name] = null;  // ✅ 운임 없음을 명시적으로 null로 표현
       }
     });
 
@@ -294,35 +277,69 @@ export default function PortBorderTable() {
     setIsVersionChangeDialogOpen(true);
   };
 
-  const handleVersionChangeSave = () => {
+  const handleVersionChangeSave = async () => {
     if (!versionChangeData) return;
 
-    const hasAnyRate = Object.values(versionChangeData.rates).some(rate => rate > 0);
+    console.log('🔄 [VERSION CHANGE] Starting version change save...');
+    console.log('📊 [VERSION CHANGE] Current rates:', versionChangeData.rates);
+
+    // ✅ 최소 하나의 운임이 입력되었는지 확인 (null이 아닌 값)
+    const hasAnyRate = Object.values(versionChangeData.rates).some(rate => rate !== null);
     if (!hasAnyRate || !versionChangeData.validFrom || !versionChangeData.validTo) {
       setValidationError('❌ 모든 필수 항목을 입력해주세요.');
       return;
     }
 
-    podPorts.forEach(pod => {
-      if (versionChangeData.rates[pod.name] && versionChangeData.rates[pod.name] > 0) {
+    try {
+      // ✅ 각 POD에 대해 처리
+      for (const pod of podPorts) {
+        const newRate = versionChangeData.rates[pod.name];
         const existingFreight = portBorderFreights.find(
           f => f.agent === versionChangeData.agent && f.pol === versionChangeData.pol && f.pod === pod.name
         );
 
-        if (existingFreight) {
-          updatePortBorderFreight(existingFreight.id, {
-            rate: versionChangeData.rates[pod.name],
-            validFrom: versionChangeData.validFrom,
-            validTo: versionChangeData.validTo,
-          });
+        console.log(`\n--- ${pod.name} 처리 ---`);
+        console.log('새 운임:', newRate);
+        console.log('기존 운임:', existingFreight);
+
+        if (newRate !== null) {
+          // ✅ 운임이 입력된 경우 (0 포함)
+          if (existingFreight) {
+            console.log(`✏️ [VERSION CHANGE] Updating freight for ${pod.name}`);
+            await updatePortBorderFreight(existingFreight.id, {
+              rate: newRate,
+              validFrom: versionChangeData.validFrom,
+              validTo: versionChangeData.validTo,
+            });
+          } else {
+            console.log(`➕ [VERSION CHANGE] Adding new freight for ${pod.name}`);
+            await addPortBorderFreight({
+              agent: versionChangeData.agent,
+              pol: versionChangeData.pol,
+              pod: pod.name,
+              rate: newRate,
+              validFrom: versionChangeData.validFrom,
+              validTo: versionChangeData.validTo,
+            });
+          }
+        } else {
+          // ✅ 운임이 null인 경우 (운임 없음) - 기존 운임이 있으면 삭제
+          if (existingFreight) {
+            console.log(`🗑️ [VERSION CHANGE] Deleting freight for ${pod.name}`);
+            await deletePortBorderFreight(existingFreight.id);
+          }
         }
       }
-    });
 
-    setIsVersionChangeDialogOpen(false);
-    setVersionChangeData(null);
-    setOriginalFreightIds([]);
-    setValidationError(null);
+      console.log('✅ [VERSION CHANGE] Version change completed successfully');
+      setIsVersionChangeDialogOpen(false);
+      setVersionChangeData(null);
+      setOriginalFreightIds([]);
+      setValidationError(null);
+    } catch (error) {
+      console.error('❌ [VERSION CHANGE] Error during version change:', error);
+      setValidationError('버전 변경 중 오류가 발생했습니다.');
+    }
   };
 
   const handleVersionChangeCancel = () => {
@@ -332,7 +349,7 @@ export default function PortBorderTable() {
     setValidationError(null);
   };
 
-  const handleDeleteAgent = (agent: string, pol: string, freights: { [pod: string]: PortBorderFreight | undefined }) => {
+  const handleDeleteAgent = async (agent: string, pol: string, freights: { [pod: string]: PortBorderFreight | undefined }) => {
     const freightIds = Object.values(freights)
       .filter(f => f !== undefined)
       .map(f => f!.id);
@@ -340,9 +357,18 @@ export default function PortBorderTable() {
     if (freightIds.length === 0) return;
     
     if (confirm(`${agent} (${pol})의 모든 철도운임(${freightIds.length}개)을 삭제하시겠습니까?`)) {
-      freightIds.forEach(id => {
-        deletePortBorderFreight(id);
-      });
+      console.log('🗑️ [DELETE] Starting deletion of all freights:', freightIds);
+      
+      try {
+        // ✅ 모든 운임을 순차적으로 삭제
+        for (const id of freightIds) {
+          console.log(`🗑️ [DELETE] Deleting freight ID: ${id}`);
+          await deletePortBorderFreight(id);
+        }
+        console.log('✅ [DELETE] All freights deleted successfully');
+      } catch (error) {
+        console.error('❌ [DELETE] Error during deletion:', error);
+      }
     }
   };
 
@@ -473,7 +499,11 @@ export default function PortBorderTable() {
                     return (
                       <TableCell key={pod.id}>
                         {freight ? (
-                          <span className="font-semibold text-green-700">${freight.rate}</span>
+                          freight.rate === 0 ? (
+                            <span className="font-semibold text-orange-600">$0</span>
+                          ) : (
+                            <span className="font-semibold text-green-700">${freight.rate}</span>
+                          )
                         ) : (
                           <span className="text-gray-400">-</span>
                         )}
@@ -558,7 +588,6 @@ export default function PortBorderTable() {
             <div className="space-y-2">
               <Label>철도 대리점 *</Label>
               <Select value={formData.agent} onValueChange={(value) => {
-                console.log('🔍 Agent 선택:', value);
                 setFormData({ ...formData, agent: value });
                 setValidationError(null);
               }}>
@@ -577,8 +606,6 @@ export default function PortBorderTable() {
             <div className="space-y-2">
               <Label>선적포트 (POL) *</Label>
               <Select value={formData.pol} onValueChange={(value) => {
-                console.log('🔍 POL 선택:', value);
-                console.log('🔍 선택 후 formData:', { ...formData, pol: value });
                 setFormData({ ...formData, pol: value });
                 setValidationError(null);
               }}>
@@ -594,9 +621,6 @@ export default function PortBorderTable() {
                   ))}
                 </SelectContent>
               </Select>
-              <div className="text-xs text-gray-500 mt-1">
-                현재 선택된 POL: {formData.pol || '(선택 안됨)'}
-              </div>
             </div>
             <div className="space-y-2">
               <Label>유효기간 *</Label>
@@ -652,6 +676,8 @@ export default function PortBorderTable() {
             </DialogTitle>
             <DialogDescription>
               새로운 버전의 철도운임 정보를 수정하세요. 버전이 자동으로 증가하고 유효기간이 설정됩니다.
+              <br />
+              <span className="text-orange-600 font-medium">💡 운임을 비우면 해당 포트의 운임이 삭제됩니다.</span>
             </DialogDescription>
           </DialogHeader>
           {versionChangeData && (
@@ -730,13 +756,15 @@ export default function PortBorderTable() {
                       </Label>
                       <Input
                         type="number"
-                        value={versionChangeData.rates[pod.name] || 0}
+                        placeholder="운임 입력 (비우면 삭제)"
+                        value={versionChangeData.rates[pod.name] === null ? '' : versionChangeData.rates[pod.name]}
                         onChange={(e) => {
+                          const value = e.target.value;
                           setVersionChangeData({
                             ...versionChangeData,
                             rates: {
                               ...versionChangeData.rates,
-                              [pod.name]: Number(e.target.value)
+                              [pod.name]: value === '' ? null : Number(value)
                             }
                           });
                           setValidationError(null);

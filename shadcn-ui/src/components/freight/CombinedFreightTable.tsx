@@ -28,7 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Trash2, Plus, AlertTriangle, Search, X, ChevronLeft, ChevronRight, Merge, Sparkles, Edit } from 'lucide-react';
+import { Trash2, Plus, AlertTriangle, Search, X, ChevronLeft, ChevronRight, Merge, Edit } from 'lucide-react';
 import { CombinedFreight } from '@/types/freight';
 import AuditLogTable from './AuditLogTable';
 import { ValidityPeriodInput } from '@/components/ui/validity-period-input';
@@ -133,7 +133,8 @@ export default function CombinedFreightTable() {
         }
       }
       return true;
-    });
+    })
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }, [combinedFreights, searchFilters]);
 
   const totalPages = Math.ceil(filteredFreights.length / ITEMS_PER_PAGE);
@@ -282,20 +283,18 @@ export default function CombinedFreightTable() {
 
   return (
     <div className="space-y-4">
-      {/* Header - Compact */}
-      <div className="relative overflow-hidden rounded-lg bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 p-4 shadow-lg">
-        <div className="absolute inset-0 bg-grid-white/10"></div>
+      {/* Header Section - Compact */}
+      <div className="relative overflow-hidden rounded-lg bg-gray-100 p-3 text-gray-900 shadow-lg">
+        <div className="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-white/10 blur-2xl"></div>
+        <div className="absolute bottom-0 left-0 -mb-4 -ml-4 h-24 w-24 rounded-full bg-white/10 blur-2xl"></div>
         <div className="relative flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <div className="p-1.5 bg-gray-200/80 backdrop-blur-sm rounded-lg">
-              <Merge className="h-5 w-5 text-gray-900" />
+          <div className="flex items-center gap-2">
+            <div className="p-1 bg-gray-200/80 backdrop-blur-sm rounded-lg">
+              <Merge className="h-4 w-4" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                철도+트럭 통합운임
-                <Sparkles className="h-4 w-4 text-yellow-300 animate-pulse" />
-              </h2>
-              <p className="text-xs text-emerald-50">POL → POD → 최종목적지</p>
+              <h2 className="text-lg font-bold">철도+트럭 통합운임</h2>
+              <p className="text-xs text-gray-600">POL → POD → 최종목적지</p>
             </div>
           </div>
           {isAdmin && (
@@ -307,7 +306,7 @@ export default function CombinedFreightTable() {
                 <Button 
                   onClick={() => resetForm()}
                   size="sm"
-                  className="bg-gray-200/80 backdrop-blur-sm hover:bg-gray-300/80 text-gray-900 border border-gray-400"
+                  className="bg-gray-200/80 backdrop-blur-sm hover:bg-gray-300/80 text-gray-900 border border-gray-400 h-7 text-xs"
                 >
                   <Plus className="h-3 w-3 mr-1" />
                   추가
@@ -315,7 +314,12 @@ export default function CombinedFreightTable() {
               </DialogTrigger>
               <DialogContent className="max-w-2xl">
                 <DialogHeader>
-                  <DialogTitle>육상운송 통합운임 추가</DialogTitle>
+                  <DialogTitle className="flex items-center gap-2 text-2xl">
+                    <div className="p-2 bg-gray-200 rounded-lg">
+                      <Merge className="h-5 w-5 text-gray-900" />
+                    </div>
+                    육상운송 통합운임 추가
+                  </DialogTitle>
                   <DialogDescription>
                     새로운 통합 운임을 추가합니다. 선적항에서 양하항을 거쳐 최종목적지까지의 일괄 운임입니다.
                   </DialogDescription>
@@ -347,12 +351,12 @@ export default function CombinedFreightTable() {
                     </Alert>
                   )}
                   <div className="grid gap-2">
-                    <Label htmlFor="agent">대리점 *</Label>
+                    <Label htmlFor="agent" className="text-sm font-semibold text-gray-700">대리점 *</Label>
                     <Select value={formData.agent} onValueChange={(value) => {
                       setFormData({ ...formData, agent: value });
                       setValidationWarning(null);
                     }}>
-                      <SelectTrigger>
+                      <SelectTrigger className="border-gray-300 focus:border-blue-500">
                         <SelectValue placeholder="대리점 선택" />
                       </SelectTrigger>
                       <SelectContent>
@@ -365,13 +369,13 @@ export default function CombinedFreightTable() {
                     </Select>
                   </div>
                   <div className="grid gap-2">
-                    <Label htmlFor="pol">선적항 (POL) *</Label>
+                    <Label htmlFor="pol" className="text-sm font-semibold text-gray-700">선적항 (POL) *</Label>
                     {polPorts.length > 0 ? (
                       <Select value={formData.pol} onValueChange={(value) => {
                         setFormData({ ...formData, pol: value });
                         setValidationWarning(null);
                       }}>
-                        <SelectTrigger>
+                        <SelectTrigger className="border-gray-300 focus:border-blue-500">
                           <SelectValue placeholder="선적항 선택" />
                         </SelectTrigger>
                         <SelectContent>
@@ -389,13 +393,13 @@ export default function CombinedFreightTable() {
                     )}
                   </div>
                   <div className="grid gap-2">
-                    <Label htmlFor="pod">양하항 (POD) *</Label>
+                    <Label htmlFor="pod" className="text-sm font-semibold text-gray-700">양하항 (POD) *</Label>
                     {podPorts.length > 0 ? (
                       <Select value={formData.pod} onValueChange={(value) => {
                         setFormData({ ...formData, pod: value });
                         setValidationWarning(null);
                       }}>
-                        <SelectTrigger>
+                        <SelectTrigger className="border-gray-300 focus:border-blue-500">
                           <SelectValue placeholder="양하항 선택" />
                         </SelectTrigger>
                         <SelectContent>
@@ -413,7 +417,7 @@ export default function CombinedFreightTable() {
                     )}
                   </div>
                   <div className="grid gap-2">
-                    <Label htmlFor="destination">최종목적지 *</Label>
+                    <Label htmlFor="destination" className="text-sm font-semibold text-gray-700">최종목적지 *</Label>
                     <Select
                       value={formData.destinationId}
                       onValueChange={(value) => {
@@ -421,7 +425,7 @@ export default function CombinedFreightTable() {
                         setValidationWarning(null);
                       }}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="border-gray-300 focus:border-blue-500">
                         <SelectValue placeholder="목적지 선택" />
                       </SelectTrigger>
                       <SelectContent>
@@ -434,7 +438,7 @@ export default function CombinedFreightTable() {
                     </Select>
                   </div>
                   <div className="grid gap-2">
-                    <Label htmlFor="rate">통합 운임 (USD) *</Label>
+                    <Label htmlFor="rate" className="text-sm font-semibold text-gray-700">통합 운임 (USD) *</Label>
                     <Input
                       id="rate"
                       type="number"
@@ -442,10 +446,11 @@ export default function CombinedFreightTable() {
                       placeholder="예: 4550"
                       value={formData.rate}
                       onChange={(e) => setFormData({ ...formData, rate: e.target.value })}
+                      className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                     />
                   </div>
                   <div className="grid gap-2">
-                    <Label>유효기간 *</Label>
+                    <Label className="text-sm font-semibold text-gray-700">유효기간 *</Label>
                     <ValidityPeriodInput
                       validFrom={formData.validFrom}
                       validTo={formData.validTo}
@@ -456,23 +461,34 @@ export default function CombinedFreightTable() {
                     />
                   </div>
                   <div className="grid gap-2">
-                    <Label htmlFor="description">설명</Label>
+                    <Label htmlFor="description" className="text-sm font-semibold text-gray-700">설명</Label>
                     <Input
                       id="description"
                       placeholder="예: 인천→청도→OSH 통합 운임"
                       value={formData.description}
                       onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                      className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                     />
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button variant="outline" onClick={() => {
-                    setIsAddDialogOpen(false);
-                    setValidationWarning(null);
-                  }}>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => {
+                      setIsAddDialogOpen(false);
+                      setValidationWarning(null);
+                    }}
+                    className="hover:bg-gray-100"
+                  >
                     취소
                   </Button>
-                  <Button onClick={handleAdd}>추가</Button>
+                  <Button 
+                    onClick={handleAdd}
+                    className="bg-gray-200 hover:bg-gray-300 text-gray-900 shadow-lg"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    추가
+                  </Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
@@ -493,16 +509,18 @@ export default function CombinedFreightTable() {
       )}
 
       {/* Search Filters - Compact */}
-      <div className="p-3 bg-gray-200 rounded-lg border border-emerald-200">
+      <div className="p-4 bg-gradient-to-r from-gray-100 to-gray-200 rounded-lg border-2 border-gray-400 shadow-lg">
         <div className="flex items-center gap-2 mb-2">
-          <Search className="h-3 w-3 text-emerald-600" />
-          <span className="text-xs font-semibold text-emerald-900">검색 필터</span>
+          <div className="p-1 bg-blue-100 rounded">
+            <Search className="h-3 w-3 text-blue-600" />
+          </div>
+          <span className="text-xs font-semibold text-gray-800">검색 필터</span>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2">
           <div className="space-y-1">
-            <Label className="text-xs">대리점</Label>
+            <Label className="text-xs font-semibold text-gray-700">대리점</Label>
             <Select value={searchFilters.agent} onValueChange={(value) => setSearchFilters(prev => ({ ...prev, agent: value }))}>
-              <SelectTrigger className="h-8 text-xs">
+              <SelectTrigger className="h-8 text-xs bg-white">
                 <SelectValue placeholder="전체" />
               </SelectTrigger>
               <SelectContent>
@@ -514,9 +532,9 @@ export default function CombinedFreightTable() {
             </Select>
           </div>
           <div className="space-y-1">
-            <Label className="text-xs">POL</Label>
+            <Label className="text-xs font-semibold text-gray-700">POL</Label>
             <Select value={searchFilters.pol} onValueChange={(value) => setSearchFilters(prev => ({ ...prev, pol: value }))}>
-              <SelectTrigger className="h-8 text-xs">
+              <SelectTrigger className="h-8 text-xs bg-white">
                 <SelectValue placeholder="전체" />
               </SelectTrigger>
               <SelectContent>
@@ -528,9 +546,9 @@ export default function CombinedFreightTable() {
             </Select>
           </div>
           <div className="space-y-1">
-            <Label className="text-xs">POD</Label>
+            <Label className="text-xs font-semibold text-gray-700">POD</Label>
             <Select value={searchFilters.pod} onValueChange={(value) => setSearchFilters(prev => ({ ...prev, pod: value }))}>
-              <SelectTrigger className="h-8 text-xs">
+              <SelectTrigger className="h-8 text-xs bg-white">
                 <SelectValue placeholder="전체" />
               </SelectTrigger>
               <SelectContent>
@@ -542,9 +560,9 @@ export default function CombinedFreightTable() {
             </Select>
           </div>
           <div className="space-y-1">
-            <Label className="text-xs">목적지</Label>
+            <Label className="text-xs font-semibold text-gray-700">목적지</Label>
             <Select value={searchFilters.destination} onValueChange={(value) => setSearchFilters(prev => ({ ...prev, destination: value }))}>
-              <SelectTrigger className="h-8 text-xs">
+              <SelectTrigger className="h-8 text-xs bg-white">
                 <SelectValue placeholder="전체" />
               </SelectTrigger>
               <SelectContent>
@@ -556,9 +574,9 @@ export default function CombinedFreightTable() {
             </Select>
           </div>
           <div className="space-y-1">
-            <Label className="text-xs">상태</Label>
+            <Label className="text-xs font-semibold text-gray-700">상태</Label>
             <Select value={searchFilters.status} onValueChange={(value) => setSearchFilters(prev => ({ ...prev, status: value }))}>
-              <SelectTrigger className="h-8 text-xs">
+              <SelectTrigger className="h-8 text-xs bg-white">
                 <SelectValue placeholder="전체" />
               </SelectTrigger>
               <SelectContent>
@@ -584,28 +602,28 @@ export default function CombinedFreightTable() {
       </div>
 
       {/* Table - Compact */}
-      <div className="rounded-lg border overflow-hidden shadow-sm">
+      <div className="rounded-lg overflow-hidden shadow-md border-2 border-gray-300">
         <Table>
           <TableHeader>
             <TableRow className="bg-gray-200">
-              <TableHead className="h-9 text-xs font-bold whitespace-nowrap">대리점</TableHead>
-              <TableHead className="h-9 text-xs font-bold whitespace-nowrap">POL</TableHead>
-              <TableHead className="h-9 text-xs font-bold whitespace-nowrap">POD</TableHead>
-              <TableHead className="h-9 text-xs font-bold whitespace-nowrap">목적지</TableHead>
-              <TableHead className="h-9 text-xs text-right font-bold whitespace-nowrap">통합운임</TableHead>
-              <TableHead className="h-9 text-xs font-bold whitespace-nowrap">유효기간</TableHead>
-              <TableHead className="h-9 text-xs font-bold whitespace-nowrap">상태</TableHead>
-              <TableHead className="h-9 text-xs font-bold whitespace-nowrap">설명</TableHead>
-              {isAdmin && <TableHead className="h-9 text-xs text-right font-bold whitespace-nowrap">작업</TableHead>}
+              <TableHead className="h-10 text-sm text-gray-900 font-extrabold whitespace-nowrap">대리점</TableHead>
+              <TableHead className="h-10 text-sm text-gray-900 font-extrabold whitespace-nowrap">POL</TableHead>
+              <TableHead className="h-10 text-sm text-gray-900 font-extrabold whitespace-nowrap">POD</TableHead>
+              <TableHead className="h-10 text-sm text-gray-900 font-extrabold whitespace-nowrap">목적지</TableHead>
+              <TableHead className="h-10 text-sm text-right text-gray-900 font-extrabold whitespace-nowrap">통합운임</TableHead>
+              <TableHead className="h-10 text-sm text-gray-900 font-extrabold whitespace-nowrap">유효기간</TableHead>
+              <TableHead className="h-10 text-sm text-gray-900 font-extrabold whitespace-nowrap">상태</TableHead>
+              <TableHead className="h-10 text-sm text-gray-900 font-extrabold whitespace-nowrap">설명</TableHead>
+              {isAdmin && <TableHead className="h-10 text-sm text-right text-gray-900 font-extrabold whitespace-nowrap">작업</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
             {paginatedFreights.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={isAdmin ? 9 : 8} className="text-center py-8">
-                  <div className="flex flex-col items-center gap-2">
-                    <Merge className="h-12 w-12 text-emerald-400" />
-                    <p className="text-base font-semibold text-emerald-900">
+                <TableCell colSpan={isAdmin ? 9 : 8} className="text-center py-6">
+                  <div className="flex flex-col items-center gap-2 text-gray-700">
+                    <Merge className="h-12 w-12 opacity-20" />
+                    <p className="text-sm">
                       {combinedFreights.length === 0 ? '등록된 통합 운임이 없습니다.' : '검색 결과가 없습니다'}
                     </p>
                   </div>
@@ -616,12 +634,12 @@ export default function CombinedFreightTable() {
                 const validityStatus = getValidityStatus(freight.validFrom, freight.validTo);
                 
                 return (
-                  <TableRow key={freight.id} className="hover:bg-blue-50 transition-colors duration-150/50">
+                  <TableRow key={freight.id} className="hover:bg-blue-50 transition-colors duration-150">
                     <TableCell className="py-3 text-sm font-medium whitespace-nowrap">{freight.agent}</TableCell>
                     <TableCell className="py-3 text-sm whitespace-nowrap">{freight.pol}</TableCell>
                     <TableCell className="py-3 text-sm whitespace-nowrap">{freight.pod}</TableCell>
                     <TableCell className="py-3 text-sm whitespace-nowrap">{getDestinationName(freight.destinationId)}</TableCell>
-                    <TableCell className="py-3 text-sm text-right font-semibold text-emerald-700 whitespace-nowrap">${freight.rate}</TableCell>
+                    <TableCell className="py-3 text-sm text-right font-semibold text-blue-600 whitespace-nowrap">${freight.rate}</TableCell>
                     <TableCell className="py-3 text-sm whitespace-nowrap">
                       {formatValidityDate(freight.validFrom)} ~ {formatValidityDate(freight.validTo)}
                     </TableCell>
@@ -631,9 +649,7 @@ export default function CombinedFreightTable() {
                       </Badge>
                     </TableCell>
                     <TableCell className="py-3 text-sm whitespace-nowrap">
-                      <span className={!freight.description ? 'text-gray-700' : ''}>
-                        {freight.description || '-'}
-                      </span>
+                      {freight.description || '-'}
                     </TableCell>
                     {isAdmin && (
                       <TableCell className="py-2 text-right whitespace-nowrap">
@@ -707,8 +723,10 @@ export default function CombinedFreightTable() {
       <Dialog open={isEditDialogOpen} onOpenChange={handleEditCancel}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Edit className="h-5 w-5 text-blue-600" />
+            <DialogTitle className="flex items-center gap-2 text-2xl">
+              <div className="p-2 bg-gray-200 rounded-lg">
+                <Edit className="h-5 w-5 text-gray-900" />
+              </div>
               통합운임 수정
             </DialogTitle>
             <DialogDescription>
@@ -729,25 +747,25 @@ export default function CombinedFreightTable() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>대리점</Label>
+                  <Label className="text-sm font-semibold text-gray-700">대리점</Label>
                   <Input value={formData.agent} disabled className="bg-gray-50" />
                 </div>
                 <div className="space-y-2">
-                  <Label>선적항</Label>
+                  <Label className="text-sm font-semibold text-gray-700">선적항</Label>
                   <Input value={formData.pol} disabled className="bg-gray-50" />
                 </div>
                 <div className="space-y-2">
-                  <Label>양하항</Label>
+                  <Label className="text-sm font-semibold text-gray-700">양하항</Label>
                   <Input value={formData.pod} disabled className="bg-gray-50" />
                 </div>
                 <div className="space-y-2">
-                  <Label>최종목적지</Label>
+                  <Label className="text-sm font-semibold text-gray-700">최종목적지</Label>
                   <Input value={getDestinationName(formData.destinationId)} disabled className="bg-gray-50" />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label>통합 운임 (USD) *</Label>
+                <Label className="text-sm font-semibold text-gray-700">통합 운임 (USD) *</Label>
                 <Input
                   type="number"
                   value={formData.rate}
@@ -758,11 +776,12 @@ export default function CombinedFreightTable() {
                     });
                     setValidationWarning(null);
                   }}
+                  className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label>유효기간 *</Label>
+                <Label className="text-sm font-semibold text-gray-700">유효기간 *</Label>
                 <ValidityPeriodInput
                   validFrom={formData.validFrom}
                   validTo={formData.validTo}
@@ -778,7 +797,7 @@ export default function CombinedFreightTable() {
               </div>
 
               <div className="space-y-2">
-                <Label>설명</Label>
+                <Label className="text-sm font-semibold text-gray-700">설명</Label>
                 <Input
                   placeholder="예: 인천→청도→OSH 통합 운임"
                   value={formData.description}
@@ -788,17 +807,22 @@ export default function CombinedFreightTable() {
                       description: e.target.value
                     });
                   }}
+                  className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                 />
               </div>
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={handleEditCancel}>
+            <Button 
+              variant="outline" 
+              onClick={handleEditCancel}
+              className="hover:bg-gray-100"
+            >
               취소
             </Button>
             <Button 
               onClick={handleEditSave}
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-gray-200 hover:bg-gray-300 text-gray-900 shadow-lg"
             >
               <Edit className="h-4 w-4 mr-2" />
               수정 저장

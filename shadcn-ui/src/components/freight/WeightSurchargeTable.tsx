@@ -168,17 +168,18 @@ export default function WeightSurchargeTable() {
 
   return (
     <div className="space-y-4">
-      {/* Header Section - Compact Design matching SeaFreightTable */}
-      <div className="relative overflow-hidden rounded-lg bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 p-3 shadow-lg">
-        <div className="absolute inset-0 bg-grid-white/10"></div>
+      {/* Header Section - Compact */}
+      <div className="relative overflow-hidden rounded-lg bg-gray-100 p-3 text-gray-900 shadow-lg">
+        <div className="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-white/10 blur-2xl"></div>
+        <div className="absolute bottom-0 left-0 -mb-4 -ml-4 h-24 w-24 rounded-full bg-white/10 blur-2xl"></div>
         <div className="relative flex justify-between items-center">
           <div className="flex items-center gap-2">
             <div className="p-1 bg-gray-200/80 backdrop-blur-sm rounded-lg">
-              <Weight className="h-4 w-4 text-gray-900" />
+              <Weight className="h-4 w-4" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-gray-900">중량할증 관리</h2>
-              <p className="text-xs text-indigo-50">트럭 대리점별 중량 구간에 따른 할증 요율 설정</p>
+              <h2 className="text-lg font-bold">중량할증 관리</h2>
+              <p className="text-xs text-gray-600">트럭 대리점별 중량 구간에 따른 할증 요율 설정</p>
             </div>
           </div>
           {isAdmin && (
@@ -197,9 +198,9 @@ export default function WeightSurchargeTable() {
         </div>
       </div>
 
-      <Alert className="py-2">
-        <Weight className="h-4 w-4" />
-        <AlertDescription className="text-sm">
+      <Alert className="border-gray-200 bg-gray-50 py-2">
+        <Weight className="h-4 w-4 text-gray-600" />
+        <AlertDescription className="text-xs">
           중량할증은 트럭 운임에 추가되는 비용입니다. 화물 중량에 따라 자동으로 계산됩니다.
         </AlertDescription>
       </Alert>
@@ -208,34 +209,27 @@ export default function WeightSurchargeTable() {
         <Alert variant="destructive" className="py-2">
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription className="text-sm">
-            {expiredRules.length > 0 && (
-              <div className="font-semibold">
-                ⚠️ {expiredRules.length}개의 중량할증 규칙이 만료되었습니다.
-              </div>
-            )}
-            {expiringRules.length > 0 && (
-              <div className="text-xs mt-1">
-                📅 {expiringRules.length}개의 중량할증 규칙이 7일 이내에 만료됩니다.
-              </div>
-            )}
+            {expiredRules.length > 0 && <span>⚠️ {expiredRules.length}개 만료</span>}
+            {expiredRules.length > 0 && expiringRules.length > 0 && <span> · </span>}
+            {expiringRules.length > 0 && <span>📅 {expiringRules.length}개 만료임박</span>}
           </AlertDescription>
         </Alert>
       )}
 
       {rulesByAgent.map(({ agent, rules }) => (
-        <div key={agent} className="rounded-lg border shadow-sm overflow-hidden">
-          <div className="bg-gray-200 px-3 py-2 border-b">
-            <h3 className="font-semibold text-sm">{agent}</h3>
+        <div key={agent} className="rounded-lg overflow-hidden shadow-md border-2 border-gray-300">
+          <div className="bg-gray-200 px-4 py-2 border-b border-gray-300">
+            <h3 className="font-bold text-sm text-gray-900">{agent}</h3>
           </div>
           <Table>
             <TableHeader>
-              <TableRow className="bg-gray-50">
-                <TableHead className="h-9 text-xs font-bold whitespace-nowrap">최소 중량 (kg)</TableHead>
-                <TableHead className="h-9 text-xs font-bold whitespace-nowrap">최대 중량 (kg)</TableHead>
-                <TableHead className="h-9 text-xs font-bold whitespace-nowrap">할증 금액 (USD)</TableHead>
-                <TableHead className="h-9 text-xs font-bold whitespace-nowrap">유효기간</TableHead>
-                <TableHead className="h-9 text-xs font-bold whitespace-nowrap">상태</TableHead>
-                {isAdmin && <TableHead className="h-9 text-xs text-right font-bold whitespace-nowrap">작업</TableHead>}
+              <TableRow className="bg-gray-200">
+                <TableHead className="h-10 text-sm text-gray-900 font-extrabold whitespace-nowrap">최소 중량 (kg)</TableHead>
+                <TableHead className="h-10 text-sm text-gray-900 font-extrabold whitespace-nowrap">최대 중량 (kg)</TableHead>
+                <TableHead className="h-10 text-sm text-gray-900 font-extrabold whitespace-nowrap">할증 금액 (USD)</TableHead>
+                <TableHead className="h-10 text-sm text-gray-900 font-extrabold whitespace-nowrap">유효기간</TableHead>
+                <TableHead className="h-10 text-sm text-gray-900 font-extrabold whitespace-nowrap">상태</TableHead>
+                {isAdmin && <TableHead className="h-10 text-sm text-right text-gray-900 font-extrabold whitespace-nowrap">작업</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -244,15 +238,12 @@ export default function WeightSurchargeTable() {
                   const validityStatus = getValidityStatus(rule.validFrom, rule.validTo);
                   
                   return (
-                    <TableRow key={rule.id} className="hover:bg-blue-50 transition-colors duration-150/50 transition-colors">
+                    <TableRow key={rule.id} className="hover:bg-blue-50 transition-colors duration-150">
                       <TableCell className="py-3 text-sm font-medium whitespace-nowrap">{rule.minWeight}</TableCell>
                       <TableCell className="py-3 text-sm font-medium whitespace-nowrap">{rule.maxWeight === 999999 ? '∞' : rule.maxWeight}</TableCell>
-                      <TableCell className="py-3 text-sm font-semibold text-purple-700 whitespace-nowrap">${rule.surcharge}</TableCell>
-                      <TableCell className="py-2 whitespace-nowrap">
-                        <div className="text-xs">
-                          <div>{formatValidityDate(rule.validFrom)}</div>
-                          <div className="text-gray-800">~ {formatValidityDate(rule.validTo)}</div>
-                        </div>
+                      <TableCell className="py-3 text-sm font-semibold text-blue-600 whitespace-nowrap">${rule.surcharge}</TableCell>
+                      <TableCell className="py-3 text-sm whitespace-nowrap">
+                        {formatValidityDate(rule.validFrom)} ~ {formatValidityDate(rule.validTo)}
                       </TableCell>
                       <TableCell className="py-2 whitespace-nowrap">
                         <Badge variant={validityStatus.variant} className="text-xs px-1.5 py-0">
@@ -286,8 +277,11 @@ export default function WeightSurchargeTable() {
                 })
               ) : (
                 <TableRow>
-                  <TableCell colSpan={isAdmin ? 6 : 5} className="text-center text-gray-800 py-8 text-xs">
-                    설정된 규칙이 없습니다
+                  <TableCell colSpan={isAdmin ? 6 : 5} className="text-center py-6">
+                    <div className="flex flex-col items-center gap-2 text-gray-700">
+                      <Weight className="h-12 w-12 opacity-20" />
+                      <p className="text-sm">설정된 규칙이 없습니다</p>
+                    </div>
                   </TableCell>
                 </TableRow>
               )}
@@ -307,9 +301,14 @@ export default function WeightSurchargeTable() {
         setIsAddDialogOpen(open);
         if (!open) setValidationWarning(null);
       }}>
-        <DialogContent>
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>중량할증 규칙 추가</DialogTitle>
+            <DialogTitle className="flex items-center gap-2 text-2xl">
+              <div className="p-2 bg-gray-200 rounded-lg">
+                <Weight className="h-5 w-5 text-gray-900" />
+              </div>
+              중량할증 규칙 추가
+            </DialogTitle>
             <DialogDescription>새로운 중량 구간과 할증 금액을 입력하세요.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
@@ -339,12 +338,12 @@ export default function WeightSurchargeTable() {
               </Alert>
             )}
             <div className="space-y-2">
-              <Label>트럭 대리점</Label>
+              <Label className="text-sm font-semibold text-gray-700">트럭 대리점 *</Label>
               <Select value={formData.agent} onValueChange={(value) => {
                 setFormData({ ...formData, agent: value });
                 setValidationWarning(null);
               }}>
-                <SelectTrigger>
+                <SelectTrigger className="border-gray-300 focus:border-blue-500">
                   <SelectValue placeholder="대리점 선택" />
                 </SelectTrigger>
                 <SelectContent>
@@ -357,34 +356,37 @@ export default function WeightSurchargeTable() {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>최소 중량 (kg)</Label>
+              <Label className="text-sm font-semibold text-gray-700">최소 중량 (kg) *</Label>
               <Input
                 type="number"
                 placeholder="예: 0"
                 value={formData.minWeight}
                 onChange={(e) => setFormData({ ...formData, minWeight: e.target.value })}
+                className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
             <div className="space-y-2">
-              <Label>최대 중량 (kg)</Label>
+              <Label className="text-sm font-semibold text-gray-700">최대 중량 (kg) *</Label>
               <Input
                 type="number"
                 placeholder="예: 1000 (무제한은 999999 입력)"
                 value={formData.maxWeight}
                 onChange={(e) => setFormData({ ...formData, maxWeight: e.target.value })}
+                className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
             <div className="space-y-2">
-              <Label>할증 금액 (USD)</Label>
+              <Label className="text-sm font-semibold text-gray-700">할증 금액 (USD) *</Label>
               <Input
                 type="number"
                 placeholder="예: 50"
                 value={formData.surcharge}
                 onChange={(e) => setFormData({ ...formData, surcharge: e.target.value })}
+                className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
             <div className="space-y-2">
-              <Label>유효기간 *</Label>
+              <Label className="text-sm font-semibold text-gray-700">유효기간 *</Label>
               <ValidityPeriodInput
                 validFrom={formData.validFrom}
                 validTo={formData.validTo}
@@ -396,13 +398,23 @@ export default function WeightSurchargeTable() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => {
-              setIsAddDialogOpen(false);
-              setValidationWarning(null);
-            }}>
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setIsAddDialogOpen(false);
+                setValidationWarning(null);
+              }}
+              className="hover:bg-gray-100"
+            >
               취소
             </Button>
-            <Button onClick={handleAdd}>추가</Button>
+            <Button 
+              onClick={handleAdd}
+              className="bg-gray-200 hover:bg-gray-300 text-gray-900 shadow-lg"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              추가
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -411,8 +423,10 @@ export default function WeightSurchargeTable() {
       <Dialog open={isEditDialogOpen} onOpenChange={handleEditCancel}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Edit className="h-5 w-5 text-blue-600" />
+            <DialogTitle className="flex items-center gap-2 text-2xl">
+              <div className="p-2 bg-gray-200 rounded-lg">
+                <Edit className="h-5 w-5 text-gray-900" />
+              </div>
               중량할증 규칙 수정
             </DialogTitle>
             <DialogDescription>
@@ -432,13 +446,13 @@ export default function WeightSurchargeTable() {
               )}
 
               <div className="space-y-2">
-                <Label>트럭 대리점</Label>
+                <Label className="text-sm font-semibold text-gray-700">트럭 대리점</Label>
                 <Input value={formData.agent} disabled className="bg-gray-50" />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>최소 중량 (kg) *</Label>
+                  <Label className="text-sm font-semibold text-gray-700">최소 중량 (kg) *</Label>
                   <Input
                     type="number"
                     value={formData.minWeight}
@@ -449,10 +463,11 @@ export default function WeightSurchargeTable() {
                       });
                       setValidationWarning(null);
                     }}
+                    className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>최대 중량 (kg) *</Label>
+                  <Label className="text-sm font-semibold text-gray-700">최대 중량 (kg) *</Label>
                   <Input
                     type="number"
                     placeholder="∞"
@@ -464,12 +479,13 @@ export default function WeightSurchargeTable() {
                       });
                       setValidationWarning(null);
                     }}
+                    className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label>할증 금액 (USD) *</Label>
+                <Label className="text-sm font-semibold text-gray-700">할증 금액 (USD) *</Label>
                 <Input
                   type="number"
                   value={formData.surcharge}
@@ -480,11 +496,12 @@ export default function WeightSurchargeTable() {
                     });
                     setValidationWarning(null);
                   }}
+                  className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label>유효기간 *</Label>
+                <Label className="text-sm font-semibold text-gray-700">유효기간 *</Label>
                 <ValidityPeriodInput
                   validFrom={formData.validFrom}
                   validTo={formData.validTo}
@@ -501,12 +518,16 @@ export default function WeightSurchargeTable() {
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={handleEditCancel}>
+            <Button 
+              variant="outline" 
+              onClick={handleEditCancel}
+              className="hover:bg-gray-100"
+            >
               취소
             </Button>
             <Button 
               onClick={handleEditSave}
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-gray-200 hover:bg-gray-300 text-gray-900 shadow-lg"
             >
               <Edit className="h-4 w-4 mr-2" />
               수정 저장

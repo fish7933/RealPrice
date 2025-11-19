@@ -35,18 +35,18 @@ export default function AdminDashboard() {
     <Layout>
       <div className="space-y-6">
         {/* Gray Header */}
-        <div className="relative overflow-hidden rounded-xl bg-gray-800 p-4 shadow-xl">
+        <div className="relative overflow-hidden rounded-xl bg-gray-200 p-4 shadow-xl">
           <div className="absolute inset-0 bg-grid-white/5"></div>
           <div className="relative">
             <div className="flex items-center gap-2">
               <div className="p-1.5 bg-white/10 backdrop-blur-sm rounded-lg">
-                <Database className="h-5 w-5 text-white" />
+                <Database className="h-5 w-5 text-gray-900" />
               </div>
-              <h1 className="text-2xl font-bold text-white">
+              <h1 className="text-2xl font-bold text-gray-900">
                 관리자 대시보드
               </h1>
             </div>
-            <p className="text-gray-300 text-sm ml-9">운임 데이터 관리 및 설정</p>
+            <p className="text-gray-600 text-sm ml-9">운임 데이터 관리 및 설정</p>
           </div>
         </div>
 
@@ -57,77 +57,77 @@ export default function AdminDashboard() {
               <TabsList className="grid w-full grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-12 gap-3 mb-6 bg-transparent p-0 h-auto">
                 <TabsTrigger 
                   value="agents" 
-                  className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-400 transition-all data-[state=active]:bg-gray-700 data-[state=active]:text-white data-[state=active]:border-gray-700 data-[state=active]:shadow-lg data-[state=active]:scale-105"
+                  className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-400 transition-all data-[state=active]:bg-gray-100 data-[state=active]:text-white data-[state=active]:border-gray-700 data-[state=active]:shadow-lg data-[state=active]:scale-105"
                 >
                   <Users className="h-6 w-6" />
                   <span className="text-xs font-semibold text-center leading-tight">선사&중국<br/>파트너사</span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="ports" 
-                  className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-400 transition-all data-[state=active]:bg-gray-700 data-[state=active]:text-white data-[state=active]:border-gray-700 data-[state=active]:shadow-lg data-[state=active]:scale-105"
+                  className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-400 transition-all data-[state=active]:bg-gray-100 data-[state=active]:text-white data-[state=active]:border-gray-700 data-[state=active]:shadow-lg data-[state=active]:scale-105"
                 >
                   <Anchor className="h-6 w-6" />
                   <span className="text-xs font-semibold text-center">포트</span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="destinations" 
-                  className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-400 transition-all data-[state=active]:bg-gray-700 data-[state=active]:text-white data-[state=active]:border-gray-700 data-[state=active]:shadow-lg data-[state=active]:scale-105"
+                  className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-400 transition-all data-[state=active]:bg-gray-100 data-[state=active]:text-white data-[state=active]:border-gray-700 data-[state=active]:shadow-lg data-[state=active]:scale-105"
                 >
                   <MapPin className="h-6 w-6" />
                   <span className="text-xs font-semibold text-center">최종목적지</span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="sea-freight" 
-                  className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-400 transition-all data-[state=active]:bg-gray-700 data-[state=active]:text-white data-[state=active]:border-gray-700 data-[state=active]:shadow-lg data-[state=active]:scale-105"
+                  className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-400 transition-all data-[state=active]:bg-gray-100 data-[state=active]:text-white data-[state=active]:border-gray-700 data-[state=active]:shadow-lg data-[state=active]:scale-105"
                 >
                   <Ship className="h-6 w-6" />
                   <span className="text-xs font-semibold text-center">해상운임</span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="agent-sea-freight" 
-                  className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-400 transition-all data-[state=active]:bg-gray-700 data-[state=active]:text-white data-[state=active]:border-gray-700 data-[state=active]:shadow-lg data-[state=active]:scale-105"
+                  className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-400 transition-all data-[state=active]:bg-gray-100 data-[state=active]:text-white data-[state=active]:border-gray-700 data-[state=active]:shadow-lg data-[state=active]:scale-105"
                 >
                   <Star className="h-6 w-6" />
                   <span className="text-xs font-semibold text-center leading-tight">대리점<br/>해상운임</span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="dthc" 
-                  className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-400 transition-all data-[state=active]:bg-gray-700 data-[state=active]:text-white data-[state=active]:border-gray-700 data-[state=active]:shadow-lg data-[state=active]:scale-105"
+                  className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-400 transition-all data-[state=active]:bg-gray-100 data-[state=active]:text-white data-[state=active]:border-gray-700 data-[state=active]:shadow-lg data-[state=active]:scale-105"
                 >
                   <FileText className="h-6 w-6" />
                   <span className="text-xs font-semibold text-center">D/O</span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="combined-freight" 
-                  className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-400 transition-all data-[state=active]:bg-gray-700 data-[state=active]:text-white data-[state=active]:border-gray-700 data-[state=active]:shadow-lg data-[state=active]:scale-105"
+                  className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-400 transition-all data-[state=active]:bg-gray-100 data-[state=active]:text-white data-[state=active]:border-gray-700 data-[state=active]:shadow-lg data-[state=active]:scale-105"
                 >
                   <Merge className="h-6 w-6" />
                   <span className="text-xs font-semibold text-center leading-tight">철도+트럭<br/>통합운임</span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="port-border" 
-                  className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-400 transition-all data-[state=active]:bg-gray-700 data-[state=active]:text-white data-[state=active]:border-gray-700 data-[state=active]:shadow-lg data-[state=active]:scale-105"
+                  className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-400 transition-all data-[state=active]:bg-gray-100 data-[state=active]:text-white data-[state=active]:border-gray-700 data-[state=active]:shadow-lg data-[state=active]:scale-105"
                 >
                   <Train className="h-6 w-6" />
                   <span className="text-xs font-semibold text-center">철도운임</span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="border-destination" 
-                  className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-400 transition-all data-[state=active]:bg-gray-700 data-[state=active]:text-white data-[state=active]:border-gray-700 data-[state=active]:shadow-lg data-[state=active]:scale-105"
+                  className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-400 transition-all data-[state=active]:bg-gray-100 data-[state=active]:text-white data-[state=active]:border-gray-700 data-[state=active]:shadow-lg data-[state=active]:scale-105"
                 >
                   <Truck className="h-6 w-6" />
                   <span className="text-xs font-semibold text-center">트럭운임</span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="weight-surcharge" 
-                  className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-400 transition-all data-[state=active]:bg-gray-700 data-[state=active]:text-white data-[state=active]:border-gray-700 data-[state=active]:shadow-lg data-[state=active]:scale-105"
+                  className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-400 transition-all data-[state=active]:bg-gray-100 data-[state=active]:text-white data-[state=active]:border-gray-700 data-[state=active]:shadow-lg data-[state=active]:scale-105"
                 >
                   <Weight className="h-6 w-6" />
                   <span className="text-xs font-semibold text-center">중량할증</span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="dp-costs" 
-                  className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-400 transition-all data-[state=active]:bg-gray-700 data-[state=active]:text-white data-[state=active]:border-gray-700 data-[state=active]:shadow-lg data-[state=active]:scale-105"
+                  className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-400 transition-all data-[state=active]:bg-gray-100 data-[state=active]:text-white data-[state=active]:border-gray-700 data-[state=active]:shadow-lg data-[state=active]:scale-105"
                 >
                   <Package className="h-6 w-6" />
                   <span className="text-xs font-semibold text-center">DP</span>

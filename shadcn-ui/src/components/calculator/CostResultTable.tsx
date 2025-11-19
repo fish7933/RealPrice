@@ -696,7 +696,7 @@ export default function CostResultTable({
                               <Button
                                 size="sm"
                                 onClick={() => onCreateQuotation(breakdown)}
-                                className="h-8 w-8 p-0 bg-gray-600 hover:bg-gray-800 text-white border border-amber-500 shadow-sm hover:shadow-md transition-all duration-200"
+                                className="h-8 w-8 p-0 bg-gray-600 hover:bg-gray-200 text-white border border-amber-500 shadow-sm hover:shadow-md transition-all duration-200"
                                 title="견적서 생성"
                               >
                                 <FileSpreadsheet className="h-4 w-4" />

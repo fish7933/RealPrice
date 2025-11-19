@@ -104,10 +104,10 @@ export default function Layout({ children }: LayoutProps) {
             className={`group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${
               isActive
                 ? `bg-gradient-to-r ${item.gradient} text-white shadow-lg scale-105`
-                : 'text-gray-700 hover:bg-gradient-to-r hover:bg-gray-800 hover:scale-102'
+                : 'text-gray-700 hover:bg-gradient-to-r hover:bg-gray-200 hover:scale-102'
             }`}
           >
-            <div className={`p-2 rounded-lg ${isActive ? 'bg-white/20' : 'bg-gray-100 group-hover:bg-white'} transition-all`}>
+            <div className={`p-2 rounded-lg ${isActive ? 'bg-gray-200/80' : 'bg-gray-100 group-hover:bg-white'} transition-all`}>
               <Icon className={`h-5 w-5 ${isActive ? 'text-white' : 'text-gray-600'}`} />
             </div>
             <span className="font-medium">{item.label}</span>
@@ -119,7 +119,7 @@ export default function Layout({ children }: LayoutProps) {
   );
 
   return (
-    <div className="min-h-screen bg-gray-700">
+    <div className="min-h-screen bg-gray-100">
       {/* Header with Gradient */}
       <header className="bg-white/80 backdrop-blur-md border-b border-gray-200/50 sticky top-0 z-50 shadow-sm">
         <div className="flex items-center justify-between px-4 py-3">
@@ -135,10 +135,10 @@ export default function Layout({ children }: LayoutProps) {
                 <div className="flex flex-col h-full">
                   <div className="p-6 border-b bg-gray-600">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
-                        <Ship className="h-6 w-6 text-white" />
+                      <div className="p-2 bg-gray-200/80 rounded-lg backdrop-blur-sm">
+                        <Ship className="h-6 w-6 text-gray-900" />
                       </div>
-                      <span className="font-bold text-lg text-white">운임 시스템</span>
+                      <span className="font-bold text-lg text-gray-900">운임 시스템</span>
                     </div>
                   </div>
                   <nav className="flex-1 p-4 space-y-2">
@@ -152,8 +152,8 @@ export default function Layout({ children }: LayoutProps) {
             <Link to="/dashboard" className="flex items-center gap-3 group">
               <div className="relative">
                 <div className="absolute inset-0 bg-gray-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition-opacity"></div>
-                <div className="relative p-2 bg-gray-600 rounded-lg">
-                  <Ship className="h-6 w-6 text-white" />
+                <div className="relative p-2 bg-gray-200 rounded-lg">
+                  <Ship className="h-6 w-6 text-gray-900" />
                 </div>
               </div>
               <div className="hidden sm:block">
@@ -169,7 +169,7 @@ export default function Layout({ children }: LayoutProps) {
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-3 px-4 py-2 bg-gray-600 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
               <div className="p-1.5 bg-gray-600 rounded-lg">
-                <User className="h-4 w-4 text-white" />
+                <User className="h-4 w-4 text-gray-900" />
               </div>
               <span className="text-sm font-semibold text-gray-700">{user?.username}</span>
               {getRoleBadge()}
@@ -198,7 +198,7 @@ export default function Layout({ children }: LayoutProps) {
                   <AlertDialogCancel>취소</AlertDialogCancel>
                   <AlertDialogAction 
                     onClick={handleLogout}
-                    className="bg-gray-600 hover:bg-gray-800"
+                    className="bg-gray-600 hover:bg-gray-200"
                   >
                     로그아웃
                   </AlertDialogAction>

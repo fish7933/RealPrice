@@ -35,18 +35,18 @@ export default function UserDashboard() {
     <Layout>
       <div className="space-y-6">
         {/* Gray Header */}
-        <div className="relative overflow-hidden rounded-xl bg-gray-800 p-4 shadow-xl">
+        <div className="relative overflow-hidden rounded-xl bg-gray-200 p-4 shadow-xl">
           <div className="absolute inset-0 bg-grid-white/5"></div>
           <div className="relative">
             <div className="flex items-center gap-2">
               <div className="p-1.5 bg-white/10 backdrop-blur-sm rounded-lg">
-                <Search className="h-5 w-5 text-white" />
+                <Search className="h-5 w-5 text-gray-900" />
               </div>
-              <h1 className="text-2xl font-bold text-white">
+              <h1 className="text-2xl font-bold text-gray-900">
                 운임 조회
               </h1>
             </div>
-            <p className="text-gray-300 text-sm ml-9">운임 계산 및 이력 조회</p>
+            <p className="text-gray-600 text-sm ml-9">운임 계산 및 이력 조회</p>
           </div>
         </div>
 

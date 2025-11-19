@@ -416,8 +416,8 @@ export default function PortBorderTable() {
         <div className="absolute inset-0 bg-grid-white/10"></div>
         <div className="relative flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <div className="p-1 bg-white/20 backdrop-blur-sm rounded-lg">
-              <Train className="h-4 w-4 text-white" />
+            <div className="p-1 bg-gray-200/80 backdrop-blur-sm rounded-lg">
+              <Train className="h-4 w-4 text-gray-900" />
             </div>
             <div>
               <h2 className="text-lg font-bold text-white flex items-center gap-2">
@@ -431,7 +431,7 @@ export default function PortBorderTable() {
             <Button 
               onClick={handleOpenDialog}
               size="sm"
-              className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border border-white/50 h-7 text-xs"
+              className="bg-gray-200/80 backdrop-blur-sm hover:bg-gray-300/80 text-white border border-gray-400 h-7 text-xs"
             >
               <Plus className="h-3 w-3 mr-1" />
               추가
@@ -513,7 +513,7 @@ export default function PortBorderTable() {
       <div className="rounded-lg border shadow-sm overflow-hidden">
         <Table>
           <TableHeader>
-            <TableRow className="bg-gray-800">
+            <TableRow className="bg-gray-200">
               <TableHead className="h-9 text-xs font-bold whitespace-nowrap">대리점</TableHead>
               <TableHead className="h-9 text-xs font-bold whitespace-nowrap">POL</TableHead>
               {podPorts.map(pod => (

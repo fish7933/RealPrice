@@ -164,7 +164,7 @@ export default function TimeMachineDialog({ open, onOpenChange, onSelectDate, cu
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto bg-gray-700">
+      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto bg-gray-100">
         <DialogHeader className="space-y-2 pb-3 border-b-2 border-pink-200">
           <DialogTitle className="flex items-center gap-2 text-xl">
             <div className="relative">
@@ -214,7 +214,7 @@ export default function TimeMachineDialog({ open, onOpenChange, onSelectDate, cu
                 <div className="flex items-center justify-between mb-4">
                   <button
                     onClick={previousMonth}
-                    className="h-8 w-8 bg-gray-600 hover:bg-gray-800 rounded-xl transition-all duration-200 border-2 border-pink-200 shadow-sm hover:shadow-md transform hover:scale-105 flex items-center justify-center"
+                    className="h-8 w-8 bg-gray-600 hover:bg-gray-200 rounded-xl transition-all duration-200 border-2 border-pink-200 shadow-sm hover:shadow-md transform hover:scale-105 flex items-center justify-center"
                   >
                     <ChevronLeft className="h-4 w-4 text-purple-600" />
                   </button>
@@ -223,7 +223,7 @@ export default function TimeMachineDialog({ open, onOpenChange, onSelectDate, cu
                   </h3>
                   <button
                     onClick={nextMonth}
-                    className="h-8 w-8 bg-gray-600 hover:bg-gray-800 rounded-xl transition-all duration-200 border-2 border-pink-200 shadow-sm hover:shadow-md transform hover:scale-105 flex items-center justify-center"
+                    className="h-8 w-8 bg-gray-600 hover:bg-gray-200 rounded-xl transition-all duration-200 border-2 border-pink-200 shadow-sm hover:shadow-md transform hover:scale-105 flex items-center justify-center"
                   >
                     <ChevronRight className="h-4 w-4 text-purple-600" />
                   </button>
@@ -265,13 +265,13 @@ export default function TimeMachineDialog({ open, onOpenChange, onSelectDate, cu
                             flex items-center justify-center
                             transition-all duration-200
                             ${isSelected
-                              ? 'bg-gray-700 text-white shadow-lg scale-105'
+                              ? 'bg-gray-100 text-white shadow-lg scale-105'
                               : isTodayDate
                               ? 'bg-gray-600 text-orange-900 border-2 border-orange-400 shadow-md'
                               : hasChanges
-                              ? 'bg-gray-700 text-white hover:from-pink-500 hover:via-purple-500 hover:to-blue-500 shadow-md hover:scale-110'
+                              ? 'bg-gray-100 text-white hover:from-pink-500 hover:via-purple-500 hover:to-blue-500 shadow-md hover:scale-110'
                               : isFutureDate
-                              ? 'text-purple-600 bg-gray-600 hover:bg-gray-800 hover:scale-105 border border-purple-200'
+                              ? 'text-purple-600 bg-gray-600 hover:bg-gray-200 hover:scale-105 border border-purple-200'
                               : 'text-gray-700 bg-blue-50 hover:bg-blue-100 hover:scale-105 border border-blue-200'
                             }
                           `}
@@ -286,14 +286,14 @@ export default function TimeMachineDialog({ open, onOpenChange, onSelectDate, cu
 
               <div className="px-4 pb-4 space-y-2 text-xs">
                 <div className="flex items-center gap-2 p-2 bg-gradient-to-r from-pink-50 via-purple-50 to-blue-50 rounded-xl border-2 border-pink-200 shadow-sm">
-                  <div className="w-5 h-5 rounded-xl bg-gray-700 shadow-md flex-shrink-0"></div>
+                  <div className="w-5 h-5 rounded-xl bg-gray-100 shadow-md flex-shrink-0"></div>
                   <span className="text-gray-700 font-semibold">✨ 운임 변경이 있었던 날짜 (참고용)</span>
                 </div>
-                <div className="flex items-center gap-2 p-2 bg-gray-600 rounded-xl border-2 border-blue-200 shadow-sm">
+                <div className="flex items-center gap-2 p-2 bg-gray-200 rounded-xl border-2 border-blue-200 shadow-sm">
                   <div className="w-5 h-5 rounded-xl bg-blue-100 border border-blue-200 flex-shrink-0"></div>
                   <span className="text-gray-700 font-semibold">📅 선택 가능한 과거 날짜</span>
                 </div>
-                <div className="flex items-center gap-2 p-2 bg-gray-600 rounded-xl border-2 border-purple-200 shadow-sm">
+                <div className="flex items-center gap-2 p-2 bg-gray-200 rounded-xl border-2 border-purple-200 shadow-sm">
                   <div className="w-5 h-5 rounded-xl bg-gray-600 border border-purple-200 flex-shrink-0"></div>
                   <span className="text-gray-700 font-semibold">🚀 선택 가능한 미래 날짜</span>
                 </div>
@@ -301,14 +301,14 @@ export default function TimeMachineDialog({ open, onOpenChange, onSelectDate, cu
             </div>
 
             {selectedDate && (
-              <div className="relative overflow-hidden rounded-2xl bg-gray-700 p-4 shadow-xl text-white border-2 border-pink-300">
+              <div className="relative overflow-hidden rounded-2xl bg-gray-100 p-4 shadow-xl text-white border-2 border-pink-300">
                 <div className="absolute inset-0 bg-white/10 backdrop-blur-sm"></div>
                 <div className="absolute top-2 right-2">
                   <Sparkles className="h-5 w-5 text-white/80 animate-spin" style={{ animationDuration: '3s' }} />
                 </div>
                 <div className="relative space-y-2">
                   <div className="flex items-center gap-2">
-                    <div className="p-1.5 bg-white/20 rounded-xl backdrop-blur-sm shadow-lg">
+                    <div className="p-1.5 bg-gray-200/80 rounded-xl backdrop-blur-sm shadow-lg">
                       <CalendarIcon className="h-4 w-4" />
                     </div>
                     <span className="font-bold text-base">💫 선택된 날짜</span>
@@ -321,7 +321,7 @@ export default function TimeMachineDialog({ open, onOpenChange, onSelectDate, cu
                       weekday: 'long',
                     })}
                   </p>
-                  <p className="text-xs text-gray-300 flex items-center gap-2 font-medium">
+                  <p className="text-xs text-gray-600 flex items-center gap-2 font-medium">
                     <Sparkles className="h-3 w-3 animate-pulse" />
                     이 날짜에 유효한 운임(validFrom ~ validTo)으로 계산합니다 ✨
                   </p>
@@ -397,7 +397,7 @@ export default function TimeMachineDialog({ open, onOpenChange, onSelectDate, cu
               )
             ) : (
               <div className="rounded-2xl bg-white shadow-xl border-2 border-gray-200 p-8 text-center">
-                <div className="inline-flex p-3 bg-gray-700 rounded-full mb-3 shadow-lg">
+                <div className="inline-flex p-3 bg-gray-100 rounded-full mb-3 shadow-lg">
                   <CalendarIcon className="h-8 w-8 text-purple-600" />
                 </div>
                 <p className="text-gray-700 font-bold text-base mb-1">👈 왼쪽 달력에서 날짜를 선택하세요</p>
@@ -436,7 +436,7 @@ export default function TimeMachineDialog({ open, onOpenChange, onSelectDate, cu
             <Button 
               onClick={handleConfirm} 
               disabled={!selectedDate}
-              className="bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 hover:from-pink-600 hover:via-purple-600 hover:to-blue-600 text-white font-bold shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed text-xs h-8 rounded-xl"
+              className="bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 hover:from-pink-600 hover:via-purple-600 hover:to-blue-600 text-gray-900 font-bold shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed text-xs h-8 rounded-xl"
             >
               <Clock className="h-3 w-3 mr-1" />
               ✨ 이 날짜로 계산하기

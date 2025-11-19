@@ -268,11 +268,11 @@ export default function AgentSeaFreightTable() {
   return (
     <div className="space-y-4">
       {/* Header - Compact */}
-      <div className="relative overflow-hidden rounded-lg bg-gray-700 p-3 text-white shadow-lg">
+      <div className="relative overflow-hidden rounded-lg bg-gray-100 p-3 text-white shadow-lg">
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="relative flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="p-1 bg-white/20 rounded-lg backdrop-blur-sm">
+            <div className="p-1 bg-gray-200/80 rounded-lg backdrop-blur-sm">
               <Star className="h-4 w-4" />
             </div>
             <div>
@@ -284,7 +284,7 @@ export default function AgentSeaFreightTable() {
             <Button 
               onClick={() => setIsAddDialogOpen(true)}
               size="sm"
-              className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border border-white/50 h-7 text-xs"
+              className="bg-gray-200/80 backdrop-blur-sm hover:bg-gray-300/80 text-white border border-gray-400 h-7 text-xs"
             >
               <Plus className="h-3 w-3 mr-1" />
               추가
@@ -400,7 +400,7 @@ export default function AgentSeaFreightTable() {
       <div className="border rounded-lg overflow-hidden bg-white shadow-sm">
         <Table>
           <TableHeader>
-            <TableRow className="bg-gray-800">
+            <TableRow className="bg-gray-200">
               <TableHead className="h-9 text-xs font-bold whitespace-nowrap">대리점</TableHead>
               <TableHead className="h-9 text-xs font-bold whitespace-nowrap">POL</TableHead>
               <TableHead className="h-9 text-xs font-bold whitespace-nowrap">POD</TableHead>
@@ -418,7 +418,7 @@ export default function AgentSeaFreightTable() {
               <TableRow>
                 <TableCell colSpan={isAdmin ? 10 : 9} className="text-center py-6">
                   <div className="flex flex-col items-center gap-2">
-                    <Ship className="h-10 w-10 text-gray-300" />
+                    <Ship className="h-10 w-10 text-gray-600" />
                     <p className="text-sm text-gray-500">
                       {agentSeaFreights.length === 0 ? '설정된 대리점별 해상운임이 없습니다' : '검색 결과가 없습니다'}
                     </p>
@@ -703,7 +703,7 @@ export default function AgentSeaFreightTable() {
             >
               취소
             </Button>
-            <Button onClick={handleAdd} className="bg-gray-600 hover:bg-gray-800">추가</Button>
+            <Button onClick={handleAdd} className="bg-gray-600 hover:bg-gray-200">추가</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -836,7 +836,7 @@ export default function AgentSeaFreightTable() {
             </Button>
             <Button 
               onClick={handleEditSave}
-              className="bg-gray-600 hover:bg-gray-800"
+              className="bg-gray-600 hover:bg-gray-200"
             >
               <Edit className="h-4 w-4 mr-2" />
               수정 저장

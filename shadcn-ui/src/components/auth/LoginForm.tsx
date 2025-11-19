@@ -78,8 +78,8 @@ export default function LoginForm() {
           <div className="flex justify-center mb-6">
             <div className="relative">
               <div className="absolute inset-0 bg-gray-400 rounded-2xl blur opacity-75 animate-pulse"></div>
-              <div className="relative p-4 bg-gray-700 rounded-2xl">
-                <Ship className="h-12 w-12 text-white" />
+              <div className="relative p-4 bg-gray-100 rounded-2xl">
+                <Ship className="h-12 w-12 text-gray-900" />
               </div>
             </div>
           </div>
@@ -131,7 +131,7 @@ export default function LoginForm() {
             )}
             <Button 
               type="submit" 
-              className="w-full h-12 bg-gray-800 hover:bg-gray-900 text-white font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all" 
+              className="w-full h-12 bg-gray-200 hover:bg-gray-900 text-white font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all" 
               disabled={isLoading}
             >
               {isLoading ? '로그인 중...' : '로그인'}

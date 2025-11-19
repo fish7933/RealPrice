@@ -67,7 +67,7 @@ export default function ProfileSettings() {
         return {
           label: '슈퍼관리자',
           icon: Crown,
-          bgColor: 'bg-gray-800',
+          bgColor: 'bg-gray-200',
           borderColor: 'border-gray-700'
         };
       case 'admin':
@@ -93,18 +93,18 @@ export default function ProfileSettings() {
   return (
     <div className="space-y-6">
       {/* Gray Header */}
-      <div className="relative overflow-hidden rounded-xl bg-gray-800 p-4 shadow-xl">
+      <div className="relative overflow-hidden rounded-xl bg-gray-200 p-4 shadow-xl">
         <div className="absolute inset-0 bg-grid-white/5"></div>
         <div className="relative">
           <div className="flex items-center gap-2">
             <div className="p-1.5 bg-white/10 backdrop-blur-sm rounded-lg">
-              <UserCog className="h-5 w-5 text-white" />
+              <UserCog className="h-5 w-5 text-gray-900" />
             </div>
-            <h1 className="text-2xl font-bold text-white">
+            <h1 className="text-2xl font-bold text-gray-900">
               프로필 설정
             </h1>
           </div>
-          <p className="text-gray-300 text-sm ml-9">계정 정보 및 비밀번호를 관리하세요</p>
+          <p className="text-gray-600 text-sm ml-9">계정 정보 및 비밀번호를 관리하세요</p>
         </div>
       </div>
 
@@ -113,7 +113,7 @@ export default function ProfileSettings() {
         <CardHeader className="border-b bg-white/50 backdrop-blur-sm">
           <CardTitle className="flex items-center gap-2 text-xl">
             <div className={`p-2 ${roleInfo.bgColor} rounded-lg`}>
-              <User className="h-5 w-5 text-white" />
+              <User className="h-5 w-5 text-gray-900" />
             </div>
             계정 정보
           </CardTitle>
@@ -150,7 +150,7 @@ export default function ProfileSettings() {
                 권한
               </Label>
               <div className={`p-4 ${roleInfo.bgColor} rounded-lg shadow-lg`}>
-                <div className="flex items-center gap-2 text-white">
+                <div className="flex items-center gap-2 text-gray-900">
                   <RoleIcon className="h-5 w-5" />
                   <p className="font-bold">{roleInfo.label}</p>
                 </div>
@@ -164,8 +164,8 @@ export default function ProfileSettings() {
       <Card className="border-none shadow-lg bg-white/80 backdrop-blur-sm">
         <CardHeader className="bg-gray-50 border-b">
           <CardTitle className="flex items-center gap-2 text-xl">
-            <div className="p-2 bg-gray-700 rounded-lg">
-              <Lock className="h-5 w-5 text-white" />
+            <div className="p-2 bg-gray-100 rounded-lg">
+              <Lock className="h-5 w-5 text-gray-900" />
             </div>
             비밀번호 변경
           </CardTitle>
@@ -242,7 +242,7 @@ export default function ProfileSettings() {
               <Button
                 onClick={handleChangePassword}
                 disabled={isChanging}
-                className="flex-1 h-12 bg-gray-800 hover:bg-gray-900 text-white font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all"
+                className="flex-1 h-12 bg-gray-200 hover:bg-gray-900 text-white font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all"
               >
                 <Lock className="h-5 w-5 mr-2" />
                 {isChanging ? '변경 중...' : '비밀번호 변경'}

@@ -161,8 +161,8 @@ export default function DPCostTable() {
         <div className="absolute inset-0 bg-grid-white/10"></div>
         <div className="relative flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <div className="p-1.5 bg-white/20 backdrop-blur-sm rounded-lg">
-              <Package className="h-5 w-5 text-white" />
+            <div className="p-1.5 bg-gray-200/80 backdrop-blur-sm rounded-lg">
+              <Package className="h-5 w-5 text-gray-900" />
             </div>
             <div>
               <h2 className="text-xl font-bold text-white flex items-center gap-2">
@@ -176,7 +176,7 @@ export default function DPCostTable() {
             <Button 
               onClick={handleOpenDialog}
               size="sm"
-              className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border border-white/50"
+              className="bg-gray-200/80 backdrop-blur-sm hover:bg-gray-300/80 text-white border border-gray-400"
             >
               <Plus className="h-3 w-3 mr-1" />
               추가
@@ -209,7 +209,7 @@ export default function DPCostTable() {
       <div className="rounded-lg border overflow-hidden shadow-sm">
         <Table>
           <TableHeader>
-            <TableRow className="bg-gray-800">
+            <TableRow className="bg-gray-200">
               <TableHead className="h-9 text-xs font-bold whitespace-nowrap">항구</TableHead>
               <TableHead className="h-9 text-xs font-bold whitespace-nowrap">DP 비용</TableHead>
               <TableHead className="h-9 text-xs font-bold whitespace-nowrap">유효기간</TableHead>

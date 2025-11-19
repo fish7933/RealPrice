@@ -210,7 +210,7 @@ export default function UserManagement() {
     switch (role) {
       case 'superadmin':
         return (
-          <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold bg-gray-800 text-white shadow-lg">
+          <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold bg-gray-200 text-white shadow-lg">
             <Crown className="h-3 w-3" />
             최고관리자
           </span>
@@ -258,18 +258,18 @@ export default function UserManagement() {
     <Layout>
       <div className="space-y-6">
         {/* Gray Header */}
-        <div className="relative overflow-hidden rounded-xl bg-gray-800 p-4 shadow-xl">
+        <div className="relative overflow-hidden rounded-xl bg-gray-200 p-4 shadow-xl">
           <div className="absolute inset-0 bg-grid-white/5"></div>
           <div className="relative">
             <div className="flex items-center gap-2">
               <div className="p-1.5 bg-white/10 backdrop-blur-sm rounded-lg">
-                <UsersIcon className="h-5 w-5 text-white" />
+                <UsersIcon className="h-5 w-5 text-gray-900" />
               </div>
-              <h1 className="text-2xl font-bold text-white">
+              <h1 className="text-2xl font-bold text-gray-900">
                 사용자 관리
               </h1>
             </div>
-            <p className="text-gray-300 text-sm ml-9">시스템 사용자 및 권한 관리</p>
+            <p className="text-gray-600 text-sm ml-9">시스템 사용자 및 권한 관리</p>
           </div>
         </div>
 
@@ -350,7 +350,7 @@ export default function UserManagement() {
               <Button 
                 onClick={() => setIsAddDialogOpen(true)} 
                 disabled={isLoading}
-                className="bg-gray-800 hover:bg-gray-900 text-white shadow-lg"
+                className="bg-gray-200 hover:bg-gray-900 text-white shadow-lg"
               >
                 <UserPlus className="h-4 w-4 mr-2" />
                 사용자 추가
@@ -491,7 +491,7 @@ export default function UserManagement() {
               <Button 
                 onClick={handleTransferSuperadmin}
                 disabled={!selectedAdminForTransfer || isLoading}
-                className="bg-gray-800 hover:bg-gray-900"
+                className="bg-gray-200 hover:bg-gray-900"
               >
                 권한 위임
               </Button>
@@ -579,7 +579,7 @@ export default function UserManagement() {
               <Button 
                 onClick={handleAddUser} 
                 disabled={isLoading}
-                className="bg-gray-800 hover:bg-gray-900"
+                className="bg-gray-200 hover:bg-gray-900"
               >
                 {isLoading ? '처리 중...' : '추가'}
               </Button>
@@ -655,7 +655,7 @@ export default function UserManagement() {
               <Button 
                 onClick={handleEditUser} 
                 disabled={isLoading}
-                className="bg-gray-800 hover:bg-gray-900"
+                className="bg-gray-200 hover:bg-gray-900"
               >
                 {isLoading ? '처리 중...' : '수정'}
               </Button>

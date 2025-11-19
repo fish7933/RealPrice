@@ -173,11 +173,11 @@ export default function WeightSurchargeTable() {
         <div className="absolute inset-0 bg-grid-white/10"></div>
         <div className="relative flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <div className="p-1 bg-white/20 backdrop-blur-sm rounded-lg">
-              <Weight className="h-4 w-4 text-white" />
+            <div className="p-1 bg-gray-200/80 backdrop-blur-sm rounded-lg">
+              <Weight className="h-4 w-4 text-gray-900" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-white">중량할증 관리</h2>
+              <h2 className="text-lg font-bold text-gray-900">중량할증 관리</h2>
               <p className="text-xs text-indigo-50">트럭 대리점별 중량 구간에 따른 할증 요율 설정</p>
             </div>
           </div>
@@ -188,7 +188,7 @@ export default function WeightSurchargeTable() {
                 setValidationWarning(null);
               }}
               size="sm"
-              className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border border-white/50 h-7 text-xs"
+              className="bg-gray-200/80 backdrop-blur-sm hover:bg-gray-300/80 text-white border border-gray-400 h-7 text-xs"
             >
               <Plus className="h-3 w-3 mr-1" />
               추가

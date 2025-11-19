@@ -95,23 +95,23 @@ export default function PortTable() {
   return (
     <div className="space-y-4">
       {/* Header Section - Compact Design */}
-      <div className="relative overflow-hidden rounded-lg bg-gray-700 p-3 text-white shadow-lg">
+      <div className="relative overflow-hidden rounded-lg bg-gray-100 p-3 text-white shadow-lg">
         <div className="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-white/10 blur-2xl"></div>
         <div className="absolute bottom-0 left-0 -mb-4 -ml-4 h-24 w-24 rounded-full bg-white/10 blur-2xl"></div>
         <div className="relative flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <div className="p-1 bg-white/20 backdrop-blur-sm rounded-lg">
+            <div className="p-1 bg-gray-200/80 backdrop-blur-sm rounded-lg">
               <Anchor className="h-4 w-4" />
             </div>
             <div>
               <h2 className="text-lg font-bold">포트 관리</h2>
-              <p className="text-xs text-gray-300">선적포트(POL)와 양하포트(POD)를 관리합니다</p>
+              <p className="text-xs text-gray-600">선적포트(POL)와 양하포트(POD)를 관리합니다</p>
             </div>
           </div>
           <Button 
             onClick={handleAdd}
             size="sm"
-            className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border border-white/50 h-7 text-xs"
+            className="bg-gray-200/80 backdrop-blur-sm hover:bg-gray-300/80 text-white border border-gray-400 h-7 text-xs"
           >
             <Plus className="h-3 w-3 mr-1" />
             추가
@@ -122,19 +122,19 @@ export default function PortTable() {
       {/* POL Ports */}
       <div className="space-y-3">
         <div className="flex items-center gap-2">
-          <div className="p-2 bg-gray-700 rounded-lg shadow-sm">
-            <Ship className="h-4 w-4 text-white" />
+          <div className="p-2 bg-gray-100 rounded-lg shadow-sm">
+            <Ship className="h-4 w-4 text-gray-900" />
           </div>
           <h4 className="text-base font-bold text-blue-700">선적포트 (POL) - {polPorts.length}개</h4>
         </div>
         <div className="rounded-lg overflow-hidden shadow-md border-2 border-gray-300">
           <Table>
             <TableHeader>
-              <TableRow className="bg-gray-800">
-                <TableHead className="h-10 text-sm text-white font-extrabold whitespace-nowrap">포트명</TableHead>
-                <TableHead className="h-10 text-sm text-white font-extrabold whitespace-nowrap">국가</TableHead>
-                <TableHead className="h-10 text-sm text-white font-extrabold whitespace-nowrap">설명</TableHead>
-                <TableHead className="h-9 text-xs text-right text-white font-bold whitespace-nowrap">작업</TableHead>
+              <TableRow className="bg-gray-200">
+                <TableHead className="h-10 text-sm text-gray-900 font-extrabold whitespace-nowrap">포트명</TableHead>
+                <TableHead className="h-10 text-sm text-gray-900 font-extrabold whitespace-nowrap">국가</TableHead>
+                <TableHead className="h-10 text-sm text-gray-900 font-extrabold whitespace-nowrap">설명</TableHead>
+                <TableHead className="h-9 text-xs text-right text-gray-900 font-bold whitespace-nowrap">작업</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -152,8 +152,8 @@ export default function PortTable() {
                   <TableRow key={port.id} className="hover:bg-blue-50 transition-colors duration-150">
                     <TableCell className="py-3 text-sm font-medium whitespace-nowrap">
                       <div className="flex items-center gap-2">
-                        <div className="p-2 bg-gray-700 rounded-lg shadow-sm">
-                          <Anchor className="h-3 w-3 text-white" />
+                        <div className="p-2 bg-gray-100 rounded-lg shadow-sm">
+                          <Anchor className="h-3 w-3 text-gray-900" />
                         </div>
                         <span className="text-gray-900">{port.name}</span>
                       </div>
@@ -191,19 +191,19 @@ export default function PortTable() {
       {/* POD Ports */}
       <div className="space-y-3">
         <div className="flex items-center gap-2">
-          <div className="p-2 bg-gray-700 rounded-lg shadow-sm">
-            <Globe className="h-4 w-4 text-white" />
+          <div className="p-2 bg-gray-100 rounded-lg shadow-sm">
+            <Globe className="h-4 w-4 text-gray-900" />
           </div>
           <h4 className="text-base font-bold text-purple-700">양하포트 (POD) - {podPorts.length}개</h4>
         </div>
         <div className="rounded-lg overflow-hidden shadow-md border-2 border-gray-300">
           <Table>
             <TableHeader>
-              <TableRow className="bg-gray-800">
-                <TableHead className="h-10 text-sm text-white font-extrabold whitespace-nowrap">포트명</TableHead>
-                <TableHead className="h-10 text-sm text-white font-extrabold whitespace-nowrap">국가</TableHead>
-                <TableHead className="h-10 text-sm text-white font-extrabold whitespace-nowrap">설명</TableHead>
-                <TableHead className="h-9 text-xs text-right text-white font-bold whitespace-nowrap">작업</TableHead>
+              <TableRow className="bg-gray-200">
+                <TableHead className="h-10 text-sm text-gray-900 font-extrabold whitespace-nowrap">포트명</TableHead>
+                <TableHead className="h-10 text-sm text-gray-900 font-extrabold whitespace-nowrap">국가</TableHead>
+                <TableHead className="h-10 text-sm text-gray-900 font-extrabold whitespace-nowrap">설명</TableHead>
+                <TableHead className="h-9 text-xs text-right text-gray-900 font-bold whitespace-nowrap">작업</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -221,8 +221,8 @@ export default function PortTable() {
                   <TableRow key={port.id} className="hover:bg-blue-50 transition-colors duration-150">
                     <TableCell className="py-3 text-sm font-medium whitespace-nowrap">
                       <div className="flex items-center gap-2">
-                        <div className="p-2 bg-gray-700 rounded-lg shadow-sm">
-                          <Anchor className="h-3 w-3 text-white" />
+                        <div className="p-2 bg-gray-100 rounded-lg shadow-sm">
+                          <Anchor className="h-3 w-3 text-gray-900" />
                         </div>
                         <span className="text-gray-900">{port.name}</span>
                       </div>
@@ -262,8 +262,8 @@ export default function PortTable() {
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-2xl">
-              <div className="p-2 bg-gray-600 rounded-lg">
-                <Anchor className="h-5 w-5 text-white" />
+              <div className="p-2 bg-gray-200 rounded-lg">
+                <Anchor className="h-5 w-5 text-gray-900" />
               </div>
               {editingPort ? '포트 수정' : '포트 추가'}
             </DialogTitle>
@@ -319,7 +319,7 @@ export default function PortTable() {
             </Button>
             <Button 
               onClick={handleSubmit}
-              className="bg-gray-600 hover:bg-gray-800 text-white shadow-lg"
+              className="bg-gray-600 hover:bg-gray-200 text-white shadow-lg"
             >
               {editingPort ? <><Pencil className="h-4 w-4 mr-2" />수정</> : <><Plus className="h-4 w-4 mr-2" />추가</>}
             </Button>

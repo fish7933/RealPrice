@@ -84,24 +84,24 @@ export default function TruckAgentTable() {
   return (
     <div className="space-y-4">
       {/* Compact Header */}
-      <div className="relative overflow-hidden rounded-lg bg-gray-700 p-3 text-white shadow-lg">
+      <div className="relative overflow-hidden rounded-lg bg-gray-100 p-3 text-white shadow-lg">
         <div className="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-white/10 blur-2xl"></div>
         <div className="absolute bottom-0 left-0 -mb-4 -ml-4 h-24 w-24 rounded-full bg-white/10 blur-2xl"></div>
         <div className="relative flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <div className="p-1 bg-white/20 backdrop-blur-sm rounded-lg">
+            <div className="p-1 bg-gray-200/80 backdrop-blur-sm rounded-lg">
               <Truck className="h-4 w-4" />
             </div>
             <div>
               <h3 className="text-lg font-bold">트럭 대리점 관리</h3>
-              <p className="text-xs text-gray-300">트럭 운송을 담당하는 대리점을 관리합니다</p>
+              <p className="text-xs text-gray-600">트럭 운송을 담당하는 대리점을 관리합니다</p>
             </div>
           </div>
           {isAdmin && (
             <Button 
               onClick={() => setIsAddDialogOpen(true)}
               size="sm"
-              className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border border-white/50 h-7 text-xs"
+              className="bg-gray-200/80 backdrop-blur-sm hover:bg-gray-300/80 text-white border border-gray-400 h-7 text-xs"
             >
               <Plus className="h-3 w-3 mr-1" />
               추가
@@ -114,12 +114,12 @@ export default function TruckAgentTable() {
       <div className="rounded-lg overflow-hidden shadow-md border-2 border-gray-300">
         <Table>
           <TableHeader>
-            <TableRow className="bg-gray-800">
-              <TableHead className="h-10 text-sm text-white font-extrabold whitespace-nowrap">대리점명</TableHead>
-              <TableHead className="h-10 text-sm text-white font-extrabold whitespace-nowrap">코드</TableHead>
-              <TableHead className="h-10 text-sm text-white font-extrabold whitespace-nowrap">설명</TableHead>
-              <TableHead className="h-10 text-sm text-white font-extrabold whitespace-nowrap">등록일</TableHead>
-              {isAdmin && <TableHead className="h-9 text-xs text-right text-white font-bold whitespace-nowrap">작업</TableHead>}
+            <TableRow className="bg-gray-200">
+              <TableHead className="h-10 text-sm text-gray-900 font-extrabold whitespace-nowrap">대리점명</TableHead>
+              <TableHead className="h-10 text-sm text-gray-900 font-extrabold whitespace-nowrap">코드</TableHead>
+              <TableHead className="h-10 text-sm text-gray-900 font-extrabold whitespace-nowrap">설명</TableHead>
+              <TableHead className="h-10 text-sm text-gray-900 font-extrabold whitespace-nowrap">등록일</TableHead>
+              {isAdmin && <TableHead className="h-9 text-xs text-right text-gray-900 font-bold whitespace-nowrap">작업</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -128,8 +128,8 @@ export default function TruckAgentTable() {
                 <TableRow key={agent.id} className="hover:bg-blue-50 transition-colors duration-150">
                   <TableCell className="py-3 text-sm font-medium whitespace-nowrap">
                     <div className="flex items-center gap-2">
-                      <div className="p-2 bg-gray-700 rounded-lg shadow-sm">
-                        <Truck className="h-3 w-3 text-white" />
+                      <div className="p-2 bg-gray-100 rounded-lg shadow-sm">
+                        <Truck className="h-3 w-3 text-gray-900" />
                       </div>
                       <span className="text-gray-900">{agent.name}</span>
                     </div>
@@ -186,8 +186,8 @@ export default function TruckAgentTable() {
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-2xl">
-              <div className="p-2 bg-gray-600 rounded-lg">
-                <Truck className="h-5 w-5 text-white" />
+              <div className="p-2 bg-gray-200 rounded-lg">
+                <Truck className="h-5 w-5 text-gray-900" />
               </div>
               트럭 대리점 추가
             </DialogTitle>
@@ -235,7 +235,7 @@ export default function TruckAgentTable() {
             <Button 
               onClick={handleAdd} 
               disabled={!formData.name.trim() || !formData.code.trim()}
-              className="bg-gray-700 hover:bg-gray-800 text-white shadow-lg"
+              className="bg-gray-100 hover:bg-gray-200 text-white shadow-lg"
             >
               <Plus className="h-4 w-4 mr-2" />
               추가
@@ -249,8 +249,8 @@ export default function TruckAgentTable() {
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-2xl">
-              <div className="p-2 bg-gray-600 rounded-lg">
-                <Pencil className="h-5 w-5 text-white" />
+              <div className="p-2 bg-gray-200 rounded-lg">
+                <Pencil className="h-5 w-5 text-gray-900" />
               </div>
               트럭 대리점 수정
             </DialogTitle>
@@ -295,7 +295,7 @@ export default function TruckAgentTable() {
             <Button 
               onClick={handleUpdate} 
               disabled={!formData.name.trim() || !formData.code.trim()}
-              className="bg-gray-700 hover:bg-gray-800 text-white shadow-lg"
+              className="bg-gray-100 hover:bg-gray-200 text-white shadow-lg"
             >
               <Pencil className="h-4 w-4 mr-2" />
               수정

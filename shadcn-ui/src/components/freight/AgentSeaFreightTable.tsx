@@ -96,40 +96,42 @@ export default function AgentSeaFreightTable() {
     };
   }, [agentSeaFreights]);
 
-  // Filter agent sea freights
+  // Filter and sort agent sea freights by createdAt descending (most recent first)
   const filteredFreights = useMemo(() => {
-    return agentSeaFreights.filter((freight) => {
-      if (searchFilters.agent !== FILTER_ALL_VALUE && freight.agent !== searchFilters.agent) {
-        return false;
-      }
-
-      if (searchFilters.pol !== FILTER_ALL_VALUE && freight.pol !== searchFilters.pol) {
-        return false;
-      }
-
-      if (searchFilters.pod !== FILTER_ALL_VALUE && freight.pod !== searchFilters.pod) {
-        return false;
-      }
-
-      if (searchFilters.carrier !== FILTER_ALL_VALUE && freight.carrier !== searchFilters.carrier) {
-        return false;
-      }
-
-      if (searchFilters.status !== FILTER_ALL_VALUE) {
-        const validityStatus = getValidityStatus(freight.validFrom, freight.validTo);
-        if (searchFilters.status === 'expired' && validityStatus.status !== 'expired') {
+    return agentSeaFreights
+      .filter((freight) => {
+        if (searchFilters.agent !== FILTER_ALL_VALUE && freight.agent !== searchFilters.agent) {
           return false;
         }
-        if (searchFilters.status === 'expiring' && validityStatus.status !== 'expiring') {
-          return false;
-        }
-        if (searchFilters.status === 'active' && validityStatus.status !== 'active') {
-          return false;
-        }
-      }
 
-      return true;
-    });
+        if (searchFilters.pol !== FILTER_ALL_VALUE && freight.pol !== searchFilters.pol) {
+          return false;
+        }
+
+        if (searchFilters.pod !== FILTER_ALL_VALUE && freight.pod !== searchFilters.pod) {
+          return false;
+        }
+
+        if (searchFilters.carrier !== FILTER_ALL_VALUE && freight.carrier !== searchFilters.carrier) {
+          return false;
+        }
+
+        if (searchFilters.status !== FILTER_ALL_VALUE) {
+          const validityStatus = getValidityStatus(freight.validFrom, freight.validTo);
+          if (searchFilters.status === 'expired' && validityStatus.status !== 'expired') {
+            return false;
+          }
+          if (searchFilters.status === 'expiring' && validityStatus.status !== 'expiring') {
+            return false;
+          }
+          if (searchFilters.status === 'active' && validityStatus.status !== 'active') {
+            return false;
+          }
+        }
+
+        return true;
+      })
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }, [agentSeaFreights, searchFilters]);
 
   const totalPages = Math.ceil(filteredFreights.length / ITEMS_PER_PAGE);
@@ -692,10 +694,13 @@ export default function AgentSeaFreightTable() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => {
-              setIsAddDialogOpen(false);
-              setValidationWarning(null);
-            }}>
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setIsAddDialogOpen(false);
+                setValidationWarning(null);
+              }}
+            >
               취소
             </Button>
             <Button onClick={handleAdd} className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600">추가</Button>

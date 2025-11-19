@@ -106,7 +106,8 @@ export default function CombinedFreightTable() {
   }, [combinedFreights, destinations]);
 
   const filteredFreights = useMemo(() => {
-    return combinedFreights.filter((freight) => {
+    return combinedFreights
+      .filter((freight) => {
       if (searchFilters.agent !== FILTER_ALL_VALUE && freight.agent !== searchFilters.agent) {
         return false;
       }

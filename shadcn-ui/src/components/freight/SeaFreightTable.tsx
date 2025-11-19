@@ -94,36 +94,38 @@ export default function SeaFreightTable() {
     };
   }, [seaFreights]);
 
-  // Filter sea freights
+  // Filter and sort sea freights by createdAt descending (most recent first)
   const filteredFreights = useMemo(() => {
-    return seaFreights.filter((freight) => {
-      if (searchFilters.pol !== FILTER_ALL_VALUE && freight.pol !== searchFilters.pol) {
-        return false;
-      }
-
-      if (searchFilters.pod !== FILTER_ALL_VALUE && freight.pod !== searchFilters.pod) {
-        return false;
-      }
-
-      if (searchFilters.carrier !== FILTER_ALL_VALUE && freight.carrier !== searchFilters.carrier) {
-        return false;
-      }
-
-      if (searchFilters.status !== FILTER_ALL_VALUE) {
-        const validityStatus = getValidityStatus(freight.validFrom, freight.validTo);
-        if (searchFilters.status === 'expired' && validityStatus.status !== 'expired') {
+    return seaFreights
+      .filter((freight) => {
+        if (searchFilters.pol !== FILTER_ALL_VALUE && freight.pol !== searchFilters.pol) {
           return false;
         }
-        if (searchFilters.status === 'expiring' && validityStatus.status !== 'expiring') {
-          return false;
-        }
-        if (searchFilters.status === 'active' && validityStatus.status !== 'active') {
-          return false;
-        }
-      }
 
-      return true;
-    });
+        if (searchFilters.pod !== FILTER_ALL_VALUE && freight.pod !== searchFilters.pod) {
+          return false;
+        }
+
+        if (searchFilters.carrier !== FILTER_ALL_VALUE && freight.carrier !== searchFilters.carrier) {
+          return false;
+        }
+
+        if (searchFilters.status !== FILTER_ALL_VALUE) {
+          const validityStatus = getValidityStatus(freight.validFrom, freight.validTo);
+          if (searchFilters.status === 'expired' && validityStatus.status !== 'expired') {
+            return false;
+          }
+          if (searchFilters.status === 'expiring' && validityStatus.status !== 'expiring') {
+            return false;
+          }
+          if (searchFilters.status === 'active' && validityStatus.status !== 'active') {
+            return false;
+          }
+        }
+
+        return true;
+      })
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }, [seaFreights, searchFilters]);
 
   const totalPages = Math.ceil(filteredFreights.length / ITEMS_PER_PAGE);

@@ -60,6 +60,7 @@ export default function DTHCTable() {
   const podPorts = ports.filter(p => p.type === 'POD');
 
   const dthcByAgent = dthcList
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     .filter(dthc => dthc && dthc.agent && dthc.pol && dthc.pod && dthc.carrier && dthc.amount !== undefined)
     .reduce((acc, dthc) => {
       if (!acc[dthc.agent]) {

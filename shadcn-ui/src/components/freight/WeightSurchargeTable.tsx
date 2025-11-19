@@ -56,6 +56,7 @@ export default function WeightSurchargeTable() {
   const rulesByAgent = truckAgents.map((agent) => ({
     agent: agent.name,
     rules: weightSurchargeRules
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
       .filter((r) => r.agent === agent.name)
       .sort((a, b) => a.minWeight - b.minWeight),
   }));

@@ -218,7 +218,7 @@ export default function DPCostTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {dpCosts.map((dpCost) => {
+            {dpCosts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map((dpCost) => {
               const validityStatus = getValidityStatus(dpCost.validFrom, dpCost.validTo);
               
               return (

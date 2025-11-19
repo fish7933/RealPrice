@@ -168,17 +168,23 @@ export default function CostCalculatorWithTabs() {
     }
   }, [user?.id]);
 
-  // Sea freight options
+  // ✅ FIXED: Sea freight options with historical date support
   useEffect(() => {
+    console.log('🔍 [useEffect] Sea freight options update triggered');
+    console.log('   POL:', input.pol, 'POD:', input.pod, 'Historical Date:', historicalDate);
+    
     if (input.pol && input.pod) {
-      const options = getSeaFreightOptions(input.pol, input.pod);
+      // ✅ Pass historicalDate to getSeaFreightOptions
+      const options = getSeaFreightOptions(input.pol, input.pod, historicalDate || undefined);
+      console.log(`   📦 Found ${options.length} sea freight options for date: ${historicalDate || 'current'}`);
+      
       setSeaFreightOptions(options);
       setSelectedSeaFreightIds(new Set());
     } else {
       setSeaFreightOptions([]);
       setSelectedSeaFreightIds(new Set());
     }
-  }, [input.pol, input.pod, getSeaFreightOptions]);
+  }, [input.pol, input.pod, historicalDate, getSeaFreightOptions]); // ✅ Added historicalDate to dependencies
 
   // Save result to localStorage
   useEffect(() => {

@@ -62,13 +62,13 @@ export default function CalculationSqlPreviewDialog({
     sql += `  AND ${dateCondition};\n\n`;
 
     sql += `-- 1-2. 대리점별 해상운임 (모든 대리점)\n`;
+    sql += `-- 참고: agent_sea_freights 테이블은 local_charge 대신 llocal 컬럼 사용\n`;
     sql += `SELECT \n`;
     sql += `  id,\n`;
     sql += `  agent,\n`;
     sql += `  pol,\n`;
     sql += `  pod,\n`;
     sql += `  rate,\n`;
-    sql += `  local_charge,\n`;
     sql += `  llocal,\n`;
     sql += `  carrier,\n`;
     sql += `  valid_from,\n`;

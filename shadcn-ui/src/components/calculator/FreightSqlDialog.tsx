@@ -64,13 +64,13 @@ export default function FreightSqlDialog({
       }
       sql += `  AND ${dateCondition};\n\n`;
     } else {
+      sql += `-- 참고: agent_sea_freights 테이블은 local_charge 대신 llocal 컬럼 사용\n`;
       sql += `SELECT \n`;
       sql += `  id,\n`;
       sql += `  agent,\n`;
       sql += `  pol,\n`;
       sql += `  pod,\n`;
       sql += `  rate,\n`;
-      sql += `  local_charge,\n`;
       sql += `  llocal,\n`;
       sql += `  carrier,\n`;
       sql += `  valid_from,\n`;
@@ -91,7 +91,7 @@ export default function FreightSqlDialog({
       sql += `-- 2. LOCAL 차지 조회\n`;
       sql += `-- ========================================\n`;
       sql += `-- 금액: $${breakdown.localCharge}\n`;
-      sql += `-- 참고: 해상운임 테이블의 local_charge 또는 llocal 컬럼에서 조회\n\n`;
+      sql += `-- 참고: 해상운임 테이블의 local_charge (일반) 또는 llocal (대리점) 컬럼에서 조회\n\n`;
     }
 
     // 3. DTHC

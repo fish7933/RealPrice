@@ -218,38 +218,36 @@ export default function CostCalculatorWithTabs() {
       return;
     }
 
+    // ✅ FIXED: Show dialog only if there are multiple general sea freight options
     if (seaFreightOptions.length > 1 && selectedSeaFreightIds.size === 0) {
       setShowSeaFreightDialog(true);
       return;
     }
 
+    // ✅ FIXED: Prepare sea freight IDs for calculation
+    // - If user selected specific freights, use those
+    // - If there's only one general sea freight, use it
+    // - If there are no general sea freights, pass empty array (calculation will use agent sea freight)
     const seaFreightIdsToCalculate = selectedSeaFreightIds.size > 0 
       ? Array.from(selectedSeaFreightIds)
       : seaFreightOptions.length === 1 
         ? [seaFreightOptions[0].id]
         : [];
 
-    if (seaFreightIdsToCalculate.length === 0) {
-      const missingRates: string[] = [];
-      
-      if (seaFreightOptions.length === 0) {
-        missingRates.push(`${input.pol} → ${input.pod} 항로의 해상운임`);
-      }
-      
-      const errorMsg = missingRates.length > 0 
-        ? `다음 운임 정보가 등록되지 않았습니다:\n• ${missingRates.join('\n• ')}\n\n관리자 대시보드에서 해당 운임을 먼저 등록해주세요.`
-        : '해상 운임을 선택해주세요.';
-      
-      setError(errorMsg);
-      return;
-    }
+    console.log(`\n🔍 ===== 계산 시작 =====`);
+    console.log(`   일반 해상운임 옵션: ${seaFreightOptions.length}개`);
+    console.log(`   선택된 일반 해상운임: ${seaFreightIdsToCalculate.length}개`);
+    console.log(`   대리점 해상운임 사용 가능 여부: 계산 로직에서 자동 판단`);
 
     const allBreakdowns: AgentCostBreakdown[] = [];
     
-    seaFreightIdsToCalculate.forEach(seaFreightId => {
+    // ✅ FIXED: If no general sea freight, try calculation without it (will use agent sea freight if available)
+    if (seaFreightIdsToCalculate.length === 0) {
+      console.log(`   ⚠️ 일반 해상운임 없음 - 대리점 해상운임으로 계산 시도`);
+      
       const calculationInput = {
         ...input,
-        selectedSeaFreightId: seaFreightId,
+        selectedSeaFreightId: undefined, // No general sea freight selected
         historicalDate: historicalDate || undefined,
       };
 
@@ -258,12 +256,30 @@ export default function CostCalculatorWithTabs() {
       if (calculationResult) {
         allBreakdowns.push(...calculationResult.breakdown);
       }
-    });
+    } else {
+      // Calculate with selected general sea freight options
+      seaFreightIdsToCalculate.forEach(seaFreightId => {
+        const calculationInput = {
+          ...input,
+          selectedSeaFreightId: seaFreightId,
+          historicalDate: historicalDate || undefined,
+        };
+
+        const calculationResult = calculateCost(calculationInput);
+        
+        if (calculationResult) {
+          allBreakdowns.push(...calculationResult.breakdown);
+        }
+      });
+    }
 
     if (allBreakdowns.length === 0) {
       const destination = getDestinationById(input.destinationId);
       const destinationName = destination?.name || input.destinationId;
       const missingRates: string[] = [];
+      
+      // ✅ IMPROVED: Better error message
+      missingRates.push(`${input.pol} → ${input.pod} 항로의 해상운임 (일반 또는 대리점)`);
       
       if (input.includeDP) {
         missingRates.push(`${input.pol} → ${input.pod} → ${destinationName} 경로의 철도운임 (POD → KASHGAR)`);
@@ -344,9 +360,17 @@ export default function CostCalculatorWithTabs() {
     setExcludedCosts(resetExcluded);
     setCellExclusions({});
 
+    // ✅ IMPROVED: Better success message
+    const usedAgentSeaFreight = filteredBreakdown.some(b => b.isAgentSpecificSeaFreight);
+    const freightTypeMsg = usedAgentSeaFreight 
+      ? '대리점 해상운임' 
+      : seaFreightIdsToCalculate.length > 0 
+        ? `${seaFreightIdsToCalculate.length}개의 선사 운임`
+        : '해상운임';
+    
     toast({
       title: '계산 완료',
-      description: `${selectedSeaFreightIds.size}개의 선사 운임으로 ${filteredBreakdown.length}개의 고유 조합이 계산되었습니다.`,
+      description: `${freightTypeMsg}으로 ${filteredBreakdown.length}개의 고유 조합이 계산되었습니다.`,
     });
   };
 

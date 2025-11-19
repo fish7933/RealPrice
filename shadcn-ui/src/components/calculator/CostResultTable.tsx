@@ -6,11 +6,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Ship, Train, Truck, Weight, Package, Star, FileText, DollarSign, 
   Info, ArrowUp, ArrowDown, Merge, TrendingDown, AlertTriangle, 
-  FileSpreadsheet, Sparkles, Trophy, Zap, Plus, Hash, Calculator
+  FileSpreadsheet, Sparkles, Trophy, Zap, Plus, Hash, Calculator, Database
 } from 'lucide-react';
 import { CostCalculationResult, AgentCostBreakdown, CostCalculationInput } from '@/types/freight';
 import { ExcludedCosts, CellExclusions, SortConfig } from './types';
 import { DebugLLocal } from './DebugLLocal';
+import FreightSqlDialog from './FreightSqlDialog';
 
 interface CostResultTableProps {
   result: CostCalculationResult | null;
@@ -43,6 +44,8 @@ export default function CostResultTable({
   onCreateQuotation,
   getDestinationName,
 }: CostResultTableProps) {
+  const [sqlDialogOpen, setSqlDialogOpen] = useState(false);
+  const [selectedBreakdown, setSelectedBreakdown] = useState<AgentCostBreakdown | null>(null);
   
   const isCellExcluded = (agentIndex: number, costType: string): boolean => {
     return cellExclusions[agentIndex]?.[costType] || false;
@@ -163,6 +166,11 @@ export default function CostResultTable({
 
   const isExpired = (breakdown: AgentCostBreakdown, field: string) => {
     return breakdown.expiredRateDetails?.includes(field) || false;
+  };
+
+  const handleShowSql = (breakdown: AgentCostBreakdown) => {
+    setSelectedBreakdown(breakdown);
+    setSqlDialogOpen(true);
   };
 
   const renderResultTable = (resultData: CostCalculationResult, showDpColumn: boolean = false) => {
@@ -400,10 +408,13 @@ export default function CostResultTable({
                         )}
                       </div>
                     </TableHead>
-                    <TableHead className="text-center whitespace-nowrap w-16 p-1 text-sm font-bold">
+                    <TableHead className="text-center whitespace-nowrap w-24 p-1 text-sm font-bold">
                       <div className="flex flex-col items-center gap-0.5">
-                        <FileSpreadsheet className="h-3.5 w-3.5" />
-                        <span className="text-xs">견적서</span>
+                        <div className="flex items-center gap-1">
+                          <FileSpreadsheet className="h-3.5 w-3.5" />
+                          <Database className="h-3.5 w-3.5" />
+                        </div>
+                        <span className="text-xs">작업</span>
                       </div>
                     </TableHead>
                   </TableRow>
@@ -705,26 +716,37 @@ export default function CostResultTable({
                           )}
                         </TableCell>
                         <TableCell className="text-center whitespace-nowrap p-1">
-                          {isLowest ? (
-                            <Button
-                              size="sm"
-                              onClick={() => onCreateQuotation(breakdown)}
-                              className="h-8 w-8 p-0 bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-700 hover:to-yellow-700 text-white border border-amber-500 shadow-sm hover:shadow-md transition-all duration-200"
-                              title="견적서 생성"
-                            >
-                              <FileSpreadsheet className="h-4 w-4" />
-                            </Button>
-                          ) : (
+                          <div className="flex items-center justify-center gap-1">
+                            {isLowest ? (
+                              <Button
+                                size="sm"
+                                onClick={() => onCreateQuotation(breakdown)}
+                                className="h-8 w-8 p-0 bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-700 hover:to-yellow-700 text-white border border-amber-500 shadow-sm hover:shadow-md transition-all duration-200"
+                                title="견적서 생성"
+                              >
+                                <FileSpreadsheet className="h-4 w-4" />
+                              </Button>
+                            ) : (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => onCreateQuotation(breakdown)}
+                                className="h-8 w-8 p-0 hover:bg-gray-100 transition-colors"
+                                title="견적서 생성"
+                              >
+                                <FileSpreadsheet className="h-4 w-4 text-gray-600" />
+                              </Button>
+                            )}
                             <Button
                               size="sm"
                               variant="ghost"
-                              onClick={() => onCreateQuotation(breakdown)}
-                              className="h-8 w-8 p-0 hover:bg-gray-100 transition-colors"
-                              title="견적서 생성"
+                              onClick={() => handleShowSql(breakdown)}
+                              className="h-8 w-8 p-0 hover:bg-blue-100 transition-colors"
+                              title="SQL 보기"
                             >
-                              <FileSpreadsheet className="h-4 w-4 text-gray-600" />
+                              <Database className="h-4 w-4 text-blue-600" />
                             </Button>
-                          )}
+                          </div>
                         </TableCell>
                       </TableRow>
                     );
@@ -794,49 +816,61 @@ export default function CostResultTable({
   }
 
   return (
-    <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'filtered' | 'all')}>
-      <TabsList className="grid w-full grid-cols-2">
-        <TabsTrigger value="filtered" disabled={!result}>
-          필터링된 결과 {result && `(${result.breakdown.length}개)`}
-        </TabsTrigger>
-        <TabsTrigger value="all" disabled={!allFreightsResult}>
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4" />
-            모든 운임 {allFreightsResult && `(${allFreightsResult.breakdown.length}개)`}
-          </div>
-        </TabsTrigger>
-      </TabsList>
-      
-      <TabsContent value="filtered" className="space-y-4 mt-4">
-        {result && (
-          <>
-            <Alert className="bg-blue-50 border-blue-200">
-              <Info className="h-4 w-4 text-blue-600" />
-              <AlertDescription className="text-blue-900">
-                {input.includeDP 
-                  ? '✅ DP 포함: 철도+트럭 분리 운임만 표시됩니다'
-                  : '✅ DP 미포함: 철도+트럭 통합 운임만 표시됩니다'
-                }
-              </AlertDescription>
-            </Alert>
-            {renderResultTable(result, false)}
-          </>
-        )}
-      </TabsContent>
-      
-      <TabsContent value="all" className="space-y-4 mt-4">
-        {allFreightsResult && (
-          <>
-            <Alert className="bg-purple-50 border-purple-200">
-              <Sparkles className="h-4 w-4 text-purple-600" />
-              <AlertDescription className="text-purple-900">
-                <strong>✨ 제약 없이 보기:</strong> DP 필터를 무시하고 모든 운임 조합(철도+트럭 통합 운임 + 분리 운임)을 표시합니다. "운임 유형" 컬럼에서 각 조합이 철도+트럭 통합운임인지 DP 포함 분리운임인지 확인할 수 있으며, DP 컬럼에서 실제 DP 값을 확인할 수 있습니다.
-              </AlertDescription>
-            </Alert>
-            {renderResultTable(allFreightsResult, true)}
-          </>
-        )}
-      </TabsContent>
-    </Tabs>
+    <>
+      <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'filtered' | 'all')}>
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="filtered" disabled={!result}>
+            필터링된 결과 {result && `(${result.breakdown.length}개)`}
+          </TabsTrigger>
+          <TabsTrigger value="all" disabled={!allFreightsResult}>
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-4 w-4" />
+              모든 운임 {allFreightsResult && `(${allFreightsResult.breakdown.length}개)`}
+            </div>
+          </TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="filtered" className="space-y-4 mt-4">
+          {result && (
+            <>
+              <Alert className="bg-blue-50 border-blue-200">
+                <Info className="h-4 w-4 text-blue-600" />
+                <AlertDescription className="text-blue-900">
+                  {input.includeDP 
+                    ? '✅ DP 포함: 철도+트럭 분리 운임만 표시됩니다'
+                    : '✅ DP 미포함: 철도+트럭 통합 운임만 표시됩니다'
+                  }
+                </AlertDescription>
+              </Alert>
+              {renderResultTable(result, false)}
+            </>
+          )}
+        </TabsContent>
+        
+        <TabsContent value="all" className="space-y-4 mt-4">
+          {allFreightsResult && (
+            <>
+              <Alert className="bg-purple-50 border-purple-200">
+                <Sparkles className="h-4 w-4 text-purple-600" />
+                <AlertDescription className="text-purple-900">
+                  <strong>✨ 제약 없이 보기:</strong> DP 필터를 무시하고 모든 운임 조합(철도+트럭 통합 운임 + 분리 운임)을 표시합니다. "운임 유형" 컬럼에서 각 조합이 철도+트럭 통합운임인지 DP 포함 분리운임인지 확인할 수 있으며, DP 컬럼에서 실제 DP 값을 확인할 수 있습니다.
+                </AlertDescription>
+              </Alert>
+              {renderResultTable(allFreightsResult, true)}
+            </>
+          )}
+        </TabsContent>
+      </Tabs>
+
+      {selectedBreakdown && (
+        <FreightSqlDialog
+          open={sqlDialogOpen}
+          onOpenChange={setSqlDialogOpen}
+          breakdown={selectedBreakdown}
+          input={input}
+          historicalDate={result?.historicalDate || allFreightsResult?.historicalDate}
+        />
+      )}
+    </>
   );
 }

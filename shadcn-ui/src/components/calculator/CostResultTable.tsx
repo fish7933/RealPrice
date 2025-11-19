@@ -390,7 +390,7 @@ export default function CostResultTable({
                       >
                         <div className="flex flex-col items-center gap-0.5">
                           <Plus className="h-3.5 w-3.5" />
-                          <span className="text-xs">{item.category}</span>
+                          <span className="text-xs">{item.name || `기타${index + 1}`}</span>
                         </div>
                       </TableHead>
                     ))}

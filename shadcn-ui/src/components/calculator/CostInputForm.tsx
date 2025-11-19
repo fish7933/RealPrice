@@ -91,15 +91,16 @@ export default function CostInputForm({
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* 한 줄로 모든 입력 필드 배치 */}
+      <div className="grid grid-cols-4 gap-3">
         <div className="space-y-2">
-          <Label htmlFor="pol">출발항 (POL)</Label>
+          <Label htmlFor="pol" className="text-sm">선적포트 (POL)</Label>
           <Select
             value={input.pol}
             onValueChange={(value) => setInput({ ...input, pol: value })}
           >
-            <SelectTrigger id="pol">
-              <SelectValue placeholder="출발항 선택" />
+            <SelectTrigger id="pol" className="h-9">
+              <SelectValue placeholder="선적포트" />
             </SelectTrigger>
             <SelectContent>
               {polPorts.map((port) => (
@@ -112,13 +113,13 @@ export default function CostInputForm({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="pod">중국항 (POD)</Label>
+          <Label htmlFor="pod" className="text-sm">하역포트 (POD)</Label>
           <Select
             value={input.pod}
             onValueChange={(value) => setInput({ ...input, pod: value })}
           >
-            <SelectTrigger id="pod">
-              <SelectValue placeholder="중국항 선택" />
+            <SelectTrigger id="pod" className="h-9">
+              <SelectValue placeholder="하역포트" />
             </SelectTrigger>
             <SelectContent>
               {podPorts.map((port) => (
@@ -131,13 +132,13 @@ export default function CostInputForm({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="destination">최종목적지</Label>
+          <Label htmlFor="destination" className="text-sm">최종목적지</Label>
           <Select
             value={input.destinationId}
             onValueChange={(value) => setInput({ ...input, destinationId: value })}
           >
-            <SelectTrigger id="destination">
-              <SelectValue placeholder="목적지 선택" />
+            <SelectTrigger id="destination" className="h-9">
+              <SelectValue placeholder="목적지" />
             </SelectTrigger>
             <SelectContent>
               {destinations.map((dest) => (
@@ -150,13 +151,14 @@ export default function CostInputForm({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="weight">중량 (kg)</Label>
+          <Label htmlFor="weight" className="text-sm">중량 (kg)</Label>
           <Input
             id="weight"
             type="number"
             value={input.weight || ''}
             onChange={(e) => setInput({ ...input, weight: parseFloat(e.target.value) || 0 })}
-            placeholder="중량 입력"
+            placeholder="중량"
+            className="h-9"
           />
         </div>
       </div>
@@ -217,7 +219,7 @@ export default function CostInputForm({
                     className="h-9"
                   />
                 </div>
-                <div className="w-32 space-y-2">
+                <div className="flex-1 space-y-2">
                   <Label htmlFor={`other-cost-amount-${index}`} className="text-xs">
                     금액 ($)
                   </Label>

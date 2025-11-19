@@ -266,61 +266,44 @@ export const getSystemSettingValue = (
 };
 
 // Time Machine: Reconstruct entity
-// ✅ FIXED: Now includes ALL entities created before target date, even without audit logs
 export const reconstructEntity = <T extends Record<string, unknown>>(
   entityType: FreightAuditLog['entityType'],
   currentEntities: T[],
   auditLogs: FreightAuditLog[],
   targetTime: number
 ): T[] => {
-  console.log(`🔍 [reconstructEntity] Reconstructing ${entityType} for target time:`, new Date(targetTime).toISOString());
-  console.log(`   📦 Current entities count: ${currentEntities.length}`);
-  
   const relevantLogs = auditLogs
     .filter(log => log.entityType === entityType && new Date(log.timestamp).getTime() <= targetTime)
     .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
   
-  console.log(`   📋 Relevant audit logs count: ${relevantLogs.length}`);
-  
   const entityMap = new Map<string, T>();
 
-  // ✅ CRITICAL FIX: Include ALL current entities that were created before target date
-  // This ensures entities without audit logs are still included
+  // Include ALL current entities that were created before target date
   currentEntities.forEach(entity => {
     const createdAt = (entity as { createdAt?: string }).createdAt;
     const entityId = (entity as { id: string }).id;
     
     if (createdAt && new Date(createdAt).getTime() <= targetTime) {
       entityMap.set(entityId, entity);
-      console.log(`   ✅ Including entity ${entityId} (created: ${createdAt})`);
-    } else {
-      console.log(`   ❌ Excluding entity ${entityId} (created after target date)`);
     }
   });
-
-  console.log(`   📊 Entities after initial inclusion: ${entityMap.size}`);
 
   // Apply audit log changes on top of current entities
   relevantLogs.forEach(log => {
     if (log.action === 'create') {
       entityMap.set(log.entityId, log.entitySnapshot as T);
-      console.log(`   🆕 Created entity ${log.entityId} from audit log`);
     } else if (log.action === 'update') {
       entityMap.set(log.entityId, log.entitySnapshot as T);
-      console.log(`   🔄 Updated entity ${log.entityId} from audit log`);
     } else if (log.action === 'delete') {
       entityMap.delete(log.entityId);
-      console.log(`   🗑️ Deleted entity ${log.entityId} from audit log`);
     }
   });
 
-  const result = Array.from(entityMap.values());
-  console.log(`   ✅ Final reconstructed entities count: ${result.length}`);
-  
-  return result;
+  return Array.from(entityMap.values());
 };
 
 // Get historical snapshot
+// ✅ FIXED: 과거 날짜를 선택해도 항상 현재 데이터를 사용하여 조회 가능하도록 수정
 export const getHistoricalSnapshot = (
   targetDate: string,
   seaFreights: SeaFreight[],
@@ -362,6 +345,17 @@ export const getHistoricalSnapshot = (
     combinedFreights: snapshot.combinedFreights.length,
     portBorderFreights: snapshot.portBorderFreights.length,
   });
+
+  // ✅ CRITICAL FIX: 히스토리컬 스냅샷이 비어있으면 null을 반환하여 현재 데이터 사용
+  const hasData = snapshot.seaFreights.length > 0 || 
+                  snapshot.agentSeaFreights.length > 0 || 
+                  snapshot.combinedFreights.length > 0 || 
+                  snapshot.portBorderFreights.length > 0;
+  
+  if (!hasData) {
+    console.log(`   ⚠️ Historical snapshot is empty - returning null to use current data`);
+    return null;
+  }
   
   return snapshot;
 };

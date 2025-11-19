@@ -778,6 +778,7 @@ export default function CostCalculatorWithTabs() {
         onConfirm={handleSeaFreightDialogConfirm}
         pol={input.pol}
         pod={input.pod}
+        historicalDate={historicalDate}
       />
 
       {selectedBreakdown && result && (

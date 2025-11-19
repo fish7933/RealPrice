@@ -43,23 +43,23 @@ export default function Layout({ children }: LayoutProps) {
 
   // Define navigation items based on user role
   const superadminNavItems = [
-    { path: '/users', label: '사용자', icon: Users, gradient: 'from-purple-500 to-pink-500' },
-    { path: '/dashboard', label: '대시보드', icon: LayoutDashboard, gradient: 'from-blue-500 to-cyan-500' },
-    { path: '/calculator', label: '운임 조회', icon: Calculator, gradient: 'from-green-500 to-emerald-500' },
-    { path: '/profile', label: '프로필', icon: Settings, gradient: 'from-orange-500 to-red-500' },
+    { path: '/users', label: '사용자', icon: Users },
+    { path: '/dashboard', label: '대시보드', icon: LayoutDashboard },
+    { path: '/calculator', label: '운임 조회', icon: Calculator },
+    { path: '/profile', label: '프로필', icon: Settings },
   ];
 
   const adminNavItems = [
-    { path: '/users', label: '사용자', icon: Users, gradient: 'from-purple-500 to-pink-500' },
-    { path: '/dashboard', label: '대시보드', icon: LayoutDashboard, gradient: 'from-blue-500 to-cyan-500' },
-    { path: '/calculator', label: '운임 조회', icon: Calculator, gradient: 'from-green-500 to-emerald-500' },
-    { path: '/profile', label: '프로필', icon: Settings, gradient: 'from-orange-500 to-red-500' },
+    { path: '/users', label: '사용자', icon: Users },
+    { path: '/dashboard', label: '대시보드', icon: LayoutDashboard },
+    { path: '/calculator', label: '운임 조회', icon: Calculator },
+    { path: '/profile', label: '프로필', icon: Settings },
   ];
 
   const userNavItems = [
-    { path: '/dashboard', label: '대시보드', icon: LayoutDashboard, gradient: 'from-blue-500 to-cyan-500' },
-    { path: '/calculator', label: '운임 조회', icon: Calculator, gradient: 'from-green-500 to-emerald-500' },
-    { path: '/profile', label: '프로필', icon: Settings, gradient: 'from-orange-500 to-red-500' },
+    { path: '/dashboard', label: '대시보드', icon: LayoutDashboard },
+    { path: '/calculator', label: '운임 조회', icon: Calculator },
+    { path: '/profile', label: '프로필', icon: Settings },
   ];
 
   const navItems = 
@@ -71,21 +71,21 @@ export default function Layout({ children }: LayoutProps) {
     switch (user?.role) {
       case 'superadmin':
         return (
-          <span className="text-xs px-3 py-1 bg-gray-600 text-gray-900 rounded-full flex items-center gap-1 font-semibold shadow-lg">
+          <span className="text-xs px-3 py-1 bg-blue-100 text-blue-700 rounded-full flex items-center gap-1 font-semibold border border-blue-200">
             <Shield className="h-3 w-3" />
             슈퍼 관리자
           </span>
         );
       case 'admin':
         return (
-          <span className="text-xs px-3 py-1 bg-gray-600 text-gray-900 rounded-full flex items-center gap-1 font-semibold shadow-lg">
+          <span className="text-xs px-3 py-1 bg-green-100 text-green-700 rounded-full flex items-center gap-1 font-semibold border border-green-200">
             <Shield className="h-3 w-3" />
             관리자
           </span>
         );
       default:
         return (
-          <span className="text-xs px-3 py-1 bg-gray-600 text-gray-900 rounded-full font-semibold shadow-lg">
+          <span className="text-xs px-3 py-1 bg-gray-100 text-gray-700 rounded-full font-semibold border border-gray-200">
             사용자
           </span>
         );
@@ -103,15 +103,15 @@ export default function Layout({ children }: LayoutProps) {
             to={item.path}
             className={`group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${
               isActive
-                ? `bg-gradient-to-r ${item.gradient} text-gray-900 shadow-lg scale-105`
-                : 'text-gray-700 hover:bg-gradient-to-r hover:bg-gray-200 hover:scale-102'
+                ? 'bg-blue-50 text-blue-700 border-2 border-blue-200 shadow-sm'
+                : 'text-gray-700 hover:bg-gray-100 border-2 border-transparent hover:border-gray-200'
             }`}
           >
-            <div className={`p-2 rounded-lg ${isActive ? 'bg-gray-200/80' : 'bg-gray-100 group-hover:bg-white'} transition-all`}>
-              <Icon className={`h-5 w-5 ${isActive ? 'text-gray-900' : 'text-gray-600'}`} />
+            <div className={`p-2 rounded-lg ${isActive ? 'bg-blue-100' : 'bg-gray-100 group-hover:bg-gray-200'} transition-all`}>
+              <Icon className={`h-5 w-5 ${isActive ? 'text-blue-600' : 'text-gray-600'}`} />
             </div>
-            <span className="font-medium">{item.label}</span>
-            {isActive && <Sparkles className="h-4 w-4 ml-auto animate-pulse" />}
+            <span className="font-semibold">{item.label}</span>
+            {isActive && <Sparkles className="h-4 w-4 ml-auto text-blue-600" />}
           </Link>
         );
       })}
@@ -120,23 +120,23 @@ export default function Layout({ children }: LayoutProps) {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Header with Gradient */}
-      <header className="bg-white/80 backdrop-blur-md border-b border-gray-200/50 sticky top-0 z-50 shadow-sm">
+      {/* Header */}
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-4">
             {/* Mobile Menu */}
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="lg:hidden hover:bg-gray-50">
+                <Button variant="ghost" size="icon" className="lg:hidden hover:bg-gray-100">
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-64 p-0 bg-gradient-to-b from-white to-gray-50">
+              <SheetContent side="left" className="w-64 p-0 bg-white">
                 <div className="flex flex-col h-full">
-                  <div className="p-6 border-b bg-gray-600">
+                  <div className="p-6 border-b bg-gray-50">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 bg-gray-200/80 rounded-lg backdrop-blur-sm">
-                        <Ship className="h-6 w-6 text-gray-900" />
+                      <div className="p-2 bg-blue-100 rounded-lg">
+                        <Ship className="h-6 w-6 text-blue-600" />
                       </div>
                       <span className="font-bold text-lg text-gray-900">운임 시스템</span>
                     </div>
@@ -148,30 +148,27 @@ export default function Layout({ children }: LayoutProps) {
               </SheetContent>
             </Sheet>
 
-            {/* Logo with Gradient */}
+            {/* Logo */}
             <Link to="/dashboard" className="flex items-center gap-3 group">
-              <div className="relative">
-                <div className="absolute inset-0 bg-gray-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition-opacity"></div>
-                <div className="relative p-2 bg-gray-200 rounded-lg">
-                  <Ship className="h-6 w-6 text-gray-900" />
-                </div>
+              <div className="p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
+                <Ship className="h-6 w-6 text-blue-600" />
               </div>
               <div className="hidden sm:block">
-                <div className="font-bold text-xl bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                <div className="font-bold text-xl text-gray-900">
                   운임 시스템
                 </div>
-                <div className="text-xs text-gray-800 font-medium">Freight Management</div>
+                <div className="text-xs text-gray-600 font-medium">Freight Management</div>
               </div>
             </Link>
           </div>
 
-          {/* User Info with Gradient */}
+          {/* User Info */}
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-3 px-4 py-2 bg-gray-600 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-              <div className="p-1.5 bg-gray-600 rounded-lg">
-                <User className="h-4 w-4 text-gray-900" />
+            <div className="flex items-center gap-3 px-4 py-2 bg-gray-50 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+              <div className="p-1.5 bg-gray-200 rounded-lg">
+                <User className="h-4 w-4 text-gray-700" />
               </div>
-              <span className="text-sm font-semibold text-gray-700">{user?.username}</span>
+              <span className="text-sm font-semibold text-gray-900">{user?.username}</span>
               {getRoleBadge()}
             </div>
             <AlertDialog>
@@ -179,7 +176,7 @@ export default function Layout({ children }: LayoutProps) {
                 <Button 
                   variant="ghost" 
                   size="icon"
-                  className="hover:bg-gray-50 hover:text-red-600 transition-colors rounded-xl"
+                  className="hover:bg-red-50 hover:text-red-600 transition-colors rounded-xl"
                 >
                   <LogOut className="h-5 w-5" />
                 </Button>
@@ -198,7 +195,7 @@ export default function Layout({ children }: LayoutProps) {
                   <AlertDialogCancel>취소</AlertDialogCancel>
                   <AlertDialogAction 
                     onClick={handleLogout}
-                    className="bg-gray-600 hover:bg-gray-200"
+                    className="bg-red-600 hover:bg-red-700"
                   >
                     로그아웃
                   </AlertDialogAction>
@@ -210,14 +207,11 @@ export default function Layout({ children }: LayoutProps) {
       </header>
 
       <div className="flex">
-        {/* Sidebar - Desktop with Gradient */}
-        <aside className="hidden lg:block w-72 bg-white/80 backdrop-blur-md border-r border-gray-200/50 min-h-[calc(100vh-73px)] sticky top-[73px] shadow-sm">
+        {/* Sidebar - Desktop */}
+        <aside className="hidden lg:block w-72 bg-white border-r border-gray-200 min-h-[calc(100vh-73px)] sticky top-[73px] shadow-sm">
           <nav className="p-4 space-y-2">
             <NavLinks />
           </nav>
-          
-          {/* Decorative Element */}
-          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 w-48 h-48 bg-gray-600 rounded-full blur-3xl opacity-20"></div>
         </aside>
 
         {/* Main Content */}

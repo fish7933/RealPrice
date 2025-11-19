@@ -182,19 +182,6 @@ export default function CostResultTable({
       <>
         <DebugLLocal breakdown={resultData.breakdown} />
 
-        <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
-          <div className="flex items-center gap-2 text-sm text-blue-900 mb-2">
-            <Info className="h-4 w-4" />
-            <span className="font-semibold">비용 항목 제외 기능:</span>
-          </div>
-          <div className="text-xs text-blue-700 space-y-0.5">
-            <div>* <strong>헤더 클릭:</strong> 해당 컬럼의 모든 값을 0으로 계산</div>
-            <div>* <strong>셀 클릭:</strong> 해당 조합의 특정 비용만 0으로 계산</div>
-            <div>* 제외된 항목은 회색으로 표시되며, 다시 클릭하면 포함됩니다</div>
-            <div>* "조합 코드", "선사", "철도", "트럭" 또는 "총액" 헤더를 클릭하면 해당 기준으로 정렬</div>
-          </div>
-        </div>
-
         {resultData.breakdown.some(b => b.hasExpiredRates) && (
           <Alert variant="destructive">
             <AlertTriangle className="h-4 w-4" />
@@ -755,6 +742,7 @@ export default function CostResultTable({
               </Table>
             </div>
 
+            {/* Lowest Cost Info - Moved descriptions below this section */}
             <div className="p-4 bg-gradient-to-r from-amber-50 via-yellow-50 to-amber-50 rounded-lg border-2 border-amber-300 shadow-md space-y-2">
               <div className="flex items-center gap-2">
                 <Trophy className="h-6 w-6 text-amber-600" />
@@ -776,29 +764,46 @@ export default function CostResultTable({
                   </span>
                 </p>
               </div>
-              <div className="pt-2 border-t border-amber-200 space-y-1">
-                <p className="text-xs text-gray-600 flex items-center gap-1">
+            </div>
+
+            {/* Descriptions - Moved below lowest cost table */}
+            <div className="space-y-2">
+              <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                <div className="flex items-center gap-2 text-sm text-blue-900 mb-2">
+                  <Info className="h-4 w-4" />
+                  <span className="font-semibold">비용 항목 제외 기능:</span>
+                </div>
+                <div className="text-xs text-blue-700 space-y-0.5">
+                  <div>* <strong>헤더 클릭:</strong> 해당 컬럼의 모든 값을 0으로 계산</div>
+                  <div>* <strong>셀 클릭:</strong> 해당 조합의 특정 비용만 0으로 계산</div>
+                  <div>* 제외된 항목은 회색으로 표시되며, 다시 클릭하면 포함됩니다</div>
+                  <div>* "조합 코드", "선사", "철도", "트럭" 또는 "총액" 헤더를 클릭하면 해당 기준으로 정렬</div>
+                </div>
+              </div>
+
+              <div className="pt-2 border-t border-gray-200 space-y-1 text-xs text-gray-600">
+                <p className="flex items-center gap-1">
                   <Star className="h-3 w-3 text-amber-600" />
                   <span>별표는 특별 해상운임 또는 L.LOCAL 적용</span>
                 </p>
-                <p className="text-xs text-gray-600 flex items-center gap-1">
+                <p className="flex items-center gap-1">
                   <Merge className="h-3 w-3 text-purple-600" />
                   <span>철도+트럭 통합운임 적용</span>
                 </p>
                 {showDpColumn && (
-                  <p className="text-xs text-blue-600 flex items-center gap-1 font-semibold">
+                  <p className="flex items-center gap-1 text-blue-600 font-semibold">
                     <Info className="h-3 w-3" />
                     <span>DP 포함 조합은 실제 DP 값 표시, 통합운임은 DP=0</span>
                   </p>
                 )}
                 {resultData.breakdown.some(b => b.hasExpiredRates) && (
-                  <p className="text-xs text-red-600 flex items-center gap-1 font-semibold">
+                  <p className="flex items-center gap-1 text-red-600 font-semibold">
                     <AlertTriangle className="h-3 w-3" />
                     <span>빨간색 굵은 글씨와 경고 아이콘은 만료된 운임</span>
                   </p>
                 )}
                 {(Object.values(excludedCosts).some(v => v) || Object.keys(cellExclusions).length > 0) && (
-                  <p className="text-xs text-gray-600 flex items-center gap-1">
+                  <p className="flex items-center gap-1">
                     <Info className="h-3 w-3 text-blue-600" />
                     <span>일부 비용 항목이 제외되어 계산됨</span>
                   </p>

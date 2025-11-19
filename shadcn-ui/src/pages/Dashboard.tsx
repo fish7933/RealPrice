@@ -52,9 +52,9 @@ export default function Dashboard() {
   return (
     <Layout>
       <div className="space-y-6">
-        <div className="py-2">
-          <h1 className="text-2xl font-bold">대시보드</h1>
-          <p className="text-sm text-gray-600 mt-1">중앙아시아 컨테이너 운임 시스템</p>
+        <div className="py-1">
+          <h1 className="text-xl font-bold">대시보드</h1>
+          <p className="text-xs text-gray-600 mt-0.5">중앙아시아 컨테이너 운임 시스템</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

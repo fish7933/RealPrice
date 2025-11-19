@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import Layout from '@/components/layout/Layout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Ship, Train, Truck, Navigation, Star, FileText, Weight, Package, Merge, Anchor, Users, Database, MapPin, Sparkles } from 'lucide-react';
 import RailAgentTable from '@/components/agents/RailAgentTable';
@@ -34,38 +34,25 @@ export default function AdminDashboard() {
   return (
     <Layout>
       <div className="space-y-6">
-        {/* Beautiful Header with Gradient */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 via-cyan-600 to-teal-600 p-8 shadow-xl">
+        {/* Compact Header - 50% height reduction */}
+        <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-blue-600 via-cyan-600 to-teal-600 p-4 shadow-xl">
           <div className="absolute inset-0 bg-grid-white/10"></div>
           <div className="relative">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-3 bg-white/20 backdrop-blur-sm rounded-xl">
-                <Database className="h-8 w-8 text-white" />
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 bg-white/20 backdrop-blur-sm rounded-lg">
+                <Database className="h-5 w-5 text-white" />
               </div>
-              <h1 className="text-4xl font-bold text-white flex items-center gap-2">
+              <h1 className="text-2xl font-bold text-white flex items-center gap-2">
                 관리자 대시보드
-                <Sparkles className="h-6 w-6 text-yellow-300 animate-pulse" />
+                <Sparkles className="h-4 w-4 text-yellow-300 animate-pulse" />
               </h1>
             </div>
-            <p className="text-blue-50 text-lg ml-16">운임 데이터 관리 및 설정</p>
+            <p className="text-blue-50 text-sm ml-9">운임 데이터 관리 및 설정</p>
           </div>
         </div>
 
-        {/* Management Tabs with Beautiful Design */}
+        {/* Management Tabs - Removed CardHeader with title and description */}
         <Card className="border-none shadow-xl bg-white/80 backdrop-blur-sm">
-          <CardHeader className="bg-gradient-to-r from-blue-50 via-cyan-50 to-teal-50 border-b-2 border-gradient-to-r from-blue-200 to-cyan-200">
-            <CardTitle className="flex items-center gap-3 text-2xl">
-              <div className="p-2 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-lg">
-                <Database className="h-6 w-6 text-white" />
-              </div>
-              <span className="bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent font-bold">
-                데이터 관리
-              </span>
-            </CardTitle>
-            <CardDescription className="text-base text-gray-600 font-medium ml-14">
-              각 항목별 데이터를 관리합니다
-            </CardDescription>
-          </CardHeader>
           <CardContent className="pt-6">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="grid w-full grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-12 gap-3 mb-6 bg-transparent p-0 h-auto">

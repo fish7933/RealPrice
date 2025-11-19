@@ -8,7 +8,6 @@ import { CostCalculationInput, Destination, Port, SeaFreight, CostCalculationRes
 import { Checkbox } from '@/components/ui/checkbox';
 import { useState } from 'react';
 import CalculationSqlPreviewDialog from './CalculationSqlPreviewDialog';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface CostInputFormProps {
   input: CostCalculationInput;
@@ -174,37 +173,27 @@ export default function CostInputForm({
         </Label>
       </div>
 
-      {/* 기타 비용 섹션 */}
-      <Card className="border-dashed">
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-base">기타 비용</CardTitle>
-              <CardDescription className="text-xs">
-                추가 비용을 입력하세요 (최대 {MAX_OTHER_COSTS}개)
-              </CardDescription>
-            </div>
-            {input.otherCosts.length < MAX_OTHER_COSTS && (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handleAddOtherCost}
-                className="h-8"
-              >
-                <Plus className="h-4 w-4 mr-1" />
-                추가
-              </Button>
-            )}
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {input.otherCosts.length === 0 ? (
-            <div className="text-center text-gray-500 text-sm py-4">
-              추가 비용이 없습니다. "추가" 버튼을 클릭하여 비용을 추가하세요.
-            </div>
-          ) : (
-            input.otherCosts.map((cost, index) => (
+      {/* 기타 비용 섹션 - Only show inputs when added */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <Label className="text-sm font-semibold">기타 비용 (선택)</Label>
+          {input.otherCosts.length < MAX_OTHER_COSTS && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleAddOtherCost}
+              className="h-8"
+            >
+              <Plus className="h-4 w-4 mr-1" />
+              추가
+            </Button>
+          )}
+        </div>
+        
+        {input.otherCosts.length > 0 && (
+          <div className="space-y-3 p-3 border rounded-lg bg-gray-50">
+            {input.otherCosts.map((cost, index) => (
               <div key={index} className="flex items-end gap-2">
                 <div className="flex-1 space-y-2">
                   <Label htmlFor={`other-cost-name-${index}`} className="text-xs">
@@ -242,20 +231,20 @@ export default function CostInputForm({
                   <X className="h-4 w-4" />
                 </Button>
               </div>
-            ))
-          )}
-          {input.otherCosts.length > 0 && (
-            <div className="pt-2 border-t">
-              <div className="flex justify-between items-center text-sm">
-                <span className="font-medium text-gray-700">기타 비용 합계:</span>
-                <span className="font-semibold text-blue-600">
-                  ${input.otherCosts.reduce((sum, cost) => sum + (cost.amount || 0), 0).toFixed(2)}
-                </span>
+            ))}
+            {input.otherCosts.length > 0 && (
+              <div className="pt-2 border-t">
+                <div className="flex justify-between items-center text-sm">
+                  <span className="font-medium text-gray-700">기타 비용 합계:</span>
+                  <span className="font-semibold text-blue-600">
+                    ${input.otherCosts.reduce((sum, cost) => sum + (cost.amount || 0), 0).toFixed(2)}
+                  </span>
+                </div>
               </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+            )}
+          </div>
+        )}
+      </div>
 
       {seaFreightOptions.length > 0 && (
         <Alert className="bg-blue-50 border-blue-200">
@@ -307,7 +296,8 @@ export default function CostInputForm({
       )}
 
       <div className="flex flex-wrap gap-2">
-        <Button onClick={onCalculate} className="flex items-center gap-2">
+        {/* 계산하기 버튼 - 가로 크기 2배 */}
+        <Button onClick={onCalculate} className="flex items-center gap-2 px-8">
           <Calculator className="h-4 w-4" />
           계산하기
         </Button>

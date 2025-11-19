@@ -253,108 +253,108 @@ export default function QuotationDialog({
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-[95vw] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-center">운임 견적서</DialogTitle>
-            <DialogDescription className="text-center">
+            <DialogTitle className="text-xl font-bold text-center text-gray-900">운임 견적서</DialogTitle>
+            <DialogDescription className="text-center text-sm text-gray-600">
               {routeTitle} | 작성자: {user?.username} | 작성일: {new Date().toLocaleDateString('ko-KR')}
             </DialogDescription>
           </DialogHeader>
 
           <div className="overflow-x-auto">
-            <Table className="border">
+            <Table className="border border-gray-200">
               <TableHeader>
-                <TableRow className="bg-gray-100">
-                  <TableHead className="border font-bold text-center min-w-[150px]">경로</TableHead>
-                  <TableHead className="border font-bold text-center min-w-[100px]">CARRIER</TableHead>
-                  <TableHead className="border font-bold text-center min-w-[100px]">CNTR SIZE</TableHead>
+                <TableRow className="bg-gray-50">
+                  <TableHead className="border border-gray-200 font-bold text-center text-xs py-2 text-gray-900">경로</TableHead>
+                  <TableHead className="border border-gray-200 font-bold text-center text-xs py-2 text-gray-900">CARRIER</TableHead>
+                  <TableHead className="border border-gray-200 font-bold text-center text-xs py-2 text-gray-900">CNTR SIZE</TableHead>
                   {!excludedCosts.seaFreight && (
-                    <TableHead className="border font-bold text-center min-w-[100px]">
+                    <TableHead className="border border-gray-200 font-bold text-center text-xs py-2 text-gray-900">
                       {input.pol}-{input.pod}
                     </TableHead>
                   )}
                   {!excludedCosts.dthc && (
-                    <TableHead className="border font-bold text-center min-w-[100px]">D/O FEE</TableHead>
+                    <TableHead className="border border-gray-200 font-bold text-center text-xs py-2 text-gray-900">D/O FEE</TableHead>
                   )}
                   {!breakdown.isCombinedFreight && !excludedCosts.portBorder && (
-                    <TableHead className="border font-bold text-center min-w-[100px]">
+                    <TableHead className="border border-gray-200 font-bold text-center text-xs py-2 text-gray-900">
                       {input.pod}-국경
                     </TableHead>
                   )}
                   {!breakdown.isCombinedFreight && !excludedCosts.borderDestination && (
-                    <TableHead className="border font-bold text-center min-w-[100px]">
+                    <TableHead className="border border-gray-200 font-bold text-center text-xs py-2 text-gray-900">
                       국경-{destinationName}
                     </TableHead>
                   )}
                   {breakdown.isCombinedFreight && !excludedCosts.combinedFreight && (
-                    <TableHead className="border font-bold text-center min-w-[100px]">
+                    <TableHead className="border border-gray-200 font-bold text-center text-xs py-2 text-gray-900">
                       {input.pod}-{destinationName}
                     </TableHead>
                   )}
                   {!excludedCosts.weightSurcharge && breakdown.weightSurcharge > 0 && (
-                    <TableHead className="border font-bold text-center min-w-[100px]">중량할증</TableHead>
+                    <TableHead className="border border-gray-200 font-bold text-center text-xs py-2 text-gray-900">중량할증</TableHead>
                   )}
                   {!excludedCosts.dp && breakdown.dp > 0 && (
-                    <TableHead className="border font-bold text-center min-w-[80px]">DP</TableHead>
+                    <TableHead className="border border-gray-200 font-bold text-center text-xs py-2 text-gray-900">DP</TableHead>
                   )}
                   {!excludedCosts.domesticTransport && breakdown.domesticTransport > 0 && (
-                    <TableHead className="border font-bold text-center min-w-[100px]">국내운송</TableHead>
+                    <TableHead className="border border-gray-200 font-bold text-center text-xs py-2 text-gray-900">국내운송</TableHead>
                   )}
                   {breakdown.otherCosts.map((item, index) => {
                     if (!excludedCosts[`other_${index}`]) {
                       return (
-                        <TableHead key={index} className="border font-bold text-center min-w-[100px]">
+                        <TableHead key={index} className="border border-gray-200 font-bold text-center text-xs py-2 text-gray-900">
                           {item.category}
                         </TableHead>
                       );
                     }
                     return null;
                   })}
-                  <TableHead className="border font-bold text-center min-w-[100px] bg-blue-50">TOTAL</TableHead>
-                  <TableHead className="border font-bold text-center min-w-[100px] bg-green-50">SELLING</TableHead>
-                  <TableHead className="border font-bold text-center min-w-[100px] bg-yellow-50">PROFIT</TableHead>
+                  <TableHead className="border border-gray-200 font-bold text-center text-xs py-2 bg-blue-50 text-blue-700">TOTAL</TableHead>
+                  <TableHead className="border border-gray-200 font-bold text-center text-xs py-2 bg-green-50 text-green-700">SELLING</TableHead>
+                  <TableHead className="border border-gray-200 font-bold text-center text-xs py-2 bg-yellow-50 text-yellow-700">PROFIT</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 <TableRow>
-                  <TableCell className="border text-center font-medium">{destinationName}</TableCell>
-                  <TableCell className="border text-center">{carrier || ''}</TableCell>
-                  <TableCell className="border text-center">40'HQ</TableCell>
+                  <TableCell className="border border-gray-200 text-center text-xs py-2 font-medium text-gray-900">{destinationName}</TableCell>
+                  <TableCell className="border border-gray-200 text-center text-xs py-2 text-gray-700">{carrier || ''}</TableCell>
+                  <TableCell className="border border-gray-200 text-center text-xs py-2 text-gray-700">40'HQ</TableCell>
                   {!excludedCosts.seaFreight && (
-                    <TableCell className="border text-center">{breakdown.seaFreight}</TableCell>
+                    <TableCell className="border border-gray-200 text-center text-xs py-2 text-gray-700">{breakdown.seaFreight}</TableCell>
                   )}
                   {!excludedCosts.dthc && (
-                    <TableCell className="border text-center">{breakdown.dthc}</TableCell>
+                    <TableCell className="border border-gray-200 text-center text-xs py-2 text-gray-700">{breakdown.dthc}</TableCell>
                   )}
                   {!breakdown.isCombinedFreight && !excludedCosts.portBorder && (
-                    <TableCell className="border text-center">{breakdown.portBorder}</TableCell>
+                    <TableCell className="border border-gray-200 text-center text-xs py-2 text-gray-700">{breakdown.portBorder}</TableCell>
                   )}
                   {!breakdown.isCombinedFreight && !excludedCosts.borderDestination && (
-                    <TableCell className="border text-center">{breakdown.borderDestination}</TableCell>
+                    <TableCell className="border border-gray-200 text-center text-xs py-2 text-gray-700">{breakdown.borderDestination}</TableCell>
                   )}
                   {breakdown.isCombinedFreight && !excludedCosts.combinedFreight && (
-                    <TableCell className="border text-center">{breakdown.combinedFreight}</TableCell>
+                    <TableCell className="border border-gray-200 text-center text-xs py-2 text-gray-700">{breakdown.combinedFreight}</TableCell>
                   )}
                   {!excludedCosts.weightSurcharge && breakdown.weightSurcharge > 0 && (
-                    <TableCell className="border text-center">{breakdown.weightSurcharge}</TableCell>
+                    <TableCell className="border border-gray-200 text-center text-xs py-2 text-gray-700">{breakdown.weightSurcharge}</TableCell>
                   )}
                   {!excludedCosts.dp && breakdown.dp > 0 && (
-                    <TableCell className="border text-center">{breakdown.dp}</TableCell>
+                    <TableCell className="border border-gray-200 text-center text-xs py-2 text-gray-700">{breakdown.dp}</TableCell>
                   )}
                   {!excludedCosts.domesticTransport && breakdown.domesticTransport > 0 && (
-                    <TableCell className="border text-center">{breakdown.domesticTransport}</TableCell>
+                    <TableCell className="border border-gray-200 text-center text-xs py-2 text-gray-700">{breakdown.domesticTransport}</TableCell>
                   )}
                   {breakdown.otherCosts.map((item, index) => {
                     if (!excludedCosts[`other_${index}`]) {
                       return (
-                        <TableCell key={index} className="border text-center">
+                        <TableCell key={index} className="border border-gray-200 text-center text-xs py-2 text-gray-700">
                           {item.amount}
                         </TableCell>
                       );
                     }
                     return null;
                   })}
-                  <TableCell className="border text-center font-bold bg-blue-50">{costTotal}</TableCell>
-                  <TableCell className="border text-center font-bold bg-green-50">{sellingPrice}</TableCell>
-                  <TableCell className={`border text-center font-bold bg-yellow-50 ${profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  <TableCell className="border border-gray-200 text-center text-xs py-2 font-bold bg-blue-50 text-blue-700">{costTotal}</TableCell>
+                  <TableCell className="border border-gray-200 text-center text-xs py-2 font-bold bg-green-50 text-green-700">{sellingPrice}</TableCell>
+                  <TableCell className={`border border-gray-200 text-center text-xs py-2 font-bold bg-yellow-50 ${profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                     {profit}
                   </TableCell>
                 </TableRow>
@@ -362,35 +362,35 @@ export default function QuotationDialog({
             </Table>
           </div>
 
-          <div className="space-y-1 text-xs text-gray-600 mt-2">
+          <div className="space-y-1 text-xs text-gray-600 mt-2 bg-gray-50 p-3 rounded-lg border border-gray-200">
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <span className="font-semibold">중량:</span> {input.weight.toLocaleString()} kg
+                <span className="font-semibold text-gray-700">중량:</span> <span className="text-gray-900">{input.weight.toLocaleString()} kg</span>
               </div>
               <div>
-                <span className="font-semibold">이윤율:</span> <span className={profit >= 0 ? 'text-green-600' : 'text-red-600'}>{profitRate.toFixed(2)}%</span>
+                <span className="font-semibold text-gray-700">이윤율:</span> <span className={`font-bold ${profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>{profitRate.toFixed(2)}%</span>
               </div>
             </div>
-            <p>* 상기 금액은 USD 기준입니다.</p>
-            <p>* 운임은 시장 상황에 따라 변동될 수 있습니다.</p>
+            <p className="text-gray-600">* 상기 금액은 USD 기준입니다.</p>
+            <p className="text-gray-600">* 운임은 시장 상황에 따라 변동될 수 있습니다.</p>
             {Object.values(excludedCosts).some(v => v) && (
-              <p>* 일부 비용 항목이 제외되어 계산되었습니다.</p>
+              <p className="text-gray-600">* 일부 비용 항목이 제외되어 계산되었습니다.</p>
             )}
           </div>
 
-          <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={handleBack}>
+          <DialogFooter className="gap-2 flex-wrap">
+            <Button variant="outline" onClick={handleBack} className="border-gray-300 hover:bg-gray-100">
               뒤로가기
             </Button>
-            <Button variant="outline" onClick={handleCopyToClipboard} className="flex items-center gap-2">
+            <Button variant="outline" onClick={handleCopyToClipboard} className="flex items-center gap-2 border-gray-300 hover:bg-gray-100">
               <Copy className="h-4 w-4" />
               클립보드 복사
             </Button>
-            <Button variant="outline" onClick={handleExportExcel} className="flex items-center gap-2">
+            <Button variant="outline" onClick={handleExportExcel} className="flex items-center gap-2 border-gray-300 hover:bg-gray-100">
               <FileSpreadsheet className="h-4 w-4" />
               엑셀 다운로드
             </Button>
-            <Button onClick={handleSave}>
+            <Button onClick={handleSave} className="bg-blue-600 hover:bg-blue-700">
               저장
             </Button>
           </DialogFooter>
@@ -401,122 +401,124 @@ export default function QuotationDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+      <DialogContent className="max-w-xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <DollarSign className="h-5 w-5" />
+          <DialogTitle className="flex items-center gap-2 text-gray-900">
+            <DollarSign className="h-5 w-5 text-blue-600" />
             견적서 작성
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-gray-600">
             선택한 운임에 제시운임을 입력하여 이윤을 계산하고 견적서를 확인하세요.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
-          {/* Route Information - More Compact */}
-          <div className="p-3 bg-gray-50 rounded-lg">
-            <h3 className="font-semibold text-sm mb-2">경로 정보</h3>
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <div>
-                <span className="text-gray-600">출발항:</span> <span className="font-medium">{input.pol}</span>
+        <div className="space-y-3">
+          {/* Route Information - Compact */}
+          <div className="p-2.5 bg-gray-50 rounded-lg border border-gray-200">
+            <h3 className="font-semibold text-xs mb-1.5 text-gray-900">경로 정보</h3>
+            <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
+              <div className="flex items-center gap-1">
+                <span className="text-gray-600">출발항:</span> <span className="font-medium text-gray-900">{input.pol}</span>
               </div>
-              <div>
-                <span className="text-gray-600">중국항:</span> <span className="font-medium">{input.pod}</span>
+              <div className="flex items-center gap-1">
+                <span className="text-gray-600">중국항:</span> <span className="font-medium text-gray-900">{input.pod}</span>
               </div>
-              <div>
-                <span className="text-gray-600">최종목적지:</span> <span className="font-medium">{destinationName}</span>
+              <div className="flex items-center gap-1">
+                <span className="text-gray-600">최종목적지:</span> <span className="font-medium text-gray-900">{destinationName}</span>
               </div>
-              <div>
-                <span className="text-gray-600">중량:</span> <span className="font-medium">{input.weight.toLocaleString()} kg</span>
+              <div className="flex items-center gap-1">
+                <span className="text-gray-600">중량:</span> <span className="font-medium text-gray-900">{input.weight.toLocaleString()} kg</span>
               </div>
-              <div className="col-span-2">
-                <span className="text-gray-600">선택된 조합:</span> <span className="font-medium">{breakdown.agent}</span>
+              <div className="col-span-2 flex items-center gap-1">
+                <span className="text-gray-600">선택된 조합:</span> <span className="font-medium text-gray-900">{breakdown.agent}</span>
               </div>
               {carrier && (
-                <div className="col-span-2">
-                  <span className="text-gray-600">선사:</span> <span className="font-medium">{carrier}</span>
+                <div className="col-span-2 flex items-center gap-1">
+                  <span className="text-gray-600">선사:</span> <span className="font-medium text-gray-900">{carrier}</span>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Cost Breakdown Table - More Compact */}
+          {/* Cost Breakdown Table - Compact */}
           <div>
-            <h3 className="font-semibold text-sm mb-2">비용 상세</h3>
-            <Table>
-              <TableHeader>
-                <TableRow className="text-xs">
-                  <TableHead className="py-2">항목</TableHead>
-                  <TableHead className="text-right py-2">금액 (USD)</TableHead>
-                  <TableHead className="text-center py-2">포함여부</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody className="text-xs">
-                <TableRow className={excludedCosts.seaFreight ? 'opacity-50' : ''}>
-                  <TableCell className="py-1.5">해상운임</TableCell>
-                  <TableCell className="text-right py-1.5">${excludedCosts.seaFreight ? 0 : breakdown.seaFreight}</TableCell>
-                  <TableCell className="text-center py-1.5">{excludedCosts.seaFreight ? '제외' : '포함'}</TableCell>
-                </TableRow>
-                <TableRow className={excludedCosts.dthc ? 'opacity-50' : ''}>
-                  <TableCell className="py-1.5">D/O (DTHC)</TableCell>
-                  <TableCell className="text-right py-1.5">${excludedCosts.dthc ? 0 : breakdown.dthc}</TableCell>
-                  <TableCell className="text-center py-1.5">{excludedCosts.dthc ? '제외' : '포함'}</TableCell>
-                </TableRow>
-                {breakdown.isCombinedFreight ? (
-                  <TableRow className={excludedCosts.combinedFreight ? 'opacity-50' : ''}>
-                    <TableCell className="py-1.5">통합운임</TableCell>
-                    <TableCell className="text-right py-1.5">${excludedCosts.combinedFreight ? 0 : breakdown.combinedFreight}</TableCell>
-                    <TableCell className="text-center py-1.5">{excludedCosts.combinedFreight ? '제외' : '포함'}</TableCell>
+            <h3 className="font-semibold text-xs mb-1.5 text-gray-900">비용 상세</h3>
+            <div className="border border-gray-200 rounded-lg overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow className="text-xs bg-gray-50">
+                    <TableHead className="py-1.5 h-auto text-gray-900 font-semibold">항목</TableHead>
+                    <TableHead className="text-right py-1.5 h-auto text-gray-900 font-semibold">금액 (USD)</TableHead>
+                    <TableHead className="text-center py-1.5 h-auto text-gray-900 font-semibold">포함여부</TableHead>
                   </TableRow>
-                ) : (
-                  <>
-                    <TableRow className={excludedCosts.portBorder ? 'opacity-50' : ''}>
-                      <TableCell className="py-1.5">철도운임</TableCell>
-                      <TableCell className="text-right py-1.5">${excludedCosts.portBorder ? 0 : breakdown.portBorder}</TableCell>
-                      <TableCell className="text-center py-1.5">{excludedCosts.portBorder ? '제외' : '포함'}</TableCell>
-                    </TableRow>
-                    <TableRow className={excludedCosts.borderDestination ? 'opacity-50' : ''}>
-                      <TableCell className="py-1.5">트럭운임</TableCell>
-                      <TableCell className="text-right py-1.5">${excludedCosts.borderDestination ? 0 : breakdown.borderDestination}</TableCell>
-                      <TableCell className="text-center py-1.5">{excludedCosts.borderDestination ? '제외' : '포함'}</TableCell>
-                    </TableRow>
-                  </>
-                )}
-                <TableRow className={excludedCosts.weightSurcharge ? 'opacity-50' : ''}>
-                  <TableCell className="py-1.5">중량할증</TableCell>
-                  <TableCell className="text-right py-1.5">${excludedCosts.weightSurcharge ? 0 : breakdown.weightSurcharge}</TableCell>
-                  <TableCell className="text-center py-1.5">{excludedCosts.weightSurcharge ? '제외' : '포함'}</TableCell>
-                </TableRow>
-                <TableRow className={excludedCosts.dp ? 'opacity-50' : ''}>
-                  <TableCell className="py-1.5">DP</TableCell>
-                  <TableCell className="text-right py-1.5">${excludedCosts.dp ? 0 : breakdown.dp}</TableCell>
-                  <TableCell className="text-center py-1.5">{excludedCosts.dp ? '제외' : '포함'}</TableCell>
-                </TableRow>
-                <TableRow className={excludedCosts.domesticTransport ? 'opacity-50' : ''}>
-                  <TableCell className="py-1.5">국내운송료</TableCell>
-                  <TableCell className="text-right py-1.5">${excludedCosts.domesticTransport ? 0 : breakdown.domesticTransport}</TableCell>
-                  <TableCell className="text-center py-1.5">{excludedCosts.domesticTransport ? '제외' : '포함'}</TableCell>
-                </TableRow>
-                {breakdown.otherCosts.map((item, index) => (
-                  <TableRow key={index} className={excludedCosts[`other_${index}`] ? 'opacity-50' : ''}>
-                    <TableCell className="py-1.5">{item.category}</TableCell>
-                    <TableCell className="text-right py-1.5">${excludedCosts[`other_${index}`] ? 0 : item.amount}</TableCell>
-                    <TableCell className="text-center py-1.5">{excludedCosts[`other_${index}`] ? '제외' : '포함'}</TableCell>
+                </TableHeader>
+                <TableBody className="text-xs">
+                  <TableRow className={excludedCosts.seaFreight ? 'opacity-50' : ''}>
+                    <TableCell className="py-1 text-gray-700">해상운임</TableCell>
+                    <TableCell className="text-right py-1 text-gray-900">${excludedCosts.seaFreight ? 0 : breakdown.seaFreight}</TableCell>
+                    <TableCell className="text-center py-1 text-gray-700">{excludedCosts.seaFreight ? '제외' : '포함'}</TableCell>
                   </TableRow>
-                ))}
-                <TableRow className="font-bold bg-gray-100">
-                  <TableCell className="py-2">운임 원가 (Total Cost)</TableCell>
-                  <TableCell className="text-right py-2">${costTotal.toLocaleString()}</TableCell>
-                  <TableCell className="py-2"></TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
+                  <TableRow className={excludedCosts.dthc ? 'opacity-50' : ''}>
+                    <TableCell className="py-1 text-gray-700">D/O (DTHC)</TableCell>
+                    <TableCell className="text-right py-1 text-gray-900">${excludedCosts.dthc ? 0 : breakdown.dthc}</TableCell>
+                    <TableCell className="text-center py-1 text-gray-700">{excludedCosts.dthc ? '제외' : '포함'}</TableCell>
+                  </TableRow>
+                  {breakdown.isCombinedFreight ? (
+                    <TableRow className={excludedCosts.combinedFreight ? 'opacity-50' : ''}>
+                      <TableCell className="py-1 text-gray-700">통합운임</TableCell>
+                      <TableCell className="text-right py-1 text-gray-900">${excludedCosts.combinedFreight ? 0 : breakdown.combinedFreight}</TableCell>
+                      <TableCell className="text-center py-1 text-gray-700">{excludedCosts.combinedFreight ? '제외' : '포함'}</TableCell>
+                    </TableRow>
+                  ) : (
+                    <>
+                      <TableRow className={excludedCosts.portBorder ? 'opacity-50' : ''}>
+                        <TableCell className="py-1 text-gray-700">철도운임</TableCell>
+                        <TableCell className="text-right py-1 text-gray-900">${excludedCosts.portBorder ? 0 : breakdown.portBorder}</TableCell>
+                        <TableCell className="text-center py-1 text-gray-700">{excludedCosts.portBorder ? '제외' : '포함'}</TableCell>
+                      </TableRow>
+                      <TableRow className={excludedCosts.borderDestination ? 'opacity-50' : ''}>
+                        <TableCell className="py-1 text-gray-700">트럭운임</TableCell>
+                        <TableCell className="text-right py-1 text-gray-900">${excludedCosts.borderDestination ? 0 : breakdown.borderDestination}</TableCell>
+                        <TableCell className="text-center py-1 text-gray-700">{excludedCosts.borderDestination ? '제외' : '포함'}</TableCell>
+                      </TableRow>
+                    </>
+                  )}
+                  <TableRow className={excludedCosts.weightSurcharge ? 'opacity-50' : ''}>
+                    <TableCell className="py-1 text-gray-700">중량할증</TableCell>
+                    <TableCell className="text-right py-1 text-gray-900">${excludedCosts.weightSurcharge ? 0 : breakdown.weightSurcharge}</TableCell>
+                    <TableCell className="text-center py-1 text-gray-700">{excludedCosts.weightSurcharge ? '제외' : '포함'}</TableCell>
+                  </TableRow>
+                  <TableRow className={excludedCosts.dp ? 'opacity-50' : ''}>
+                    <TableCell className="py-1 text-gray-700">DP</TableCell>
+                    <TableCell className="text-right py-1 text-gray-900">${excludedCosts.dp ? 0 : breakdown.dp}</TableCell>
+                    <TableCell className="text-center py-1 text-gray-700">{excludedCosts.dp ? '제외' : '포함'}</TableCell>
+                  </TableRow>
+                  <TableRow className={excludedCosts.domesticTransport ? 'opacity-50' : ''}>
+                    <TableCell className="py-1 text-gray-700">국내운송료</TableCell>
+                    <TableCell className="text-right py-1 text-gray-900">${excludedCosts.domesticTransport ? 0 : breakdown.domesticTransport}</TableCell>
+                    <TableCell className="text-center py-1 text-gray-700">{excludedCosts.domesticTransport ? '제외' : '포함'}</TableCell>
+                  </TableRow>
+                  {breakdown.otherCosts.map((item, index) => (
+                    <TableRow key={index} className={excludedCosts[`other_${index}`] ? 'opacity-50' : ''}>
+                      <TableCell className="py-1 text-gray-700">{item.category}</TableCell>
+                      <TableCell className="text-right py-1 text-gray-900">${excludedCosts[`other_${index}`] ? 0 : item.amount}</TableCell>
+                      <TableCell className="text-center py-1 text-gray-700">{excludedCosts[`other_${index}`] ? '제외' : '포함'}</TableCell>
+                    </TableRow>
+                  ))}
+                  <TableRow className="font-bold bg-gray-50 border-t-2 border-gray-300">
+                    <TableCell className="py-1.5 text-gray-900">운임 원가 (Total Cost)</TableCell>
+                    <TableCell className="text-right py-1.5 text-gray-900">${costTotal.toLocaleString()}</TableCell>
+                    <TableCell className="py-1.5"></TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </div>
           </div>
 
-          {/* Selling Price Input - More Compact */}
-          <div className="space-y-3">
-            <div className="space-y-1.5">
-              <Label htmlFor="sellingPrice" className="text-sm font-semibold">
+          {/* Selling Price Input - Compact */}
+          <div className="space-y-2">
+            <div className="space-y-1">
+              <Label htmlFor="sellingPrice" className="text-xs font-semibold text-gray-900">
                 제시운임 (Selling Price) *
               </Label>
               <Input
@@ -525,24 +527,24 @@ export default function QuotationDialog({
                 placeholder="0"
                 value={sellingPrice || ''}
                 onChange={(e) => setSellingPrice(Number(e.target.value))}
-                className="text-base"
+                className="text-sm h-9"
               />
-              <p className="text-xs text-gray-800">고객에게 제시할 운임을 입력하세요 (USD)</p>
+              <p className="text-xs text-gray-600">고객에게 제시할 운임을 입력하세요 (USD)</p>
             </div>
 
-            {/* Profit Calculation - More Compact */}
+            {/* Profit Calculation - Compact */}
             {sellingPrice > 0 && (
-              <div className="p-3 bg-green-50 rounded-lg border border-green-200 space-y-1.5">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="font-semibold">이윤 (Profit):</span>
-                  <span className={`text-base font-bold ${profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              <div className="p-2.5 bg-green-50 rounded-lg border border-green-200 space-y-1">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-semibold text-gray-700">이윤 (Profit):</span>
+                  <span className={`text-sm font-bold ${profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                     ${profit.toLocaleString()}
                   </span>
                 </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="font-semibold">이윤율 (Profit Rate):</span>
-                  <span className={`text-base font-bold flex items-center gap-1 ${profitRate >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    <TrendingUp className="h-3.5 w-3.5" />
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-semibold text-gray-700">이윤율 (Profit Rate):</span>
+                  <span className={`text-sm font-bold flex items-center gap-1 ${profitRate >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    <TrendingUp className="h-3 w-3" />
                     {profitRate.toFixed(2)}%
                   </span>
                 </div>
@@ -557,10 +559,10 @@ export default function QuotationDialog({
         </div>
 
         <DialogFooter className="gap-2">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" onClick={() => onOpenChange(false)} className="border-gray-300 hover:bg-gray-100">
             취소
           </Button>
-          <Button onClick={handleViewQuotation} className="flex items-center gap-2">
+          <Button onClick={handleViewQuotation} className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700">
             <Eye className="h-4 w-4" />
             견적서 보기
           </Button>

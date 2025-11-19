@@ -257,31 +257,10 @@ export default function UserManagement() {
   return (
     <Layout>
       <div className="space-y-6">
-        {/* Modern Header with Gradient */}
-        <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 p-8 text-white shadow-lg">
-          <div className="absolute inset-0 bg-black/10"></div>
-          <div className="relative z-10">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
-                    <UsersIcon className="h-8 w-8" />
-                  </div>
-                  <h1 className="text-3xl font-bold">사용자 관리</h1>
-                </div>
-                <p className="text-white/90 text-lg">시스템 사용자 및 권한 관리</p>
-              </div>
-              <Button 
-                onClick={() => setIsAddDialogOpen(true)} 
-                disabled={isLoading}
-                size="lg"
-                className="bg-white text-purple-600 hover:bg-white/90 hover:scale-105 transition-all shadow-lg"
-              >
-                <UserPlus className="h-5 w-5 mr-2" />
-                사용자 추가
-              </Button>
-            </div>
-          </div>
+        {/* Compact Header - Same as Dashboard */}
+        <div className="py-1">
+          <h1 className="text-xl font-bold">사용자 관리</h1>
+          <p className="text-xs text-gray-600 mt-0.5">시스템 사용자 및 권한 관리</p>
         </div>
 
         {/* Statistics Cards */}
@@ -358,6 +337,14 @@ export default function UserManagement() {
                     : '관리자는 자신이 생성한 사용자를 관리할 수 있습니다.'}
                 </CardDescription>
               </div>
+              <Button 
+                onClick={() => setIsAddDialogOpen(true)} 
+                disabled={isLoading}
+                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg"
+              >
+                <UserPlus className="h-4 w-4 mr-2" />
+                사용자 추가
+              </Button>
             </div>
           </CardHeader>
           <CardContent className="p-0">

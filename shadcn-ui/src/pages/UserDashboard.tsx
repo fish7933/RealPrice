@@ -34,8 +34,9 @@ export default function UserDashboard() {
   return (
     <Layout>
       <div className="space-y-6">
+        {/* Compact Header - Same as Dashboard */}
         <div className="py-1">
-          <h1 className="text-xl font-bold">사용자 대시보드</h1>
+          <h1 className="text-xl font-bold">운임 조회</h1>
           <p className="text-xs text-gray-600 mt-0.5">운임 계산 및 이력 조회</p>
         </div>
 

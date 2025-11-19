@@ -11,7 +11,8 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { History, Plus, Edit, Trash2, Trash, Eye, ChevronLeft, ChevronRight, ShieldAlert } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { History, Plus, Edit, Trash2, Trash, Eye, ChevronLeft, ChevronRight, ShieldAlert, Download, GitCompare } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useAuth } from '@/contexts/AuthContext';
 import { useFreight } from '@/contexts/FreightContext';
@@ -33,6 +34,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { exportAuditLogsToExcel } from '@/utils/auditLogExport';
 
 interface AuditLogTableProps {
   logs: FreightAuditLog[];
@@ -60,8 +62,10 @@ export default function AuditLogTable({ logs, title = '운임 변경 기록', de
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [clearDialogOpen, setClearDialogOpen] = useState(false);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [compareDialogOpen, setCompareDialogOpen] = useState(false);
   const [selectedLogId, setSelectedLogId] = useState<string | null>(null);
   const [selectedGroupedLog, setSelectedGroupedLog] = useState<GroupedLog | null>(null);
+  const [selectedVersions, setSelectedVersions] = useState<Set<string>>(new Set());
   const [currentPage, setCurrentPage] = useState(1);
 
   // Only super admin can delete version history
@@ -215,6 +219,7 @@ export default function AuditLogTable({ logs, title = '운임 변경 기록', de
       validFrom: '시작일',
       validTo: '종료일',
       version: '버전',
+      localCharge: 'L.LOCAL',
     };
     return labels[field] || field;
   };
@@ -265,6 +270,64 @@ export default function AuditLogTable({ logs, title = '운임 변경 기록', de
     setClearDialogOpen(false);
   };
 
+  // Handle version selection for comparison
+  const handleVersionSelect = (versionKey: string, checked: boolean) => {
+    const newSelected = new Set(selectedVersions);
+    if (checked) {
+      if (newSelected.size >= 2) {
+        // Only allow 2 versions to be selected
+        return;
+      }
+      newSelected.add(versionKey);
+    } else {
+      newSelected.delete(versionKey);
+    }
+    setSelectedVersions(newSelected);
+  };
+
+  // Handle compare button click
+  const handleCompareVersions = () => {
+    if (selectedVersions.size !== 2) return;
+    setCompareDialogOpen(true);
+  };
+
+  // Get selected versions for comparison
+  const getSelectedVersionsForComparison = (): [GroupedLog, GroupedLog] | null => {
+    if (selectedVersions.size !== 2) return null;
+    const versionKeys = Array.from(selectedVersions);
+    const version1 = groupedLogs.find(log => 
+      `${log.version}-${log.agent}-${log.pol || ''}` === versionKeys[0]
+    );
+    const version2 = groupedLogs.find(log => 
+      `${log.version}-${log.agent}-${log.pol || ''}` === versionKeys[1]
+    );
+    if (!version1 || !version2) return null;
+    // Return in chronological order (older first)
+    return new Date(version1.timestamp) < new Date(version2.timestamp) 
+      ? [version1, version2] 
+      : [version2, version1];
+  };
+
+  // Handle Excel export
+  const handleExportToExcel = () => {
+    const entityTypeName = logs.length > 0 ? getEntityTypeName(logs[0].entityType) : '운임';
+    exportAuditLogsToExcel(groupedLogs, entityTypeName, getDestinationName);
+  };
+
+  const getEntityTypeName = (entityType: string): string => {
+    const typeNames: Record<string, string> = {
+      seaFreight: '해상운임',
+      agentSeaFreight: '대리점 해상운임',
+      dthc: 'DTHC',
+      dpCost: 'DP Cost',
+      combinedFreight: '복합운임',
+      portBorderFreight: '철도운임',
+      borderDestinationFreight: '국경-목적지 운임',
+      weightSurcharge: '중량할증',
+    };
+    return typeNames[entityType] || entityType;
+  };
+
   if (logs.length === 0) {
     return (
       <Card className="mt-6">
@@ -284,6 +347,8 @@ export default function AuditLogTable({ logs, title = '운임 변경 기록', de
     );
   }
 
+  const selectedVersionsForComparison = getSelectedVersionsForComparison();
+
   return (
     <>
       <Card className="mt-6">
@@ -296,16 +361,38 @@ export default function AuditLogTable({ logs, title = '운임 변경 기록', de
               </CardTitle>
               <CardDescription>{description}</CardDescription>
             </div>
-            {isSuperAdmin && logs.length > 0 && (
+            <div className="flex items-center gap-2">
+              {selectedVersions.size === 2 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleCompareVersions}
+                  className="bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-300"
+                >
+                  <GitCompare className="h-4 w-4 mr-2" />
+                  버전 비교
+                </Button>
+              )}
               <Button
-                variant="destructive"
+                variant="outline"
                 size="sm"
-                onClick={handleClearAll}
+                onClick={handleExportToExcel}
+                className="bg-green-50 hover:bg-green-100 text-green-700 border-green-300"
               >
-                <Trash className="h-4 w-4 mr-2" />
-                전체 삭제
+                <Download className="h-4 w-4 mr-2" />
+                Excel 내보내기
               </Button>
-            )}
+              {isSuperAdmin && logs.length > 0 && (
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={handleClearAll}
+                >
+                  <Trash className="h-4 w-4 mr-2" />
+                  전체 삭제
+                </Button>
+              )}
+            </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -321,10 +408,27 @@ export default function AuditLogTable({ logs, title = '운임 변경 기록', de
             </Alert>
           )}
 
+          {/* Version Comparison Info */}
+          {selectedVersions.size > 0 && (
+            <Alert className="bg-purple-50 border-purple-200">
+              <GitCompare className="h-4 w-4 text-purple-600" />
+              <AlertDescription className="text-purple-800">
+                <span className="font-semibold">
+                  {selectedVersions.size === 1 ? '1개 버전 선택됨' : '2개 버전 선택됨'}
+                </span>
+                <br />
+                {selectedVersions.size === 1 
+                  ? '비교할 버전을 하나 더 선택하세요 (최대 2개)' 
+                  : '선택한 버전을 비교하려면 "버전 비교" 버튼을 클릭하세요'}
+              </AlertDescription>
+            </Alert>
+          )}
+
           <ScrollArea className="h-[400px] w-full">
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-[50px]">선택</TableHead>
                   <TableHead className="w-[80px]">버전</TableHead>
                   <TableHead className="w-[180px]">버전일시</TableHead>
                   {hasAgentField && <TableHead className="w-[120px]">대리점</TableHead>}
@@ -335,57 +439,69 @@ export default function AuditLogTable({ logs, title = '운임 변경 기록', de
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {paginatedLogs.map((groupedLog, index) => (
-                  <TableRow key={`${groupedLog.version}-${groupedLog.agent}-${groupedLog.pol}-${index}`}>
-                    <TableCell>
-                      {groupedLog.version ? (
-                        <Badge variant="outline" className="font-mono">
-                          v{groupedLog.version}
-                        </Badge>
-                      ) : (
-                        <span className="text-gray-400">-</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-sm">
-                      {formatTimestamp(groupedLog.timestamp)}
-                    </TableCell>
-                    {hasAgentField && (
-                      <TableCell className="font-medium">{groupedLog.agent || '-'}</TableCell>
-                    )}
-                    {hasPolField && (
-                      <TableCell className="font-medium text-blue-700">{groupedLog.pol || '-'}</TableCell>
-                    )}
-                    <TableCell>{getActionBadge(groupedLog.action)}</TableCell>
-                    <TableCell>
-                      <div className="flex flex-col">
-                        <span className="font-medium text-sm">{groupedLog.changedByName}</span>
-                        <span className="text-xs text-gray-500">@{groupedLog.changedByUsername}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleViewLog(groupedLog)}
-                        >
-                          <Eye className="h-4 w-4 mr-1" />
-                          보기
-                        </Button>
-                        {isSuperAdmin && !needsGrouping && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleDeleteLog(groupedLog.logs[0].id)}
-                            className="h-8 w-8"
-                          >
-                            <Trash2 className="h-4 w-4 text-red-600" />
-                          </Button>
+                {paginatedLogs.map((groupedLog, index) => {
+                  const versionKey = `${groupedLog.version}-${groupedLog.agent}-${groupedLog.pol || ''}`;
+                  const isSelected = selectedVersions.has(versionKey);
+                  
+                  return (
+                    <TableRow key={`${groupedLog.version}-${groupedLog.agent}-${groupedLog.pol}-${index}`}>
+                      <TableCell>
+                        <Checkbox
+                          checked={isSelected}
+                          onCheckedChange={(checked) => handleVersionSelect(versionKey, checked as boolean)}
+                          disabled={!isSelected && selectedVersions.size >= 2}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        {groupedLog.version ? (
+                          <Badge variant="outline" className="font-mono">
+                            v{groupedLog.version}
+                          </Badge>
+                        ) : (
+                          <span className="text-gray-400">-</span>
                         )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                      </TableCell>
+                      <TableCell className="text-sm">
+                        {formatTimestamp(groupedLog.timestamp)}
+                      </TableCell>
+                      {hasAgentField && (
+                        <TableCell className="font-medium">{groupedLog.agent || '-'}</TableCell>
+                      )}
+                      {hasPolField && (
+                        <TableCell className="font-medium text-blue-700">{groupedLog.pol || '-'}</TableCell>
+                      )}
+                      <TableCell>{getActionBadge(groupedLog.action)}</TableCell>
+                      <TableCell>
+                        <div className="flex flex-col">
+                          <span className="font-medium text-sm">{groupedLog.changedByName}</span>
+                          <span className="text-xs text-gray-500">@{groupedLog.changedByUsername}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleViewLog(groupedLog)}
+                          >
+                            <Eye className="h-4 w-4 mr-1" />
+                            보기
+                          </Button>
+                          {isSuperAdmin && !needsGrouping && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleDeleteLog(groupedLog.logs[0].id)}
+                              className="h-8 w-8"
+                            >
+                              <Trash2 className="h-4 w-4 text-red-600" />
+                            </Button>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </ScrollArea>
@@ -625,6 +741,115 @@ export default function AuditLogTable({ logs, title = '운임 변경 기록', de
                   </div>
                 </div>
               )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Version Comparison Dialog */}
+      <Dialog open={compareDialogOpen} onOpenChange={setCompareDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <GitCompare className="h-5 w-5" />
+              버전 비교
+            </DialogTitle>
+            <DialogDescription>
+              선택한 두 버전의 차이를 확인할 수 있습니다
+            </DialogDescription>
+          </DialogHeader>
+          {selectedVersionsForComparison && (
+            <div className="space-y-6 py-4">
+              {/* Version Headers */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="text-sm text-blue-700 font-medium mb-2">이전 버전</div>
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="font-mono">
+                        v{selectedVersionsForComparison[0].version}
+                      </Badge>
+                      {getActionBadge(selectedVersionsForComparison[0].action)}
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      {formatTimestamp(selectedVersionsForComparison[0].timestamp)}
+                    </div>
+                    <div className="text-sm">
+                      {selectedVersionsForComparison[0].changedByName} (@{selectedVersionsForComparison[0].changedByUsername})
+                    </div>
+                  </div>
+                </div>
+                <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                  <div className="text-sm text-green-700 font-medium mb-2">이후 버전</div>
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="font-mono">
+                        v{selectedVersionsForComparison[1].version}
+                      </Badge>
+                      {getActionBadge(selectedVersionsForComparison[1].action)}
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      {formatTimestamp(selectedVersionsForComparison[1].timestamp)}
+                    </div>
+                    <div className="text-sm">
+                      {selectedVersionsForComparison[1].changedByName} (@{selectedVersionsForComparison[1].changedByUsername})
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Field Comparisons */}
+              <div>
+                <div className="text-sm font-semibold text-gray-700 mb-3">변경 사항</div>
+                <div className="space-y-2">
+                  {(() => {
+                    const version1Snapshot = selectedVersionsForComparison[0].logs[0].entitySnapshot;
+                    const version2Snapshot = selectedVersionsForComparison[1].logs[0].entitySnapshot;
+                    
+                    // Get all unique fields from both versions
+                    const allFields = new Set([
+                      ...Object.keys(version1Snapshot),
+                      ...Object.keys(version2Snapshot)
+                    ]);
+
+                    // Filter out internal fields
+                    const relevantFields = Array.from(allFields).filter(
+                      field => !['id', 'createdAt', 'updatedAt'].includes(field)
+                    );
+
+                    return relevantFields.map(field => {
+                      const value1 = version1Snapshot[field];
+                      const value2 = version2Snapshot[field];
+                      const hasChanged = JSON.stringify(value1) !== JSON.stringify(value2);
+
+                      return (
+                        <div 
+                          key={field} 
+                          className={`p-3 rounded-lg border ${
+                            hasChanged 
+                              ? 'bg-yellow-50 border-yellow-200' 
+                              : 'bg-gray-50 border-gray-200'
+                          }`}
+                        >
+                          <div className="flex items-start gap-4">
+                            <span className="text-sm font-medium text-gray-700 min-w-[100px]">
+                              {getFieldLabel(field)}:
+                            </span>
+                            <div className="flex-1 grid grid-cols-2 gap-4">
+                              <div className={hasChanged ? 'text-red-600' : 'text-gray-600'}>
+                                {formatFieldValue(field, value1)}
+                              </div>
+                              <div className={hasChanged ? 'text-green-600 font-medium' : 'text-gray-600'}>
+                                {formatFieldValue(field, value2)}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    });
+                  })()}
+                </div>
+              </div>
             </div>
           )}
         </DialogContent>

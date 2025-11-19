@@ -178,39 +178,12 @@ export default function CalculationSqlPreviewDialog({
       sql += `  AND ${dateCondition};\n\n`;
     }
 
-    // 6. Domestic Transport
-    sql += `-- ========================================\n`;
-    sql += `-- 6. 국내운송비 조회\n`;
-    sql += `-- ========================================\n\n`;
-    sql += `SELECT \n`;
-    sql += `  id,\n`;
-    sql += `  port,\n`;
-    sql += `  amount,\n`;
-    sql += `  valid_from,\n`;
-    sql += `  valid_to\n`;
-    sql += `FROM app_51335ed80f_domestic_transport\n`;
-    sql += `WHERE port = '${input.pol}'\n`;
-    sql += `  AND ${dateCondition};\n\n`;
-
-    // 7. Other Costs
-    sql += `-- ========================================\n`;
-    sql += `-- 7. 기타 비용 조회\n`;
-    sql += `-- ========================================\n\n`;
-    sql += `SELECT \n`;
-    sql += `  id,\n`;
-    sql += `  category,\n`;
-    sql += `  amount,\n`;
-    sql += `  valid_from,\n`;
-    sql += `  valid_to\n`;
-    sql += `FROM app_51335ed80f_other_costs\n`;
-    sql += `WHERE ${dateCondition};\n\n`;
-
     sql += `-- ========================================\n`;
     sql += `-- 계산 로직\n`;
     sql += `-- ========================================\n`;
     sql += `-- 1. 위의 쿼리 결과들을 조합하여 모든 가능한 운임 조합 생성\n`;
     sql += `-- 2. 각 조합별로 총 운임 계산:\n`;
-    sql += `--    총액 = 해상운임 + LOCAL + DTHC + (통합운임 OR 철도+트럭) + 중량할증 + DP + 국내운송비 + 기타비용\n`;
+    sql += `--    총액 = 해상운임 + LOCAL + DTHC + (통합운임 OR 철도+트럭) + 중량할증 + DP\n`;
     sql += `-- 3. 유효기간이 만료된 운임이 있는 경우 경고 표시\n`;
     sql += `-- 4. 최저가 조합 선택\n`;
     sql += `-- ========================================\n`;

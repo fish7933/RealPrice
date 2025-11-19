@@ -210,42 +210,6 @@ export default function FreightSqlDialog({
       sql += `  AND ${dateCondition};\n\n`;
     }
 
-    // 7. Domestic Transport
-    if (breakdown.domesticTransport > 0) {
-      sql += `-- ========================================\n`;
-      sql += `-- 7. 국내운송비 조회\n`;
-      sql += `-- ========================================\n`;
-      sql += `-- 금액: $${breakdown.domesticTransport}\n\n`;
-      sql += `SELECT \n`;
-      sql += `  id,\n`;
-      sql += `  port,\n`;
-      sql += `  amount,\n`;
-      sql += `  valid_from,\n`;
-      sql += `  valid_to\n`;
-      sql += `FROM app_51335ed80f_domestic_transport\n`;
-      sql += `WHERE port = '${input.pol}'\n`;
-      sql += `  AND ${dateCondition};\n\n`;
-    }
-
-    // 8. Other Costs
-    if (breakdown.otherCosts && breakdown.otherCosts.length > 0) {
-      sql += `-- ========================================\n`;
-      sql += `-- 8. 기타 비용 조회\n`;
-      sql += `-- ========================================\n`;
-      breakdown.otherCosts.forEach((cost, index) => {
-        sql += `-- ${index + 1}. ${cost.category}: $${cost.amount}\n`;
-      });
-      sql += `\n`;
-      sql += `SELECT \n`;
-      sql += `  id,\n`;
-      sql += `  category,\n`;
-      sql += `  amount,\n`;
-      sql += `  valid_from,\n`;
-      sql += `  valid_to\n`;
-      sql += `FROM app_51335ed80f_other_costs\n`;
-      sql += `WHERE ${dateCondition};\n\n`;
-    }
-
     // Summary
     sql += `-- ========================================\n`;
     sql += `-- 총액 계산\n`;
@@ -267,29 +231,17 @@ export default function FreightSqlDialog({
     if (breakdown.dp > 0) {
       sql += `-- DP: $${breakdown.dp}\n`;
     }
-    if (breakdown.domesticTransport > 0) {
-      sql += `-- 국내운송: $${breakdown.domesticTransport}\n`;
-    }
-    if (breakdown.otherCosts && breakdown.otherCosts.length > 0) {
-      const otherTotal = breakdown.otherCosts.reduce((sum, cost) => sum + cost.amount, 0);
-      sql += `-- 기타비용: $${otherTotal}\n`;
-    }
     
     let total = breakdown.seaFreight + 
                 (breakdown.localCharge || 0) + 
                 breakdown.dthc + 
                 breakdown.weightSurcharge + 
-                breakdown.dp + 
-                breakdown.domesticTransport;
+                breakdown.dp;
     
     if (breakdown.isCombinedFreight) {
       total += breakdown.combinedFreight;
     } else {
       total += breakdown.portBorder + breakdown.borderDestination;
-    }
-    
-    if (breakdown.otherCosts) {
-      total += breakdown.otherCosts.reduce((sum, cost) => sum + cost.amount, 0);
     }
     
     sql += `-- ========================================\n`;

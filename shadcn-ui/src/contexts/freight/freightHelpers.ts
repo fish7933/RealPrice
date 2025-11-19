@@ -266,35 +266,58 @@ export const getSystemSettingValue = (
 };
 
 // Time Machine: Reconstruct entity
+// ✅ FIXED: Now includes ALL entities created before target date, even without audit logs
 export const reconstructEntity = <T extends Record<string, unknown>>(
   entityType: FreightAuditLog['entityType'],
   currentEntities: T[],
   auditLogs: FreightAuditLog[],
   targetTime: number
 ): T[] => {
+  console.log(`🔍 [reconstructEntity] Reconstructing ${entityType} for target time:`, new Date(targetTime).toISOString());
+  console.log(`   📦 Current entities count: ${currentEntities.length}`);
+  
   const relevantLogs = auditLogs
     .filter(log => log.entityType === entityType && new Date(log.timestamp).getTime() <= targetTime)
     .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+  
+  console.log(`   📋 Relevant audit logs count: ${relevantLogs.length}`);
+  
   const entityMap = new Map<string, T>();
 
+  // ✅ CRITICAL FIX: Include ALL current entities that were created before target date
+  // This ensures entities without audit logs are still included
   currentEntities.forEach(entity => {
     const createdAt = (entity as { createdAt?: string }).createdAt;
+    const entityId = (entity as { id: string }).id;
+    
     if (createdAt && new Date(createdAt).getTime() <= targetTime) {
-      entityMap.set((entity as { id: string }).id, entity);
+      entityMap.set(entityId, entity);
+      console.log(`   ✅ Including entity ${entityId} (created: ${createdAt})`);
+    } else {
+      console.log(`   ❌ Excluding entity ${entityId} (created after target date)`);
     }
   });
 
+  console.log(`   📊 Entities after initial inclusion: ${entityMap.size}`);
+
+  // Apply audit log changes on top of current entities
   relevantLogs.forEach(log => {
     if (log.action === 'create') {
       entityMap.set(log.entityId, log.entitySnapshot as T);
+      console.log(`   🆕 Created entity ${log.entityId} from audit log`);
     } else if (log.action === 'update') {
       entityMap.set(log.entityId, log.entitySnapshot as T);
+      console.log(`   🔄 Updated entity ${log.entityId} from audit log`);
     } else if (log.action === 'delete') {
       entityMap.delete(log.entityId);
+      console.log(`   🗑️ Deleted entity ${log.entityId} from audit log`);
     }
   });
 
-  return Array.from(entityMap.values());
+  const result = Array.from(entityMap.values());
+  console.log(`   ✅ Final reconstructed entities count: ${result.length}`);
+  
+  return result;
 };
 
 // Get historical snapshot
@@ -310,9 +333,18 @@ export const getHistoricalSnapshot = (
   weightSurchargeRules: WeightSurchargeRule[],
   auditLogs: FreightAuditLog[]
 ): HistoricalFreightSnapshot | null => {
+  console.log(`🕰️ [getHistoricalSnapshot] Creating snapshot for date: ${targetDate}`);
+  console.log(`   📦 Input data counts:`, {
+    seaFreights: seaFreights.length,
+    agentSeaFreights: agentSeaFreights.length,
+    combinedFreights: combinedFreights.length,
+    portBorderFreights: portBorderFreights.length,
+    auditLogs: auditLogs.length,
+  });
+  
   const targetTime = new Date(targetDate).getTime();
 
-  return {
+  const snapshot = {
     date: targetDate,
     seaFreights: reconstructEntity<SeaFreight>('seaFreight', seaFreights, auditLogs, targetTime),
     agentSeaFreights: reconstructEntity<AgentSeaFreight>('agentSeaFreight', agentSeaFreights, auditLogs, targetTime),
@@ -323,6 +355,15 @@ export const getHistoricalSnapshot = (
     borderDestinationFreights: reconstructEntity<BorderDestinationFreight>('borderDestinationFreight', borderDestinationFreights, auditLogs, targetTime),
     weightSurchargeRules: reconstructEntity<WeightSurchargeRule>('weightSurcharge', weightSurchargeRules, auditLogs, targetTime),
   };
+  
+  console.log(`   ✅ Snapshot created with counts:`, {
+    seaFreights: snapshot.seaFreights.length,
+    agentSeaFreights: snapshot.agentSeaFreights.length,
+    combinedFreights: snapshot.combinedFreights.length,
+    portBorderFreights: snapshot.portBorderFreights.length,
+  });
+  
+  return snapshot;
 };
 
 // Get available historical dates

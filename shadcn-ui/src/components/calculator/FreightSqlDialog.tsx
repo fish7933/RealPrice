@@ -23,8 +23,10 @@ export default function FreightSqlDialog({
   const [copied, setCopied] = useState(false);
 
   const generateSql = (): string => {
+    // ✅ FIXED: More explicit check for valid historical date
     const historicalDate = input.historicalDate;
-    const dateCondition = historicalDate 
+    const hasHistoricalDate = historicalDate && historicalDate.trim() !== '';
+    const dateCondition = hasHistoricalDate
       ? `'${historicalDate}' BETWEEN valid_from AND valid_to`
       : `CURRENT_DATE BETWEEN valid_from AND valid_to`;
 
@@ -35,7 +37,7 @@ export default function FreightSqlDialog({
     sql += `-- 경로: ${input.pol} → ${input.pod} → ${destinationName}\n`;
     sql += `-- 중량: ${input.weight} kg\n`;
     sql += `-- 운임 유형: ${breakdown.isCombinedFreight ? '통합운임' : '분리운임 (철도+트럭)'}\n`;
-    sql += `-- 조회 날짜: ${historicalDate || '현재'}\n`;
+    sql += `-- 조회 날짜: ${hasHistoricalDate ? historicalDate : '현재'}\n`;
     sql += `-- ========================================\n\n`;
 
     // 1. Sea Freight

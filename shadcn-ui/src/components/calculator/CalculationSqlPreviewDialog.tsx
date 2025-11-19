@@ -23,8 +23,9 @@ export default function CalculationSqlPreviewDialog({
   const [copied, setCopied] = useState(false);
 
   const generateCalculationSql = (): string => {
-    const date = historicalDate || 'CURRENT_DATE';
-    const dateCondition = historicalDate 
+    // ✅ FIXED: More explicit check for valid historical date
+    const hasHistoricalDate = historicalDate && historicalDate.trim() !== '';
+    const dateCondition = hasHistoricalDate
       ? `'${historicalDate}' BETWEEN valid_from AND valid_to`
       : `CURRENT_DATE BETWEEN valid_from AND valid_to`;
 
@@ -37,7 +38,7 @@ export default function CalculationSqlPreviewDialog({
     sql += `--   목적지: ${getDestinationName(input.destinationId)} (${input.destinationId})\n`;
     sql += `--   중량: ${input.weight} kg\n`;
     sql += `--   DP 포함: ${input.includeDP ? '예' : '아니오'}\n`;
-    sql += `--   조회 날짜: ${historicalDate || '현재'}\n`;
+    sql += `--   조회 날짜: ${hasHistoricalDate ? historicalDate : '현재'}\n`;
     sql += `-- ========================================\n\n`;
 
     // 1. Sea Freight Query
@@ -225,7 +226,7 @@ export default function CalculationSqlPreviewDialog({
           </DialogTitle>
           <DialogDescription>
             "계산하기" 버튼 클릭 시 실행될 SQL 쿼리들입니다.
-            {historicalDate && ` (${historicalDate} 기준)`}
+            {historicalDate && historicalDate.trim() !== '' && ` (${historicalDate} 기준)`}
           </DialogDescription>
         </DialogHeader>
 

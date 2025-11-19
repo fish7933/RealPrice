@@ -34,7 +34,8 @@ import {
   getAuditLogsByType as getAuditLogsByTypeHelper,
   getDefaultBorderCity as getDefaultBorderCityHelper,
   getSystemSettingValue as getSystemSettingValueHelper,
-  detectChanges
+  detectChanges,
+  filterByDate
 } from './freight/freightHelpers';
 import {
   loadShippingLines,
@@ -1979,37 +1980,47 @@ export function FreightProvider({ children }: { children: ReactNode }) {
     return getSeaFreightOptionsHelper(seaFreights, pol, pod, date);
   };
 
-  // Cost Calculation
+  // ✅ FIXED: Cost Calculation with date filtering
   const calculateFreightCost = (input: CostCalculationInput): CostCalculationResult | null => {
-    const snapshot = input.historicalDate 
-      ? getHistoricalSnapshot(
-          input.historicalDate,
-          seaFreights,
-          agentSeaFreights,
-          dthcList,
-          dpCosts,
-          combinedFreights,
-          portBorderFreights,
-          borderDestinationFreights,
-          weightSurchargeRules,
-          freightAuditLogs
-        )
-      : null;
+    const calculationDate = input.historicalDate || undefined;
+    
+    console.log(`🔍 [calculateFreightCost] Filtering data by date: ${calculationDate || 'current'}`);
+    
+    // ✅ Filter all data by validity period BEFORE passing to calculateCost
+    const filteredSeaFreights = filterByDate(seaFreights, calculationDate);
+    const filteredAgentSeaFreights = filterByDate(agentSeaFreights, calculationDate);
+    const filteredDthcList = filterByDate(dthcList, calculationDate);
+    const filteredDpCosts = filterByDate(dpCosts, calculationDate);
+    const filteredCombinedFreights = filterByDate(combinedFreights, calculationDate);
+    const filteredPortBorderFreights = filterByDate(portBorderFreights, calculationDate);
+    const filteredBorderDestinationFreights = filterByDate(borderDestinationFreights, calculationDate);
+    const filteredWeightSurchargeRules = filterByDate(weightSurchargeRules, calculationDate);
+    
+    console.log(`📊 [calculateFreightCost] Filtered data counts:`, {
+      seaFreights: `${filteredSeaFreights.length}/${seaFreights.length}`,
+      agentSeaFreights: `${filteredAgentSeaFreights.length}/${agentSeaFreights.length}`,
+      dthc: `${filteredDthcList.length}/${dthcList.length}`,
+      dpCosts: `${filteredDpCosts.length}/${dpCosts.length}`,
+      combinedFreights: `${filteredCombinedFreights.length}/${combinedFreights.length}`,
+      portBorderFreights: `${filteredPortBorderFreights.length}/${portBorderFreights.length}`,
+      borderDestinationFreights: `${filteredBorderDestinationFreights.length}/${borderDestinationFreights.length}`,
+      weightSurchargeRules: `${filteredWeightSurchargeRules.length}/${weightSurchargeRules.length}`,
+    });
 
     return calculateCost(
       input,
-      seaFreights,
-      agentSeaFreights,
-      dthcList,
-      dpCosts,
-      combinedFreights,
-      portBorderFreights,
-      borderDestinationFreights,
-      weightSurchargeRules,
+      filteredSeaFreights,
+      filteredAgentSeaFreights,
+      filteredDthcList,
+      filteredDpCosts,
+      filteredCombinedFreights,
+      filteredPortBorderFreights,
+      filteredBorderDestinationFreights,
+      filteredWeightSurchargeRules,
       railAgents,
       truckAgents,
       shippingLines,
-      snapshot
+      null // No longer using snapshot
     );
   };
 

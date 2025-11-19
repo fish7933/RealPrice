@@ -86,6 +86,15 @@ export const getAgentSeaFreightVersion = (
   return maxVersion + 1;
 };
 
+// ✅ FIXED: Filter data by date BEFORE calculation
+export const filterByDate = <T extends { validFrom: string; validTo: string }>(
+  items: T[],
+  date?: string
+): T[] => {
+  if (!date) return items;
+  return items.filter(item => isValidOnDate(item.validFrom, item.validTo, date));
+};
+
 // Get sea freight options
 export const getSeaFreightOptions = (
   seaFreights: SeaFreight[],
@@ -94,10 +103,7 @@ export const getSeaFreightOptions = (
   date?: string
 ): SeaFreight[] => {
   const filtered = seaFreights.filter((f) => f.pol === pol && f.pod === pod);
-  if (date) {
-    return filtered.filter(f => isValidOnDate(f.validFrom, f.validTo, date));
-  }
-  return filtered;
+  return filterByDate(filtered, date);
 };
 
 // Get agent sea freight
@@ -112,12 +118,8 @@ export const getAgentSeaFreight = (
     (f) => f.agent === agent && f.pol === pol && f.pod === pod
   );
   
-  if (date) {
-    const validFreights = filtered.filter(f => isValidOnDate(f.validFrom, f.validTo, date));
-    return validFreights.length > 0 ? validFreights[0].rate : null;
-  }
-  
-  return filtered.length > 0 ? filtered[0].rate : null;
+  const validFreights = filterByDate(filtered, date);
+  return validFreights.length > 0 ? validFreights[0].rate : null;
 };
 
 // Get DTHC by agent and route
@@ -129,13 +131,8 @@ export const getDTHCByAgentAndRoute = (
   date?: string
 ): number => {
   const filtered = dthcList.filter((d) => d.agent === agent && d.pol === pol && d.pod === pod);
-  
-  if (date) {
-    const validDTHC = filtered.filter(d => isValidOnDate(d.validFrom, d.validTo, date));
-    return validDTHC.length > 0 ? validDTHC[0].amount : 0;
-  }
-  
-  return filtered.length > 0 ? filtered[0].amount : 0;
+  const validDTHC = filterByDate(filtered, date);
+  return validDTHC.length > 0 ? validDTHC[0].amount : 0;
 };
 
 // Get DP cost
@@ -145,13 +142,8 @@ export const getDPCost = (
   date?: string
 ): number => {
   const filtered = dpCosts.filter((d) => d.port === port);
-  
-  if (date) {
-    const validDP = filtered.filter(d => isValidOnDate(d.validFrom, d.validTo, date));
-    return validDP.length > 0 ? validDP[0].amount : 0;
-  }
-  
-  return filtered.length > 0 ? filtered[0].amount : 0;
+  const validDP = filterByDate(filtered, date);
+  return validDP.length > 0 ? validDP[0].amount : 0;
 };
 
 // Get combined freight - NOW INCLUDES POL FILTERING
@@ -167,12 +159,8 @@ export const getCombinedFreight = (
     (f) => f.agent === agent && f.pol === pol && f.pod === pod && f.destinationId === destinationId
   );
   
-  if (date) {
-    const validFreights = filtered.filter(f => isValidOnDate(f.validFrom, f.validTo, date));
-    return validFreights.length > 0 ? validFreights[0].rate : null;
-  }
-  
-  return filtered.length > 0 ? filtered[0].rate : null;
+  const validFreights = filterByDate(filtered, date);
+  return validFreights.length > 0 ? validFreights[0].rate : null;
 };
 
 // Get port border rate
@@ -186,12 +174,8 @@ export const getPortBorderRate = (
     (f) => f.agent === agent && f.pod === pod
   );
   
-  if (date) {
-    const validFreights = filtered.filter(f => isValidOnDate(f.validFrom, f.validTo, date));
-    return validFreights.length > 0 ? validFreights[0].rate : 0;
-  }
-  
-  return filtered.length > 0 ? filtered[0].rate : 0;
+  const validFreights = filterByDate(filtered, date);
+  return validFreights.length > 0 ? validFreights[0].rate : 0;
 };
 
 // Get border destination rate
@@ -205,12 +189,8 @@ export const getBorderDestinationRate = (
     (f) => f.agent === agent && f.destinationId === destinationId
   );
   
-  if (date) {
-    const validFreights = filtered.filter(f => isValidOnDate(f.validFrom, f.validTo, date));
-    return validFreights.length > 0 ? validFreights[0].rate : 0;
-  }
-  
-  return filtered.length > 0 ? filtered[0].rate : 0;
+  const validFreights = filterByDate(filtered, date);
+  return validFreights.length > 0 ? validFreights[0].rate : 0;
 };
 
 // Get weight surcharge
@@ -224,12 +204,8 @@ export const getWeightSurcharge = (
     (r) => r.agent === agent && weight >= r.minWeight && weight <= r.maxWeight
   );
   
-  if (date) {
-    const validRules = filtered.filter(r => isValidOnDate(r.validFrom, r.validTo, date));
-    return validRules.length > 0 ? validRules[0].surcharge : 0;
-  }
-  
-  return filtered.length > 0 ? filtered[0].surcharge : 0;
+  const validRules = filterByDate(filtered, date);
+  return validRules.length > 0 ? validRules[0].surcharge : 0;
 };
 
 // Get border city by ID
@@ -265,43 +241,10 @@ export const getSystemSettingValue = (
   return setting ? setting.settingValue : defaultValue;
 };
 
-// Time Machine: Reconstruct entity
-// ✅ FIXED: createdAt 날짜는 무시하고 audit log만 사용
-export const reconstructEntity = <T extends Record<string, unknown>>(
-  entityType: FreightAuditLog['entityType'],
-  currentEntities: T[],
-  auditLogs: FreightAuditLog[],
-  targetTime: number
-): T[] => {
-  const relevantLogs = auditLogs
-    .filter(log => log.entityType === entityType && new Date(log.timestamp).getTime() <= targetTime)
-    .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
-  
-  const entityMap = new Map<string, T>();
+// ✅ REMOVED: Historical snapshot reconstruction - no longer needed
+// We now filter data by validity period directly in calculateCost
 
-  // ✅ CRITICAL FIX: 모든 현재 엔티티를 포함 (createdAt 체크 제거)
-  // 유효기간(validFrom/validTo)만 체크하면 됨
-  currentEntities.forEach(entity => {
-    const entityId = (entity as { id: string }).id;
-    entityMap.set(entityId, entity);
-  });
-
-  // Apply audit log changes on top of current entities
-  relevantLogs.forEach(log => {
-    if (log.action === 'create') {
-      entityMap.set(log.entityId, log.entitySnapshot as T);
-    } else if (log.action === 'update') {
-      entityMap.set(log.entityId, log.entitySnapshot as T);
-    } else if (log.action === 'delete') {
-      entityMap.delete(log.entityId);
-    }
-  });
-
-  return Array.from(entityMap.values());
-};
-
-// Get historical snapshot
-// ✅ FIXED: 항상 null을 반환하여 현재 데이터 사용 (유효기간만 체크)
+// Get historical snapshot - DEPRECATED, always returns null
 export const getHistoricalSnapshot = (
   targetDate: string,
   seaFreights: SeaFreight[],
@@ -314,10 +257,7 @@ export const getHistoricalSnapshot = (
   weightSurchargeRules: WeightSurchargeRule[],
   auditLogs: FreightAuditLog[]
 ): HistoricalFreightSnapshot | null => {
-  console.log(`🕰️ [getHistoricalSnapshot] Date: ${targetDate} - Using current data with validity period check only`);
-  
-  // ✅ CRITICAL FIX: 항상 null을 반환하여 현재 데이터를 사용하도록 함
-  // 유효기간(validFrom/validTo)은 각 helper 함수에서 체크됨
+  console.log(`🕰️ [getHistoricalSnapshot] DEPRECATED - Using validity period filtering instead`);
   return null;
 };
 
@@ -329,11 +269,11 @@ export const getAvailableHistoricalDates = (auditLogs: FreightAuditLog[]): strin
     const date = log.timestamp.split('T')[0];
     dates.add(date);
   });
-
+  
   return Array.from(dates).sort((a, b) => b.localeCompare(a));
 };
 
-// Get historical freight options
+// Get historical freight options - DEPRECATED
 export const getHistoricalFreightOptions = (
   date: string,
   pol: string,
@@ -348,21 +288,7 @@ export const getHistoricalFreightOptions = (
   weightSurchargeRules: WeightSurchargeRule[],
   auditLogs: FreightAuditLog[]
 ): SeaFreight[] => {
-  const snapshot = getHistoricalSnapshot(
-    date,
-    seaFreights,
-    agentSeaFreights,
-    dthcList,
-    dpCosts,
-    combinedFreights,
-    portBorderFreights,
-    borderDestinationFreights,
-    weightSurchargeRules,
-    auditLogs
-  );
-  if (!snapshot) return [];
-  
-  return snapshot.seaFreights.filter((f) => f.pol === pol && f.pod === pod);
+  return getSeaFreightOptions(seaFreights, pol, pod, date);
 };
 
 // Get audit logs for entity

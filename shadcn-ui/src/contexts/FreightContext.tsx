@@ -960,10 +960,13 @@ export function FreightProvider({ children }: { children: ReactNode }) {
   // Port Border Freight management
   const addPortBorderFreight = async (freight: Omit<PortBorderFreight, 'id' | 'createdAt'>) => {
     try {
+      console.log('🔍 [FreightContext] addPortBorderFreight called with:', freight);
+      
       const { data, error } = await supabaseClient
         .from(TABLES.PORT_BORDER_FREIGHTS)
         .insert({
           agent: freight.agent,
+          pol: freight.pol,  // ✅ POL 필드 추가!
           pod: freight.pod,
           rate: freight.rate,
           version: freight.version || 1,
@@ -973,11 +976,17 @@ export function FreightProvider({ children }: { children: ReactNode }) {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ [FreightContext] Database error:', error);
+        throw error;
+      }
+
+      console.log('✅ [FreightContext] Database insert successful:', data);
 
       const newFreight: PortBorderFreight = {
         id: data.id,
         agent: data.agent,
+        pol: data.pol,  // ✅ POL 필드 매핑 추가!
         pod: data.pod,
         rate: data.rate,
         version: data.version,
@@ -1011,15 +1020,22 @@ export function FreightProvider({ children }: { children: ReactNode }) {
     try {
       const oldFreight = portBorderFreights.find(f => f.id === id);
       
+      const updateData: Record<string, unknown> = {
+        rate: updates.rate,
+        version: updates.version,
+        valid_from: updates.validFrom,
+        valid_to: updates.validTo,
+        updated_at: new Date().toISOString(),
+      };
+
+      // ✅ POL 필드가 제공되면 업데이트에 포함
+      if (updates.pol !== undefined) {
+        updateData.pol = updates.pol;
+      }
+
       const { data, error } = await supabaseClient
         .from(TABLES.PORT_BORDER_FREIGHTS)
-        .update({
-          rate: updates.rate,
-          version: updates.version,
-          valid_from: updates.validFrom,
-          valid_to: updates.validTo,
-          updated_at: new Date().toISOString(),
-        })
+        .update(updateData)
         .eq('id', id)
         .select()
         .single();
@@ -1030,6 +1046,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
         const updatedFreight: PortBorderFreight = {
           id: data.id,
           agent: data.agent,
+          pol: data.pol,  // ✅ POL 필드 매핑 추가!
           pod: data.pod,
           rate: data.rate,
           version: data.version,

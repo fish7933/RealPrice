@@ -266,6 +266,7 @@ export const getSystemSettingValue = (
 };
 
 // Time Machine: Reconstruct entity
+// ✅ FIXED: createdAt 날짜는 무시하고 audit log만 사용
 export const reconstructEntity = <T extends Record<string, unknown>>(
   entityType: FreightAuditLog['entityType'],
   currentEntities: T[],
@@ -278,14 +279,11 @@ export const reconstructEntity = <T extends Record<string, unknown>>(
   
   const entityMap = new Map<string, T>();
 
-  // Include ALL current entities that were created before target date
+  // ✅ CRITICAL FIX: 모든 현재 엔티티를 포함 (createdAt 체크 제거)
+  // 유효기간(validFrom/validTo)만 체크하면 됨
   currentEntities.forEach(entity => {
-    const createdAt = (entity as { createdAt?: string }).createdAt;
     const entityId = (entity as { id: string }).id;
-    
-    if (createdAt && new Date(createdAt).getTime() <= targetTime) {
-      entityMap.set(entityId, entity);
-    }
+    entityMap.set(entityId, entity);
   });
 
   // Apply audit log changes on top of current entities
@@ -303,7 +301,7 @@ export const reconstructEntity = <T extends Record<string, unknown>>(
 };
 
 // Get historical snapshot
-// ✅ FIXED: 과거 날짜를 선택해도 항상 현재 데이터를 사용하여 조회 가능하도록 수정
+// ✅ FIXED: 항상 null을 반환하여 현재 데이터 사용 (유효기간만 체크)
 export const getHistoricalSnapshot = (
   targetDate: string,
   seaFreights: SeaFreight[],
@@ -316,48 +314,11 @@ export const getHistoricalSnapshot = (
   weightSurchargeRules: WeightSurchargeRule[],
   auditLogs: FreightAuditLog[]
 ): HistoricalFreightSnapshot | null => {
-  console.log(`🕰️ [getHistoricalSnapshot] Creating snapshot for date: ${targetDate}`);
-  console.log(`   📦 Input data counts:`, {
-    seaFreights: seaFreights.length,
-    agentSeaFreights: agentSeaFreights.length,
-    combinedFreights: combinedFreights.length,
-    portBorderFreights: portBorderFreights.length,
-    auditLogs: auditLogs.length,
-  });
+  console.log(`🕰️ [getHistoricalSnapshot] Date: ${targetDate} - Using current data with validity period check only`);
   
-  const targetTime = new Date(targetDate).getTime();
-
-  const snapshot = {
-    date: targetDate,
-    seaFreights: reconstructEntity<SeaFreight>('seaFreight', seaFreights, auditLogs, targetTime),
-    agentSeaFreights: reconstructEntity<AgentSeaFreight>('agentSeaFreight', agentSeaFreights, auditLogs, targetTime),
-    dthcList: reconstructEntity<DTHC>('dthc', dthcList, auditLogs, targetTime),
-    dpCosts: reconstructEntity<DPCost>('dpCost', dpCosts, auditLogs, targetTime),
-    combinedFreights: reconstructEntity<CombinedFreight>('combinedFreight', combinedFreights, auditLogs, targetTime),
-    portBorderFreights: reconstructEntity<PortBorderFreight>('portBorderFreight', portBorderFreights, auditLogs, targetTime),
-    borderDestinationFreights: reconstructEntity<BorderDestinationFreight>('borderDestinationFreight', borderDestinationFreights, auditLogs, targetTime),
-    weightSurchargeRules: reconstructEntity<WeightSurchargeRule>('weightSurcharge', weightSurchargeRules, auditLogs, targetTime),
-  };
-  
-  console.log(`   ✅ Snapshot created with counts:`, {
-    seaFreights: snapshot.seaFreights.length,
-    agentSeaFreights: snapshot.agentSeaFreights.length,
-    combinedFreights: snapshot.combinedFreights.length,
-    portBorderFreights: snapshot.portBorderFreights.length,
-  });
-
-  // ✅ CRITICAL FIX: 히스토리컬 스냅샷이 비어있으면 null을 반환하여 현재 데이터 사용
-  const hasData = snapshot.seaFreights.length > 0 || 
-                  snapshot.agentSeaFreights.length > 0 || 
-                  snapshot.combinedFreights.length > 0 || 
-                  snapshot.portBorderFreights.length > 0;
-  
-  if (!hasData) {
-    console.log(`   ⚠️ Historical snapshot is empty - returning null to use current data`);
-    return null;
-  }
-  
-  return snapshot;
+  // ✅ CRITICAL FIX: 항상 null을 반환하여 현재 데이터를 사용하도록 함
+  // 유효기간(validFrom/validTo)은 각 helper 함수에서 체크됨
+  return null;
 };
 
 // Get available historical dates

@@ -306,7 +306,7 @@ export default function SeaFreightTable() {
       )}
 
       {/* Search Filters - Compact */}
-      <div className="p-3 bg-gray-600 rounded-lg border border-blue-100 shadow-sm">
+      <div className="p-4 bg-gradient-to-r from-gray-700 to-gray-600 rounded-lg border-2 border-gray-400 shadow-lg">
         <div className="flex items-center gap-2 mb-2">
           <div className="p-1 bg-blue-100 rounded">
             <Search className="h-3 w-3 text-blue-600" />
@@ -385,18 +385,18 @@ export default function SeaFreightTable() {
       </div>
 
       {/* Table - Compact */}
-      <div className="rounded-lg overflow-hidden shadow-sm border">
+      <div className="rounded-lg overflow-hidden shadow-md border-2 border-gray-300">
         <Table>
           <TableHeader>
-            <TableRow className="bg-gray-600">
-              <TableHead className="h-9 text-xs text-white font-bold whitespace-nowrap">POL</TableHead>
-              <TableHead className="h-9 text-xs text-white font-bold whitespace-nowrap">POD</TableHead>
-              <TableHead className="h-9 text-xs text-white font-bold whitespace-nowrap">운임</TableHead>
-              <TableHead className="h-9 text-xs text-white font-bold whitespace-nowrap">L.LOCAL</TableHead>
-              <TableHead className="h-9 text-xs text-white font-bold whitespace-nowrap">선사</TableHead>
-              <TableHead className="h-9 text-xs text-white font-bold whitespace-nowrap">유효기간</TableHead>
-              <TableHead className="h-9 text-xs text-white font-bold whitespace-nowrap">상태</TableHead>
-              <TableHead className="h-9 text-xs text-white font-bold whitespace-nowrap">비고</TableHead>
+            <TableRow className="bg-gray-800">
+              <TableHead className="h-10 text-sm text-white font-extrabold whitespace-nowrap">POL</TableHead>
+              <TableHead className="h-10 text-sm text-white font-extrabold whitespace-nowrap">POD</TableHead>
+              <TableHead className="h-10 text-sm text-white font-extrabold whitespace-nowrap">운임</TableHead>
+              <TableHead className="h-10 text-sm text-white font-extrabold whitespace-nowrap">L.LOCAL</TableHead>
+              <TableHead className="h-10 text-sm text-white font-extrabold whitespace-nowrap">선사</TableHead>
+              <TableHead className="h-10 text-sm text-white font-extrabold whitespace-nowrap">유효기간</TableHead>
+              <TableHead className="h-10 text-sm text-white font-extrabold whitespace-nowrap">상태</TableHead>
+              <TableHead className="h-10 text-sm text-white font-extrabold whitespace-nowrap">비고</TableHead>
               {isAdmin && <TableHead className="h-9 text-xs text-right text-white font-bold whitespace-nowrap">작업</TableHead>}
             </TableRow>
           </TableHeader>
@@ -415,13 +415,13 @@ export default function SeaFreightTable() {
                 const validityStatus = getValidityStatus(freight.validFrom, freight.validTo);
                 
                 return (
-                  <TableRow key={freight.id} className="hover:bg-gray-50">
-                    <TableCell className="py-2 text-xs font-medium whitespace-nowrap">{freight.pol}</TableCell>
-                    <TableCell className="py-2 text-xs whitespace-nowrap">{freight.pod}</TableCell>
-                    <TableCell className="py-2 text-xs font-semibold text-blue-600 whitespace-nowrap">${freight.rate}</TableCell>
-                    <TableCell className="py-2 text-xs whitespace-nowrap">${freight.localCharge || 0}</TableCell>
-                    <TableCell className="py-2 text-xs whitespace-nowrap">{freight.carrier || '-'}</TableCell>
-                    <TableCell className="py-2 text-xs whitespace-nowrap">
+                  <TableRow key={freight.id} className="hover:bg-blue-50 transition-colors duration-150">
+                    <TableCell className="py-3 text-sm font-medium whitespace-nowrap">{freight.pol}</TableCell>
+                    <TableCell className="py-3 text-sm whitespace-nowrap">{freight.pod}</TableCell>
+                    <TableCell className="py-3 text-sm font-semibold text-blue-600 whitespace-nowrap">${freight.rate}</TableCell>
+                    <TableCell className="py-3 text-sm whitespace-nowrap">${freight.localCharge || 0}</TableCell>
+                    <TableCell className="py-3 text-sm whitespace-nowrap">{freight.carrier || '-'}</TableCell>
+                    <TableCell className="py-3 text-sm whitespace-nowrap">
                       {formatValidityDate(freight.validFrom)} ~ {formatValidityDate(freight.validTo)}
                     </TableCell>
                     <TableCell className="py-2 whitespace-nowrap">
@@ -429,7 +429,7 @@ export default function SeaFreightTable() {
                         {validityStatus.label}
                       </Badge>
                     </TableCell>
-                    <TableCell className="py-2 text-xs whitespace-nowrap">{freight.note || '-'}</TableCell>
+                    <TableCell className="py-3 text-sm whitespace-nowrap">{freight.note || '-'}</TableCell>
                     {isAdmin && (
                       <TableCell className="py-2 text-right whitespace-nowrap">
                         <div className="flex justify-end gap-1">
@@ -445,7 +445,7 @@ export default function SeaFreightTable() {
                             variant="ghost"
                             size="sm"
                             onClick={() => handleDelete(freight.id)}
-                            className="h-6 w-6 p-0 hover:bg-gray-50 hover:text-red-700"
+                            className="h-6 w-6 p-0 hover:bg-blue-50 transition-colors duration-150 hover:text-red-700"
                           >
                             <Trash2 className="h-3 w-3 text-red-600" />
                           </Button>

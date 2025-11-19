@@ -400,7 +400,7 @@ export default function AgentSeaFreightTable() {
       <div className="border rounded-lg overflow-hidden bg-white shadow-sm">
         <Table>
           <TableHeader>
-            <TableRow className="bg-gray-600">
+            <TableRow className="bg-gray-800">
               <TableHead className="h-9 text-xs font-bold whitespace-nowrap">대리점</TableHead>
               <TableHead className="h-9 text-xs font-bold whitespace-nowrap">POL</TableHead>
               <TableHead className="h-9 text-xs font-bold whitespace-nowrap">POD</TableHead>
@@ -430,17 +430,17 @@ export default function AgentSeaFreightTable() {
                 const validityStatus = getValidityStatus(freight.validFrom, freight.validTo);
                 
                 return (
-                  <TableRow key={freight.id} className="hover:bg-gray-50">
-                    <TableCell className="py-2 text-xs font-medium whitespace-nowrap">
+                  <TableRow key={freight.id} className="hover:bg-blue-50 transition-colors duration-150">
+                    <TableCell className="py-3 text-sm font-medium whitespace-nowrap">
                       <div className="flex items-center gap-1">
                         <Star className="h-3 w-3 text-amber-600" />
                         {freight.agent}
                       </div>
                     </TableCell>
-                    <TableCell className="py-2 text-xs whitespace-nowrap">{freight.pol}</TableCell>
-                    <TableCell className="py-2 text-xs whitespace-nowrap">{freight.pod}</TableCell>
-                    <TableCell className="py-2 text-xs font-semibold whitespace-nowrap">${freight.rate}</TableCell>
-                    <TableCell className="py-2 text-xs whitespace-nowrap">
+                    <TableCell className="py-3 text-sm whitespace-nowrap">{freight.pol}</TableCell>
+                    <TableCell className="py-3 text-sm whitespace-nowrap">{freight.pod}</TableCell>
+                    <TableCell className="py-3 text-sm font-semibold whitespace-nowrap">${freight.rate}</TableCell>
+                    <TableCell className="py-3 text-sm whitespace-nowrap">
                       {freight.llocal !== undefined && freight.llocal !== null ? (
                         <span className="font-medium">
                           {freight.llocal >= 0 ? `$${freight.llocal}` : `-$${Math.abs(freight.llocal)}`}
@@ -449,8 +449,8 @@ export default function AgentSeaFreightTable() {
                         <span className="text-gray-400">-</span>
                       )}
                     </TableCell>
-                    <TableCell className="py-2 text-xs whitespace-nowrap">{freight.carrier || '-'}</TableCell>
-                    <TableCell className="py-2 text-xs whitespace-nowrap">
+                    <TableCell className="py-3 text-sm whitespace-nowrap">{freight.carrier || '-'}</TableCell>
+                    <TableCell className="py-3 text-sm whitespace-nowrap">
                       {formatValidityDate(freight.validFrom)} ~ {formatValidityDate(freight.validTo)}
                     </TableCell>
                     <TableCell className="py-2 whitespace-nowrap">
@@ -458,7 +458,7 @@ export default function AgentSeaFreightTable() {
                         {validityStatus.label}
                       </Badge>
                     </TableCell>
-                    <TableCell className="py-2 text-xs max-w-xs truncate whitespace-nowrap">{freight.note || '-'}</TableCell>
+                    <TableCell className="py-3 text-sm max-w-xs truncate whitespace-nowrap">{freight.note || '-'}</TableCell>
                     {isAdmin && (
                       <TableCell className="py-2 text-right whitespace-nowrap">
                         <div className="flex justify-end gap-1">
@@ -474,7 +474,7 @@ export default function AgentSeaFreightTable() {
                             variant="ghost"
                             size="sm"
                             onClick={() => handleDelete(freight.id)}
-                            className="h-6 w-6 p-0 hover:bg-gray-50 hover:text-red-700"
+                            className="h-6 w-6 p-0 hover:bg-blue-50 transition-colors duration-150 hover:text-red-700"
                           >
                             <Trash2 className="h-3 w-3 text-red-600" />
                           </Button>

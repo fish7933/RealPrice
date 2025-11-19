@@ -122,18 +122,18 @@ export default function PortTable() {
       {/* POL Ports */}
       <div className="space-y-3">
         <div className="flex items-center gap-2">
-          <div className="p-1.5 bg-gray-600 rounded-lg shadow-sm">
+          <div className="p-2 bg-gray-700 rounded-lg shadow-sm">
             <Ship className="h-4 w-4 text-white" />
           </div>
           <h4 className="text-base font-bold text-blue-700">선적포트 (POL) - {polPorts.length}개</h4>
         </div>
-        <div className="rounded-lg overflow-hidden shadow-sm border">
+        <div className="rounded-lg overflow-hidden shadow-md border-2 border-gray-300">
           <Table>
             <TableHeader>
-              <TableRow className="bg-gray-600">
-                <TableHead className="h-9 text-xs text-white font-bold whitespace-nowrap">포트명</TableHead>
-                <TableHead className="h-9 text-xs text-white font-bold whitespace-nowrap">국가</TableHead>
-                <TableHead className="h-9 text-xs text-white font-bold whitespace-nowrap">설명</TableHead>
+              <TableRow className="bg-gray-800">
+                <TableHead className="h-10 text-sm text-white font-extrabold whitespace-nowrap">포트명</TableHead>
+                <TableHead className="h-10 text-sm text-white font-extrabold whitespace-nowrap">국가</TableHead>
+                <TableHead className="h-10 text-sm text-white font-extrabold whitespace-nowrap">설명</TableHead>
                 <TableHead className="h-9 text-xs text-right text-white font-bold whitespace-nowrap">작업</TableHead>
               </TableRow>
             </TableHeader>
@@ -149,17 +149,17 @@ export default function PortTable() {
                 </TableRow>
               ) : (
                 polPorts.map((port) => (
-                  <TableRow key={port.id} className="hover:bg-gray-50">
-                    <TableCell className="py-2 text-xs font-medium whitespace-nowrap">
+                  <TableRow key={port.id} className="hover:bg-blue-50 transition-colors duration-150">
+                    <TableCell className="py-3 text-sm font-medium whitespace-nowrap">
                       <div className="flex items-center gap-2">
-                        <div className="p-1.5 bg-gray-600 rounded-lg shadow-sm">
+                        <div className="p-2 bg-gray-700 rounded-lg shadow-sm">
                           <Anchor className="h-3 w-3 text-white" />
                         </div>
                         <span className="text-gray-900">{port.name}</span>
                       </div>
                     </TableCell>
-                    <TableCell className="py-2 text-xs text-gray-600 whitespace-nowrap">{port.country}</TableCell>
-                    <TableCell className="py-2 text-xs text-gray-600 whitespace-nowrap">{port.description || '-'}</TableCell>
+                    <TableCell className="py-3 text-sm text-gray-600 whitespace-nowrap">{port.country}</TableCell>
+                    <TableCell className="py-3 text-sm text-gray-600 whitespace-nowrap">{port.description || '-'}</TableCell>
                     <TableCell className="py-2 text-right whitespace-nowrap">
                       <div className="flex justify-end gap-1">
                         <Button
@@ -174,7 +174,7 @@ export default function PortTable() {
                           variant="ghost"
                           size="sm"
                           onClick={() => handleDelete(port.id)}
-                          className="h-6 w-6 p-0 hover:bg-gray-50 hover:text-red-700"
+                          className="h-6 w-6 p-0 hover:bg-blue-50 transition-colors duration-150 hover:text-red-700"
                         >
                           <Trash2 className="h-3 w-3 text-red-600" />
                         </Button>
@@ -191,18 +191,18 @@ export default function PortTable() {
       {/* POD Ports */}
       <div className="space-y-3">
         <div className="flex items-center gap-2">
-          <div className="p-1.5 bg-gray-600 rounded-lg shadow-sm">
+          <div className="p-2 bg-gray-700 rounded-lg shadow-sm">
             <Globe className="h-4 w-4 text-white" />
           </div>
           <h4 className="text-base font-bold text-purple-700">양하포트 (POD) - {podPorts.length}개</h4>
         </div>
-        <div className="rounded-lg overflow-hidden shadow-sm border">
+        <div className="rounded-lg overflow-hidden shadow-md border-2 border-gray-300">
           <Table>
             <TableHeader>
-              <TableRow className="bg-gray-600">
-                <TableHead className="h-9 text-xs text-white font-bold whitespace-nowrap">포트명</TableHead>
-                <TableHead className="h-9 text-xs text-white font-bold whitespace-nowrap">국가</TableHead>
-                <TableHead className="h-9 text-xs text-white font-bold whitespace-nowrap">설명</TableHead>
+              <TableRow className="bg-gray-800">
+                <TableHead className="h-10 text-sm text-white font-extrabold whitespace-nowrap">포트명</TableHead>
+                <TableHead className="h-10 text-sm text-white font-extrabold whitespace-nowrap">국가</TableHead>
+                <TableHead className="h-10 text-sm text-white font-extrabold whitespace-nowrap">설명</TableHead>
                 <TableHead className="h-9 text-xs text-right text-white font-bold whitespace-nowrap">작업</TableHead>
               </TableRow>
             </TableHeader>
@@ -218,17 +218,17 @@ export default function PortTable() {
                 </TableRow>
               ) : (
                 podPorts.map((port) => (
-                  <TableRow key={port.id} className="hover:bg-gray-50">
-                    <TableCell className="py-2 text-xs font-medium whitespace-nowrap">
+                  <TableRow key={port.id} className="hover:bg-blue-50 transition-colors duration-150">
+                    <TableCell className="py-3 text-sm font-medium whitespace-nowrap">
                       <div className="flex items-center gap-2">
-                        <div className="p-1.5 bg-gray-600 rounded-lg shadow-sm">
+                        <div className="p-2 bg-gray-700 rounded-lg shadow-sm">
                           <Anchor className="h-3 w-3 text-white" />
                         </div>
                         <span className="text-gray-900">{port.name}</span>
                       </div>
                     </TableCell>
-                    <TableCell className="py-2 text-xs text-gray-600 whitespace-nowrap">{port.country}</TableCell>
-                    <TableCell className="py-2 text-xs text-gray-600 whitespace-nowrap">{port.description || '-'}</TableCell>
+                    <TableCell className="py-3 text-sm text-gray-600 whitespace-nowrap">{port.country}</TableCell>
+                    <TableCell className="py-3 text-sm text-gray-600 whitespace-nowrap">{port.description || '-'}</TableCell>
                     <TableCell className="py-2 text-right whitespace-nowrap">
                       <div className="flex justify-end gap-1">
                         <Button
@@ -243,7 +243,7 @@ export default function PortTable() {
                           variant="ghost"
                           size="sm"
                           onClick={() => handleDelete(port.id)}
-                          className="h-6 w-6 p-0 hover:bg-gray-50 hover:text-red-700"
+                          className="h-6 w-6 p-0 hover:bg-blue-50 transition-colors duration-150 hover:text-red-700"
                         >
                           <Trash2 className="h-3 w-3 text-red-600" />
                         </Button>

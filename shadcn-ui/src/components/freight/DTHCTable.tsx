@@ -239,7 +239,7 @@ export default function DTHCTable() {
             </div>
             <Table>
               <TableHeader>
-                <TableRow className="bg-gray-600">
+                <TableRow className="bg-gray-800">
                   <TableHead className="h-9 text-xs font-bold whitespace-nowrap">경로</TableHead>
                   <TableHead className="h-9 text-xs font-bold whitespace-nowrap">선사</TableHead>
                   <TableHead className="h-9 text-xs font-bold whitespace-nowrap">D/O(DTHC)</TableHead>
@@ -254,18 +254,18 @@ export default function DTHCTable() {
                   const validityStatus = getValidityStatus(dthc.validFrom, dthc.validTo);
                   
                   return (
-                    <TableRow key={dthc.id} className="hover:bg-gray-50/50">
-                      <TableCell className="py-2 text-xs font-medium whitespace-nowrap">
+                    <TableRow key={dthc.id} className="hover:bg-blue-50 transition-colors duration-150/50">
+                      <TableCell className="py-3 text-sm font-medium whitespace-nowrap">
                         {dthc.pol || '-'} → {dthc.pod || '-'}
                       </TableCell>
-                      <TableCell className="py-2 text-xs whitespace-nowrap">
+                      <TableCell className="py-3 text-sm whitespace-nowrap">
                         <div className="flex items-center gap-1">
                           <Ship className="h-3 w-3 text-cyan-600" />
                           <span className="font-medium">{dthc.carrier || '-'}</span>
                         </div>
                       </TableCell>
-                      <TableCell className="py-2 text-xs font-semibold text-orange-700 whitespace-nowrap">${dthc.amount ?? 0}</TableCell>
-                      <TableCell className="py-2 text-xs whitespace-nowrap">
+                      <TableCell className="py-3 text-sm font-semibold text-orange-700 whitespace-nowrap">${dthc.amount ?? 0}</TableCell>
+                      <TableCell className="py-3 text-sm whitespace-nowrap">
                         {formatValidityDate(dthc.validFrom)} ~ {formatValidityDate(dthc.validTo)}
                       </TableCell>
                       <TableCell className="py-2 whitespace-nowrap">
@@ -273,7 +273,7 @@ export default function DTHCTable() {
                           {validityStatus.label}
                         </Badge>
                       </TableCell>
-                      <TableCell className="py-2 text-xs whitespace-nowrap">
+                      <TableCell className="py-3 text-sm whitespace-nowrap">
                         <span className={!dthc.description ? 'text-gray-400' : ''}>
                           {dthc.description || '-'}
                         </span>
@@ -293,7 +293,7 @@ export default function DTHCTable() {
                               variant="ghost"
                               size="sm"
                               onClick={() => handleDelete(dthc.id)}
-                              className="h-6 w-6 p-0 hover:bg-gray-50 hover:text-red-700"
+                              className="h-6 w-6 p-0 hover:bg-blue-50 transition-colors duration-150 hover:text-red-700"
                             >
                               <Trash2 className="h-3 w-3 text-red-600" />
                             </Button>

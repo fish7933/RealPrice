@@ -111,36 +111,36 @@ export default function ShippingLineTable() {
       </div>
 
       {/* Table with Modern Design */}
-      <div className="rounded-lg overflow-hidden shadow-sm border">
+      <div className="rounded-lg overflow-hidden shadow-md border-2 border-gray-300">
         <Table>
           <TableHeader>
-            <TableRow className="bg-gray-600">
-              <TableHead className="h-9 text-xs text-white font-bold whitespace-nowrap">선사명</TableHead>
-              <TableHead className="h-9 text-xs text-white font-bold whitespace-nowrap">코드</TableHead>
-              <TableHead className="h-9 text-xs text-white font-bold whitespace-nowrap">설명</TableHead>
-              <TableHead className="h-9 text-xs text-white font-bold whitespace-nowrap">등록일</TableHead>
+            <TableRow className="bg-gray-800">
+              <TableHead className="h-10 text-sm text-white font-extrabold whitespace-nowrap">선사명</TableHead>
+              <TableHead className="h-10 text-sm text-white font-extrabold whitespace-nowrap">코드</TableHead>
+              <TableHead className="h-10 text-sm text-white font-extrabold whitespace-nowrap">설명</TableHead>
+              <TableHead className="h-10 text-sm text-white font-extrabold whitespace-nowrap">등록일</TableHead>
               {isAdmin && <TableHead className="h-9 text-xs text-right text-white font-bold whitespace-nowrap">작업</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
             {shippingLines.length > 0 ? (
               shippingLines.map((line) => (
-                <TableRow key={line.id} className="hover:bg-gray-50">
-                  <TableCell className="py-2 text-xs font-medium whitespace-nowrap">
+                <TableRow key={line.id} className="hover:bg-blue-50 transition-colors duration-150">
+                  <TableCell className="py-3 text-sm font-medium whitespace-nowrap">
                     <div className="flex items-center gap-2">
-                      <div className="p-1.5 bg-gray-600 rounded-lg shadow-sm">
+                      <div className="p-2 bg-gray-700 rounded-lg shadow-sm">
                         <Ship className="h-3 w-3 text-white" />
                       </div>
                       <span className="text-gray-900">{line.name}</span>
                     </div>
                   </TableCell>
-                  <TableCell className="py-2 text-xs whitespace-nowrap">
+                  <TableCell className="py-3 text-sm whitespace-nowrap">
                     <span className="inline-flex items-center px-2 py-0.5 bg-gray-100 text-gray-700 rounded-full text-xs font-semibold shadow-sm">
                       {line.code || '-'}
                     </span>
                   </TableCell>
-                  <TableCell className="py-2 text-xs text-gray-600 whitespace-nowrap">{line.description || '-'}</TableCell>
-                  <TableCell className="py-2 text-xs text-gray-500 whitespace-nowrap">
+                  <TableCell className="py-3 text-sm text-gray-600 whitespace-nowrap">{line.description || '-'}</TableCell>
+                  <TableCell className="py-3 text-sm text-gray-500 whitespace-nowrap">
                     {new Date(line.createdAt).toLocaleDateString('ko-KR')}
                   </TableCell>
                   {isAdmin && (

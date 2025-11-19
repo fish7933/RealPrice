@@ -424,7 +424,7 @@ export default function AuditLogTable({ logs, title = '운임 변경 기록', de
                   const isSelected = selectedVersions.has(versionKey);
                   
                   return (
-                    <TableRow key={`${groupedLog.version}-${groupedLog.agent}-${groupedLog.pol}-${index}`} className="hover:bg-gray-50">
+                    <TableRow key={`${groupedLog.version}-${groupedLog.agent}-${groupedLog.pol}-${index}`} className="hover:bg-blue-50 transition-colors duration-150">
                       <TableCell className="py-2">
                         <Checkbox
                           checked={isSelected}
@@ -432,17 +432,17 @@ export default function AuditLogTable({ logs, title = '운임 변경 기록', de
                           disabled={!isSelected && selectedVersions.size >= 2}
                         />
                       </TableCell>
-                      <TableCell className="py-2 text-xs whitespace-nowrap">
+                      <TableCell className="py-3 text-sm whitespace-nowrap">
                         {formatTimestamp(groupedLog.timestamp)}
                       </TableCell>
                       {hasAgentField && (
-                        <TableCell className="py-2 text-xs font-medium whitespace-nowrap">{groupedLog.agent || '-'}</TableCell>
+                        <TableCell className="py-3 text-sm font-medium whitespace-nowrap">{groupedLog.agent || '-'}</TableCell>
                       )}
                       {hasPolField && (
-                        <TableCell className="py-2 text-xs font-medium text-blue-700 whitespace-nowrap">{groupedLog.pol || '-'}</TableCell>
+                        <TableCell className="py-3 text-sm font-medium text-blue-700 whitespace-nowrap">{groupedLog.pol || '-'}</TableCell>
                       )}
                       <TableCell className="py-2">{getActionBadge(groupedLog.action)}</TableCell>
-                      <TableCell className="py-2 text-xs whitespace-nowrap">
+                      <TableCell className="py-3 text-sm whitespace-nowrap">
                         <div className="font-medium">{groupedLog.changedByName}</div>
                         <div className="text-gray-500">@{groupedLog.changedByUsername}</div>
                       </TableCell>

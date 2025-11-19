@@ -516,7 +516,7 @@ export default function BorderDestinationTable() {
       <div className="rounded-lg border shadow-sm overflow-hidden">
         <Table>
           <TableHeader>
-            <TableRow className="bg-gray-600">
+            <TableRow className="bg-gray-800">
               <TableHead className="h-9 text-xs font-bold whitespace-nowrap">대리점</TableHead>
               {destinations.map(dest => (
                 <TableHead key={dest.id} className="h-9 text-xs font-bold whitespace-nowrap">
@@ -531,12 +531,12 @@ export default function BorderDestinationTable() {
           <TableBody>
             {paginatedGroups.length > 0 ? (
               paginatedGroups.map((group, index) => (
-                <TableRow key={`${group.agent}-${group.validFrom}-${index}`} className="hover:bg-gray-50/50">
-                  <TableCell className="py-2 text-xs font-medium whitespace-nowrap">{group.agent}</TableCell>
+                <TableRow key={`${group.agent}-${group.validFrom}-${index}`} className="hover:bg-blue-50 transition-colors duration-150/50">
+                  <TableCell className="py-3 text-sm font-medium whitespace-nowrap">{group.agent}</TableCell>
                   {destinations.map(dest => {
                     const freight = group.freights[dest.id];
                     return (
-                      <TableCell key={dest.id} className="py-2 text-xs whitespace-nowrap">
+                      <TableCell key={dest.id} className="py-3 text-sm whitespace-nowrap">
                         {freight ? (
                           <span className="font-semibold text-orange-700">${freight.rate}</span>
                         ) : (
@@ -545,7 +545,7 @@ export default function BorderDestinationTable() {
                       </TableCell>
                     );
                   })}
-                  <TableCell className="py-2 text-xs whitespace-nowrap">
+                  <TableCell className="py-3 text-sm whitespace-nowrap">
                     {formatValidityDate(group.validFrom)} ~ {formatValidityDate(group.validTo)}
                   </TableCell>
                   <TableCell className="py-2 whitespace-nowrap">
@@ -570,7 +570,7 @@ export default function BorderDestinationTable() {
                           variant="ghost"
                           size="sm"
                           onClick={() => handleDeleteGroup(group)}
-                          className="h-6 w-6 p-0 hover:bg-gray-50 hover:text-red-700"
+                          className="h-6 w-6 p-0 hover:bg-blue-50 transition-colors duration-150 hover:text-red-700"
                         >
                           <Trash2 className="h-3 w-3 text-red-600" />
                         </Button>

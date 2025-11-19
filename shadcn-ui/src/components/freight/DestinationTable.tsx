@@ -107,30 +107,30 @@ export default function DestinationTable() {
       </div>
 
       {/* Table with Modern Design */}
-      <div className="rounded-lg overflow-hidden shadow-sm border">
+      <div className="rounded-lg overflow-hidden shadow-md border-2 border-gray-300">
         <Table>
           <TableHeader>
-            <TableRow className="bg-gray-600">
-              <TableHead className="h-9 text-xs text-white font-bold whitespace-nowrap">최종목적지</TableHead>
-              <TableHead className="h-9 text-xs text-white font-bold whitespace-nowrap">설명</TableHead>
-              <TableHead className="h-9 text-xs text-white font-bold whitespace-nowrap">생성일</TableHead>
+            <TableRow className="bg-gray-800">
+              <TableHead className="h-10 text-sm text-white font-extrabold whitespace-nowrap">최종목적지</TableHead>
+              <TableHead className="h-10 text-sm text-white font-extrabold whitespace-nowrap">설명</TableHead>
+              <TableHead className="h-10 text-sm text-white font-extrabold whitespace-nowrap">생성일</TableHead>
               {isAdmin && <TableHead className="h-9 text-xs text-right text-white font-bold whitespace-nowrap">작업</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
             {destinations.length > 0 ? (
               destinations.map((destination) => (
-                <TableRow key={destination.id} className="hover:bg-gray-50">
-                  <TableCell className="py-2 text-xs font-medium whitespace-nowrap">
+                <TableRow key={destination.id} className="hover:bg-blue-50 transition-colors duration-150">
+                  <TableCell className="py-3 text-sm font-medium whitespace-nowrap">
                     <div className="flex items-center gap-2">
-                      <div className="p-1.5 bg-gray-600 rounded-lg shadow-sm">
+                      <div className="p-2 bg-gray-700 rounded-lg shadow-sm">
                         <MapPin className="h-3 w-3 text-white" />
                       </div>
                       <span className="text-gray-900">{destination.name}</span>
                     </div>
                   </TableCell>
-                  <TableCell className="py-2 text-xs text-gray-600 whitespace-nowrap">{destination.description || '-'}</TableCell>
-                  <TableCell className="py-2 text-xs text-gray-500 whitespace-nowrap">
+                  <TableCell className="py-3 text-sm text-gray-600 whitespace-nowrap">{destination.description || '-'}</TableCell>
+                  <TableCell className="py-3 text-sm text-gray-500 whitespace-nowrap">
                     {new Date(destination.createdAt).toLocaleDateString('ko-KR')}
                   </TableCell>
                   {isAdmin && (
@@ -148,7 +148,7 @@ export default function DestinationTable() {
                           variant="ghost"
                           size="sm"
                           onClick={() => handleDelete(destination.id)}
-                          className="h-6 w-6 p-0 hover:bg-gray-50 hover:text-red-700"
+                          className="h-6 w-6 p-0 hover:bg-blue-50 transition-colors duration-150 hover:text-red-700"
                         >
                           <Trash2 className="h-3 w-3 text-red-600" />
                         </Button>

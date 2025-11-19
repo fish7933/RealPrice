@@ -111,36 +111,36 @@ export default function TruckAgentTable() {
       </div>
 
       {/* Table with Compact Design */}
-      <div className="rounded-lg overflow-hidden shadow-sm border">
+      <div className="rounded-lg overflow-hidden shadow-md border-2 border-gray-300">
         <Table>
           <TableHeader>
-            <TableRow className="bg-gray-600">
-              <TableHead className="h-9 text-xs text-white font-bold whitespace-nowrap">대리점명</TableHead>
-              <TableHead className="h-9 text-xs text-white font-bold whitespace-nowrap">코드</TableHead>
-              <TableHead className="h-9 text-xs text-white font-bold whitespace-nowrap">설명</TableHead>
-              <TableHead className="h-9 text-xs text-white font-bold whitespace-nowrap">등록일</TableHead>
+            <TableRow className="bg-gray-800">
+              <TableHead className="h-10 text-sm text-white font-extrabold whitespace-nowrap">대리점명</TableHead>
+              <TableHead className="h-10 text-sm text-white font-extrabold whitespace-nowrap">코드</TableHead>
+              <TableHead className="h-10 text-sm text-white font-extrabold whitespace-nowrap">설명</TableHead>
+              <TableHead className="h-10 text-sm text-white font-extrabold whitespace-nowrap">등록일</TableHead>
               {isAdmin && <TableHead className="h-9 text-xs text-right text-white font-bold whitespace-nowrap">작업</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
             {truckAgents.length > 0 ? (
               truckAgents.map((agent) => (
-                <TableRow key={agent.id} className="hover:bg-gray-50">
-                  <TableCell className="py-2 text-xs font-medium whitespace-nowrap">
+                <TableRow key={agent.id} className="hover:bg-blue-50 transition-colors duration-150">
+                  <TableCell className="py-3 text-sm font-medium whitespace-nowrap">
                     <div className="flex items-center gap-2">
-                      <div className="p-1.5 bg-gray-600 rounded-lg shadow-sm">
+                      <div className="p-2 bg-gray-700 rounded-lg shadow-sm">
                         <Truck className="h-3 w-3 text-white" />
                       </div>
                       <span className="text-gray-900">{agent.name}</span>
                     </div>
                   </TableCell>
-                  <TableCell className="py-2 text-xs whitespace-nowrap">
+                  <TableCell className="py-3 text-sm whitespace-nowrap">
                     <span className="inline-flex items-center px-2 py-0.5 bg-gray-100 text-gray-700 rounded-full text-xs font-semibold shadow-sm">
                       {agent.code || '-'}
                     </span>
                   </TableCell>
-                  <TableCell className="py-2 text-xs text-gray-600 whitespace-nowrap">{agent.description || '-'}</TableCell>
-                  <TableCell className="py-2 text-xs text-gray-500 whitespace-nowrap">
+                  <TableCell className="py-3 text-sm text-gray-600 whitespace-nowrap">{agent.description || '-'}</TableCell>
+                  <TableCell className="py-3 text-sm text-gray-500 whitespace-nowrap">
                     {new Date(agent.createdAt).toLocaleDateString('ko-KR')}
                   </TableCell>
                   {isAdmin && (

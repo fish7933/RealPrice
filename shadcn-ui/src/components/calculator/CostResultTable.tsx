@@ -406,7 +406,7 @@ export default function CostResultTable({
                         className={`text-sm transition-all duration-300 ${
                           isLowest 
                             ? 'bg-gradient-to-r from-amber-50 via-yellow-50 to-amber-50 border-l-4 border-amber-500 shadow-md animate-pulse-subtle' 
-                            : 'hover:bg-gray-50'
+                            : 'hover:bg-blue-50 transition-colors duration-150'
                         }`}
                       >
                         <TableCell className="whitespace-nowrap p-2">

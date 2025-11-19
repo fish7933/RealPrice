@@ -983,10 +983,17 @@ export function FreightProvider({ children }: { children: ReactNode }) {
 
       console.log('✅ [FreightContext] Database insert successful:', data);
 
+      // ✅ 트럭 운임에서 해결했던 방식: 데이터베이스에서 다시 로드
+      console.log('🔄 [FreightContext] Reloading port border freights from database...');
+      const reloadedData = await loadPortBorderFreights();
+      setPortBorderFreights(reloadedData);
+      console.log('✅ [FreightContext] Port border freights reloaded:', reloadedData.length);
+      
+      // Create audit log
       const newFreight: PortBorderFreight = {
         id: data.id,
         agent: data.agent,
-        pol: data.pol,  // ✅ POL 필드 매핑 추가!
+        pol: data.pol,
         pod: data.pod,
         rate: data.rate,
         version: data.version,
@@ -994,9 +1001,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
         validTo: data.valid_to,
         createdAt: data.created_at,
       };
-      setPortBorderFreights([...portBorderFreights, newFreight]);
       
-      // Create audit log
       await createAuditLog(
         'portBorderFreight',
         newFreight.id,
@@ -1042,11 +1047,17 @@ export function FreightProvider({ children }: { children: ReactNode }) {
 
       if (error) throw error;
 
-      if (data) {
+      // ✅ 트럭 운임에서 해결했던 방식: 데이터베이스에서 다시 로드
+      console.log('🔄 [FreightContext] Reloading port border freights after update...');
+      const reloadedData = await loadPortBorderFreights();
+      setPortBorderFreights(reloadedData);
+      console.log('✅ [FreightContext] Port border freights reloaded after update');
+
+      if (data && oldFreight) {
         const updatedFreight: PortBorderFreight = {
           id: data.id,
           agent: data.agent,
-          pol: data.pol,  // ✅ POL 필드 매핑 추가!
+          pol: data.pol,
           pod: data.pod,
           rate: data.rate,
           version: data.version,
@@ -1055,24 +1066,20 @@ export function FreightProvider({ children }: { children: ReactNode }) {
           createdAt: data.created_at,
         };
         
-        setPortBorderFreights(portBorderFreights.map(freight => freight.id === id ? updatedFreight : freight));
+        // Create audit log
+        await createAuditLog(
+          'portBorderFreight',
+          id,
+          'update',
+          detectChanges(oldFreight as unknown as Record<string, unknown>, updatedFreight as unknown as Record<string, unknown>),
+          updatedFreight as unknown as Record<string, unknown>,
+          user,
+          updatedFreight.version || 1
+        );
         
-        // Create audit log if oldFreight exists
-        if (oldFreight) {
-          await createAuditLog(
-            'portBorderFreight',
-            id,
-            'update',
-            detectChanges(oldFreight as unknown as Record<string, unknown>, updatedFreight as unknown as Record<string, unknown>),
-            updatedFreight as unknown as Record<string, unknown>,
-            user,
-            updatedFreight.version || 1
-          );
-          
-          // Reload audit logs
-          const reloadedAuditLogs = await loadAuditLogs();
-          setFreightAuditLogs(reloadedAuditLogs);
-        }
+        // Reload audit logs
+        const reloadedAuditLogs = await loadAuditLogs();
+        setFreightAuditLogs(reloadedAuditLogs);
       }
     } catch (error) {
       console.error('Error updating port border freight:', error);

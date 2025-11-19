@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useFreight } from '@/contexts/FreightContext';
 import { BorderDestinationFreight } from '@/types/freight';
@@ -35,6 +35,14 @@ import { getValidityStatus, formatValidityDate, checkOverlapWarning } from '@/ut
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
+interface FreightGroup {
+  agent: string;
+  validFrom: string;
+  validTo: string;
+  freights: { [destinationId: string]: BorderDestinationFreight | undefined };
+  validityStatus: ReturnType<typeof getValidityStatus> | null;
+}
+
 export default function BorderDestinationTable() {
   const { user } = useAuth();
   const { 
@@ -49,7 +57,7 @@ export default function BorderDestinationTable() {
   
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [editingAgent, setEditingAgent] = useState<string>('');
+  const [editingGroup, setEditingGroup] = useState<FreightGroup | null>(null);
   const [validationWarning, setValidationWarning] = useState<string | null>(null);
   const [formData, setFormData] = useState<{
     agent: string;
@@ -79,30 +87,6 @@ export default function BorderDestinationTable() {
     return data;
   };
 
-  useEffect(() => {
-    if (formData.agent) {
-      const data: { agent: string; validFrom: string; validTo: string; [key: string]: string } = { 
-        agent: formData.agent,
-        validFrom: '',
-        validTo: '',
-      };
-      
-      const firstFreight = borderDestinationFreights.find(f => f.agent === formData.agent);
-      if (firstFreight) {
-        data.validFrom = firstFreight.validFrom;
-        data.validTo = firstFreight.validTo;
-      }
-      
-      destinations.forEach(dest => {
-        const existingFreight = borderDestinationFreights.find(
-          f => f.agent === formData.agent && f.destinationId === dest.id
-        );
-        data[dest.id] = existingFreight ? existingFreight.rate.toString() : '';
-      });
-      setFormData(data);
-    }
-  }, [formData.agent, destinations, borderDestinationFreights]);
-
   const handleAdd = async () => {
     if (!formData.agent || !formData.validFrom || !formData.validTo) {
       setValidationWarning('❌ 모든 필수 항목을 입력해주세요.');
@@ -115,7 +99,7 @@ export default function BorderDestinationTable() {
       return;
     }
 
-    // Check for overlaps
+    // Check for overlaps with existing records for the same agent
     for (const dest of destinations) {
       if (formData[dest.id] && formData[dest.id] !== '') {
         const warning = checkOverlapWarning(
@@ -141,36 +125,19 @@ export default function BorderDestinationTable() {
         updates?: Partial<BorderDestinationFreight>;
       }> = [];
 
+      // Always add new records (no update logic in add dialog)
       destinations.forEach(dest => {
         if (formData[dest.id] && formData[dest.id] !== '') {
-          const existingFreight = borderDestinationFreights.find(
-            f => f.agent === formData.agent && f.destinationId === dest.id
-          );
-
-          if (existingFreight) {
-            operations.push({
-              type: 'update',
-              id: existingFreight.id,
-              updates: {
-                agent: formData.agent,
-                destinationId: dest.id,
-                rate: Number(formData[dest.id]),
-                validFrom: formData.validFrom,
-                validTo: formData.validTo,
-              }
-            });
-          } else {
-            operations.push({
-              type: 'add',
-              data: {
-                agent: formData.agent,
-                destinationId: dest.id,
-                rate: Number(formData[dest.id]),
-                validFrom: formData.validFrom,
-                validTo: formData.validTo,
-              }
-            });
-          }
+          operations.push({
+            type: 'add',
+            data: {
+              agent: formData.agent,
+              destinationId: dest.id,
+              rate: Number(formData[dest.id]),
+              validFrom: formData.validFrom,
+              validTo: formData.validTo,
+            }
+          });
         }
       });
 
@@ -180,8 +147,8 @@ export default function BorderDestinationTable() {
       setValidationWarning(null);
       setIsAddDialogOpen(false);
     } catch (error) {
-      console.error('Error adding/updating freight:', error);
-      setValidationWarning('운임 추가/수정 중 오류가 발생했습니다.');
+      console.error('Error adding freight:', error);
+      setValidationWarning('운임 추가 중 오류가 발생했습니다.');
     }
   };
 
@@ -201,34 +168,16 @@ export default function BorderDestinationTable() {
 
       destinations.forEach(dest => {
         if (formData[dest.id] && formData[dest.id] !== '') {
-          const existingFreight = borderDestinationFreights.find(
-            f => f.agent === formData.agent && f.destinationId === dest.id
-          );
-
-          if (existingFreight) {
-            operations.push({
-              type: 'update',
-              id: existingFreight.id,
-              updates: {
-                agent: formData.agent,
-                destinationId: dest.id,
-                rate: Number(formData[dest.id]),
-                validFrom: formData.validFrom,
-                validTo: formData.validTo,
-              }
-            });
-          } else {
-            operations.push({
-              type: 'add',
-              data: {
-                agent: formData.agent,
-                destinationId: dest.id,
-                rate: Number(formData[dest.id]),
-                validFrom: formData.validFrom,
-                validTo: formData.validTo,
-              }
-            });
-          }
+          operations.push({
+            type: 'add',
+            data: {
+              agent: formData.agent,
+              destinationId: dest.id,
+              rate: Number(formData[dest.id]),
+              validFrom: formData.validFrom,
+              validTo: formData.validTo,
+            }
+          });
         }
       });
 
@@ -238,23 +187,22 @@ export default function BorderDestinationTable() {
       setValidationWarning(null);
       setIsAddDialogOpen(false);
     } catch (error) {
-      console.error('Error adding/updating freight:', error);
-      setValidationWarning('운임 추가/수정 중 오류가 발생했습니다.');
+      console.error('Error adding freight:', error);
+      setValidationWarning('운임 추가 중 오류가 발생했습니다.');
     }
   };
 
-  const handleEditClick = (agent: string, freights: { [destinationId: string]: BorderDestinationFreight | undefined }) => {
-    setEditingAgent(agent);
+  const handleEditClick = (group: FreightGroup) => {
+    setEditingGroup(group);
     
-    const firstFreight = Object.values(freights).find(f => f);
     const newFormData: { agent: string; validFrom: string; validTo: string; [key: string]: string } = {
-      agent,
-      validFrom: firstFreight?.validFrom || '',
-      validTo: firstFreight?.validTo || '',
+      agent: group.agent,
+      validFrom: group.validFrom,
+      validTo: group.validTo,
     };
     
     destinations.forEach(dest => {
-      const freight = freights[dest.id];
+      const freight = group.freights[dest.id];
       newFormData[dest.id] = freight ? freight.rate.toString() : '';
     });
     
@@ -264,6 +212,8 @@ export default function BorderDestinationTable() {
   };
 
   const handleEditSave = async () => {
+    if (!editingGroup) return;
+    
     if (!formData.validFrom || !formData.validTo) {
       setValidationWarning('❌ 유효기간을 입력해주세요.');
       return;
@@ -284,9 +234,7 @@ export default function BorderDestinationTable() {
       }> = [];
 
       destinations.forEach(dest => {
-        const existingFreight = borderDestinationFreights.find(
-          f => f.agent === editingAgent && f.destinationId === dest.id
-        );
+        const existingFreight = editingGroup.freights[dest.id];
 
         if (formData[dest.id] && formData[dest.id] !== '') {
           if (existingFreight) {
@@ -303,7 +251,7 @@ export default function BorderDestinationTable() {
             operations.push({
               type: 'add',
               data: {
-                agent: editingAgent,
+                agent: editingGroup.agent,
                 destinationId: dest.id,
                 rate: Number(formData[dest.id]),
                 validFrom: formData.validFrom,
@@ -322,7 +270,7 @@ export default function BorderDestinationTable() {
       await batchBorderDestinationFreightOperations(operations);
 
       setIsEditDialogOpen(false);
-      setEditingAgent('');
+      setEditingGroup(null);
       setFormData(initializeFormData());
       setValidationWarning(null);
     } catch (error) {
@@ -333,22 +281,22 @@ export default function BorderDestinationTable() {
 
   const handleEditCancel = () => {
     setIsEditDialogOpen(false);
-    setEditingAgent('');
+    setEditingGroup(null);
     setFormData(initializeFormData());
     setValidationWarning(null);
   };
 
-  const handleDeleteAgent = async (agent: string, freights: { [destinationId: string]: BorderDestinationFreight | undefined }) => {
-    const freightIds = Object.values(freights).filter(f => f).map(f => f!.id);
-    const destinationNames = Object.keys(freights)
-      .filter(destId => freights[destId])
+  const handleDeleteGroup = async (group: FreightGroup) => {
+    const freightIds = Object.values(group.freights).filter(f => f).map(f => f!.id);
+    const destinationNames = Object.keys(group.freights)
+      .filter(destId => group.freights[destId])
       .map(destId => {
         const dest = destinations.find(d => d.id === destId);
         return dest ? dest.name : destId;
       })
       .join(', ');
 
-    if (confirm(`"${agent}" 트럭 대리점의 모든 운임을 삭제하시겠습니까?\n\n삭제될 목적지: ${destinationNames}\n총 ${freightIds.length}개의 운임이 삭제됩니다.`)) {
+    if (confirm(`"${group.agent}" 트럭 대리점의 운임을 삭제하시겠습니까?\n\n유효기간: ${formatValidityDate(group.validFrom)} ~ ${formatValidityDate(group.validTo)}\n삭제될 목적지: ${destinationNames}\n총 ${freightIds.length}개의 운임이 삭제됩니다.`)) {
       try {
         const operations = freightIds.map(id => ({
           type: 'delete' as const,
@@ -369,33 +317,49 @@ export default function BorderDestinationTable() {
     setIsAddDialogOpen(true);
   };
 
-  const freightsByAgent = truckAgents.map((agent) => {
-    const agentFreights: { [destinationId: string]: BorderDestinationFreight | undefined } = {};
+  // Group freights by agent and validity period
+  const freightGroups: FreightGroup[] = [];
+  
+  // Get all unique combinations of agent + validFrom + validTo
+  const uniqueCombinations = new Set<string>();
+  borderDestinationFreights.forEach(freight => {
+    uniqueCombinations.add(`${freight.agent}|${freight.validFrom}|${freight.validTo}`);
+  });
+
+  uniqueCombinations.forEach(combo => {
+    const [agent, validFrom, validTo] = combo.split('|');
+    
+    const groupFreights: { [destinationId: string]: BorderDestinationFreight | undefined } = {};
     destinations.forEach(dest => {
-      agentFreights[dest.id] = borderDestinationFreights.find(
-        f => f.agent === agent.name && f.destinationId === dest.id
+      groupFreights[dest.id] = borderDestinationFreights.find(
+        f => f.agent === agent && f.destinationId === dest.id && 
+             f.validFrom === validFrom && f.validTo === validTo
       );
     });
     
-    const firstFreight = Object.values(agentFreights).find(f => f);
-    const validityStatus = firstFreight ? getValidityStatus(firstFreight.validFrom, firstFreight.validTo) : null;
-    
-    return {
-      agent: agent.name,
-      freights: agentFreights,
-      validityStatus,
-      validFrom: firstFreight?.validFrom || '',
-      validTo: firstFreight?.validTo || '',
-    };
+    const firstFreight = Object.values(groupFreights).find(f => f);
+    if (firstFreight) {
+      freightGroups.push({
+        agent,
+        validFrom,
+        validTo,
+        freights: groupFreights,
+        validityStatus: getValidityStatus(validFrom, validTo)
+      });
+    }
   });
 
-  const hasExistingData = (agentName: string) => {
-    return borderDestinationFreights.some(f => f.agent === agentName);
-  };
+  // Sort by agent name, then by validFrom descending (newest first)
+  freightGroups.sort((a, b) => {
+    if (a.agent !== b.agent) {
+      return a.agent.localeCompare(b.agent);
+    }
+    return new Date(b.validFrom).getTime() - new Date(a.validFrom).getTime();
+  });
 
   const auditLogs = getAuditLogsByType('borderDestinationFreight');
-  const expiredRates = freightsByAgent.filter(f => f.validityStatus?.status === 'expired');
-  const expiringRates = freightsByAgent.filter(f => f.validityStatus?.status === 'expiring');
+  const expiredRates = freightGroups.filter(f => f.validityStatus?.status === 'expired');
+  const expiringRates = freightGroups.filter(f => f.validityStatus?.status === 'expiring');
 
   return (
     <div className="space-y-6">
@@ -465,13 +429,12 @@ export default function BorderDestinationTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {freightsByAgent.map(({ agent, freights, validityStatus, validFrom, validTo }) => {
-              const hasData = Object.values(freights).some(f => f);
-              return (
-                <TableRow key={agent} className="hover:bg-amber-50/50 transition-colors">
-                  <TableCell className="font-medium">{agent}</TableCell>
+            {freightGroups.length > 0 ? (
+              freightGroups.map((group, index) => (
+                <TableRow key={`${group.agent}-${group.validFrom}-${index}`} className="hover:bg-amber-50/50 transition-colors">
+                  <TableCell className="font-medium">{group.agent}</TableCell>
                   {destinations.map(dest => {
-                    const freight = freights[dest.id];
+                    const freight = group.freights[dest.id];
                     return (
                       <TableCell key={dest.id}>
                         {freight ? (
@@ -483,50 +446,50 @@ export default function BorderDestinationTable() {
                     );
                   })}
                   <TableCell>
-                    {validFrom && validTo ? (
-                      <div className="text-sm">
-                        <div>{formatValidityDate(validFrom)}</div>
-                        <div className="text-gray-500">~ {formatValidityDate(validTo)}</div>
-                      </div>
-                    ) : (
-                      <span className="text-gray-400">-</span>
-                    )}
+                    <div className="text-sm">
+                      <div>{formatValidityDate(group.validFrom)}</div>
+                      <div className="text-gray-500">~ {formatValidityDate(group.validTo)}</div>
+                    </div>
                   </TableCell>
                   <TableCell>
-                    {validityStatus && (
-                      <Badge variant={validityStatus.variant}>
-                        {validityStatus.label}
+                    {group.validityStatus && (
+                      <Badge variant={group.validityStatus.variant}>
+                        {group.validityStatus.label}
                       </Badge>
                     )}
                   </TableCell>
                   {isAdmin && (
                     <TableCell className="text-right">
-                      {hasData && (
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleEditClick(agent, freights)}
-                            className="bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-300"
-                          >
-                            <Edit className="h-4 w-4 mr-1" />
-                            수정
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleDeleteAgent(agent, freights)}
-                            className="hover:bg-red-50 hover:text-red-700 transition-all hover:scale-105"
-                          >
-                            <Trash2 className="h-4 w-4 text-red-600" />
-                          </Button>
-                        </div>
-                      )}
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleEditClick(group)}
+                          className="bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-300"
+                        >
+                          <Edit className="h-4 w-4 mr-1" />
+                          수정
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDeleteGroup(group)}
+                          className="hover:bg-red-50 hover:text-red-700 transition-all hover:scale-105"
+                        >
+                          <Trash2 className="h-4 w-4 text-red-600" />
+                        </Button>
+                      </div>
                     </TableCell>
                   )}
                 </TableRow>
-              );
-            })}
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={destinations.length + (isAdmin ? 4 : 3)} className="text-center text-gray-500 py-8">
+                  등록된 트럭운임이 없습니다
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </div>
@@ -544,8 +507,8 @@ export default function BorderDestinationTable() {
       }}>
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>트럭운임 추가/수정</DialogTitle>
-            <DialogDescription>트럭 대리점별 운임을 입력하세요. 기존 데이터가 있으면 자동으로 표시됩니다.</DialogDescription>
+            <DialogTitle>트럭운임 추가</DialogTitle>
+            <DialogDescription>새로운 트럭운임을 추가합니다. 같은 대리점이라도 유효기간이 겹치지 않으면 여러 개의 운임을 추가할 수 있습니다.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             {validationWarning && (
@@ -574,7 +537,7 @@ export default function BorderDestinationTable() {
               </Alert>
             )}
             <div className="space-y-2">
-              <Label>트럭 대리점</Label>
+              <Label>트럭 대리점 *</Label>
               <Select value={formData.agent} onValueChange={(value) => {
                 setFormData({ ...formData, agent: value });
                 setValidationWarning(null);
@@ -586,7 +549,6 @@ export default function BorderDestinationTable() {
                   {truckAgents.map((agent) => (
                     <SelectItem key={agent.id} value={agent.name}>
                       {agent.name}
-                      {hasExistingData(agent.name) && <span className="ml-2 text-xs text-blue-600">(기존 데이터 있음)</span>}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -604,7 +566,7 @@ export default function BorderDestinationTable() {
               />
             </div>
             <div className="space-y-3">
-              <Label>각 목적지별 운임 (USD)</Label>
+              <Label>각 목적지별 운임 (USD) *</Label>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {destinations.map(dest => (
                   <div key={dest.id} className="space-y-2">
@@ -629,9 +591,7 @@ export default function BorderDestinationTable() {
             }}>
               취소
             </Button>
-            <Button onClick={handleAdd}>
-              {formData.agent && hasExistingData(formData.agent) ? '수정' : '추가'}
-            </Button>
+            <Button onClick={handleAdd}>추가</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -677,7 +637,7 @@ export default function BorderDestinationTable() {
             </div>
 
             <div className="space-y-3">
-              <Label>각 목적지별 운임 (USD)</Label>
+              <Label>각 목적지별 운임 (USD) *</Label>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {destinations.map(dest => (
                   <div key={dest.id} className="space-y-2">

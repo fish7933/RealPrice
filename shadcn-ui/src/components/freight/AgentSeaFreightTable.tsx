@@ -29,13 +29,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Trash2, Plus, Star, AlertTriangle, Search, X, ChevronLeft, ChevronRight, Ship, TrendingUp, Edit } from 'lucide-react';
+import { Trash2, Plus, Star, AlertTriangle, Search, X, ChevronLeft, ChevronRight, Ship, Edit } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import AuditLogTable from './AuditLogTable';
 import { ValidityPeriodInput } from '@/components/ui/validity-period-input';
 import { getValidityStatus, formatValidityDate, checkOverlapWarning } from '@/utils/validityHelper';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
 
 const ITEMS_PER_PAGE = 10;
 const FILTER_ALL_VALUE = '__all__';
@@ -263,20 +262,19 @@ export default function AgentSeaFreightTable() {
   const auditLogs = getAuditLogsByType('agentSeaFreight');
   const expiredRates = agentSeaFreights.filter(f => getValidityStatus(f.validFrom, f.validTo).status === 'expired');
   const expiringRates = agentSeaFreights.filter(f => getValidityStatus(f.validFrom, f.validTo).status === 'expiring');
-  const activeRates = agentSeaFreights.filter(f => getValidityStatus(f.validFrom, f.validTo).status === 'active');
 
   return (
     <div className="space-y-4">
       {/* Header - Compact */}
-      <div className="relative overflow-hidden rounded-lg bg-gradient-to-br from-amber-500 via-orange-500 to-red-500 p-4 text-white shadow-lg">
+      <div className="relative overflow-hidden rounded-lg bg-gradient-to-br from-amber-500 via-orange-500 to-red-500 p-3 text-white shadow-lg">
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="relative flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-1.5 bg-white/20 rounded-lg backdrop-blur-sm">
-              <Star className="h-5 w-5" />
+          <div className="flex items-center gap-2">
+            <div className="p-1 bg-white/20 rounded-lg backdrop-blur-sm">
+              <Star className="h-4 w-4" />
             </div>
             <div>
-              <h2 className="text-xl font-bold">대리점별 해상운임</h2>
+              <h2 className="text-lg font-bold">대리점별 해상운임</h2>
               <p className="text-xs text-white/90">철도 대리점 특별 해상운임</p>
             </div>
           </div>
@@ -284,7 +282,7 @@ export default function AgentSeaFreightTable() {
             <Button 
               onClick={() => setIsAddDialogOpen(true)}
               size="sm"
-              className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border border-white/50"
+              className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border border-white/50 h-7 text-xs"
             >
               <Plus className="h-3 w-3 mr-1" />
               추가
@@ -292,73 +290,6 @@ export default function AgentSeaFreightTable() {
           )}
         </div>
       </div>
-
-      {/* Statistics Cards - Compact */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-        <Card className="border-none shadow-sm bg-gradient-to-br from-amber-50 to-orange-50">
-          <CardContent className="p-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-medium text-amber-600">총 운임</p>
-                <p className="text-2xl font-bold text-amber-900 mt-1">{agentSeaFreights.length}</p>
-              </div>
-              <div className="p-2 bg-amber-500/20 rounded-lg">
-                <Ship className="h-5 w-5 text-amber-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-none shadow-sm bg-gradient-to-br from-green-50 to-emerald-50">
-          <CardContent className="p-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-medium text-green-600">유효</p>
-                <p className="text-2xl font-bold text-green-900 mt-1">{activeRates.length}</p>
-              </div>
-              <div className="p-2 bg-green-500/20 rounded-lg">
-                <TrendingUp className="h-5 w-5 text-green-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-none shadow-sm bg-gradient-to-br from-yellow-50 to-amber-50">
-          <CardContent className="p-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-medium text-yellow-600">만료임박</p>
-                <p className="text-2xl font-bold text-yellow-900 mt-1">{expiringRates.length}</p>
-              </div>
-              <div className="p-2 bg-yellow-500/20 rounded-lg">
-                <AlertTriangle className="h-5 w-5 text-yellow-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-none shadow-sm bg-gradient-to-br from-red-50 to-rose-50">
-          <CardContent className="p-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-medium text-red-600">만료</p>
-                <p className="text-2xl font-bold text-red-900 mt-1">{expiredRates.length}</p>
-              </div>
-              <div className="p-2 bg-red-500/20 rounded-lg">
-                <X className="h-5 w-5 text-red-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Info Alert - Compact */}
-      <Alert className="border-amber-200 bg-amber-50 py-2">
-        <Star className="h-4 w-4 text-amber-600" />
-        <AlertDescription className="text-xs text-amber-900">
-          <strong>대리점별 해상운임:</strong> 철도 대리점이 특정 경로에 대해 지정한 해상운임입니다. 설정된 경우 일반 해상운임보다 우선 적용됩니다.
-        </AlertDescription>
-      </Alert>
 
       {/* Warning Alert - Compact */}
       {(expiredRates.length > 0 || expiringRates.length > 0) && (

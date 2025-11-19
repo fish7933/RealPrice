@@ -28,9 +28,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Trash2, Plus, AlertTriangle, Search, X, ChevronLeft, ChevronRight, Ship, TrendingUp, Edit } from 'lucide-react';
+import { Trash2, Plus, AlertTriangle, Search, X, ChevronLeft, ChevronRight, Ship, Edit } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Card, CardContent } from '@/components/ui/card';
 import AuditLogTable from './AuditLogTable';
 import { ValidityPeriodInput } from '@/components/ui/validity-period-input';
 import { 
@@ -256,7 +255,6 @@ export default function SeaFreightTable() {
   const auditLogs = getAuditLogsByType('seaFreight');
   const expiredRates = seaFreights.filter(f => getValidityStatus(f.validFrom, f.validTo).status === 'expired');
   const expiringRates = seaFreights.filter(f => getValidityStatus(f.validFrom, f.validTo).status === 'expiring');
-  const activeRates = seaFreights.filter(f => getValidityStatus(f.validFrom, f.validTo).status === 'active');
 
   const getCarrierSelectValue = (carrier?: string) => {
     if (!carrier) return 'NONE';
@@ -266,7 +264,7 @@ export default function SeaFreightTable() {
 
   return (
     <div className="space-y-4">
-      {/* Header Section - More Compact */}
+      {/* Header Section - Compact */}
       <div className="relative overflow-hidden rounded-lg bg-gradient-to-br from-blue-500 via-cyan-500 to-teal-600 p-3 text-white shadow-lg">
         <div className="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-white/10 blur-2xl"></div>
         <div className="absolute bottom-0 left-0 -mb-4 -ml-4 h-24 w-24 rounded-full bg-white/10 blur-2xl"></div>
@@ -291,65 +289,6 @@ export default function SeaFreightTable() {
             </Button>
           )}
         </div>
-      </div>
-
-      {/* Stats Cards - Compact */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-        <Card className="border-none shadow-sm bg-gradient-to-br from-blue-50 to-cyan-50">
-          <CardContent className="p-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-medium text-gray-600">총 운임</p>
-                <p className="text-2xl font-bold text-blue-600 mt-1">{seaFreights.length}</p>
-              </div>
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <Ship className="h-5 w-5 text-blue-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-none shadow-sm bg-gradient-to-br from-green-50 to-emerald-50">
-          <CardContent className="p-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-medium text-gray-600">유효</p>
-                <p className="text-2xl font-bold text-green-600 mt-1">{activeRates.length}</p>
-              </div>
-              <div className="p-2 bg-green-100 rounded-lg">
-                <TrendingUp className="h-5 w-5 text-green-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-none shadow-sm bg-gradient-to-br from-orange-50 to-amber-50">
-          <CardContent className="p-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-medium text-gray-600">만료임박</p>
-                <p className="text-2xl font-bold text-orange-600 mt-1">{expiringRates.length}</p>
-              </div>
-              <div className="p-2 bg-orange-100 rounded-lg">
-                <AlertTriangle className="h-5 w-5 text-orange-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-none shadow-sm bg-gradient-to-br from-red-50 to-rose-50">
-          <CardContent className="p-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-medium text-gray-600">만료</p>
-                <p className="text-2xl font-bold text-red-600 mt-1">{expiredRates.length}</p>
-              </div>
-              <div className="p-2 bg-red-100 rounded-lg">
-                <X className="h-5 w-5 text-red-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Validity Warnings - Compact */}

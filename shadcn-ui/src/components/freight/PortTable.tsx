@@ -19,11 +19,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Plus, Pencil, Trash2, Anchor, Ship, TrendingUp, Globe } from 'lucide-react';
+import { Plus, Pencil, Trash2, Anchor, Ship, Globe } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Port } from '@/types/freight';
-import { Card, CardContent } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 
 type PortType = 'POL' | 'POD';
 
@@ -96,7 +94,7 @@ export default function PortTable() {
 
   return (
     <div className="space-y-4">
-      {/* Header Section - Compact Design matching SeaFreightTable */}
+      {/* Header Section - Compact Design */}
       <div className="relative overflow-hidden rounded-lg bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 p-3 text-white shadow-lg">
         <div className="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-white/10 blur-2xl"></div>
         <div className="absolute bottom-0 left-0 -mb-4 -ml-4 h-24 w-24 rounded-full bg-white/10 blur-2xl"></div>
@@ -120,59 +118,6 @@ export default function PortTable() {
           </Button>
         </div>
       </div>
-
-      {/* Stats Cards - Compact */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <Card className="border-none shadow-sm bg-gradient-to-br from-blue-50 to-indigo-50">
-          <CardContent className="p-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-medium text-gray-600">총 포트</p>
-                <p className="text-2xl font-bold text-blue-600 mt-1">{ports.length}</p>
-              </div>
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <Anchor className="h-5 w-5 text-blue-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-none shadow-sm bg-gradient-to-br from-indigo-50 to-purple-50">
-          <CardContent className="p-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-medium text-gray-600">선적포트 (POL)</p>
-                <p className="text-2xl font-bold text-indigo-600 mt-1">{polPorts.length}</p>
-              </div>
-              <div className="p-2 bg-indigo-100 rounded-lg">
-                <Ship className="h-5 w-5 text-indigo-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-none shadow-sm bg-gradient-to-br from-purple-50 to-pink-50">
-          <CardContent className="p-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-medium text-gray-600">양하포트 (POD)</p>
-                <p className="text-2xl font-bold text-purple-600 mt-1">{podPorts.length}</p>
-              </div>
-              <div className="p-2 bg-purple-100 rounded-lg">
-                <Globe className="h-5 w-5 text-purple-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Info Alert - Compact */}
-      <Alert className="border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 shadow-sm py-2">
-        <Anchor className="h-4 w-4 text-blue-600" />
-        <AlertDescription className="text-sm">
-          <strong className="text-blue-700">포트 관리:</strong> POL(Port of Loading)은 화물을 선적하는 출발 항구이며, POD(Port of Discharge)는 화물을 양하하는 도착 항구입니다.
-        </AlertDescription>
-      </Alert>
 
       {/* POL Ports */}
       <div className="space-y-3">

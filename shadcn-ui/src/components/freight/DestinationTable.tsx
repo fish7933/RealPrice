@@ -22,9 +22,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Pencil, Trash2, Plus, MapPin, AlertCircle, TrendingUp, Navigation } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Card, CardContent } from '@/components/ui/card';
+import { Pencil, Trash2, Plus, MapPin } from 'lucide-react';
 
 export default function DestinationTable() {
   const { user } = useAuth();
@@ -81,7 +79,7 @@ export default function DestinationTable() {
 
   return (
     <div className="space-y-4">
-      {/* Header Section - Compact Design matching SeaFreightTable */}
+      {/* Header Section - Compact Design */}
       <div className="relative overflow-hidden rounded-lg bg-gradient-to-br from-orange-500 via-red-500 to-pink-600 p-3 text-white shadow-lg">
         <div className="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-white/10 blur-2xl"></div>
         <div className="absolute bottom-0 left-0 -mb-4 -ml-4 h-24 w-24 rounded-full bg-white/10 blur-2xl"></div>
@@ -107,62 +105,6 @@ export default function DestinationTable() {
           )}
         </div>
       </div>
-
-      {/* Stats Cards - Compact */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <Card className="border-none shadow-sm bg-gradient-to-br from-orange-50 to-red-50">
-          <CardContent className="p-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-medium text-gray-600">총 목적지</p>
-                <p className="text-2xl font-bold text-orange-600 mt-1">{destinations.length}</p>
-              </div>
-              <div className="p-2 bg-orange-100 rounded-lg">
-                <MapPin className="h-5 w-5 text-orange-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-none shadow-sm bg-gradient-to-br from-red-50 to-pink-50">
-          <CardContent className="p-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-medium text-gray-600">활성 상태</p>
-                <p className="text-2xl font-bold text-red-600 mt-1">100%</p>
-              </div>
-              <div className="p-2 bg-red-100 rounded-lg">
-                <TrendingUp className="h-5 w-5 text-red-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-none shadow-sm bg-gradient-to-br from-pink-50 to-rose-50">
-          <CardContent className="p-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-medium text-gray-600">운송 구간</p>
-                <p className="text-2xl font-bold text-pink-600 mt-1">국경→도착</p>
-              </div>
-              <div className="p-2 bg-pink-100 rounded-lg">
-                <Navigation className="h-5 w-5 text-pink-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Info Alert - Compact */}
-      <Alert className="border-orange-200 bg-gradient-to-r from-orange-50 to-red-50 shadow-sm py-2">
-        <AlertCircle className="h-4 w-4 text-orange-600" />
-        <AlertDescription className="text-sm">
-          <strong className="text-orange-700">최종목적지:</strong> KASHGAR 국경에서 최종 도착지까지의 운송 목적지입니다.
-          <span className="text-xs text-gray-600 mt-1 block">
-            💡 목적지를 추가하면 "국경목적지운임" 페이지에서 각 트럭 대리점별 운임을 설정할 수 있습니다.
-          </span>
-        </AlertDescription>
-      </Alert>
 
       {/* Table with Modern Design */}
       <div className="rounded-lg overflow-hidden shadow-sm border">

@@ -23,7 +23,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Pencil, Trash2, Plus, Truck } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export default function TruckAgentTable() {
   const { user } = useAuth();
@@ -84,7 +83,7 @@ export default function TruckAgentTable() {
 
   return (
     <div className="space-y-4">
-      {/* Compact Header - Same as ShippingLineTable */}
+      {/* Compact Header */}
       <div className="relative overflow-hidden rounded-lg bg-gradient-to-br from-green-500 via-emerald-500 to-teal-600 p-3 text-white shadow-lg">
         <div className="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-white/10 blur-2xl"></div>
         <div className="absolute bottom-0 left-0 -mb-4 -ml-4 h-24 w-24 rounded-full bg-white/10 blur-2xl"></div>
@@ -110,20 +109,6 @@ export default function TruckAgentTable() {
           )}
         </div>
       </div>
-
-      {/* Info Alert - Compact */}
-      <Alert className="border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 shadow-sm py-2">
-        <Truck className="h-4 w-4 text-green-600" />
-        <AlertDescription className="text-sm">
-          <strong className="text-green-700">트럭 대리점:</strong> KASHGAR 국경에서 최종 목적지까지 트럭 운송을 담당하는 대리점입니다.
-          <span className="text-xs text-gray-600 mt-1 block">
-            💡 각 대리점에는 고유한 코드(2-3자)를 지정하여 운임 조회 시 간편하게 표시됩니다.
-          </span>
-          <span className="text-xs text-gray-600 mt-1 block">
-            ⚠️ 대리점을 삭제하면 해당 대리점과 관련된 모든 운임 데이터(국경목적지운임, 중량할증)가 함께 삭제됩니다.
-          </span>
-        </AlertDescription>
-      </Alert>
 
       {/* Table with Compact Design */}
       <div className="rounded-lg overflow-hidden shadow-sm border">

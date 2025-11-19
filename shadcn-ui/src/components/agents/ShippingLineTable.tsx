@@ -21,10 +21,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Plus, Pencil, Trash2, Ship, Anchor, TrendingUp } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Plus, Pencil, Trash2, Ship } from 'lucide-react';
 import { ShippingLine } from '@/types/freight';
-import { Card, CardContent } from '@/components/ui/card';
 
 export default function ShippingLineTable() {
   const { user } = useAuth();
@@ -85,7 +83,7 @@ export default function ShippingLineTable() {
 
   return (
     <div className="space-y-4">
-      {/* Header Section - Compact Design matching SeaFreightTable */}
+      {/* Header Section - Compact Design */}
       <div className="relative overflow-hidden rounded-lg bg-gradient-to-br from-cyan-500 via-blue-500 to-indigo-600 p-3 text-white shadow-lg">
         <div className="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-white/10 blur-2xl"></div>
         <div className="absolute bottom-0 left-0 -mb-4 -ml-4 h-24 w-24 rounded-full bg-white/10 blur-2xl"></div>
@@ -111,64 +109,6 @@ export default function ShippingLineTable() {
           )}
         </div>
       </div>
-
-      {/* Stats Cards - Compact */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <Card className="border-none shadow-sm bg-gradient-to-br from-cyan-50 to-blue-50">
-          <CardContent className="p-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-medium text-gray-600">총 선사</p>
-                <p className="text-2xl font-bold text-cyan-600 mt-1">{shippingLines.length}</p>
-              </div>
-              <div className="p-2 bg-cyan-100 rounded-lg">
-                <Ship className="h-5 w-5 text-cyan-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-none shadow-sm bg-gradient-to-br from-blue-50 to-indigo-50">
-          <CardContent className="p-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-medium text-gray-600">코드 등록</p>
-                <p className="text-2xl font-bold text-blue-600 mt-1">
-                  {shippingLines.filter(l => l.code).length}
-                </p>
-              </div>
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <Anchor className="h-5 w-5 text-blue-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-none shadow-sm bg-gradient-to-br from-indigo-50 to-purple-50">
-          <CardContent className="p-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-medium text-gray-600">활성 상태</p>
-                <p className="text-2xl font-bold text-indigo-600 mt-1">100%</p>
-              </div>
-              <div className="p-2 bg-indigo-100 rounded-lg">
-                <TrendingUp className="h-5 w-5 text-indigo-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Info Alert - Compact */}
-      <Alert className="border-cyan-200 bg-gradient-to-r from-cyan-50 to-blue-50 shadow-sm py-2">
-        <Ship className="h-4 w-4 text-cyan-600" />
-        <AlertDescription className="text-sm">
-          <strong className="text-cyan-700">선사:</strong> 한국 항구에서 중국 항구까지 해상운송을 담당하는 선박회사입니다.
-          <span className="text-xs text-gray-600 mt-1 block">
-            💡 여기서 관리하는 선사 정보는 해상운임 추가 시 선택할 수 있습니다.
-          </span>
-        </AlertDescription>
-      </Alert>
 
       {/* Table with Modern Design */}
       <div className="rounded-lg overflow-hidden shadow-sm border">

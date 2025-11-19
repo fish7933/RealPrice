@@ -23,7 +23,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Pencil, Trash2, Plus, Train } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export default function RailAgentTable() {
   const { user } = useAuth();
@@ -84,7 +83,7 @@ export default function RailAgentTable() {
 
   return (
     <div className="space-y-4">
-      {/* Compact Header - Same as ShippingLineTable */}
+      {/* Compact Header */}
       <div className="relative overflow-hidden rounded-lg bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 p-3 text-white shadow-lg">
         <div className="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-white/10 blur-2xl"></div>
         <div className="absolute bottom-0 left-0 -mb-4 -ml-4 h-24 w-24 rounded-full bg-white/10 blur-2xl"></div>
@@ -110,20 +109,6 @@ export default function RailAgentTable() {
           )}
         </div>
       </div>
-
-      {/* Info Alert - Compact */}
-      <Alert className="border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 shadow-sm py-2">
-        <Train className="h-4 w-4 text-blue-600" />
-        <AlertDescription className="text-sm">
-          <strong className="text-blue-700">철도 대리점:</strong> 중국 항구에서 KASHGAR 국경까지 철도 운송을 담당하는 대리점입니다.
-          <span className="text-xs text-gray-600 mt-1 block">
-            💡 각 대리점에는 고유한 코드(2-3자)를 지정하여 운임 조회 시 간편하게 표시됩니다.
-          </span>
-          <span className="text-xs text-gray-600 mt-1 block">
-            ⚠️ 대리점을 삭제하면 해당 대리점과 관련된 모든 운임 데이터(대리점별 해상운임, 포트국경운임)가 함께 삭제됩니다.
-          </span>
-        </AlertDescription>
-      </Alert>
 
       {/* Table with Compact Design */}
       <div className="rounded-lg overflow-hidden shadow-sm border">

@@ -185,6 +185,8 @@ interface FreightContextType {
   freightAuditLogs: FreightAuditLog[];
   addFreightAuditLog: (log: Omit<FreightAuditLog, 'id' | 'timestamp'>) => void;
   getAuditLogsByType: (entityType: FreightAuditLog['entityType']) => FreightAuditLog[];
+  deleteAuditLog: (id: string) => Promise<void>;
+  clearAuditLogs: (entityType?: FreightAuditLog['entityType']) => Promise<void>;
   
   // Audit Logs (legacy)
   auditLogs: AuditLog[];
@@ -1926,6 +1928,68 @@ export function FreightProvider({ children }: { children: ReactNode }) {
     return getAuditLogsByTypeHelper(freightAuditLogs, entityType);
   };
 
+  // 🆕 Delete single audit log
+  const deleteAuditLog = async (id: string) => {
+    try {
+      console.log('🗑️ [deleteAuditLog] Deleting audit log:', id);
+      
+      const { error } = await supabaseClient
+        .from(TABLES.AUDIT_LOGS)
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        console.error('❌ [deleteAuditLog] Database delete error:', error);
+        throw error;
+      }
+
+      console.log('✅ [deleteAuditLog] Database delete successful');
+
+      // Reload audit logs
+      const reloadedAuditLogs = await loadAuditLogs();
+      setFreightAuditLogs(reloadedAuditLogs);
+      
+      console.log('✅ [deleteAuditLog] Audit logs reloaded');
+    } catch (error) {
+      console.error('Error deleting audit log:', error);
+      throw error;
+    }
+  };
+
+  // 🆕 Clear all audit logs (optionally filtered by entity type)
+  const clearAuditLogs = async (entityType?: FreightAuditLog['entityType']) => {
+    try {
+      console.log('🗑️ [clearAuditLogs] Clearing audit logs, entityType:', entityType);
+      
+      let query = supabaseClient.from(TABLES.AUDIT_LOGS).delete();
+      
+      if (entityType) {
+        query = query.eq('entity_type', entityType);
+      } else {
+        // Delete all audit logs - use neq with a non-existent value to match all
+        query = query.neq('id', '00000000-0000-0000-0000-000000000000');
+      }
+
+      const { error } = await query;
+
+      if (error) {
+        console.error('❌ [clearAuditLogs] Database delete error:', error);
+        throw error;
+      }
+
+      console.log('✅ [clearAuditLogs] Database delete successful');
+
+      // Reload audit logs
+      const reloadedAuditLogs = await loadAuditLogs();
+      setFreightAuditLogs(reloadedAuditLogs);
+      
+      console.log('✅ [clearAuditLogs] Audit logs reloaded, remaining:', reloadedAuditLogs.length);
+    } catch (error) {
+      console.error('Error clearing audit logs:', error);
+      throw error;
+    }
+  };
+
   // Audit Log management (legacy)
   const addAuditLog = (log: Omit<AuditLog, 'id' | 'timestamp'>) => {
     const newLog: AuditLog = { ...log, id: crypto.randomUUID(), timestamp: new Date().toISOString() };
@@ -2102,6 +2166,8 @@ export function FreightProvider({ children }: { children: ReactNode }) {
     freightAuditLogs,
     addFreightAuditLog,
     getAuditLogsByType,
+    deleteAuditLog,
+    clearAuditLogs,
     auditLogs,
     addAuditLog,
     calculationHistory,

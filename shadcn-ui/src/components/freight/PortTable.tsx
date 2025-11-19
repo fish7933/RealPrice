@@ -95,7 +95,7 @@ export default function PortTable() {
   return (
     <div className="space-y-4">
       {/* Header Section - Compact Design */}
-      <div className="relative overflow-hidden rounded-lg bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 p-3 text-white shadow-lg">
+      <div className="relative overflow-hidden rounded-lg bg-gray-700 p-3 text-white shadow-lg">
         <div className="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-white/10 blur-2xl"></div>
         <div className="absolute bottom-0 left-0 -mb-4 -ml-4 h-24 w-24 rounded-full bg-white/10 blur-2xl"></div>
         <div className="relative flex justify-between items-center">
@@ -105,7 +105,7 @@ export default function PortTable() {
             </div>
             <div>
               <h2 className="text-lg font-bold">포트 관리</h2>
-              <p className="text-xs text-blue-100">선적포트(POL)와 양하포트(POD)를 관리합니다</p>
+              <p className="text-xs text-gray-300">선적포트(POL)와 양하포트(POD)를 관리합니다</p>
             </div>
           </div>
           <Button 
@@ -122,7 +122,7 @@ export default function PortTable() {
       {/* POL Ports */}
       <div className="space-y-3">
         <div className="flex items-center gap-2">
-          <div className="p-1.5 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-lg shadow-sm">
+          <div className="p-1.5 bg-gray-600 rounded-lg shadow-sm">
             <Ship className="h-4 w-4 text-white" />
           </div>
           <h4 className="text-base font-bold text-blue-700">선적포트 (POL) - {polPorts.length}개</h4>
@@ -130,7 +130,7 @@ export default function PortTable() {
         <div className="rounded-lg overflow-hidden shadow-sm border">
           <Table>
             <TableHeader>
-              <TableRow className="bg-gradient-to-r from-blue-500 to-indigo-500">
+              <TableRow className="bg-gray-600">
                 <TableHead className="h-9 text-xs text-white font-bold whitespace-nowrap">포트명</TableHead>
                 <TableHead className="h-9 text-xs text-white font-bold whitespace-nowrap">국가</TableHead>
                 <TableHead className="h-9 text-xs text-white font-bold whitespace-nowrap">설명</TableHead>
@@ -149,10 +149,10 @@ export default function PortTable() {
                 </TableRow>
               ) : (
                 polPorts.map((port) => (
-                  <TableRow key={port.id} className="hover:bg-blue-50">
+                  <TableRow key={port.id} className="hover:bg-gray-50">
                     <TableCell className="py-2 text-xs font-medium whitespace-nowrap">
                       <div className="flex items-center gap-2">
-                        <div className="p-1.5 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-lg shadow-sm">
+                        <div className="p-1.5 bg-gray-600 rounded-lg shadow-sm">
                           <Anchor className="h-3 w-3 text-white" />
                         </div>
                         <span className="text-gray-900">{port.name}</span>
@@ -174,7 +174,7 @@ export default function PortTable() {
                           variant="ghost"
                           size="sm"
                           onClick={() => handleDelete(port.id)}
-                          className="h-6 w-6 p-0 hover:bg-red-50 hover:text-red-700"
+                          className="h-6 w-6 p-0 hover:bg-gray-50 hover:text-red-700"
                         >
                           <Trash2 className="h-3 w-3 text-red-600" />
                         </Button>
@@ -191,7 +191,7 @@ export default function PortTable() {
       {/* POD Ports */}
       <div className="space-y-3">
         <div className="flex items-center gap-2">
-          <div className="p-1.5 bg-gradient-to-br from-purple-400 to-pink-500 rounded-lg shadow-sm">
+          <div className="p-1.5 bg-gray-600 rounded-lg shadow-sm">
             <Globe className="h-4 w-4 text-white" />
           </div>
           <h4 className="text-base font-bold text-purple-700">양하포트 (POD) - {podPorts.length}개</h4>
@@ -199,7 +199,7 @@ export default function PortTable() {
         <div className="rounded-lg overflow-hidden shadow-sm border">
           <Table>
             <TableHeader>
-              <TableRow className="bg-gradient-to-r from-purple-500 to-pink-500">
+              <TableRow className="bg-gray-600">
                 <TableHead className="h-9 text-xs text-white font-bold whitespace-nowrap">포트명</TableHead>
                 <TableHead className="h-9 text-xs text-white font-bold whitespace-nowrap">국가</TableHead>
                 <TableHead className="h-9 text-xs text-white font-bold whitespace-nowrap">설명</TableHead>
@@ -218,10 +218,10 @@ export default function PortTable() {
                 </TableRow>
               ) : (
                 podPorts.map((port) => (
-                  <TableRow key={port.id} className="hover:bg-purple-50">
+                  <TableRow key={port.id} className="hover:bg-gray-50">
                     <TableCell className="py-2 text-xs font-medium whitespace-nowrap">
                       <div className="flex items-center gap-2">
-                        <div className="p-1.5 bg-gradient-to-br from-purple-400 to-pink-500 rounded-lg shadow-sm">
+                        <div className="p-1.5 bg-gray-600 rounded-lg shadow-sm">
                           <Anchor className="h-3 w-3 text-white" />
                         </div>
                         <span className="text-gray-900">{port.name}</span>
@@ -243,7 +243,7 @@ export default function PortTable() {
                           variant="ghost"
                           size="sm"
                           onClick={() => handleDelete(port.id)}
-                          className="h-6 w-6 p-0 hover:bg-red-50 hover:text-red-700"
+                          className="h-6 w-6 p-0 hover:bg-gray-50 hover:text-red-700"
                         >
                           <Trash2 className="h-3 w-3 text-red-600" />
                         </Button>
@@ -262,7 +262,7 @@ export default function PortTable() {
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-2xl">
-              <div className="p-2 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-lg">
+              <div className="p-2 bg-gray-600 rounded-lg">
                 <Anchor className="h-5 w-5 text-white" />
               </div>
               {editingPort ? '포트 수정' : '포트 추가'}
@@ -319,7 +319,7 @@ export default function PortTable() {
             </Button>
             <Button 
               onClick={handleSubmit}
-              className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white shadow-lg"
+              className="bg-gray-600 hover:bg-gray-800 text-white shadow-lg"
             >
               {editingPort ? <><Pencil className="h-4 w-4 mr-2" />수정</> : <><Plus className="h-4 w-4 mr-2" />추가</>}
             </Button>

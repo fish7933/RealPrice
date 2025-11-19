@@ -268,7 +268,7 @@ export default function AgentSeaFreightTable() {
   return (
     <div className="space-y-4">
       {/* Header - Compact */}
-      <div className="relative overflow-hidden rounded-lg bg-gradient-to-br from-amber-500 via-orange-500 to-red-500 p-3 text-white shadow-lg">
+      <div className="relative overflow-hidden rounded-lg bg-gray-700 p-3 text-white shadow-lg">
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="relative flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -306,7 +306,7 @@ export default function AgentSeaFreightTable() {
       )}
 
       {/* Search Filters - Compact */}
-      <div className="p-3 bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg border border-gray-200">
+      <div className="p-3 bg-gray-600 rounded-lg border border-gray-200">
         <div className="flex items-center gap-2 mb-2">
           <Search className="h-3 w-3 text-gray-600" />
           <span className="text-xs font-semibold">검색 필터</span>
@@ -400,7 +400,7 @@ export default function AgentSeaFreightTable() {
       <div className="border rounded-lg overflow-hidden bg-white shadow-sm">
         <Table>
           <TableHeader>
-            <TableRow className="bg-gradient-to-r from-amber-50 to-orange-50">
+            <TableRow className="bg-gray-600">
               <TableHead className="h-9 text-xs font-bold whitespace-nowrap">대리점</TableHead>
               <TableHead className="h-9 text-xs font-bold whitespace-nowrap">POL</TableHead>
               <TableHead className="h-9 text-xs font-bold whitespace-nowrap">POD</TableHead>
@@ -430,7 +430,7 @@ export default function AgentSeaFreightTable() {
                 const validityStatus = getValidityStatus(freight.validFrom, freight.validTo);
                 
                 return (
-                  <TableRow key={freight.id} className="hover:bg-amber-50">
+                  <TableRow key={freight.id} className="hover:bg-gray-50">
                     <TableCell className="py-2 text-xs font-medium whitespace-nowrap">
                       <div className="flex items-center gap-1">
                         <Star className="h-3 w-3 text-amber-600" />
@@ -474,7 +474,7 @@ export default function AgentSeaFreightTable() {
                             variant="ghost"
                             size="sm"
                             onClick={() => handleDelete(freight.id)}
-                            className="h-6 w-6 p-0 hover:bg-red-50 hover:text-red-700"
+                            className="h-6 w-6 p-0 hover:bg-gray-50 hover:text-red-700"
                           >
                             <Trash2 className="h-3 w-3 text-red-600" />
                           </Button>
@@ -703,7 +703,7 @@ export default function AgentSeaFreightTable() {
             >
               취소
             </Button>
-            <Button onClick={handleAdd} className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600">추가</Button>
+            <Button onClick={handleAdd} className="bg-gray-600 hover:bg-gray-800">추가</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -836,7 +836,7 @@ export default function AgentSeaFreightTable() {
             </Button>
             <Button 
               onClick={handleEditSave}
-              className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
+              className="bg-gray-600 hover:bg-gray-800"
             >
               <Edit className="h-4 w-4 mr-2" />
               수정 저장

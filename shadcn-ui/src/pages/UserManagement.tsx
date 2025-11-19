@@ -28,7 +28,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { UserPlus, Pencil, Trash2, Shield, User as UserIcon, ArrowRightLeft, Users as UsersIcon, Crown, Sparkles } from 'lucide-react';
+import { UserPlus, Pencil, Trash2, Shield, User as UserIcon, ArrowRightLeft, Users as UsersIcon, Crown } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Layout from '@/components/layout/Layout';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -210,21 +210,21 @@ export default function UserManagement() {
     switch (role) {
       case 'superadmin':
         return (
-          <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg">
+          <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold bg-gray-800 text-white shadow-lg">
             <Crown className="h-3 w-3" />
             최고관리자
           </span>
         );
       case 'admin':
         return (
-          <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg">
+          <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold bg-gray-600 text-white shadow-lg">
             <Shield className="h-3 w-3" />
             관리자
           </span>
         );
       default:
         return (
-          <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold bg-gradient-to-r from-gray-400 to-gray-500 text-white shadow-lg">
+          <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold bg-gray-400 text-white shadow-lg">
             <UserIcon className="h-3 w-3" />
             사용자
           </span>
@@ -257,73 +257,72 @@ export default function UserManagement() {
   return (
     <Layout>
       <div className="space-y-6">
-        {/* Gradient Header - Same as AdminDashboard */}
-        <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-blue-600 via-cyan-600 to-teal-600 p-4 shadow-xl">
-          <div className="absolute inset-0 bg-grid-white/10"></div>
+        {/* Gray Header */}
+        <div className="relative overflow-hidden rounded-xl bg-gray-800 p-4 shadow-xl">
+          <div className="absolute inset-0 bg-grid-white/5"></div>
           <div className="relative">
             <div className="flex items-center gap-2">
-              <div className="p-1.5 bg-white/20 backdrop-blur-sm rounded-lg">
+              <div className="p-1.5 bg-white/10 backdrop-blur-sm rounded-lg">
                 <UsersIcon className="h-5 w-5 text-white" />
               </div>
-              <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+              <h1 className="text-2xl font-bold text-white">
                 사용자 관리
-                <Sparkles className="h-4 w-4 text-yellow-300 animate-pulse" />
               </h1>
             </div>
-            <p className="text-blue-50 text-sm ml-9">시스템 사용자 및 권한 관리</p>
+            <p className="text-gray-300 text-sm ml-9">시스템 사용자 및 권한 관리</p>
           </div>
         </div>
 
         {/* Statistics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200 rounded-xl p-6 hover:shadow-lg transition-shadow">
+          <div className="bg-gray-50 border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-shadow">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-purple-600">최고관리자</p>
-                <p className="text-3xl font-bold text-purple-900 mt-2">{superadminCount}</p>
+                <p className="text-sm font-medium text-gray-600">최고관리자</p>
+                <p className="text-3xl font-bold text-gray-900 mt-2">{superadminCount}</p>
               </div>
-              <div className="p-3 bg-purple-500/20 rounded-lg">
-                <Crown className="h-8 w-8 text-purple-600" />
+              <div className="p-3 bg-gray-200 rounded-lg">
+                <Crown className="h-8 w-8 text-gray-700" />
               </div>
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-blue-50 to-cyan-50 border border-blue-200 rounded-xl p-6 hover:shadow-lg transition-shadow">
+          <div className="bg-gray-50 border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-shadow">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-blue-600">관리자</p>
-                <p className="text-3xl font-bold text-blue-900 mt-2">{adminCount}</p>
+                <p className="text-sm font-medium text-gray-600">관리자</p>
+                <p className="text-3xl font-bold text-gray-900 mt-2">{adminCount}</p>
               </div>
-              <div className="p-3 bg-blue-500/20 rounded-lg">
-                <Shield className="h-8 w-8 text-blue-600" />
+              <div className="p-3 bg-gray-200 rounded-lg">
+                <Shield className="h-8 w-8 text-gray-700" />
               </div>
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-gray-50 to-slate-50 border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-shadow">
+          <div className="bg-gray-50 border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-shadow">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">사용자</p>
                 <p className="text-3xl font-bold text-gray-900 mt-2">{viewerCount}</p>
               </div>
-              <div className="p-3 bg-gray-500/20 rounded-lg">
-                <UserIcon className="h-8 w-8 text-gray-600" />
+              <div className="p-3 bg-gray-200 rounded-lg">
+                <UserIcon className="h-8 w-8 text-gray-700" />
               </div>
             </div>
           </div>
         </div>
 
         {user?.role === 'superadmin' && (
-          <Alert className="bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200">
-            <Crown className="h-4 w-4 text-purple-600" />
-            <AlertTitle className="text-purple-900 font-semibold">최고관리자 권한</AlertTitle>
-            <AlertDescription className="text-purple-800">
+          <Alert className="bg-gray-50 border-gray-300">
+            <Crown className="h-4 w-4 text-gray-700" />
+            <AlertTitle className="text-gray-900 font-semibold">최고관리자 권한</AlertTitle>
+            <AlertDescription className="text-gray-700">
               시스템에는 항상 1명의 최고관리자만 존재합니다. 최고관리자 권한은 다른 관리자에게만 위임할 수 있습니다.
               {adminUsers.length > 0 && (
                 <Button
                   variant="outline"
                   size="sm"
-                  className="mt-2 border-purple-300 text-purple-700 hover:bg-purple-100 hover:scale-105 transition-transform"
+                  className="mt-2 border-gray-400 text-gray-800 hover:bg-gray-100 hover:scale-105 transition-transform"
                   onClick={() => setIsTransferDialogOpen(true)}
                 >
                   <ArrowRightLeft className="mr-2 h-4 w-4" />
@@ -335,11 +334,11 @@ export default function UserManagement() {
         )}
 
         <Card className="border-none shadow-lg bg-white/80 backdrop-blur-sm">
-          <CardHeader className="bg-gradient-to-r from-gray-50 to-gray-100 border-b">
+          <CardHeader className="bg-gray-50 border-b">
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle className="flex items-center gap-2 text-xl">
-                  <UsersIcon className="h-5 w-5 text-purple-600" />
+                  <UsersIcon className="h-5 w-5 text-gray-700" />
                   사용자 목록
                 </CardTitle>
                 <CardDescription className="mt-1">
@@ -351,7 +350,7 @@ export default function UserManagement() {
               <Button 
                 onClick={() => setIsAddDialogOpen(true)} 
                 disabled={isLoading}
-                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg"
+                className="bg-gray-800 hover:bg-gray-900 text-white shadow-lg"
               >
                 <UserPlus className="h-4 w-4 mr-2" />
                 사용자 추가
@@ -362,7 +361,7 @@ export default function UserManagement() {
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow className="bg-gradient-to-r from-gray-50 to-gray-100 hover:from-gray-100 hover:to-gray-200">
+                  <TableRow className="bg-gray-50 hover:bg-gray-100">
                     <TableHead className="font-semibold">사용자명</TableHead>
                     <TableHead className="font-semibold">이름</TableHead>
                     <TableHead className="font-semibold">직급</TableHead>
@@ -380,7 +379,7 @@ export default function UserManagement() {
                         key={u.id} 
                         className={`${
                           u.role === 'superadmin' 
-                            ? 'bg-gradient-to-r from-purple-50 to-pink-50' 
+                            ? 'bg-gray-100' 
                             : index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'
                         } hover:bg-gray-100 transition-colors`}
                       >
@@ -398,7 +397,7 @@ export default function UserManagement() {
                                 size="sm"
                                 onClick={() => openEditDialog(u)}
                                 disabled={isLoading}
-                                className="hover:bg-blue-50 hover:text-blue-600 hover:scale-105 transition-transform"
+                                className="hover:bg-gray-100 hover:text-gray-800 hover:scale-105 transition-transform"
                               >
                                 <Pencil className="h-4 w-4" />
                               </Button>
@@ -415,7 +414,7 @@ export default function UserManagement() {
                               </Button>
                             )}
                             {u.role === 'superadmin' && (
-                              <span className="text-xs text-purple-600 px-2 py-1 bg-purple-50 rounded">
+                              <span className="text-xs text-gray-600 px-2 py-1 bg-gray-100 rounded">
                                 (위임 전용)
                               </span>
                             )}
@@ -435,7 +434,7 @@ export default function UserManagement() {
           <DialogContent>
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                <ArrowRightLeft className="h-5 w-5 text-purple-600" />
+                <ArrowRightLeft className="h-5 w-5 text-gray-700" />
                 최고관리자 권한 위임
               </DialogTitle>
               <DialogDescription>
@@ -443,8 +442,8 @@ export default function UserManagement() {
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
-              <Alert className="bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200">
-                <Shield className="h-4 w-4 text-amber-600" />
+              <Alert className="bg-amber-50 border-amber-300">
+                <Shield className="h-4 w-4 text-amber-700" />
                 <AlertDescription className="text-amber-800">
                   <strong>주의:</strong> 권한 위임 후에는 되돌릴 수 없습니다.
                 </AlertDescription>
@@ -452,9 +451,9 @@ export default function UserManagement() {
               
               <div className="space-y-2">
                 <Label>현재 최고관리자</Label>
-                <div className="p-3 bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-md">
-                  <div className="font-medium text-purple-900">{superadmin?.name} ({superadmin?.username})</div>
-                  <div className="text-sm text-purple-700">{superadmin?.position}</div>
+                <div className="p-3 bg-gray-100 border border-gray-300 rounded-md">
+                  <div className="font-medium text-gray-900">{superadmin?.name} ({superadmin?.username})</div>
+                  <div className="text-sm text-gray-700">{superadmin?.position}</div>
                 </div>
               </div>
 
@@ -492,7 +491,7 @@ export default function UserManagement() {
               <Button 
                 onClick={handleTransferSuperadmin}
                 disabled={!selectedAdminForTransfer || isLoading}
-                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                className="bg-gray-800 hover:bg-gray-900"
               >
                 권한 위임
               </Button>
@@ -505,7 +504,7 @@ export default function UserManagement() {
           <DialogContent>
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                <UserPlus className="h-5 w-5 text-purple-600" />
+                <UserPlus className="h-5 w-5 text-gray-700" />
                 사용자 추가
               </DialogTitle>
               <DialogDescription>
@@ -580,7 +579,7 @@ export default function UserManagement() {
               <Button 
                 onClick={handleAddUser} 
                 disabled={isLoading}
-                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                className="bg-gray-800 hover:bg-gray-900"
               >
                 {isLoading ? '처리 중...' : '추가'}
               </Button>
@@ -593,7 +592,7 @@ export default function UserManagement() {
           <DialogContent>
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                <Pencil className="h-5 w-5 text-blue-600" />
+                <Pencil className="h-5 w-5 text-gray-700" />
                 사용자 수정
               </DialogTitle>
               <DialogDescription>
@@ -656,7 +655,7 @@ export default function UserManagement() {
               <Button 
                 onClick={handleEditUser} 
                 disabled={isLoading}
-                className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700"
+                className="bg-gray-800 hover:bg-gray-900"
               >
                 {isLoading ? '처리 중...' : '수정'}
               </Button>
@@ -684,7 +683,7 @@ export default function UserManagement() {
                 variant="destructive" 
                 onClick={handleDeleteUser} 
                 disabled={isLoading}
-                className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700"
+                className="bg-red-600 hover:bg-red-700"
               >
                 {isLoading ? '처리 중...' : '삭제'}
               </Button>

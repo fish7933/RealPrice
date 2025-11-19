@@ -469,7 +469,7 @@ export default function BorderDestinationTable() {
       )}
 
       {/* Filter Section */}
-      <div className="p-3 bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg border border-gray-200">
+      <div className="p-3 bg-gray-600 rounded-lg border border-gray-200">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
           <div className="space-y-1">
             <Label className="text-xs">대리점</Label>
@@ -516,7 +516,7 @@ export default function BorderDestinationTable() {
       <div className="rounded-lg border shadow-sm overflow-hidden">
         <Table>
           <TableHeader>
-            <TableRow className="bg-gradient-to-r from-amber-50 to-orange-50">
+            <TableRow className="bg-gray-600">
               <TableHead className="h-9 text-xs font-bold whitespace-nowrap">대리점</TableHead>
               {destinations.map(dest => (
                 <TableHead key={dest.id} className="h-9 text-xs font-bold whitespace-nowrap">
@@ -531,7 +531,7 @@ export default function BorderDestinationTable() {
           <TableBody>
             {paginatedGroups.length > 0 ? (
               paginatedGroups.map((group, index) => (
-                <TableRow key={`${group.agent}-${group.validFrom}-${index}`} className="hover:bg-amber-50/50">
+                <TableRow key={`${group.agent}-${group.validFrom}-${index}`} className="hover:bg-gray-50/50">
                   <TableCell className="py-2 text-xs font-medium whitespace-nowrap">{group.agent}</TableCell>
                   {destinations.map(dest => {
                     const freight = group.freights[dest.id];
@@ -570,7 +570,7 @@ export default function BorderDestinationTable() {
                           variant="ghost"
                           size="sm"
                           onClick={() => handleDeleteGroup(group)}
-                          className="h-6 w-6 p-0 hover:bg-red-50 hover:text-red-700"
+                          className="h-6 w-6 p-0 hover:bg-gray-50 hover:text-red-700"
                         >
                           <Trash2 className="h-3 w-3 text-red-600" />
                         </Button>

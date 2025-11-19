@@ -80,7 +80,7 @@ export default function DestinationTable() {
   return (
     <div className="space-y-4">
       {/* Header Section - Compact Design */}
-      <div className="relative overflow-hidden rounded-lg bg-gradient-to-br from-orange-500 via-red-500 to-pink-600 p-3 text-white shadow-lg">
+      <div className="relative overflow-hidden rounded-lg bg-gray-700 p-3 text-white shadow-lg">
         <div className="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-white/10 blur-2xl"></div>
         <div className="absolute bottom-0 left-0 -mb-4 -ml-4 h-24 w-24 rounded-full bg-white/10 blur-2xl"></div>
         <div className="relative flex justify-between items-center">
@@ -90,7 +90,7 @@ export default function DestinationTable() {
             </div>
             <div>
               <h2 className="text-lg font-bold">최종목적지 관리</h2>
-              <p className="text-xs text-orange-100">운송의 최종 도착지를 관리합니다</p>
+              <p className="text-xs text-gray-300">운송의 최종 도착지를 관리합니다</p>
             </div>
           </div>
           {isAdmin && (
@@ -110,7 +110,7 @@ export default function DestinationTable() {
       <div className="rounded-lg overflow-hidden shadow-sm border">
         <Table>
           <TableHeader>
-            <TableRow className="bg-gradient-to-r from-orange-500 to-red-500">
+            <TableRow className="bg-gray-600">
               <TableHead className="h-9 text-xs text-white font-bold whitespace-nowrap">최종목적지</TableHead>
               <TableHead className="h-9 text-xs text-white font-bold whitespace-nowrap">설명</TableHead>
               <TableHead className="h-9 text-xs text-white font-bold whitespace-nowrap">생성일</TableHead>
@@ -120,10 +120,10 @@ export default function DestinationTable() {
           <TableBody>
             {destinations.length > 0 ? (
               destinations.map((destination) => (
-                <TableRow key={destination.id} className="hover:bg-orange-50">
+                <TableRow key={destination.id} className="hover:bg-gray-50">
                   <TableCell className="py-2 text-xs font-medium whitespace-nowrap">
                     <div className="flex items-center gap-2">
-                      <div className="p-1.5 bg-gradient-to-br from-orange-400 to-red-500 rounded-lg shadow-sm">
+                      <div className="p-1.5 bg-gray-600 rounded-lg shadow-sm">
                         <MapPin className="h-3 w-3 text-white" />
                       </div>
                       <span className="text-gray-900">{destination.name}</span>
@@ -148,7 +148,7 @@ export default function DestinationTable() {
                           variant="ghost"
                           size="sm"
                           onClick={() => handleDelete(destination.id)}
-                          className="h-6 w-6 p-0 hover:bg-red-50 hover:text-red-700"
+                          className="h-6 w-6 p-0 hover:bg-gray-50 hover:text-red-700"
                         >
                           <Trash2 className="h-3 w-3 text-red-600" />
                         </Button>
@@ -176,7 +176,7 @@ export default function DestinationTable() {
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-2xl">
-              <div className="p-2 bg-gradient-to-br from-orange-400 to-red-500 rounded-lg">
+              <div className="p-2 bg-gray-600 rounded-lg">
                 <MapPin className="h-5 w-5 text-white" />
               </div>
               최종목적지 추가
@@ -217,7 +217,7 @@ export default function DestinationTable() {
             </Button>
             <Button 
               onClick={handleAdd}
-              className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white shadow-lg"
+              className="bg-gray-600 hover:bg-gray-800 text-white shadow-lg"
             >
               <Plus className="h-4 w-4 mr-2" />
               추가
@@ -231,7 +231,7 @@ export default function DestinationTable() {
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-2xl">
-              <div className="p-2 bg-gradient-to-br from-red-400 to-pink-500 rounded-lg">
+              <div className="p-2 bg-gray-600 rounded-lg">
                 <Pencil className="h-5 w-5 text-white" />
               </div>
               최종목적지 수정
@@ -271,7 +271,7 @@ export default function DestinationTable() {
             </Button>
             <Button 
               onClick={handleUpdate}
-              className="bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white shadow-lg"
+              className="bg-gray-600 hover:bg-gray-800 text-white shadow-lg"
             >
               <Pencil className="h-4 w-4 mr-2" />
               수정

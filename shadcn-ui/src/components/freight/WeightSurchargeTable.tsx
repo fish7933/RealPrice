@@ -224,7 +224,7 @@ export default function WeightSurchargeTable() {
 
       {rulesByAgent.map(({ agent, rules }) => (
         <div key={agent} className="rounded-lg border shadow-sm overflow-hidden">
-          <div className="bg-gradient-to-r from-indigo-50 to-purple-50 px-3 py-2 border-b">
+          <div className="bg-gray-600 px-3 py-2 border-b">
             <h3 className="font-semibold text-sm">{agent}</h3>
           </div>
           <Table>
@@ -244,7 +244,7 @@ export default function WeightSurchargeTable() {
                   const validityStatus = getValidityStatus(rule.validFrom, rule.validTo);
                   
                   return (
-                    <TableRow key={rule.id} className="hover:bg-indigo-50/50 transition-colors">
+                    <TableRow key={rule.id} className="hover:bg-gray-50/50 transition-colors">
                       <TableCell className="py-2 text-xs font-medium whitespace-nowrap">{rule.minWeight}</TableCell>
                       <TableCell className="py-2 text-xs font-medium whitespace-nowrap">{rule.maxWeight === 999999 ? '∞' : rule.maxWeight}</TableCell>
                       <TableCell className="py-2 text-xs font-semibold text-purple-700 whitespace-nowrap">${rule.surcharge}</TableCell>
@@ -274,7 +274,7 @@ export default function WeightSurchargeTable() {
                               variant="ghost"
                               size="sm"
                               onClick={() => handleDelete(rule.id)}
-                              className="h-6 w-6 p-0 hover:bg-red-50 hover:text-red-700"
+                              className="h-6 w-6 p-0 hover:bg-gray-50 hover:text-red-700"
                             >
                               <Trash2 className="h-3 w-3 text-red-600" />
                             </Button>

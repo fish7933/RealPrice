@@ -209,7 +209,7 @@ export default function DPCostTable() {
       <div className="rounded-lg border overflow-hidden shadow-sm">
         <Table>
           <TableHeader>
-            <TableRow className="bg-gradient-to-r from-rose-50 to-pink-50">
+            <TableRow className="bg-gray-600">
               <TableHead className="h-9 text-xs font-bold whitespace-nowrap">항구</TableHead>
               <TableHead className="h-9 text-xs font-bold whitespace-nowrap">DP 비용</TableHead>
               <TableHead className="h-9 text-xs font-bold whitespace-nowrap">유효기간</TableHead>
@@ -222,7 +222,7 @@ export default function DPCostTable() {
               const validityStatus = getValidityStatus(dpCost.validFrom, dpCost.validTo);
               
               return (
-                <TableRow key={dpCost.id} className="hover:bg-rose-50/50">
+                <TableRow key={dpCost.id} className="hover:bg-gray-50/50">
                   <TableCell className="py-2 text-xs font-medium whitespace-nowrap">{dpCost.port}</TableCell>
                   <TableCell className="py-2 text-xs font-semibold text-rose-700 whitespace-nowrap">${dpCost.amount}</TableCell>
                   <TableCell className="py-2 text-xs whitespace-nowrap">
@@ -248,7 +248,7 @@ export default function DPCostTable() {
                           variant="ghost"
                           size="sm"
                           onClick={() => handleDelete(dpCost.id)}
-                          className="h-6 w-6 p-0 hover:bg-red-50 hover:text-red-700"
+                          className="h-6 w-6 p-0 hover:bg-gray-50 hover:text-red-700"
                         >
                           <Trash2 className="h-3 w-3 text-red-600" />
                         </Button>

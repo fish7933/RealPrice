@@ -180,7 +180,7 @@ export default function LoginPage() {
         {/* Right side - Version Info & Update History */}
         <div className="space-y-4">
           {/* Version Info Card */}
-          <Card className="shadow-xl bg-gradient-to-br from-blue-50 to-cyan-50">
+          <Card className="shadow-xl bg-gray-600">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="text-xl font-bold flex items-center gap-2">

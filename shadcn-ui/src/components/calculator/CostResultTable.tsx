@@ -418,7 +418,7 @@ export default function CostResultTable({
                               {generateCombinationCode(breakdown, originalIndex)}
                             </span>
                             {isLowest && (
-                              <span className="flex items-center gap-1 text-[10px] bg-gradient-to-r from-amber-600 to-yellow-600 text-white px-2 py-1 rounded-full whitespace-nowrap font-bold shadow-sm animate-sparkle">
+                              <span className="flex items-center gap-1 text-[10px] bg-gray-600 text-white px-2 py-1 rounded-full whitespace-nowrap font-bold shadow-sm animate-sparkle">
                                 <Sparkles className="h-3 w-3 animate-pulse" />
                                 BEST
                               </span>
@@ -696,7 +696,7 @@ export default function CostResultTable({
                               <Button
                                 size="sm"
                                 onClick={() => onCreateQuotation(breakdown)}
-                                className="h-8 w-8 p-0 bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-700 hover:to-yellow-700 text-white border border-amber-500 shadow-sm hover:shadow-md transition-all duration-200"
+                                className="h-8 w-8 p-0 bg-gray-600 hover:bg-gray-800 text-white border border-amber-500 shadow-sm hover:shadow-md transition-all duration-200"
                                 title="견적서 생성"
                               >
                                 <FileSpreadsheet className="h-4 w-4" />

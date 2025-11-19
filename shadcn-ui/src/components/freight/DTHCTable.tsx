@@ -211,7 +211,7 @@ export default function DTHCTable() {
       </div>
 
       {/* Info Alert - Compact */}
-      <Alert className="border-orange-200 bg-gradient-to-r from-orange-50 to-red-50 py-2">
+      <Alert className="border-orange-200 bg-gray-600 py-2">
         <FileText className="h-4 w-4 text-orange-600" />
         <AlertDescription className="text-xs">
           <strong className="text-orange-900">D/O(DTHC):</strong> Document Only - Destination Terminal Handling Charge. 철도 대리점, 출발항, 도착항 및 선사별로 설정되며, 원가 계산 시 자동으로 적용됩니다.
@@ -239,7 +239,7 @@ export default function DTHCTable() {
             </div>
             <Table>
               <TableHeader>
-                <TableRow className="bg-gradient-to-r from-orange-50 to-red-50">
+                <TableRow className="bg-gray-600">
                   <TableHead className="h-9 text-xs font-bold whitespace-nowrap">경로</TableHead>
                   <TableHead className="h-9 text-xs font-bold whitespace-nowrap">선사</TableHead>
                   <TableHead className="h-9 text-xs font-bold whitespace-nowrap">D/O(DTHC)</TableHead>
@@ -254,7 +254,7 @@ export default function DTHCTable() {
                   const validityStatus = getValidityStatus(dthc.validFrom, dthc.validTo);
                   
                   return (
-                    <TableRow key={dthc.id} className="hover:bg-orange-50/50">
+                    <TableRow key={dthc.id} className="hover:bg-gray-50/50">
                       <TableCell className="py-2 text-xs font-medium whitespace-nowrap">
                         {dthc.pol || '-'} → {dthc.pod || '-'}
                       </TableCell>
@@ -293,7 +293,7 @@ export default function DTHCTable() {
                               variant="ghost"
                               size="sm"
                               onClick={() => handleDelete(dthc.id)}
-                              className="h-6 w-6 p-0 hover:bg-red-50 hover:text-red-700"
+                              className="h-6 w-6 p-0 hover:bg-gray-50 hover:text-red-700"
                             >
                               <Trash2 className="h-3 w-3 text-red-600" />
                             </Button>
@@ -308,7 +308,7 @@ export default function DTHCTable() {
           </div>
         ))
       ) : (
-        <div className="border rounded-lg bg-gradient-to-br from-orange-50 to-red-50 p-8 text-center shadow-sm">
+        <div className="border rounded-lg bg-gray-600 p-8 text-center shadow-sm">
           <FileText className="h-12 w-12 mx-auto mb-3 text-orange-400" />
           <p className="text-base font-semibold text-orange-900">설정된 D/O(DTHC)가 없습니다</p>
           <p className="text-xs mt-1 text-orange-700">대리점, 경로 및 선사별로 D/O(DTHC)를 추가해보세요</p>

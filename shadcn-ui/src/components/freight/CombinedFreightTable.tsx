@@ -493,7 +493,7 @@ export default function CombinedFreightTable() {
       )}
 
       {/* Search Filters - Compact */}
-      <div className="p-3 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-lg border border-emerald-200">
+      <div className="p-3 bg-gray-600 rounded-lg border border-emerald-200">
         <div className="flex items-center gap-2 mb-2">
           <Search className="h-3 w-3 text-emerald-600" />
           <span className="text-xs font-semibold text-emerald-900">검색 필터</span>
@@ -587,7 +587,7 @@ export default function CombinedFreightTable() {
       <div className="rounded-lg border overflow-hidden shadow-sm">
         <Table>
           <TableHeader>
-            <TableRow className="bg-gradient-to-r from-emerald-50 to-teal-50">
+            <TableRow className="bg-gray-600">
               <TableHead className="h-9 text-xs font-bold whitespace-nowrap">대리점</TableHead>
               <TableHead className="h-9 text-xs font-bold whitespace-nowrap">POL</TableHead>
               <TableHead className="h-9 text-xs font-bold whitespace-nowrap">POD</TableHead>
@@ -616,7 +616,7 @@ export default function CombinedFreightTable() {
                 const validityStatus = getValidityStatus(freight.validFrom, freight.validTo);
                 
                 return (
-                  <TableRow key={freight.id} className="hover:bg-emerald-50/50">
+                  <TableRow key={freight.id} className="hover:bg-gray-50/50">
                     <TableCell className="py-2 text-xs font-medium whitespace-nowrap">{freight.agent}</TableCell>
                     <TableCell className="py-2 text-xs whitespace-nowrap">{freight.pol}</TableCell>
                     <TableCell className="py-2 text-xs whitespace-nowrap">{freight.pod}</TableCell>
@@ -650,7 +650,7 @@ export default function CombinedFreightTable() {
                             variant="ghost" 
                             size="sm"
                             onClick={() => handleDelete(freight.id)}
-                            className="h-6 w-6 p-0 hover:bg-red-50 hover:text-red-700"
+                            className="h-6 w-6 p-0 hover:bg-gray-50 hover:text-red-700"
                           >
                             <Trash2 className="h-3 w-3 text-red-600" />
                           </Button>

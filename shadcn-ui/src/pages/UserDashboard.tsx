@@ -1,7 +1,7 @@
 import Layout from '@/components/layout/Layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useFreight } from '@/contexts/FreightContext';
-import { Calculator, History, TrendingDown, Package, Sparkles, Search } from 'lucide-react';
+import { Calculator, History, TrendingDown, Package, Search } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
@@ -19,35 +19,34 @@ export default function UserDashboard() {
       title: '총 계산 횟수',
       value: calculationHistory.length,
       icon: Calculator,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-50',
+      color: 'text-gray-600',
+      bgColor: 'bg-gray-50',
     },
     {
       title: '최근 계산',
       value: calculationHistory.length > 0 ? format(new Date(calculationHistory[0].createdAt), 'MM/dd', { locale: ko }) : '-',
       icon: History,
-      color: 'text-green-600',
-      bgColor: 'bg-green-50',
+      color: 'text-gray-600',
+      bgColor: 'bg-gray-50',
     },
   ];
 
   return (
     <Layout>
       <div className="space-y-6">
-        {/* Gradient Header - Same as AdminDashboard */}
-        <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-blue-600 via-cyan-600 to-teal-600 p-4 shadow-xl">
-          <div className="absolute inset-0 bg-grid-white/10"></div>
+        {/* Gray Header */}
+        <div className="relative overflow-hidden rounded-xl bg-gray-800 p-4 shadow-xl">
+          <div className="absolute inset-0 bg-grid-white/5"></div>
           <div className="relative">
             <div className="flex items-center gap-2">
-              <div className="p-1.5 bg-white/20 backdrop-blur-sm rounded-lg">
+              <div className="p-1.5 bg-white/10 backdrop-blur-sm rounded-lg">
                 <Search className="h-5 w-5 text-white" />
               </div>
-              <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+              <h1 className="text-2xl font-bold text-white">
                 운임 조회
-                <Sparkles className="h-4 w-4 text-yellow-300 animate-pulse" />
               </h1>
             </div>
-            <p className="text-blue-50 text-sm ml-9">운임 계산 및 이력 조회</p>
+            <p className="text-gray-300 text-sm ml-9">운임 계산 및 이력 조회</p>
           </div>
         </div>
 
@@ -74,11 +73,11 @@ export default function UserDashboard() {
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Link to="/calculator">
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-blue-200">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-gray-200">
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <div className="p-3 rounded-lg bg-blue-50">
-                    <Calculator className="h-6 w-6 text-blue-600" />
+                  <div className="p-3 rounded-lg bg-gray-100">
+                    <Calculator className="h-6 w-6 text-gray-700" />
                   </div>
                   <div>
                     <CardTitle>원가 계산기</CardTitle>
@@ -90,11 +89,11 @@ export default function UserDashboard() {
           </Link>
 
           <Link to="/calculator?tab=history">
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-green-200">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-gray-200">
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <div className="p-3 rounded-lg bg-green-50">
-                    <History className="h-6 w-6 text-green-600" />
+                  <div className="p-3 rounded-lg bg-gray-100">
+                    <History className="h-6 w-6 text-gray-700" />
                   </div>
                   <div>
                     <CardTitle>계산 이력</CardTitle>
@@ -142,10 +141,10 @@ export default function UserDashboard() {
                               </div>
                               <div className="flex items-center gap-3 text-sm text-gray-600">
                                 <span className="flex items-center gap-1">
-                                  <TrendingDown className="h-4 w-4 text-green-600" />
+                                  <TrendingDown className="h-4 w-4 text-gray-600" />
                                   최저가: {calc.result.lowestCostAgent}
                                 </span>
-                                <span className="font-semibold text-blue-600">
+                                <span className="font-semibold text-gray-900">
                                   ${calc.result.lowestCost.toLocaleString()}
                                 </span>
                               </div>
@@ -171,8 +170,8 @@ export default function UserDashboard() {
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex items-start gap-3">
-              <div className="p-2 rounded-lg bg-blue-50 mt-0.5">
-                <Calculator className="h-4 w-4 text-blue-600" />
+              <div className="p-2 rounded-lg bg-gray-100 mt-0.5">
+                <Calculator className="h-4 w-4 text-gray-700" />
               </div>
               <div>
                 <h4 className="font-semibold mb-1">원가 계산기</h4>
@@ -182,8 +181,8 @@ export default function UserDashboard() {
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <div className="p-2 rounded-lg bg-green-50 mt-0.5">
-                <History className="h-4 w-4 text-green-600" />
+              <div className="p-2 rounded-lg bg-gray-100 mt-0.5">
+                <History className="h-4 w-4 text-gray-700" />
               </div>
               <div>
                 <h4 className="font-semibold mb-1">계산 이력</h4>

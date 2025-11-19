@@ -267,7 +267,7 @@ export default function SeaFreightTable() {
   return (
     <div className="space-y-4">
       {/* Header Section - Compact */}
-      <div className="relative overflow-hidden rounded-lg bg-gradient-to-br from-blue-500 via-cyan-500 to-teal-600 p-3 text-white shadow-lg">
+      <div className="relative overflow-hidden rounded-lg bg-gray-700 p-3 text-white shadow-lg">
         <div className="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-white/10 blur-2xl"></div>
         <div className="absolute bottom-0 left-0 -mb-4 -ml-4 h-24 w-24 rounded-full bg-white/10 blur-2xl"></div>
         <div className="relative flex justify-between items-center">
@@ -277,7 +277,7 @@ export default function SeaFreightTable() {
             </div>
             <div>
               <h2 className="text-lg font-bold">해상운임</h2>
-              <p className="text-xs text-blue-100">선적포트 → 양하포트</p>
+              <p className="text-xs text-gray-300">선적포트 → 양하포트</p>
             </div>
           </div>
           {isAdmin && (
@@ -306,7 +306,7 @@ export default function SeaFreightTable() {
       )}
 
       {/* Search Filters - Compact */}
-      <div className="p-3 bg-gradient-to-br from-gray-50 to-blue-50 rounded-lg border border-blue-100 shadow-sm">
+      <div className="p-3 bg-gray-600 rounded-lg border border-blue-100 shadow-sm">
         <div className="flex items-center gap-2 mb-2">
           <div className="p-1 bg-blue-100 rounded">
             <Search className="h-3 w-3 text-blue-600" />
@@ -388,7 +388,7 @@ export default function SeaFreightTable() {
       <div className="rounded-lg overflow-hidden shadow-sm border">
         <Table>
           <TableHeader>
-            <TableRow className="bg-gradient-to-r from-blue-500 to-cyan-500">
+            <TableRow className="bg-gray-600">
               <TableHead className="h-9 text-xs text-white font-bold whitespace-nowrap">POL</TableHead>
               <TableHead className="h-9 text-xs text-white font-bold whitespace-nowrap">POD</TableHead>
               <TableHead className="h-9 text-xs text-white font-bold whitespace-nowrap">운임</TableHead>
@@ -415,7 +415,7 @@ export default function SeaFreightTable() {
                 const validityStatus = getValidityStatus(freight.validFrom, freight.validTo);
                 
                 return (
-                  <TableRow key={freight.id} className="hover:bg-blue-50">
+                  <TableRow key={freight.id} className="hover:bg-gray-50">
                     <TableCell className="py-2 text-xs font-medium whitespace-nowrap">{freight.pol}</TableCell>
                     <TableCell className="py-2 text-xs whitespace-nowrap">{freight.pod}</TableCell>
                     <TableCell className="py-2 text-xs font-semibold text-blue-600 whitespace-nowrap">${freight.rate}</TableCell>
@@ -445,7 +445,7 @@ export default function SeaFreightTable() {
                             variant="ghost"
                             size="sm"
                             onClick={() => handleDelete(freight.id)}
-                            className="h-6 w-6 p-0 hover:bg-red-50 hover:text-red-700"
+                            className="h-6 w-6 p-0 hover:bg-gray-50 hover:text-red-700"
                           >
                             <Trash2 className="h-3 w-3 text-red-600" />
                           </Button>
@@ -510,7 +510,7 @@ export default function SeaFreightTable() {
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-2xl">
-              <div className="p-2 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-lg">
+              <div className="p-2 bg-gray-600 rounded-lg">
                 <Ship className="h-5 w-5 text-white" />
               </div>
               해상운임 추가
@@ -673,7 +673,7 @@ export default function SeaFreightTable() {
             </Button>
             <Button 
               onClick={handleAdd}
-              className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white shadow-lg"
+              className="bg-gray-600 hover:bg-gray-800 text-white shadow-lg"
             >
               <Plus className="h-4 w-4 mr-2" />
               추가
@@ -687,7 +687,7 @@ export default function SeaFreightTable() {
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-2xl">
-              <div className="p-2 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-lg">
+              <div className="p-2 bg-gray-600 rounded-lg">
                 <Edit className="h-5 w-5 text-white" />
               </div>
               해상운임 수정
@@ -820,7 +820,7 @@ export default function SeaFreightTable() {
             </Button>
             <Button 
               onClick={handleEditSave}
-              className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white shadow-lg"
+              className="bg-gray-600 hover:bg-gray-800 text-white shadow-lg"
             >
               <Edit className="h-4 w-4 mr-2" />
               수정 저장

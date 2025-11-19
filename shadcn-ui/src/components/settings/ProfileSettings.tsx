@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { User, Lock, Info, Shield, Crown, CheckCircle2, Sparkles, UserCog } from 'lucide-react';
+import { User, Lock, Info, Shield, Crown, CheckCircle2, UserCog } from 'lucide-react';
 
 export default function ProfileSettings() {
   const { user, changePassword } = useAuth();
@@ -67,25 +67,22 @@ export default function ProfileSettings() {
         return {
           label: '슈퍼관리자',
           icon: Crown,
-          gradient: 'from-purple-500 to-pink-500',
-          bgGradient: 'from-purple-50 to-pink-50',
-          borderColor: 'border-purple-200'
+          bgColor: 'bg-gray-800',
+          borderColor: 'border-gray-700'
         };
       case 'admin':
         return {
           label: '관리자',
           icon: Shield,
-          gradient: 'from-blue-500 to-cyan-500',
-          bgGradient: 'from-blue-50 to-cyan-50',
-          borderColor: 'border-blue-200'
+          bgColor: 'bg-gray-600',
+          borderColor: 'border-gray-500'
         };
       default:
         return {
           label: '사용자',
           icon: User,
-          gradient: 'from-gray-400 to-gray-500',
-          bgGradient: 'from-gray-50 to-slate-50',
-          borderColor: 'border-gray-200'
+          bgColor: 'bg-gray-400',
+          borderColor: 'border-gray-300'
         };
     }
   };
@@ -95,28 +92,27 @@ export default function ProfileSettings() {
 
   return (
     <div className="space-y-6">
-      {/* Gradient Header - Same as AdminDashboard */}
-      <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-blue-600 via-cyan-600 to-teal-600 p-4 shadow-xl">
-        <div className="absolute inset-0 bg-grid-white/10"></div>
+      {/* Gray Header */}
+      <div className="relative overflow-hidden rounded-xl bg-gray-800 p-4 shadow-xl">
+        <div className="absolute inset-0 bg-grid-white/5"></div>
         <div className="relative">
           <div className="flex items-center gap-2">
-            <div className="p-1.5 bg-white/20 backdrop-blur-sm rounded-lg">
+            <div className="p-1.5 bg-white/10 backdrop-blur-sm rounded-lg">
               <UserCog className="h-5 w-5 text-white" />
             </div>
-            <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+            <h1 className="text-2xl font-bold text-white">
               프로필 설정
-              <Sparkles className="h-4 w-4 text-yellow-300 animate-pulse" />
             </h1>
           </div>
-          <p className="text-blue-50 text-sm ml-9">계정 정보 및 비밀번호를 관리하세요</p>
+          <p className="text-gray-300 text-sm ml-9">계정 정보 및 비밀번호를 관리하세요</p>
         </div>
       </div>
 
-      {/* User Info Card with Gradient */}
-      <Card className={`border-none shadow-lg bg-gradient-to-br ${roleInfo.bgGradient}`}>
+      {/* User Info Card */}
+      <Card className="border-none shadow-lg bg-gray-50">
         <CardHeader className="border-b bg-white/50 backdrop-blur-sm">
           <CardTitle className="flex items-center gap-2 text-xl">
-            <div className={`p-2 bg-gradient-to-r ${roleInfo.gradient} rounded-lg`}>
+            <div className={`p-2 ${roleInfo.bgColor} rounded-lg`}>
               <User className="h-5 w-5 text-white" />
             </div>
             계정 정보
@@ -126,8 +122,7 @@ export default function ProfileSettings() {
         <CardContent className="pt-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-orange-500" />
+              <Label className="text-sm font-semibold text-gray-700">
                 사용자명
               </Label>
               <div className="p-4 bg-white rounded-lg border-2 border-gray-200 shadow-sm">
@@ -135,8 +130,7 @@ export default function ProfileSettings() {
               </div>
             </div>
             <div className="space-y-2">
-              <Label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-orange-500" />
+              <Label className="text-sm font-semibold text-gray-700">
                 이름
               </Label>
               <div className="p-4 bg-white rounded-lg border-2 border-gray-200 shadow-sm">
@@ -144,8 +138,7 @@ export default function ProfileSettings() {
               </div>
             </div>
             <div className="space-y-2">
-              <Label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-orange-500" />
+              <Label className="text-sm font-semibold text-gray-700">
                 직책
               </Label>
               <div className="p-4 bg-white rounded-lg border-2 border-gray-200 shadow-sm">
@@ -153,11 +146,10 @@ export default function ProfileSettings() {
               </div>
             </div>
             <div className="space-y-2">
-              <Label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-orange-500" />
+              <Label className="text-sm font-semibold text-gray-700">
                 권한
               </Label>
-              <div className={`p-4 bg-gradient-to-r ${roleInfo.gradient} rounded-lg shadow-lg`}>
+              <div className={`p-4 ${roleInfo.bgColor} rounded-lg shadow-lg`}>
                 <div className="flex items-center gap-2 text-white">
                   <RoleIcon className="h-5 w-5" />
                   <p className="font-bold">{roleInfo.label}</p>
@@ -168,11 +160,11 @@ export default function ProfileSettings() {
         </CardContent>
       </Card>
 
-      {/* Password Change Card with Gradient */}
+      {/* Password Change Card */}
       <Card className="border-none shadow-lg bg-white/80 backdrop-blur-sm">
-        <CardHeader className="bg-gradient-to-r from-red-50 to-pink-50 border-b">
+        <CardHeader className="bg-gray-50 border-b">
           <CardTitle className="flex items-center gap-2 text-xl">
-            <div className="p-2 bg-gradient-to-r from-red-500 to-pink-500 rounded-lg">
+            <div className="p-2 bg-gray-700 rounded-lg">
               <Lock className="h-5 w-5 text-white" />
             </div>
             비밀번호 변경
@@ -180,20 +172,20 @@ export default function ProfileSettings() {
           <CardDescription>보안을 위해 주기적으로 비밀번호를 변경하세요</CardDescription>
         </CardHeader>
         <CardContent className="pt-6 space-y-6">
-          <Alert className="bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-200">
-            <Info className="h-4 w-4 text-blue-600" />
+          <Alert className="bg-gray-50 border-gray-300">
+            <Info className="h-4 w-4 text-gray-700" />
             <AlertDescription>
-              <ul className="mt-2 space-y-2 text-sm text-blue-900">
+              <ul className="mt-2 space-y-2 text-sm text-gray-800">
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-blue-600" />
+                  <CheckCircle2 className="h-4 w-4 text-gray-700" />
                   비밀번호는 최소 4자 이상이어야 합니다
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-blue-600" />
+                  <CheckCircle2 className="h-4 w-4 text-gray-700" />
                   현재 비밀번호를 정확히 입력해야 합니다
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-blue-600" />
+                  <CheckCircle2 className="h-4 w-4 text-gray-700" />
                   새 비밀번호는 현재 비밀번호와 달라야 합니다
                 </li>
               </ul>
@@ -210,7 +202,7 @@ export default function ProfileSettings() {
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 disabled={isChanging}
-                className="h-12 border-2 focus:border-red-500"
+                className="h-12 border-2 focus:border-gray-500"
               />
             </div>
 
@@ -223,7 +215,7 @@ export default function ProfileSettings() {
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 disabled={isChanging}
-                className="h-12 border-2 focus:border-red-500"
+                className="h-12 border-2 focus:border-gray-500"
               />
             </div>
 
@@ -236,12 +228,12 @@ export default function ProfileSettings() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 disabled={isChanging}
-                className="h-12 border-2 focus:border-red-500"
+                className="h-12 border-2 focus:border-gray-500"
               />
             </div>
 
             {error && (
-              <Alert variant="destructive" className="bg-gradient-to-r from-red-50 to-rose-50 border-red-200">
+              <Alert variant="destructive" className="bg-red-50 border-red-300">
                 <AlertDescription className="text-red-900 font-medium">{error}</AlertDescription>
               </Alert>
             )}
@@ -250,7 +242,7 @@ export default function ProfileSettings() {
               <Button
                 onClick={handleChangePassword}
                 disabled={isChanging}
-                className="flex-1 h-12 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all"
+                className="flex-1 h-12 bg-gray-800 hover:bg-gray-900 text-white font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all"
               >
                 <Lock className="h-5 w-5 mr-2" />
                 {isChanging ? '변경 중...' : '비밀번호 변경'}

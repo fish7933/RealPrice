@@ -673,7 +673,7 @@ export default function SeaFreightTable() {
             </Button>
             <Button 
               onClick={handleAdd}
-              className="bg-gray-600 hover:bg-gray-200 text-white shadow-lg"
+              className="bg-gray-200 hover:bg-gray-300 text-gray-900 shadow-lg"
             >
               <Plus className="h-4 w-4 mr-2" />
               추가
@@ -820,7 +820,7 @@ export default function SeaFreightTable() {
             </Button>
             <Button 
               onClick={handleEditSave}
-              className="bg-gray-600 hover:bg-gray-200 text-white shadow-lg"
+              className="bg-gray-200 hover:bg-gray-300 text-gray-900 shadow-lg"
             >
               <Edit className="h-4 w-4 mr-2" />
               수정 저장

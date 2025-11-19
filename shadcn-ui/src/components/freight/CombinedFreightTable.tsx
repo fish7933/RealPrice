@@ -493,7 +493,7 @@ export default function CombinedFreightTable() {
       )}
 
       {/* Search Filters - Compact */}
-      <div className="p-3 bg-gray-600 rounded-lg border border-emerald-200">
+      <div className="p-3 bg-gray-200 rounded-lg border border-emerald-200">
         <div className="flex items-center gap-2 mb-2">
           <Search className="h-3 w-3 text-emerald-600" />
           <span className="text-xs font-semibold text-emerald-900">검색 필터</span>

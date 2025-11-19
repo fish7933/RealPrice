@@ -224,7 +224,7 @@ export default function WeightSurchargeTable() {
 
       {rulesByAgent.map(({ agent, rules }) => (
         <div key={agent} className="rounded-lg border shadow-sm overflow-hidden">
-          <div className="bg-gray-600 px-3 py-2 border-b">
+          <div className="bg-gray-200 px-3 py-2 border-b">
             <h3 className="font-semibold text-sm">{agent}</h3>
           </div>
           <Table>

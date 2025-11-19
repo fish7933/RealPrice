@@ -306,7 +306,7 @@ export default function AgentSeaFreightTable() {
       )}
 
       {/* Search Filters - Compact */}
-      <div className="p-3 bg-gray-600 rounded-lg border border-gray-200">
+      <div className="p-3 bg-gray-200 rounded-lg border border-gray-200">
         <div className="flex items-center gap-2 mb-2">
           <Search className="h-3 w-3 text-gray-600" />
           <span className="text-xs font-semibold">검색 필터</span>
@@ -703,7 +703,7 @@ export default function AgentSeaFreightTable() {
             >
               취소
             </Button>
-            <Button onClick={handleAdd} className="bg-gray-600 hover:bg-gray-200">추가</Button>
+            <Button onClick={handleAdd} className="bg-gray-200 hover:bg-gray-200">추가</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -836,7 +836,7 @@ export default function AgentSeaFreightTable() {
             </Button>
             <Button 
               onClick={handleEditSave}
-              className="bg-gray-600 hover:bg-gray-200"
+              className="bg-gray-200 hover:bg-gray-200"
             >
               <Edit className="h-4 w-4 mr-2" />
               수정 저장

@@ -157,26 +157,26 @@ export default function DPCostTable() {
   return (
     <div className="space-y-4">
       {/* Header - Compact */}
-      <div className="relative overflow-hidden rounded-lg bg-gradient-to-r from-rose-500 via-pink-500 to-fuchsia-500 p-4 shadow-lg">
+      <div className="relative overflow-hidden rounded-lg bg-gradient-to-r from-gray-100 to-gray-200 p-4 shadow-lg">
         <div className="absolute inset-0 bg-grid-white/10"></div>
         <div className="relative flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <div className="p-1.5 bg-gray-200/80 backdrop-blur-sm rounded-lg">
+            <div className="p-1.5 bg-gray-300 rounded-lg">
               <Package className="h-5 w-5 text-gray-900" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-white flex items-center gap-2">
+              <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                 DP 비용 관리
                 <Sparkles className="h-4 w-4 text-yellow-300 animate-pulse" />
               </h2>
-              <p className="text-xs text-rose-50">항구별 DP 비용</p>
+              <p className="text-xs text-gray-600">항구별 DP 비용</p>
             </div>
           </div>
           {isAdmin && (
             <Button 
               onClick={handleOpenDialog}
               size="sm"
-              className="bg-gray-200/80 backdrop-blur-sm hover:bg-gray-300/80 text-white border border-gray-400"
+              className="bg-gray-300 hover:bg-gray-400 text-white border border-gray-400"
             >
               <Plus className="h-3 w-3 mr-1" />
               추가

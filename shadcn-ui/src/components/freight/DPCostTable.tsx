@@ -176,7 +176,7 @@ export default function DPCostTable() {
             <Button 
               onClick={handleOpenDialog}
               size="sm"
-              className="bg-gray-300 hover:bg-gray-400 text-white border border-gray-400"
+              className="bg-gray-300 hover:bg-gray-400 text-gray-900 border border-gray-400"
             >
               <Plus className="h-3 w-3 mr-1" />
               추가
@@ -336,7 +336,7 @@ export default function DPCostTable() {
                   </SelectContent>
                 </Select>
               ) : (
-                <div className="text-sm text-gray-500 p-3 bg-gray-50 rounded border">
+                <div className="text-sm text-gray-800 p-3 bg-gray-50 rounded border">
                   출발항(POL)을 먼저 등록해주세요. (운송사 탭 → 포트 관리)
                 </div>
               )}

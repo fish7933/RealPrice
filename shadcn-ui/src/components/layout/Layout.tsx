@@ -71,21 +71,21 @@ export default function Layout({ children }: LayoutProps) {
     switch (user?.role) {
       case 'superadmin':
         return (
-          <span className="text-xs px-3 py-1 bg-gray-600 text-white rounded-full flex items-center gap-1 font-semibold shadow-lg">
+          <span className="text-xs px-3 py-1 bg-gray-600 text-gray-900 rounded-full flex items-center gap-1 font-semibold shadow-lg">
             <Shield className="h-3 w-3" />
             슈퍼 관리자
           </span>
         );
       case 'admin':
         return (
-          <span className="text-xs px-3 py-1 bg-gray-600 text-white rounded-full flex items-center gap-1 font-semibold shadow-lg">
+          <span className="text-xs px-3 py-1 bg-gray-600 text-gray-900 rounded-full flex items-center gap-1 font-semibold shadow-lg">
             <Shield className="h-3 w-3" />
             관리자
           </span>
         );
       default:
         return (
-          <span className="text-xs px-3 py-1 bg-gray-600 text-white rounded-full font-semibold shadow-lg">
+          <span className="text-xs px-3 py-1 bg-gray-600 text-gray-900 rounded-full font-semibold shadow-lg">
             사용자
           </span>
         );
@@ -103,12 +103,12 @@ export default function Layout({ children }: LayoutProps) {
             to={item.path}
             className={`group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${
               isActive
-                ? `bg-gradient-to-r ${item.gradient} text-white shadow-lg scale-105`
+                ? `bg-gradient-to-r ${item.gradient} text-gray-900 shadow-lg scale-105`
                 : 'text-gray-700 hover:bg-gradient-to-r hover:bg-gray-200 hover:scale-102'
             }`}
           >
             <div className={`p-2 rounded-lg ${isActive ? 'bg-gray-200/80' : 'bg-gray-100 group-hover:bg-white'} transition-all`}>
-              <Icon className={`h-5 w-5 ${isActive ? 'text-white' : 'text-gray-600'}`} />
+              <Icon className={`h-5 w-5 ${isActive ? 'text-gray-900' : 'text-gray-600'}`} />
             </div>
             <span className="font-medium">{item.label}</span>
             {isActive && <Sparkles className="h-4 w-4 ml-auto animate-pulse" />}
@@ -160,7 +160,7 @@ export default function Layout({ children }: LayoutProps) {
                 <div className="font-bold text-xl bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
                   운임 시스템
                 </div>
-                <div className="text-xs text-gray-500 font-medium">Freight Management</div>
+                <div className="text-xs text-gray-800 font-medium">Freight Management</div>
               </div>
             </Link>
           </div>

@@ -237,7 +237,7 @@ export default function CalculationSqlPreviewDialog({
           </pre>
         </ScrollArea>
 
-        <div className="flex justify-between items-center text-sm text-muted-foreground">
+        <div className="flex justify-between items-center text-sm text-gray-700">
           <div>
             <strong>경로:</strong> {input.pol} → {input.pod} → {getDestinationName(input.destinationId)}
           </div>

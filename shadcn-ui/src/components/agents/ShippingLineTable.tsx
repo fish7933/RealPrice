@@ -84,7 +84,7 @@ export default function ShippingLineTable() {
   return (
     <div className="space-y-4">
       {/* Header Section - Compact Design */}
-      <div className="relative overflow-hidden rounded-lg bg-gray-100 p-3 text-white shadow-lg">
+      <div className="relative overflow-hidden rounded-lg bg-gray-100 p-3 text-gray-900 shadow-lg">
         <div className="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-white/10 blur-2xl"></div>
         <div className="absolute bottom-0 left-0 -mb-4 -ml-4 h-24 w-24 rounded-full bg-white/10 blur-2xl"></div>
         <div className="relative flex justify-between items-center">
@@ -101,7 +101,7 @@ export default function ShippingLineTable() {
             <Button 
               onClick={() => setIsAddDialogOpen(true)}
               size="sm"
-              className="bg-gray-200/80 backdrop-blur-sm hover:bg-gray-300/80 text-white border border-gray-400 h-7 text-xs"
+              className="bg-gray-200/80 backdrop-blur-sm hover:bg-gray-300/80 text-gray-900 border border-gray-400 h-7 text-xs"
             >
               <Plus className="h-3 w-3 mr-1" />
               추가
@@ -140,7 +140,7 @@ export default function ShippingLineTable() {
                     </span>
                   </TableCell>
                   <TableCell className="py-3 text-sm text-gray-600 whitespace-nowrap">{line.description || '-'}</TableCell>
-                  <TableCell className="py-3 text-sm text-gray-500 whitespace-nowrap">
+                  <TableCell className="py-3 text-sm text-gray-800 whitespace-nowrap">
                     {new Date(line.createdAt).toLocaleDateString('ko-KR')}
                   </TableCell>
                   {isAdmin && (
@@ -170,7 +170,7 @@ export default function ShippingLineTable() {
             ) : (
               <TableRow>
                 <TableCell colSpan={isAdmin ? 5 : 4} className="text-center py-12">
-                  <div className="flex flex-col items-center gap-3 text-gray-400">
+                  <div className="flex flex-col items-center gap-3 text-gray-700">
                     <Ship className="h-12 w-12 opacity-20" />
                     <p className="text-sm">등록된 선사가 없습니다</p>
                   </div>
@@ -233,7 +233,7 @@ export default function ShippingLineTable() {
             <Button 
               onClick={handleAdd} 
               disabled={!formData.name.trim()}
-              className="bg-gray-100 hover:bg-gray-200 text-white shadow-lg"
+              className="bg-gray-100 hover:bg-gray-200 text-gray-900 shadow-lg"
             >
               <Plus className="h-4 w-4 mr-2" />
               추가
@@ -291,7 +291,7 @@ export default function ShippingLineTable() {
             <Button 
               onClick={handleUpdate} 
               disabled={!formData.name.trim()}
-              className="bg-gray-100 hover:bg-gray-200 text-white shadow-lg"
+              className="bg-gray-100 hover:bg-gray-200 text-gray-900 shadow-lg"
             >
               <Pencil className="h-4 w-4 mr-2" />
               수정

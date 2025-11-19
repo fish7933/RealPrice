@@ -267,7 +267,7 @@ export default function SeaFreightTable() {
   return (
     <div className="space-y-4">
       {/* Header Section - Compact */}
-      <div className="relative overflow-hidden rounded-lg bg-gray-100 p-3 text-white shadow-lg">
+      <div className="relative overflow-hidden rounded-lg bg-gray-100 p-3 text-gray-900 shadow-lg">
         <div className="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-white/10 blur-2xl"></div>
         <div className="absolute bottom-0 left-0 -mb-4 -ml-4 h-24 w-24 rounded-full bg-white/10 blur-2xl"></div>
         <div className="relative flex justify-between items-center">
@@ -284,7 +284,7 @@ export default function SeaFreightTable() {
             <Button 
               onClick={() => setIsAddDialogOpen(true)}
               size="sm"
-              className="bg-gray-200/80 backdrop-blur-sm hover:bg-gray-300/80 text-white border border-gray-400 h-7 text-xs"
+              className="bg-gray-200/80 backdrop-blur-sm hover:bg-gray-300/80 text-gray-900 border border-gray-400 h-7 text-xs"
             >
               <Plus className="h-3 w-3 mr-1" />
               추가
@@ -404,7 +404,7 @@ export default function SeaFreightTable() {
             {paginatedFreights.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={isAdmin ? 9 : 8} className="text-center py-6">
-                  <div className="flex flex-col items-center gap-2 text-gray-400">
+                  <div className="flex flex-col items-center gap-2 text-gray-700">
                     <Ship className="h-12 w-12 opacity-20" />
                     <p className="text-sm">검색 결과가 없습니다</p>
                   </div>
@@ -563,7 +563,7 @@ export default function SeaFreightTable() {
                     </SelectContent>
                   </Select>
                 ) : (
-                  <div className="text-sm text-gray-500 p-3 bg-gray-50 rounded border">
+                  <div className="text-sm text-gray-800 p-3 bg-gray-50 rounded border">
                     선적포트를 먼저 등록해주세요. (선사 & 중국 파트너사 탭 → 포트 관리)
                   </div>
                 )}
@@ -587,7 +587,7 @@ export default function SeaFreightTable() {
                     </SelectContent>
                   </Select>
                 ) : (
-                  <div className="text-sm text-gray-500 p-3 bg-gray-50 rounded border">
+                  <div className="text-sm text-gray-800 p-3 bg-gray-50 rounded border">
                     양하포트를 먼저 등록해주세요. (선사 & 중국 파트너사 탭 → 포트 관리)
                   </div>
                 )}
@@ -633,7 +633,7 @@ export default function SeaFreightTable() {
                   </SelectContent>
                 </Select>
               ) : (
-                <div className="text-sm text-gray-500 p-3 bg-gray-50 rounded border">
+                <div className="text-sm text-gray-800 p-3 bg-gray-50 rounded border">
                   선사를 먼저 등록해주세요. (선사 & 중국 파트너사 탭 → 선사 관리)
                 </div>
               )}
@@ -772,7 +772,7 @@ export default function SeaFreightTable() {
                     </SelectContent>
                   </Select>
                 ) : (
-                  <div className="text-sm text-gray-500 p-3 bg-gray-50 rounded border">
+                  <div className="text-sm text-gray-800 p-3 bg-gray-50 rounded border">
                     선사를 먼저 등록해주세요. (선사 & 중국 파트너사 탭 → 선사 관리)
                   </div>
                 )}

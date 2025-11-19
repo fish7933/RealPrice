@@ -324,7 +324,7 @@ export default function CalculationHistoryComponent({
         </div>
 
         {filteredHistory.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
+          <div className="text-center py-8 text-gray-800">
             <History className="h-12 w-12 mx-auto mb-2 opacity-50" />
             <p>검색 결과가 없습니다</p>
           </div>

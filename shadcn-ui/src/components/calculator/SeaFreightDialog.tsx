@@ -107,7 +107,7 @@ export default function SeaFreightDialog({
                       {freight.note && (
                         <span className="text-xs text-gray-600">{freight.note}</span>
                       )}
-                      <div className="flex items-center gap-2 text-xs text-gray-500">
+                      <div className="flex items-center gap-2 text-xs text-gray-800">
                         <span>유효기간: {freight.validFrom} ~ {freight.validTo}</span>
                       </div>
                     </div>

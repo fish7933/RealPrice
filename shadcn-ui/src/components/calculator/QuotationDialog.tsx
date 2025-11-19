@@ -527,7 +527,7 @@ export default function QuotationDialog({
                 onChange={(e) => setSellingPrice(Number(e.target.value))}
                 className="text-base"
               />
-              <p className="text-xs text-gray-500">고객에게 제시할 운임을 입력하세요 (USD)</p>
+              <p className="text-xs text-gray-800">고객에게 제시할 운임을 입력하세요 (USD)</p>
             </div>
 
             {/* Profit Calculation - More Compact */}

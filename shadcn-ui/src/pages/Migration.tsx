@@ -212,7 +212,7 @@ export default function Migration() {
 
           <div className="space-y-2">
             <h3 className="font-semibold">마이그레이션 내용:</h3>
-            <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
+            <ul className="list-disc list-inside space-y-1 text-sm text-gray-700">
               <li>초기 사용자 계정 (superadmin, admin, viewer)</li>
               <li>선사 목록 (Shipping Lines)</li>
               <li>철도 운송사 (Rail Agents)</li>

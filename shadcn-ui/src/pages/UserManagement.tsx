@@ -210,21 +210,21 @@ export default function UserManagement() {
     switch (role) {
       case 'superadmin':
         return (
-          <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold bg-gray-200 text-white shadow-lg">
+          <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold bg-gray-200 text-gray-900 shadow-lg">
             <Crown className="h-3 w-3" />
             최고관리자
           </span>
         );
       case 'admin':
         return (
-          <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold bg-gray-600 text-white shadow-lg">
+          <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold bg-gray-600 text-gray-900 shadow-lg">
             <Shield className="h-3 w-3" />
             관리자
           </span>
         );
       default:
         return (
-          <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold bg-gray-400 text-white shadow-lg">
+          <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold bg-gray-400 text-gray-900 shadow-lg">
             <UserIcon className="h-3 w-3" />
             사용자
           </span>
@@ -350,7 +350,7 @@ export default function UserManagement() {
               <Button 
                 onClick={() => setIsAddDialogOpen(true)} 
                 disabled={isLoading}
-                className="bg-gray-200 hover:bg-gray-900 text-white shadow-lg"
+                className="bg-gray-200 hover:bg-gray-900 text-gray-900 shadow-lg"
               >
                 <UserPlus className="h-4 w-4 mr-2" />
                 사용자 추가

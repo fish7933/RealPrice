@@ -418,7 +418,7 @@ export default function CostResultTable({
                               {generateCombinationCode(breakdown, originalIndex)}
                             </span>
                             {isLowest && (
-                              <span className="flex items-center gap-1 text-[10px] bg-gray-600 text-white px-2 py-1 rounded-full whitespace-nowrap font-bold shadow-sm animate-sparkle">
+                              <span className="flex items-center gap-1 text-[10px] bg-gray-600 text-gray-900 px-2 py-1 rounded-full whitespace-nowrap font-bold shadow-sm animate-sparkle">
                                 <Sparkles className="h-3 w-3 animate-pulse" />
                                 BEST
                               </span>
@@ -458,7 +458,7 @@ export default function CostResultTable({
                         <TableCell 
                           className={`text-right cursor-pointer hover:bg-gray-200 transition-colors whitespace-nowrap p-2 ${
                             excludedCosts.seaFreight || isCellExcluded(originalIndex, 'seaFreight') 
-                              ? 'text-gray-400 line-through bg-gray-100' 
+                              ? 'text-gray-700 line-through bg-gray-100' 
                               : ''
                           }`}
                           onClick={() => onToggleCellExclusion(originalIndex, 'seaFreight')}
@@ -487,7 +487,7 @@ export default function CostResultTable({
                         <TableCell 
                           className={`text-right cursor-pointer hover:bg-gray-200 transition-colors whitespace-nowrap p-2 ${
                             excludedCosts.localCharge || isCellExcluded(originalIndex, 'localCharge')
-                              ? 'text-gray-400 line-through bg-gray-100' 
+                              ? 'text-gray-700 line-through bg-gray-100' 
                               : ''
                           }`}
                           onClick={() => onToggleCellExclusion(originalIndex, 'localCharge')}
@@ -516,7 +516,7 @@ export default function CostResultTable({
                         <TableCell 
                           className={`text-right cursor-pointer hover:bg-gray-200 transition-colors whitespace-nowrap p-2 ${
                             excludedCosts.dthc || isCellExcluded(originalIndex, 'dthc')
-                              ? 'text-gray-400 line-through bg-gray-100' 
+                              ? 'text-gray-700 line-through bg-gray-100' 
                               : ''
                           }`}
                           onClick={() => onToggleCellExclusion(originalIndex, 'dthc')}
@@ -534,10 +534,10 @@ export default function CostResultTable({
                         <TableCell 
                           className={`text-right whitespace-nowrap p-2 ${
                             breakdown.isCombinedFreight 
-                              ? 'text-gray-400' 
+                              ? 'text-gray-700' 
                               : `cursor-pointer hover:bg-gray-200 transition-colors ${
                                   excludedCosts.portBorder || isCellExcluded(originalIndex, 'portBorder')
-                                    ? 'text-gray-400 line-through bg-gray-100' 
+                                    ? 'text-gray-700 line-through bg-gray-100' 
                                     : ''
                                 }`
                           }`}
@@ -545,7 +545,7 @@ export default function CostResultTable({
                           title={!breakdown.isCombinedFreight ? "클릭하여 이 조합만 제외/포함" : ""}
                         >
                           {breakdown.isCombinedFreight ? (
-                            <span className="text-gray-400">-</span>
+                            <span className="text-gray-700">-</span>
                           ) : breakdown.portBorder === 0 ? (
                             <span className="text-amber-600 text-xs">없음</span>
                           ) : (
@@ -562,10 +562,10 @@ export default function CostResultTable({
                         <TableCell 
                           className={`text-right whitespace-nowrap p-2 ${
                             breakdown.isCombinedFreight 
-                              ? 'text-gray-400' 
+                              ? 'text-gray-700' 
                               : `cursor-pointer hover:bg-gray-200 transition-colors ${
                                   excludedCosts.borderDestination || isCellExcluded(originalIndex, 'borderDestination')
-                                    ? 'text-gray-400 line-through bg-gray-100' 
+                                    ? 'text-gray-700 line-through bg-gray-100' 
                                     : ''
                                 }`
                           }`}
@@ -573,7 +573,7 @@ export default function CostResultTable({
                           title={!breakdown.isCombinedFreight ? "클릭하여 이 조합만 제외/포함" : ""}
                         >
                           {breakdown.isCombinedFreight ? (
-                            <span className="text-gray-400">-</span>
+                            <span className="text-gray-700">-</span>
                           ) : breakdown.borderDestination === 0 ? (
                             <span className="text-amber-600 text-xs">없음</span>
                           ) : (
@@ -590,10 +590,10 @@ export default function CostResultTable({
                         <TableCell 
                           className={`text-right whitespace-nowrap p-2 ${
                             !breakdown.isCombinedFreight 
-                              ? 'text-gray-400' 
+                              ? 'text-gray-700' 
                               : `cursor-pointer hover:bg-gray-200 transition-colors ${
                                   excludedCosts.combinedFreight || isCellExcluded(originalIndex, 'combinedFreight')
-                                    ? 'text-gray-400 line-through bg-gray-100' 
+                                    ? 'text-gray-700 line-through bg-gray-100' 
                                     : ''
                                 }`
                           }`}
@@ -615,13 +615,13 @@ export default function CostResultTable({
                               </div>
                             )
                           ) : (
-                            <span className="text-gray-400">-</span>
+                            <span className="text-gray-700">-</span>
                           )}
                         </TableCell>
                         <TableCell 
                           className={`text-right cursor-pointer hover:bg-gray-200 transition-colors whitespace-nowrap p-2 ${
                             excludedCosts.weightSurcharge || isCellExcluded(originalIndex, 'weightSurcharge')
-                              ? 'text-gray-400 line-through bg-gray-100' 
+                              ? 'text-gray-700 line-through bg-gray-100' 
                               : ''
                           }`}
                           onClick={() => onToggleCellExclusion(originalIndex, 'weightSurcharge')}
@@ -639,7 +639,7 @@ export default function CostResultTable({
                         <TableCell 
                           className={`text-right cursor-pointer hover:bg-gray-200 transition-colors whitespace-nowrap p-2 ${
                             excludedCosts.dp || isCellExcluded(originalIndex, 'dp')
-                              ? 'text-gray-400 line-through bg-gray-100' 
+                              ? 'text-gray-700 line-through bg-gray-100' 
                               : ''
                           }`}
                           onClick={() => onToggleCellExclusion(originalIndex, 'dp')}
@@ -657,7 +657,7 @@ export default function CostResultTable({
                         <TableCell 
                           className={`text-right cursor-pointer hover:bg-gray-200 transition-colors whitespace-nowrap p-2 ${
                             excludedCosts.domesticTransport || isCellExcluded(originalIndex, 'domesticTransport')
-                              ? 'text-gray-400 line-through bg-gray-100' 
+                              ? 'text-gray-700 line-through bg-gray-100' 
                               : ''
                           }`}
                           onClick={() => onToggleCellExclusion(originalIndex, 'domesticTransport')}
@@ -670,7 +670,7 @@ export default function CostResultTable({
                             key={idx}
                             className={`text-right cursor-pointer hover:bg-gray-200 transition-colors whitespace-nowrap p-2 ${
                               excludedCosts[`other_${idx}`] || isCellExcluded(originalIndex, `other_${idx}`)
-                                ? 'text-gray-400 line-through bg-gray-100' 
+                                ? 'text-gray-700 line-through bg-gray-100' 
                                 : ''
                             }`}
                             onClick={() => onToggleCellExclusion(originalIndex, `other_${idx}`)}
@@ -696,7 +696,7 @@ export default function CostResultTable({
                               <Button
                                 size="sm"
                                 onClick={() => onCreateQuotation(breakdown)}
-                                className="h-8 w-8 p-0 bg-gray-600 hover:bg-gray-200 text-white border border-amber-500 shadow-sm hover:shadow-md transition-all duration-200"
+                                className="h-8 w-8 p-0 bg-gray-600 hover:bg-gray-200 text-gray-900 border border-amber-500 shadow-sm hover:shadow-md transition-all duration-200"
                                 title="견적서 생성"
                               >
                                 <FileSpreadsheet className="h-4 w-4" />
@@ -826,7 +826,7 @@ export default function CostResultTable({
               {renderResultTable(result, false)}
             </>
           ) : (
-            <div className="text-center py-12 text-gray-500">
+            <div className="text-center py-12 text-gray-800">
               <Calculator className="h-12 w-12 mx-auto mb-3 opacity-50" />
               <p>계산하기 버튼을 눌러 운임을 조회하세요</p>
             </div>
@@ -845,7 +845,7 @@ export default function CostResultTable({
               {renderResultTable(allFreightsResult, true)}
             </>
           ) : (
-            <div className="text-center py-12 text-gray-500">
+            <div className="text-center py-12 text-gray-800">
               <Sparkles className="h-12 w-12 mx-auto mb-3 opacity-50" />
               <p>먼저 필터링된 결과를 조회한 후 이 탭을 사용하세요</p>
             </div>

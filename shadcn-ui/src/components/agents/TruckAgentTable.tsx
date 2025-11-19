@@ -84,7 +84,7 @@ export default function TruckAgentTable() {
   return (
     <div className="space-y-4">
       {/* Compact Header */}
-      <div className="relative overflow-hidden rounded-lg bg-gray-100 p-3 text-white shadow-lg">
+      <div className="relative overflow-hidden rounded-lg bg-gray-100 p-3 text-gray-900 shadow-lg">
         <div className="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-white/10 blur-2xl"></div>
         <div className="absolute bottom-0 left-0 -mb-4 -ml-4 h-24 w-24 rounded-full bg-white/10 blur-2xl"></div>
         <div className="relative flex justify-between items-center">
@@ -101,7 +101,7 @@ export default function TruckAgentTable() {
             <Button 
               onClick={() => setIsAddDialogOpen(true)}
               size="sm"
-              className="bg-gray-200/80 backdrop-blur-sm hover:bg-gray-300/80 text-white border border-gray-400 h-7 text-xs"
+              className="bg-gray-200/80 backdrop-blur-sm hover:bg-gray-300/80 text-gray-900 border border-gray-400 h-7 text-xs"
             >
               <Plus className="h-3 w-3 mr-1" />
               추가
@@ -140,7 +140,7 @@ export default function TruckAgentTable() {
                     </span>
                   </TableCell>
                   <TableCell className="py-3 text-sm text-gray-600 whitespace-nowrap">{agent.description || '-'}</TableCell>
-                  <TableCell className="py-3 text-sm text-gray-500 whitespace-nowrap">
+                  <TableCell className="py-3 text-sm text-gray-800 whitespace-nowrap">
                     {new Date(agent.createdAt).toLocaleDateString('ko-KR')}
                   </TableCell>
                   {isAdmin && (
@@ -170,7 +170,7 @@ export default function TruckAgentTable() {
             ) : (
               <TableRow>
                 <TableCell colSpan={isAdmin ? 5 : 4} className="text-center py-12">
-                  <div className="flex flex-col items-center gap-2 text-gray-400">
+                  <div className="flex flex-col items-center gap-2 text-gray-700">
                     <Truck className="h-12 w-12 opacity-20" />
                     <p className="text-sm">등록된 트럭 대리점이 없습니다</p>
                   </div>
@@ -212,7 +212,7 @@ export default function TruckAgentTable() {
                 maxLength={3}
                 className="border-gray-300 focus:border-gray-500 focus:ring-gray-500"
               />
-              <p className="text-xs text-gray-500">운임 조회 시 표시될 고유 코드입니다 (2-3자, 자동으로 대문자 변환)</p>
+              <p className="text-xs text-gray-800">운임 조회 시 표시될 고유 코드입니다 (2-3자, 자동으로 대문자 변환)</p>
             </div>
             <div className="space-y-2">
               <Label className="text-sm font-semibold text-gray-700">설명</Label>
@@ -235,7 +235,7 @@ export default function TruckAgentTable() {
             <Button 
               onClick={handleAdd} 
               disabled={!formData.name.trim() || !formData.code.trim()}
-              className="bg-gray-100 hover:bg-gray-200 text-white shadow-lg"
+              className="bg-gray-100 hover:bg-gray-200 text-gray-900 shadow-lg"
             >
               <Plus className="h-4 w-4 mr-2" />
               추가
@@ -273,7 +273,7 @@ export default function TruckAgentTable() {
                 maxLength={3}
                 className="border-gray-300 focus:border-gray-500 focus:ring-gray-500"
               />
-              <p className="text-xs text-gray-500">운임 조회 시 표시될 고유 코드입니다 (2-3자, 자동으로 대문자 변환)</p>
+              <p className="text-xs text-gray-800">운임 조회 시 표시될 고유 코드입니다 (2-3자, 자동으로 대문자 변환)</p>
             </div>
             <div className="space-y-2">
               <Label className="text-sm font-semibold text-gray-700">설명</Label>
@@ -295,7 +295,7 @@ export default function TruckAgentTable() {
             <Button 
               onClick={handleUpdate} 
               disabled={!formData.name.trim() || !formData.code.trim()}
-              className="bg-gray-100 hover:bg-gray-200 text-white shadow-lg"
+              className="bg-gray-100 hover:bg-gray-200 text-gray-900 shadow-lg"
             >
               <Pencil className="h-4 w-4 mr-2" />
               수정

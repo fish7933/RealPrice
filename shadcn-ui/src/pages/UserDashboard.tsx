@@ -116,7 +116,7 @@ export default function UserDashboard() {
           </CardHeader>
           <CardContent>
             {recentCalculations.length === 0 ? (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-800">
                 <Package className="h-12 w-12 mx-auto mb-3 opacity-50" />
                 <p>아직 계산 이력이 없습니다.</p>
                 <p className="text-sm mt-1">원가 계산기를 사용해보세요.</p>
@@ -149,7 +149,7 @@ export default function UserDashboard() {
                                 </span>
                               </div>
                             </div>
-                            <div className="text-right text-sm text-gray-500">
+                            <div className="text-right text-sm text-gray-800">
                               {format(new Date(calc.createdAt), 'yyyy.MM.dd HH:mm', { locale: ko })}
                             </div>
                           </div>

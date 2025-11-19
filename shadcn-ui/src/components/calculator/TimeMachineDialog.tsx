@@ -265,11 +265,11 @@ export default function TimeMachineDialog({ open, onOpenChange, onSelectDate, cu
                             flex items-center justify-center
                             transition-all duration-200
                             ${isSelected
-                              ? 'bg-gray-100 text-white shadow-lg scale-105'
+                              ? 'bg-gray-100 text-gray-900 shadow-lg scale-105'
                               : isTodayDate
                               ? 'bg-gray-600 text-orange-900 border-2 border-orange-400 shadow-md'
                               : hasChanges
-                              ? 'bg-gray-100 text-white hover:from-pink-500 hover:via-purple-500 hover:to-blue-500 shadow-md hover:scale-110'
+                              ? 'bg-gray-100 text-gray-900 hover:from-pink-500 hover:via-purple-500 hover:to-blue-500 shadow-md hover:scale-110'
                               : isFutureDate
                               ? 'text-purple-600 bg-gray-600 hover:bg-gray-200 hover:scale-105 border border-purple-200'
                               : 'text-gray-700 bg-blue-50 hover:bg-blue-100 hover:scale-105 border border-blue-200'
@@ -301,10 +301,10 @@ export default function TimeMachineDialog({ open, onOpenChange, onSelectDate, cu
             </div>
 
             {selectedDate && (
-              <div className="relative overflow-hidden rounded-2xl bg-gray-100 p-4 shadow-xl text-white border-2 border-pink-300">
+              <div className="relative overflow-hidden rounded-2xl bg-gray-100 p-4 shadow-xl text-gray-900 border-2 border-pink-300">
                 <div className="absolute inset-0 bg-white/10 backdrop-blur-sm"></div>
                 <div className="absolute top-2 right-2">
-                  <Sparkles className="h-5 w-5 text-white/80 animate-spin" style={{ animationDuration: '3s' }} />
+                  <Sparkles className="h-5 w-5 text-gray-900/80 animate-spin" style={{ animationDuration: '3s' }} />
                 </div>
                 <div className="relative space-y-2">
                   <div className="flex items-center gap-2">
@@ -392,7 +392,7 @@ export default function TimeMachineDialog({ open, onOpenChange, onSelectDate, cu
                     <Clock className="h-8 w-8 text-purple-600" />
                   </div>
                   <p className="text-gray-700 font-bold text-base mb-1">📅 이 날짜에는 운임 변경 기록이 없습니다</p>
-                  <p className="text-xs text-gray-500 font-medium">하지만 이 날짜에 유효한 운임으로 계산할 수 있습니다 ✨</p>
+                  <p className="text-xs text-gray-800 font-medium">하지만 이 날짜에 유효한 운임으로 계산할 수 있습니다 ✨</p>
                 </div>
               )
             ) : (
@@ -401,7 +401,7 @@ export default function TimeMachineDialog({ open, onOpenChange, onSelectDate, cu
                   <CalendarIcon className="h-8 w-8 text-purple-600" />
                 </div>
                 <p className="text-gray-700 font-bold text-base mb-1">👈 왼쪽 달력에서 날짜를 선택하세요</p>
-                <p className="text-xs text-gray-500 font-medium">해당 날짜의 운임 변경 내역을 확인할 수 있습니다 📊</p>
+                <p className="text-xs text-gray-800 font-medium">해당 날짜의 운임 변경 내역을 확인할 수 있습니다 📊</p>
               </div>
             )}
           </div>

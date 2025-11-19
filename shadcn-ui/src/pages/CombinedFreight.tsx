@@ -135,7 +135,7 @@ export default function CombinedFreight() {
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold">통합 운임 관리</h1>
-            <p className="text-muted-foreground mt-2">
+            <p className="text-gray-700 mt-2">
               대리점별 중국항 → 최종목적지 통합 운임을 관리합니다. 통합 운임이 설정되면 철도+트럭 분리 운임 대신 사용됩니다.
             </p>
           </div>
@@ -185,7 +185,7 @@ export default function CombinedFreight() {
                       </SelectContent>
                     </Select>
                   ) : (
-                    <div className="text-sm text-gray-500 p-3 bg-gray-50 rounded border">
+                    <div className="text-sm text-gray-800 p-3 bg-gray-50 rounded border">
                       도착항(POD)을 먼저 등록해주세요. (운송사 탭 → 포트 관리)
                     </div>
                   )}
@@ -254,7 +254,7 @@ export default function CombinedFreight() {
             <TableBody>
               {combinedFreights.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-muted-foreground">
+                  <TableCell colSpan={6} className="text-center text-gray-700">
                     등록된 통합 운임이 없습니다.
                   </TableCell>
                 </TableRow>
@@ -265,7 +265,7 @@ export default function CombinedFreight() {
                     <TableCell>{freight.pod}</TableCell>
                     <TableCell>{getDestinationName(freight.destinationId)}</TableCell>
                     <TableCell className="text-right font-mono">${freight.rate.toFixed(2)}</TableCell>
-                    <TableCell className="text-muted-foreground">{freight.description || '-'}</TableCell>
+                    <TableCell className="text-gray-700">{freight.description || '-'}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
                         <Button variant="ghost" size="icon" onClick={() => handleEdit(freight)}>
@@ -322,7 +322,7 @@ export default function CombinedFreight() {
                     </SelectContent>
                   </Select>
                 ) : (
-                  <div className="text-sm text-gray-500 p-3 bg-gray-50 rounded border">
+                  <div className="text-sm text-gray-800 p-3 bg-gray-50 rounded border">
                     도착항(POD)을 먼저 등록해주세요. (운송사 탭 → 포트 관리)
                   </div>
                 )}

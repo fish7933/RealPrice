@@ -228,7 +228,7 @@ export default function LoginPage() {
                   >
                     <div className="flex items-center justify-between mb-2">
                       <span className="font-semibold text-gray-900">v{update.version}</span>
-                      <span className="text-xs text-gray-500">{update.date}</span>
+                      <span className="text-xs text-gray-800">{update.date}</span>
                     </div>
                     <ul className="space-y-1">
                       {update.changes.map((change, changeIndex) => (

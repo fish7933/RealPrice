@@ -188,7 +188,7 @@ export default function WeightSurchargeTable() {
                 setValidationWarning(null);
               }}
               size="sm"
-              className="bg-gray-200/80 backdrop-blur-sm hover:bg-gray-300/80 text-white border border-gray-400 h-7 text-xs"
+              className="bg-gray-200/80 backdrop-blur-sm hover:bg-gray-300/80 text-gray-900 border border-gray-400 h-7 text-xs"
             >
               <Plus className="h-3 w-3 mr-1" />
               추가
@@ -251,7 +251,7 @@ export default function WeightSurchargeTable() {
                       <TableCell className="py-2 whitespace-nowrap">
                         <div className="text-xs">
                           <div>{formatValidityDate(rule.validFrom)}</div>
-                          <div className="text-gray-500">~ {formatValidityDate(rule.validTo)}</div>
+                          <div className="text-gray-800">~ {formatValidityDate(rule.validTo)}</div>
                         </div>
                       </TableCell>
                       <TableCell className="py-2 whitespace-nowrap">
@@ -286,7 +286,7 @@ export default function WeightSurchargeTable() {
                 })
               ) : (
                 <TableRow>
-                  <TableCell colSpan={isAdmin ? 6 : 5} className="text-center text-gray-500 py-8 text-xs">
+                  <TableCell colSpan={isAdmin ? 6 : 5} className="text-center text-gray-800 py-8 text-xs">
                     설정된 규칙이 없습니다
                   </TableCell>
                 </TableRow>

@@ -420,7 +420,7 @@ export default function PortBorderTable() {
               <Train className="h-4 w-4 text-gray-900" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+              <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
                 철도운임
                 <Sparkles className="h-3 w-3 text-yellow-300 animate-pulse" />
               </h2>
@@ -431,7 +431,7 @@ export default function PortBorderTable() {
             <Button 
               onClick={handleOpenDialog}
               size="sm"
-              className="bg-gray-200/80 backdrop-blur-sm hover:bg-gray-300/80 text-white border border-gray-400 h-7 text-xs"
+              className="bg-gray-200/80 backdrop-blur-sm hover:bg-gray-300/80 text-gray-900 border border-gray-400 h-7 text-xs"
             >
               <Plus className="h-3 w-3 mr-1" />
               추가
@@ -541,7 +541,7 @@ export default function PortBorderTable() {
                             ${freight.rate}
                           </span>
                         ) : (
-                          <span className="text-gray-400">-</span>
+                          <span className="text-gray-700">-</span>
                         )}
                       </TableCell>
                     );
@@ -582,7 +582,7 @@ export default function PortBorderTable() {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={podPorts.length + (isAdmin ? 5 : 4)} className="text-center text-gray-500 py-6 text-sm">
+                <TableCell colSpan={podPorts.length + (isAdmin ? 5 : 4)} className="text-center text-gray-800 py-6 text-sm">
                   {filters.agent !== FILTER_ALL_VALUE || filters.pol !== FILTER_ALL_VALUE || filters.status !== FILTER_ALL_VALUE ? '검색 결과가 없습니다' : '등록된 철도운임이 없습니다'}
                 </TableCell>
               </TableRow>

@@ -190,7 +190,7 @@ export default function DTHCTable() {
               <FileText className="h-5 w-5 text-gray-900" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-white flex items-center gap-2">
+              <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                 D/O(DTHC) 관리
                 <Sparkles className="h-4 w-4 text-yellow-300 animate-pulse" />
               </h2>
@@ -201,7 +201,7 @@ export default function DTHCTable() {
             <Button 
               onClick={() => setIsAddDialogOpen(true)}
               size="sm"
-              className="bg-gray-200/80 backdrop-blur-sm hover:bg-gray-300/80 text-white border border-gray-400"
+              className="bg-gray-200/80 backdrop-blur-sm hover:bg-gray-300/80 text-gray-900 border border-gray-400"
             >
               <Plus className="h-3 w-3 mr-1" />
               추가
@@ -274,7 +274,7 @@ export default function DTHCTable() {
                         </Badge>
                       </TableCell>
                       <TableCell className="py-3 text-sm whitespace-nowrap">
-                        <span className={!dthc.description ? 'text-gray-400' : ''}>
+                        <span className={!dthc.description ? 'text-gray-700' : ''}>
                           {dthc.description || '-'}
                         </span>
                       </TableCell>
@@ -396,7 +396,7 @@ export default function DTHCTable() {
                   </SelectContent>
                 </Select>
               ) : (
-                <div className="text-sm text-gray-500 p-3 bg-gray-50 rounded border">
+                <div className="text-sm text-gray-800 p-3 bg-gray-50 rounded border">
                   출발항(POL)을 먼저 등록해주세요. (운송사 탭 → 포트 관리)
                 </div>
               )}
@@ -420,7 +420,7 @@ export default function DTHCTable() {
                   </SelectContent>
                 </Select>
               ) : (
-                <div className="text-sm text-gray-500 p-3 bg-gray-50 rounded border">
+                <div className="text-sm text-gray-800 p-3 bg-gray-50 rounded border">
                   도착항(POD)을 먼저 등록해주세요. (운송사 탭 → 포트 관리)
                 </div>
               )}
@@ -444,7 +444,7 @@ export default function DTHCTable() {
                   </SelectContent>
                 </Select>
               ) : (
-                <div className="text-sm text-gray-500 p-3 bg-gray-50 rounded border">
+                <div className="text-sm text-gray-800 p-3 bg-gray-50 rounded border">
                   선사를 먼저 등록해주세요. (운송사 탭 → 선사 관리)
                 </div>
               )}

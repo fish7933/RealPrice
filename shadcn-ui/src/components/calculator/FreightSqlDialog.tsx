@@ -296,7 +296,7 @@ export default function FreightSqlDialog({
           </pre>
         </ScrollArea>
 
-        <div className="flex justify-between items-center text-sm text-muted-foreground">
+        <div className="flex justify-between items-center text-sm text-gray-700">
           <div>
             <strong>대리점:</strong> {breakdown.agent}
           </div>

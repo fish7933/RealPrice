@@ -268,7 +268,7 @@ export default function AgentSeaFreightTable() {
   return (
     <div className="space-y-4">
       {/* Header - Compact */}
-      <div className="relative overflow-hidden rounded-lg bg-gray-100 p-3 text-white shadow-lg">
+      <div className="relative overflow-hidden rounded-lg bg-gray-100 p-3 text-gray-900 shadow-lg">
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="relative flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -277,14 +277,14 @@ export default function AgentSeaFreightTable() {
             </div>
             <div>
               <h2 className="text-lg font-bold">대리점별 해상운임</h2>
-              <p className="text-xs text-white/90">철도 대리점 특별 해상운임</p>
+              <p className="text-xs text-gray-900/90">철도 대리점 특별 해상운임</p>
             </div>
           </div>
           {isAdmin && (
             <Button 
               onClick={() => setIsAddDialogOpen(true)}
               size="sm"
-              className="bg-gray-200/80 backdrop-blur-sm hover:bg-gray-300/80 text-white border border-gray-400 h-7 text-xs"
+              className="bg-gray-200/80 backdrop-blur-sm hover:bg-gray-300/80 text-gray-900 border border-gray-400 h-7 text-xs"
             >
               <Plus className="h-3 w-3 mr-1" />
               추가
@@ -419,7 +419,7 @@ export default function AgentSeaFreightTable() {
                 <TableCell colSpan={isAdmin ? 10 : 9} className="text-center py-6">
                   <div className="flex flex-col items-center gap-2">
                     <Ship className="h-10 w-10 text-gray-600" />
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-800">
                       {agentSeaFreights.length === 0 ? '설정된 대리점별 해상운임이 없습니다' : '검색 결과가 없습니다'}
                     </p>
                   </div>
@@ -446,7 +446,7 @@ export default function AgentSeaFreightTable() {
                           {freight.llocal >= 0 ? `$${freight.llocal}` : `-$${Math.abs(freight.llocal)}`}
                         </span>
                       ) : (
-                        <span className="text-gray-400">-</span>
+                        <span className="text-gray-700">-</span>
                       )}
                     </TableCell>
                     <TableCell className="py-3 text-sm whitespace-nowrap">{freight.carrier || '-'}</TableCell>
@@ -605,7 +605,7 @@ export default function AgentSeaFreightTable() {
                   </SelectContent>
                 </Select>
               ) : (
-                <div className="text-sm text-gray-500 p-3 bg-gray-50 rounded border">
+                <div className="text-sm text-gray-800 p-3 bg-gray-50 rounded border">
                   선적포트(POL)를 먼저 등록해주세요. (선사 & 중국 파트너사 탭 → 포트 관리)
                 </div>
               )}
@@ -629,7 +629,7 @@ export default function AgentSeaFreightTable() {
                   </SelectContent>
                 </Select>
               ) : (
-                <div className="text-sm text-gray-500 p-3 bg-gray-50 rounded border">
+                <div className="text-sm text-gray-800 p-3 bg-gray-50 rounded border">
                   양하포트(POD)를 먼저 등록해주세요. (선사 & 중국 파트너사 탭 → 포트 관리)
                 </div>
               )}
@@ -659,13 +659,13 @@ export default function AgentSeaFreightTable() {
                   </SelectContent>
                 </Select>
               ) : (
-                <div className="text-sm text-gray-500 p-3 bg-gray-50 rounded border">
+                <div className="text-sm text-gray-800 p-3 bg-gray-50 rounded border">
                   선사를 먼저 등록해주세요. (선사 & 중국 파트너사 탭 → 선사 관리)
                 </div>
               )}
             </div>
             <div className="space-y-2">
-              <Label>L.LOCAL (USD) <span className="text-xs text-gray-500">(선택)</span></Label>
+              <Label>L.LOCAL (USD) <span className="text-xs text-gray-800">(선택)</span></Label>
               <Input
                 type="number"
                 placeholder="예: 50 또는 -50"

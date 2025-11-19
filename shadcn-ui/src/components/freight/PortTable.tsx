@@ -95,7 +95,7 @@ export default function PortTable() {
   return (
     <div className="space-y-4">
       {/* Header Section - Compact Design */}
-      <div className="relative overflow-hidden rounded-lg bg-gray-100 p-3 text-white shadow-lg">
+      <div className="relative overflow-hidden rounded-lg bg-gray-100 p-3 text-gray-900 shadow-lg">
         <div className="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-white/10 blur-2xl"></div>
         <div className="absolute bottom-0 left-0 -mb-4 -ml-4 h-24 w-24 rounded-full bg-white/10 blur-2xl"></div>
         <div className="relative flex justify-between items-center">
@@ -111,7 +111,7 @@ export default function PortTable() {
           <Button 
             onClick={handleAdd}
             size="sm"
-            className="bg-gray-200/80 backdrop-blur-sm hover:bg-gray-300/80 text-white border border-gray-400 h-7 text-xs"
+            className="bg-gray-200/80 backdrop-blur-sm hover:bg-gray-300/80 text-gray-900 border border-gray-400 h-7 text-xs"
           >
             <Plus className="h-3 w-3 mr-1" />
             추가
@@ -141,7 +141,7 @@ export default function PortTable() {
               {polPorts.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={4} className="text-center py-12">
-                    <div className="flex flex-col items-center gap-2 text-gray-400">
+                    <div className="flex flex-col items-center gap-2 text-gray-700">
                       <Ship className="h-12 w-12 opacity-20" />
                       <p className="text-sm">등록된 선적포트가 없습니다</p>
                     </div>
@@ -210,7 +210,7 @@ export default function PortTable() {
               {podPorts.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={4} className="text-center py-12">
-                    <div className="flex flex-col items-center gap-2 text-gray-400">
+                    <div className="flex flex-col items-center gap-2 text-gray-700">
                       <Globe className="h-12 w-12 opacity-20" />
                       <p className="text-sm">등록된 양하포트가 없습니다</p>
                     </div>
@@ -319,7 +319,7 @@ export default function PortTable() {
             </Button>
             <Button 
               onClick={handleSubmit}
-              className="bg-gray-600 hover:bg-gray-200 text-white shadow-lg"
+              className="bg-gray-600 hover:bg-gray-200 text-gray-900 shadow-lg"
             >
               {editingPort ? <><Pencil className="h-4 w-4 mr-2" />수정</> : <><Plus className="h-4 w-4 mr-2" />추가</>}
             </Button>

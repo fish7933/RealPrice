@@ -80,7 +80,7 @@ export default function DestinationTable() {
   return (
     <div className="space-y-4">
       {/* Header Section - Compact Design */}
-      <div className="relative overflow-hidden rounded-lg bg-gray-100 p-3 text-white shadow-lg">
+      <div className="relative overflow-hidden rounded-lg bg-gray-100 p-3 text-gray-900 shadow-lg">
         <div className="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-white/10 blur-2xl"></div>
         <div className="absolute bottom-0 left-0 -mb-4 -ml-4 h-24 w-24 rounded-full bg-white/10 blur-2xl"></div>
         <div className="relative flex justify-between items-center">
@@ -97,7 +97,7 @@ export default function DestinationTable() {
             <Button 
               onClick={() => setIsAddDialogOpen(true)}
               size="sm"
-              className="bg-gray-200/80 backdrop-blur-sm hover:bg-gray-300/80 text-white border border-gray-400 h-7 text-xs"
+              className="bg-gray-200/80 backdrop-blur-sm hover:bg-gray-300/80 text-gray-900 border border-gray-400 h-7 text-xs"
             >
               <Plus className="h-3 w-3 mr-1" />
               추가
@@ -130,7 +130,7 @@ export default function DestinationTable() {
                     </div>
                   </TableCell>
                   <TableCell className="py-3 text-sm text-gray-600 whitespace-nowrap">{destination.description || '-'}</TableCell>
-                  <TableCell className="py-3 text-sm text-gray-500 whitespace-nowrap">
+                  <TableCell className="py-3 text-sm text-gray-800 whitespace-nowrap">
                     {new Date(destination.createdAt).toLocaleDateString('ko-KR')}
                   </TableCell>
                   {isAdmin && (
@@ -160,7 +160,7 @@ export default function DestinationTable() {
             ) : (
               <TableRow>
                 <TableCell colSpan={isAdmin ? 4 : 3} className="text-center py-12">
-                  <div className="flex flex-col items-center gap-2 text-gray-400">
+                  <div className="flex flex-col items-center gap-2 text-gray-700">
                     <MapPin className="h-12 w-12 opacity-20" />
                     <p className="text-sm">등록된 목적지가 없습니다</p>
                   </div>
@@ -192,7 +192,7 @@ export default function DestinationTable() {
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 className="border-gray-300 focus:border-orange-500 focus:ring-orange-500"
               />
-              <p className="text-xs text-gray-500">대문자로 자동 변환됩니다</p>
+              <p className="text-xs text-gray-800">대문자로 자동 변환됩니다</p>
             </div>
             <div className="space-y-2">
               <Label className="text-sm font-semibold text-gray-700">설명 (선택)</Label>
@@ -217,7 +217,7 @@ export default function DestinationTable() {
             </Button>
             <Button 
               onClick={handleAdd}
-              className="bg-gray-600 hover:bg-gray-200 text-white shadow-lg"
+              className="bg-gray-600 hover:bg-gray-200 text-gray-900 shadow-lg"
             >
               <Plus className="h-4 w-4 mr-2" />
               추가
@@ -246,7 +246,7 @@ export default function DestinationTable() {
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 className="border-gray-300 focus:border-red-500 focus:ring-red-500"
               />
-              <p className="text-xs text-gray-500">대문자로 자동 변환됩니다</p>
+              <p className="text-xs text-gray-800">대문자로 자동 변환됩니다</p>
             </div>
             <div className="space-y-2">
               <Label className="text-sm font-semibold text-gray-700">설명 (선택)</Label>
@@ -271,7 +271,7 @@ export default function DestinationTable() {
             </Button>
             <Button 
               onClick={handleUpdate}
-              className="bg-gray-600 hover:bg-gray-200 text-white shadow-lg"
+              className="bg-gray-600 hover:bg-gray-200 text-gray-900 shadow-lg"
             >
               <Pencil className="h-4 w-4 mr-2" />
               수정

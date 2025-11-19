@@ -323,7 +323,7 @@ export default function AuditLogTable({ logs, title = '운임 변경 기록', de
           <CardDescription className="text-xs">{description}</CardDescription>
         </CardHeader>
         <CardContent className="p-4">
-          <div className="text-center text-gray-500 py-6 text-sm">
+          <div className="text-center text-gray-800 py-6 text-sm">
             변경 기록이 없습니다
           </div>
         </CardContent>
@@ -444,7 +444,7 @@ export default function AuditLogTable({ logs, title = '운임 변경 기록', de
                       <TableCell className="py-2">{getActionBadge(groupedLog.action)}</TableCell>
                       <TableCell className="py-3 text-sm whitespace-nowrap">
                         <div className="font-medium">{groupedLog.changedByName}</div>
-                        <div className="text-gray-500">@{groupedLog.changedByUsername}</div>
+                        <div className="text-gray-800">@{groupedLog.changedByUsername}</div>
                       </TableCell>
                       <TableCell className="py-2 text-right">
                         <div className="flex justify-end gap-1">
@@ -548,7 +548,7 @@ export default function AuditLogTable({ logs, title = '운임 변경 기록', de
                   <div className="text-sm text-gray-600 mb-1">변경자</div>
                   <div>
                     <div className="font-medium">{selectedGroupedLog.changedByName}</div>
-                    <div className="text-sm text-gray-500">@{selectedGroupedLog.changedByUsername}</div>
+                    <div className="text-sm text-gray-800">@{selectedGroupedLog.changedByUsername}</div>
                   </div>
                 </div>
               </div>
@@ -576,7 +576,7 @@ export default function AuditLogTable({ logs, title = '운임 변경 기록', de
                                   <span className="text-red-600 line-through">
                                     {formatValue(validFromChange.oldValue)}
                                   </span>
-                                  <span className="text-gray-500">→</span>
+                                  <span className="text-gray-800">→</span>
                                   <span className="text-green-600 font-medium">
                                     {formatValue(validFromChange.newValue)}
                                   </span>
@@ -596,7 +596,7 @@ export default function AuditLogTable({ logs, title = '운임 변경 기록', de
                                   <span className="text-red-600 line-through">
                                     {formatValue(validToChange.oldValue)}
                                   </span>
-                                  <span className="text-gray-500">→</span>
+                                  <span className="text-gray-800">→</span>
                                   <span className="text-green-600 font-medium">
                                     {formatValue(validToChange.newValue)}
                                   </span>
@@ -649,7 +649,7 @@ export default function AuditLogTable({ logs, title = '운임 변경 기록', de
                                     <span className="text-red-600 line-through">
                                       {formatFieldValue(change.field, change.oldValue)}
                                     </span>
-                                    <span className="text-gray-500">→</span>
+                                    <span className="text-gray-800">→</span>
                                     <span className="text-green-600 font-medium">
                                       {formatFieldValue(change.field, change.newValue)}
                                     </span>

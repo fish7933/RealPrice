@@ -184,13 +184,13 @@ export default function OtherCostsTable() {
                       isAdmin ? (
                         <span
                           onClick={() => handleUpdateField(cost.id, 'description', '설명')}
-                          className="cursor-pointer hover:bg-gray-100 px-2 py-1 rounded text-gray-400"
+                          className="cursor-pointer hover:bg-gray-100 px-2 py-1 rounded text-gray-700"
                           title="클릭하여 추가"
                         >
                           -
                         </span>
                       ) : (
-                        <span className="text-gray-400">-</span>
+                        <span className="text-gray-700">-</span>
                       )
                     )}
                   </TableCell>
@@ -209,7 +209,7 @@ export default function OtherCostsTable() {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={isAdmin ? 4 : 3} className="text-center text-gray-500">
+                <TableCell colSpan={isAdmin ? 4 : 3} className="text-center text-gray-800">
                   설정된 DP 비용이 없습니다
                 </TableCell>
               </TableRow>
@@ -259,13 +259,13 @@ export default function OtherCostsTable() {
                       isAdmin ? (
                         <span
                           onClick={() => handleUpdateField(cost.id, 'description', '설명')}
-                          className="cursor-pointer hover:bg-gray-100 px-2 py-1 rounded text-gray-400"
+                          className="cursor-pointer hover:bg-gray-100 px-2 py-1 rounded text-gray-700"
                           title="클릭하여 추가"
                         >
                           -
                         </span>
                       ) : (
-                        <span className="text-gray-400">-</span>
+                        <span className="text-gray-700">-</span>
                       )
                     )}
                   </TableCell>
@@ -288,8 +288,8 @@ export default function OtherCostsTable() {
       ))}
 
       {Object.keys(otherCostsByCategory).length === 0 && (
-        <div className="border rounded-lg bg-white p-8 text-center text-gray-500">
-          <DollarSign className="h-12 w-12 mx-auto mb-3 text-gray-400" />
+        <div className="border rounded-lg bg-white p-8 text-center text-gray-800">
+          <DollarSign className="h-12 w-12 mx-auto mb-3 text-gray-700" />
           <p>추가된 기타 비용 항목이 없습니다</p>
           <p className="text-sm mt-1">통관비용, 보험료, 검사비 등의 항목을 추가해보세요</p>
           {isAdmin && (
@@ -337,7 +337,7 @@ export default function OtherCostsTable() {
                   />
                 )}
               </div>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-gray-800">
                 {isDP ? 'DP는 항구별로 설정됩니다' : '새로운 카테고리 이름을 입력하세요'}
               </p>
             </div>
@@ -358,7 +358,7 @@ export default function OtherCostsTable() {
                     </SelectContent>
                   </Select>
                 ) : (
-                  <div className="text-sm text-gray-500 p-3 bg-gray-50 rounded border">
+                  <div className="text-sm text-gray-800 p-3 bg-gray-50 rounded border">
                     출발항(POL)을 먼저 등록해주세요. (운송사 탭 → 포트 관리)
                   </div>
                 )}

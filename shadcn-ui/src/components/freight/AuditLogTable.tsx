@@ -43,6 +43,7 @@ interface AuditLogTableProps {
 interface GroupedLog {
   version: number;
   agent: string;
+  pol?: string;  // ✅ POL 필드 추가
   action: FreightAuditLog['action'];
   timestamp: string;
   changedByName: string;
@@ -73,6 +74,9 @@ export default function AuditLogTable({ logs, title = '운임 변경 기록', de
   // Check if any log has agent field to determine if we should show agent column
   const hasAgentField = logs.length > 0 && logs.some(log => log.entitySnapshot.agent);
 
+  // ✅ Check if any log has POL field (for portBorderFreight)
+  const hasPolField = logs.length > 0 && logs.some(log => log.entitySnapshot.pol);
+
   // Helper function to get destination name by ID
   const getDestinationName = (destinationId: string | undefined): string => {
     if (!destinationId) return '';
@@ -80,12 +84,13 @@ export default function AuditLogTable({ logs, title = '운임 변경 기록', de
     return destination ? destination.name : destinationId;
   };
 
-  // Group logs by version and agent for rail/truck freight
+  // Group logs by version, agent, and POL for rail/truck freight
   const groupedLogs = useMemo(() => {
     if (!needsGrouping) {
       return logs.map(log => ({
         version: log.version || 0,
         agent: log.entitySnapshot.agent || '',
+        pol: log.entitySnapshot.pol || undefined,
         action: log.action,
         timestamp: log.timestamp,
         changedByName: log.changedByName,
@@ -99,13 +104,15 @@ export default function AuditLogTable({ logs, title = '운임 변경 기록', de
 
     logs.forEach(log => {
       const agent = log.entitySnapshot.agent || '';
+      const pol = log.entitySnapshot.pol || '';  // ✅ POL 추출
       const version = log.version || 0;
-      const key = `${version}-${agent}`;
+      const key = `${version}-${agent}-${pol}`;  // ✅ POL을 그룹화 키에 포함
 
       if (!grouped.has(key)) {
         grouped.set(key, {
           version,
           agent,
+          pol: pol || undefined,  // ✅ POL 저장
           action: log.action,
           timestamp: log.timestamp,
           changedByName: log.changedByName,
@@ -321,6 +328,7 @@ export default function AuditLogTable({ logs, title = '운임 변경 기록', de
                   <TableHead className="w-[80px]">버전</TableHead>
                   <TableHead className="w-[180px]">버전일시</TableHead>
                   {hasAgentField && <TableHead className="w-[120px]">대리점</TableHead>}
+                  {hasPolField && <TableHead className="w-[120px]">선적포트</TableHead>}
                   <TableHead className="w-[100px]">작업</TableHead>
                   <TableHead className="w-[120px]">변경자</TableHead>
                   <TableHead className="text-right w-[100px]">상세</TableHead>
@@ -328,7 +336,7 @@ export default function AuditLogTable({ logs, title = '운임 변경 기록', de
               </TableHeader>
               <TableBody>
                 {paginatedLogs.map((groupedLog, index) => (
-                  <TableRow key={`${groupedLog.version}-${groupedLog.agent}-${index}`}>
+                  <TableRow key={`${groupedLog.version}-${groupedLog.agent}-${groupedLog.pol}-${index}`}>
                     <TableCell>
                       {groupedLog.version ? (
                         <Badge variant="outline" className="font-mono">
@@ -343,6 +351,9 @@ export default function AuditLogTable({ logs, title = '운임 변경 기록', de
                     </TableCell>
                     {hasAgentField && (
                       <TableCell className="font-medium">{groupedLog.agent || '-'}</TableCell>
+                    )}
+                    {hasPolField && (
+                      <TableCell className="font-medium text-blue-700">{groupedLog.pol || '-'}</TableCell>
                     )}
                     <TableCell>{getActionBadge(groupedLog.action)}</TableCell>
                     <TableCell>
@@ -459,6 +470,12 @@ export default function AuditLogTable({ logs, title = '운임 변경 기록', de
                   <div>
                     <div className="text-sm text-gray-600 mb-1">대리점</div>
                     <div className="font-medium text-base">{selectedGroupedLog.agent || '-'}</div>
+                  </div>
+                )}
+                {hasPolField && selectedGroupedLog.pol && (
+                  <div>
+                    <div className="text-sm text-gray-600 mb-1">선적포트 (POL)</div>
+                    <div className="font-medium text-base text-blue-700">{selectedGroupedLog.pol}</div>
                   </div>
                 )}
                 <div>

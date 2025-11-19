@@ -57,7 +57,7 @@ import {
 } from './freight/freightLoaders';
 import { deleteCalculationHistory as deleteCalculationHistoryOp, addCalculationHistory as addCalculationHistoryOp, createAuditLog } from './freight/freightOperations';
 import { useAuth } from './AuthContext';
-import { supabase as supabaseClient, TABLES } from '@/lib/supabase';
+import { supabase as supabaseClient, TABLES, generateFreightCode } from '@/lib/supabase';
 
 const supabase = createClient(
   'https://lcubxwvkoqkhsvzstbay.supabase.co',
@@ -560,6 +560,9 @@ export function FreightProvider({ children }: { children: ReactNode }) {
   // Sea Freight management
   const addSeaFreight = async (freight: Omit<SeaFreight, 'id' | 'createdAt'>) => {
     try {
+      console.log('🔍 [addSeaFreight] Starting to add sea freight:', freight);
+      
+      // Step 1: Insert without freight_code first to get the ID
       const { data, error } = await supabaseClient
         .from(TABLES.SEA_FREIGHTS)
         .insert({
@@ -572,24 +575,56 @@ export function FreightProvider({ children }: { children: ReactNode }) {
           version: freight.version,
           valid_from: freight.validFrom,
           valid_to: freight.validTo,
+          freight_code: 'TEMP', // Temporary value
         })
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ [addSeaFreight] Database insert error:', error);
+        throw error;
+      }
+
+      console.log('✅ [addSeaFreight] Initial insert successful, ID:', data.id);
+
+      // Step 2: Generate freight_code using the ID
+      const freightCode = generateFreightCode(
+        freight.carrier || 'UNKNOWN',
+        freight.pol,
+        freight.pod,
+        data.id
+      );
+
+      console.log('🔖 [addSeaFreight] Generated freight_code:', freightCode);
+
+      // Step 3: Update with the generated freight_code
+      const { data: updatedData, error: updateError } = await supabaseClient
+        .from(TABLES.SEA_FREIGHTS)
+        .update({ freight_code: freightCode })
+        .eq('id', data.id)
+        .select()
+        .single();
+
+      if (updateError) {
+        console.error('❌ [addSeaFreight] Freight code update error:', updateError);
+        throw updateError;
+      }
+
+      console.log('✅ [addSeaFreight] Freight code updated successfully');
 
       const newFreight: SeaFreight = {
-        id: data.id,
-        pol: data.pol,
-        pod: data.pod,
-        rate: data.rate,
-        localCharge: data.local_charge,
-        carrier: data.carrier,
-        note: data.note,
-        version: data.version,
-        validFrom: data.valid_from,
-        validTo: data.valid_to,
-        createdAt: data.created_at,
+        id: updatedData.id,
+        freightCode: updatedData.freight_code,
+        pol: updatedData.pol,
+        pod: updatedData.pod,
+        rate: updatedData.rate,
+        localCharge: updatedData.local_charge,
+        carrier: updatedData.carrier,
+        note: updatedData.note,
+        version: updatedData.version,
+        validFrom: updatedData.valid_from,
+        validTo: updatedData.valid_to,
+        createdAt: updatedData.created_at,
       };
       setSeaFreights([...seaFreights, newFreight]);
 
@@ -607,21 +642,59 @@ export function FreightProvider({ children }: { children: ReactNode }) {
       // Reload audit logs
       const reloadedAuditLogs = await loadAuditLogs();
       setFreightAuditLogs(reloadedAuditLogs);
+
+      console.log('✅ [addSeaFreight] Sea freight added successfully with code:', freightCode);
     } catch (error) {
-      console.error('Error adding sea freight:', error);
+      console.error('💥 [addSeaFreight] Error adding sea freight:', error);
       throw error;
     }
   };
 
   const updateSeaFreight = async (id: string, updates: Partial<SeaFreight>) => {
     try {
-      // ✅ Get old freight data for audit log
+      console.log('🔍 [updateSeaFreight] Starting update for ID:', id, 'Updates:', updates);
+      
+      // ✅ Get old freight data for audit log AND history
       const oldFreight = seaFreights.find(f => f.id === id);
       if (!oldFreight) {
         console.error('❌ Old freight not found for audit log');
         return;
       }
 
+      console.log('📦 [updateSeaFreight] Old freight data:', oldFreight);
+
+      // 🆕 STEP 1: Archive old version to history table BEFORE updating
+      if (user) {
+        console.log('💾 [updateSeaFreight] Archiving old version to history...');
+        
+        const { error: historyError } = await supabaseClient
+          .from(TABLES.SEA_FREIGHT_HISTORY)
+          .insert({
+            freight_code: oldFreight.freightCode,
+            original_id: oldFreight.id,
+            carrier: oldFreight.carrier,
+            pol: oldFreight.pol,
+            pod: oldFreight.pod,
+            rate: oldFreight.rate,
+            local_charge: oldFreight.localCharge,
+            note: oldFreight.note,
+            valid_from: oldFreight.validFrom,
+            valid_to: oldFreight.validTo,
+            version: oldFreight.version,
+            archived_at: new Date().toISOString(),
+            archived_by: user.id,
+            archived_by_username: user.username,
+          });
+
+        if (historyError) {
+          console.error('❌ [updateSeaFreight] Error archiving to history:', historyError);
+          // Don't throw - continue with update even if history fails
+        } else {
+          console.log('✅ [updateSeaFreight] Old version archived successfully');
+        }
+      }
+
+      // STEP 2: Update the main record
       const { data, error } = await supabaseClient
         .from(TABLES.SEA_FREIGHTS)
         .update({
@@ -640,7 +713,12 @@ export function FreightProvider({ children }: { children: ReactNode }) {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ [updateSeaFreight] Database update error:', error);
+        throw error;
+      }
+
+      console.log('✅ [updateSeaFreight] Database update successful');
 
       // ✅ Update local state
       setSeaFreights(seaFreights.map(freight => freight.id === id ? { ...freight, ...updates } : freight));
@@ -649,6 +727,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
       if (data) {
         const updatedFreight: SeaFreight = {
           id: data.id,
+          freightCode: data.freight_code,
           pol: data.pol,
           pod: data.pod,
           rate: data.rate,
@@ -674,9 +753,11 @@ export function FreightProvider({ children }: { children: ReactNode }) {
         // Reload audit logs
         const reloadedAuditLogs = await loadAuditLogs();
         setFreightAuditLogs(reloadedAuditLogs);
+
+        console.log('✅ [updateSeaFreight] Audit log created successfully');
       }
     } catch (error) {
-      console.error('Error updating sea freight:', error);
+      console.error('💥 [updateSeaFreight] Error updating sea freight:', error);
       throw error;
     }
   };

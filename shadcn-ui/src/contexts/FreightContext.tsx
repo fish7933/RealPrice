@@ -966,7 +966,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
         .from(TABLES.PORT_BORDER_FREIGHTS)
         .insert({
           agent: freight.agent,
-          pol: freight.pol,  // ✅ POL 필드 추가!
+          pol: freight.pol,
           pod: freight.pod,
           rate: freight.rate,
           version: freight.version || 1,
@@ -983,7 +983,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
 
       console.log('✅ [FreightContext] Database insert successful:', data);
 
-      // ✅ 트럭 운임에서 해결했던 방식: 데이터베이스에서 다시 로드
+      // ✅ 데이터베이스에서 다시 로드
       console.log('🔄 [FreightContext] Reloading port border freights from database...');
       const reloadedData = await loadPortBorderFreights();
       setPortBorderFreights(reloadedData);
@@ -1033,7 +1033,6 @@ export function FreightProvider({ children }: { children: ReactNode }) {
         updated_at: new Date().toISOString(),
       };
 
-      // ✅ POL 필드가 제공되면 업데이트에 포함
       if (updates.pol !== undefined) {
         updateData.pol = updates.pol;
       }
@@ -1047,7 +1046,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
 
       if (error) throw error;
 
-      // ✅ 트럭 운임에서 해결했던 방식: 데이터베이스에서 다시 로드
+      // ✅ 데이터베이스에서 다시 로드
       console.log('🔄 [FreightContext] Reloading port border freights after update...');
       const reloadedData = await loadPortBorderFreights();
       setPortBorderFreights(reloadedData);
@@ -1089,6 +1088,8 @@ export function FreightProvider({ children }: { children: ReactNode }) {
 
   const deletePortBorderFreight = async (id: string) => {
     try {
+      console.log('🗑️ [FreightContext] deletePortBorderFreight called for ID:', id);
+      
       const freight = portBorderFreights.find(f => f.id === id);
       
       const { error } = await supabaseClient
@@ -1096,9 +1097,18 @@ export function FreightProvider({ children }: { children: ReactNode }) {
         .delete()
         .eq('id', id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ [FreightContext] Database delete error:', error);
+        throw error;
+      }
 
-      setPortBorderFreights(portBorderFreights.filter(freight => freight.id !== id));
+      console.log('✅ [FreightContext] Database delete successful');
+
+      // ✅ FIXED: 삭제 후 데이터베이스에서 다시 로드 (로컬 상태 직접 수정 대신)
+      console.log('🔄 [FreightContext] Reloading port border freights after delete...');
+      const reloadedData = await loadPortBorderFreights();
+      setPortBorderFreights(reloadedData);
+      console.log('✅ [FreightContext] Port border freights reloaded after delete:', reloadedData.length);
       
       // Create audit log
       if (freight) {

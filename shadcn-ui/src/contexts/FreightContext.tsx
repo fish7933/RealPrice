@@ -524,8 +524,11 @@ export function FreightProvider({ children }: { children: ReactNode }) {
       throw error;
     }
   };
+
   const updateQuotation = async (id: string, updates: Partial<Quotation>) => {
     try {
+      console.log('🔍 [updateQuotation] Starting update for ID:', id, 'Updates:', updates);
+      
       const { data, error } = await supabaseClient
         .from(TABLES.QUOTATIONS)
         .update({
@@ -536,33 +539,30 @@ export function FreightProvider({ children }: { children: ReactNode }) {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ [updateQuotation] Database error:', error);
+        throw error;
+      }
 
-      const updatedQuotation: Quotation = {
-        id: data.id,
-        userId: data.user_id,
-        username: data.username,
-        pol: data.pol,
-        pod: data.pod,
-        destinationName: data.destination_name,
-        breakdown: data.breakdown,
-        input: data.input,
-        excludedCosts: data.excluded_costs,
-        costTotal: data.cost_total,
-        sellingPrice: data.selling_price,
-        profit: data.profit,
-        profitRate: data.profit_rate,
-        carrier: data.carrier,
-        notes: data.notes,
-        memo: data.memo,
-        createdAt: data.created_at,
-        updatedAt: data.updated_at,
-      };
+      console.log('✅ [updateQuotation] Database update successful:', data);
 
-      setQuotations(quotations.map(q => q.id === id ? updatedQuotation : q));
-      console.log('✅ Quotation updated successfully');
+      // Update local state with the returned data
+      setQuotations(prevQuotations => 
+        prevQuotations.map(q => {
+          if (q.id === id) {
+            return {
+              ...q,
+              memo: data.memo,
+              updatedAt: data.updated_at,
+            };
+          }
+          return q;
+        })
+      );
+
+      console.log('✅ [updateQuotation] Local state updated successfully');
     } catch (error) {
-      console.error('Error updating quotation:', error);
+      console.error('💥 [updateQuotation] Error updating quotation:', error);
       throw error;
     }
   };

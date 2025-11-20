@@ -19,7 +19,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Calendar } from '@/components/ui/calendar';
 import {
   Popover,
   PopoverContent,
@@ -53,6 +52,8 @@ export default function QuotationList() {
   const [selectedQuotation, setSelectedQuotation] = useState<Quotation | null>(null);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [calendarOpen, setCalendarOpen] = useState(false);
 
   // Get unique values for filters
   const pols = Array.from(new Set(quotations.map(q => q.pol))).sort();
@@ -226,6 +227,84 @@ export default function QuotationList() {
   const isAllSelected = paginatedQuotations.length > 0 && 
     paginatedQuotations.every(q => selectedIds.has(q.id));
 
+  // Calendar helper functions
+  const getDaysInMonth = (date: Date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startDayOfWeek = firstDay.getDay();
+    
+    const days: (Date | null)[] = [];
+    
+    for (let i = 0; i < startDayOfWeek; i++) {
+      days.push(null);
+    }
+    
+    for (let i = 1; i <= daysInMonth; i++) {
+      days.push(new Date(year, month, i));
+    }
+    
+    return days;
+  };
+
+  const isSameDay = (date1: Date, date2: Date) => {
+    return date1.getFullYear() === date2.getFullYear() &&
+           date1.getMonth() === date2.getMonth() &&
+           date1.getDate() === date2.getDate();
+  };
+
+  const isToday = (date: Date) => {
+    return isSameDay(date, new Date());
+  };
+
+  const isInRange = (date: Date) => {
+    if (!dateRange.from && !dateRange.to) return false;
+    
+    const checkDate = new Date(date);
+    checkDate.setHours(0, 0, 0, 0);
+    
+    if (dateRange.from && dateRange.to) {
+      const from = new Date(dateRange.from);
+      from.setHours(0, 0, 0, 0);
+      const to = new Date(dateRange.to);
+      to.setHours(0, 0, 0, 0);
+      return checkDate >= from && checkDate <= to;
+    } else if (dateRange.from) {
+      return isSameDay(checkDate, dateRange.from);
+    } else if (dateRange.to) {
+      return isSameDay(checkDate, dateRange.to);
+    }
+    return false;
+  };
+
+  const handleDateClick = (date: Date) => {
+    if (!dateRange.from || (dateRange.from && dateRange.to)) {
+      setDateRange({ from: date, to: undefined });
+    } else {
+      if (date < dateRange.from) {
+        setDateRange({ from: date, to: dateRange.from });
+      } else {
+        setDateRange({ from: dateRange.from, to: date });
+      }
+      setCalendarOpen(false);
+      setCurrentPage(1);
+    }
+  };
+
+  const previousMonth = () => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1));
+  };
+
+  const nextMonth = () => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1));
+  };
+
+  const monthName = currentMonth.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long' });
+  const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
+  const days = getDaysInMonth(currentMonth);
+
   if (quotations.length === 0) {
     return null;
   }
@@ -234,8 +313,8 @@ export default function QuotationList() {
     <div className="space-y-4">
       {/* Filters - Single Row */}
       <div className="flex flex-wrap items-center gap-2">
-        {/* Date Range Filter - Compact */}
-        <Popover>
+        {/* Date Range Filter - Compact with Custom Calendar */}
+        <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
           <PopoverTrigger asChild>
             <Button
               variant="outline"
@@ -266,16 +345,92 @@ export default function QuotationList() {
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="start">
-            <Calendar
-              mode="range"
-              selected={{ from: dateRange.from, to: dateRange.to }}
-              onSelect={(range) => {
-                setDateRange({ from: range?.from, to: range?.to });
-                setCurrentPage(1);
-              }}
-              locale={ko}
-              numberOfMonths={1}
-            />
+            <div className="bg-white rounded-lg shadow-lg border border-gray-300">
+              {/* Custom Compact Calendar */}
+              <div className="p-3">
+                {/* Month Navigation */}
+                <div className="flex items-center justify-between mb-3">
+                  <button
+                    onClick={previousMonth}
+                    className="h-6 w-6 bg-gray-200 hover:bg-gray-300 rounded transition-all border border-gray-300 flex items-center justify-center"
+                  >
+                    <ChevronLeft className="h-3.5 w-3.5 text-gray-700" />
+                  </button>
+                  <h3 className="text-sm font-bold text-gray-900">
+                    {monthName}
+                  </h3>
+                  <button
+                    onClick={nextMonth}
+                    className="h-6 w-6 bg-gray-200 hover:bg-gray-300 rounded transition-all border border-gray-300 flex items-center justify-center"
+                  >
+                    <ChevronRight className="h-3.5 w-3.5 text-gray-700" />
+                  </button>
+                </div>
+
+                {/* Calendar Grid */}
+                <div className="w-full">
+                  {/* Week Days Header */}
+                  <div className="grid grid-cols-7 gap-0.5 mb-1">
+                    {weekDays.map((day, index) => (
+                      <div
+                        key={index}
+                        className="h-6 flex items-center justify-center text-gray-700 font-bold text-xs"
+                      >
+                        {day}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Days Grid */}
+                  <div className="grid grid-cols-7 gap-0.5">
+                    {days.map((day, index) => {
+                      if (!day) {
+                        return <div key={index} className="h-6 w-full" />;
+                      }
+
+                      const today = new Date();
+                      const isFutureDate = day > today;
+                      const isInRangeDate = isInRange(day);
+                      const isTodayDate = isToday(day);
+
+                      return (
+                        <button
+                          key={index}
+                          onClick={() => handleDateClick(day)}
+                          className={`
+                            h-6 w-full rounded font-semibold text-xs
+                            flex items-center justify-center
+                            transition-all duration-200
+                            ${isInRangeDate
+                              ? 'bg-blue-600 text-white shadow-md scale-105 border border-blue-700'
+                              : isTodayDate
+                              ? 'bg-orange-100 text-orange-900 border border-orange-400 font-bold'
+                              : isFutureDate
+                              ? 'text-gray-700 bg-gray-100 hover:bg-gray-200 hover:scale-105 border border-gray-300'
+                              : 'text-gray-700 bg-gray-50 hover:bg-gray-100 hover:scale-105 border border-gray-200'
+                            }
+                          `}
+                        >
+                          {day.getDate()}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              {/* Legend */}
+              <div className="px-3 pb-3 space-y-1.5 text-xs">
+                <div className="flex items-center gap-1.5 p-1.5 bg-gray-50 rounded border border-gray-200">
+                  <div className="w-3.5 h-3.5 rounded bg-gray-50 border border-gray-200 flex-shrink-0"></div>
+                  <span className="text-gray-800 font-semibold">선택 가능한 날짜</span>
+                </div>
+                <div className="flex items-center gap-1.5 p-1.5 bg-gray-50 rounded border border-gray-200">
+                  <div className="w-3.5 h-3.5 rounded bg-blue-600 border border-blue-700 flex-shrink-0"></div>
+                  <span className="text-gray-800 font-semibold">선택된 날짜</span>
+                </div>
+              </div>
+            </div>
           </PopoverContent>
         </Popover>
 

@@ -5,9 +5,10 @@ import { CostCalculationInput, CostCalculationResult, CalculationHistory, SeaFre
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Calculator, Camera, Clock, Info, History } from 'lucide-react';
+import { Calculator, Camera, Clock, Info, History, FileText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import QuotationDialog from './QuotationDialog';
+import QuotationList from './QuotationList';
 import TimeMachineDialog from './TimeMachineDialog';
 import CostCalculatorHeader from './CostCalculatorHeader';
 import CostInputForm from './CostInputForm';
@@ -26,7 +27,7 @@ import {
 } from './types';
 
 export default function CostCalculatorWithTabs() {
-  const { destinations, calculateCost, getDPCost, getDestinationById, calculationHistory, addCalculationHistory, deleteCalculationHistory, getSeaFreightOptions, ports } = useFreight();
+  const { destinations, calculateCost, getDPCost, getDestinationById, calculationHistory, addCalculationHistory, deleteCalculationHistory, getSeaFreightOptions, ports, loadQuotations, quotations } = useFreight();
   const { user, canDeleteCalculation } = useAuth();
   const { toast } = useToast();
   
@@ -70,6 +71,11 @@ export default function CostCalculatorWithTabs() {
   const dpCost = input.pol ? getDPCost(input.pol) : 0;
   const polPorts = ports.filter(p => p.type === 'POL');
   const podPorts = ports.filter(p => p.type === 'POD');
+
+  // Load quotations on mount
+  useEffect(() => {
+    loadQuotations();
+  }, []);
 
   // User change effect
   useEffect(() => {
@@ -798,6 +804,23 @@ export default function CostCalculatorWithTabs() {
               canDeleteCalculation={canDeleteCalculation}
               formatDate={formatDate}
             />
+          </CardContent>
+        </Card>
+      )}
+
+      {quotations && quotations.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              견적서 리스트 ({quotations.length}개)
+            </CardTitle>
+            <CardDescription>
+              저장된 견적서를 조회하고 관리합니다
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <QuotationList />
           </CardContent>
         </Card>
       )}

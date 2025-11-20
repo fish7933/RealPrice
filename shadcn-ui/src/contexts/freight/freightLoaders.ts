@@ -574,6 +574,7 @@ export const loadCalculationHistory = async (): Promise<CalculationHistory[]> =>
     if (data) {
       const mappedData = data.map(d => {
         console.log('🔍 Mapping record:', d);
+        console.log('   - query_date from DB:', d.query_date);
         return {
           id: d.id,
           result: d.result,
@@ -581,6 +582,7 @@ export const loadCalculationHistory = async (): Promise<CalculationHistory[]> =>
           createdBy: d.created_by,
           createdByUsername: d.created_by_username,
           createdAt: d.created_at,
+          queryDate: d.query_date, // ✅ FIXED: Map query_date from database
         };
       });
       

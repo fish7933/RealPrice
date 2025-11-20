@@ -389,7 +389,7 @@ export default function CalculationHistoryComponent({
                           <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded flex items-center gap-1">
                             📅 운임: {history.queryDate}
                             {isHistoricalQuery && (
-                              <span className="ml-0.5" title="타임머신으로 조회된 과거 운임">⏰</span>
+                              <span className="ml-0.5" title="타임머신으로 조회된 특정일 운임">⏰</span>
                             )}
                           </span>
                         )}

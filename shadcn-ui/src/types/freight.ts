@@ -408,6 +408,27 @@ export interface CalculationHistory {
   queryDate?: string;
 }
 
+// 🆕 견적서 타입
+export interface Quotation {
+  id: string;
+  userId: string;
+  username: string;
+  pol: string;
+  pod: string;
+  destinationName: string;
+  breakdown: AgentCostBreakdown;
+  input: CostCalculationInput;
+  excludedCosts?: Record<string, boolean>;
+  costTotal: number;
+  sellingPrice: number;
+  profit: number;
+  profitRate: number;
+  carrier?: string;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // Local charge types
 export interface LocalCharge {
   id: string;

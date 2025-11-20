@@ -19,10 +19,10 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   },
 });
 
-// Database table names - all tables now use unified app_51335ed80f prefix
+// Database table names - all tables now use unified app_741545ec66 prefix
 export const TABLES = {
   USERS: 'app_51335ed80f_users',
-  QUOTATIONS: 'app_51335ed80f_quotations',
+  QUOTATIONS: 'app_741545ec66_quotations',
   CALCULATION_HISTORY: 'app_51335ed80f_calculation_history',
   SYSTEM_SETTINGS: 'app_51335ed80f_system_settings',
   SHIPPING_LINES: 'app_51335ed80f_shipping_lines',

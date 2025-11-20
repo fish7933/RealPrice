@@ -185,23 +185,27 @@ export default function DPCostTable() {
         </div>
       </div>
 
-      {/* Info Alert - Compact */}
+      {/* Info Alert - Compact with vertical alignment */}
       <Alert className="py-2">
-        <DollarSign className="h-4 w-4" />
-        <AlertDescription className="text-xs">
-          <strong>DP(Delivery Point):</strong> 항구에서 발생하는 배송 지점 비용입니다. 원가 계산 시 선택적으로 포함할 수 있습니다.
-        </AlertDescription>
+        <div className="flex items-center gap-2">
+          <DollarSign className="h-4 w-4 flex-shrink-0" />
+          <AlertDescription className="text-xs">
+            <strong>DP(Delivery Point):</strong> 항구에서 발생하는 배송 지점 비용입니다. 원가 계산 시 선택적으로 포함할 수 있습니다.
+          </AlertDescription>
+        </div>
       </Alert>
 
-      {/* Warning Alert - Compact */}
+      {/* Warning Alert - Compact with vertical alignment */}
       {(expiredRates.length > 0 || expiringRates.length > 0) && (
         <Alert variant="destructive" className="py-2">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertDescription className="text-sm">
-            {expiredRates.length > 0 && <span>⚠️ {expiredRates.length}개 만료</span>}
-            {expiredRates.length > 0 && expiringRates.length > 0 && <span> · </span>}
-            {expiringRates.length > 0 && <span>📅 {expiringRates.length}개 만료임박</span>}
-          </AlertDescription>
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="h-4 w-4 flex-shrink-0" />
+            <AlertDescription className="text-sm">
+              {expiredRates.length > 0 && <span>⚠️ {expiredRates.length}개 만료</span>}
+              {expiredRates.length > 0 && expiringRates.length > 0 && <span> · </span>}
+              {expiringRates.length > 0 && <span>📅 {expiringRates.length}개 만료임박</span>}
+            </AlertDescription>
+          </div>
         </Alert>
       )}
 
@@ -224,7 +228,9 @@ export default function DPCostTable() {
               return (
                 <TableRow key={dpCost.id} className="hover:bg-blue-50 transition-colors duration-150/50">
                   <TableCell className="py-3 text-sm font-medium whitespace-nowrap">{dpCost.port}</TableCell>
-                  <TableCell className="py-3 text-sm font-semibold text-rose-700 whitespace-nowrap">${dpCost.amount}</TableCell>
+                  <TableCell className="py-3 text-sm font-semibold text-rose-700 whitespace-nowrap">
+                    ${dpCost.amount.toLocaleString()}
+                  </TableCell>
                   <TableCell className="py-3 text-sm whitespace-nowrap">
                     {formatValidityDate(dpCost.validFrom)} ~ {formatValidityDate(dpCost.validTo)}
                   </TableCell>
@@ -291,27 +297,29 @@ export default function DPCostTable() {
           <div className="space-y-4 py-4">
             {validationWarning && (
               <Alert variant="destructive">
-                <AlertTriangle className="h-4 w-4" />
-                <AlertDescription>
-                  <div className="font-semibold">유효기간 중복 경고</div>
-                  <div className="text-sm mt-1 whitespace-pre-line">{validationWarning}</div>
-                  <div className="flex gap-2 mt-3">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setValidationWarning(null)}
-                    >
-                      취소
-                    </Button>
-                    <Button
-                      size="sm"
-                      onClick={handleAddIgnoreWarning}
-                      className="bg-orange-600 hover:bg-orange-700"
-                    >
-                      경고 무시하고 계속
-                    </Button>
-                  </div>
-                </AlertDescription>
+                <div className="flex items-start gap-2">
+                  <AlertTriangle className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                  <AlertDescription>
+                    <div className="font-semibold">유효기간 중복 경고</div>
+                    <div className="text-sm mt-1 whitespace-pre-line">{validationWarning}</div>
+                    <div className="flex gap-2 mt-3">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setValidationWarning(null)}
+                      >
+                        취소
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={handleAddIgnoreWarning}
+                        className="bg-orange-600 hover:bg-orange-700"
+                      >
+                        경고 무시하고 계속
+                      </Button>
+                    </div>
+                  </AlertDescription>
+                </div>
               </Alert>
             )}
             <div className="space-y-2">
@@ -390,11 +398,13 @@ export default function DPCostTable() {
             <div className="space-y-4 py-4">
               {validationWarning && (
                 <Alert variant="destructive">
-                  <AlertTriangle className="h-4 w-4" />
-                  <AlertDescription>
-                    <div className="font-semibold">유효성 검증 오류</div>
-                    <div className="text-sm mt-1 whitespace-pre-line">{validationWarning}</div>
-                  </AlertDescription>
+                  <div className="flex items-start gap-2">
+                    <AlertTriangle className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                    <AlertDescription>
+                      <div className="font-semibold">유효성 검증 오류</div>
+                      <div className="text-sm mt-1 whitespace-pre-line">{validationWarning}</div>
+                    </AlertDescription>
+                  </div>
                 </Alert>
               )}
 

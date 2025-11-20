@@ -107,7 +107,7 @@ export default function QuotationDialog({
   const profitRate = sellingPrice > 0 ? (profit / sellingPrice) * 100 : 0;
   const carrier = getCarrier();
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!user) return;
 
     if (sellingPrice <= 0) {
@@ -127,7 +127,7 @@ export default function QuotationDialog({
       });
     }
 
-    addQuotation({
+    await addQuotation({
       breakdown,
       input,
       destinationName,
@@ -137,6 +137,8 @@ export default function QuotationDialog({
       profitRate,
       createdBy: user.id,
       createdByUsername: user.username,
+      carrier,
+      excludedCosts,
     });
 
     toast({
@@ -251,7 +253,7 @@ export default function QuotationDialog({
     
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-[95vw] max-h-[90vh] overflow-y-auto">
+        <DialogContent className="w-[1200px] max-w-[90vw] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-center text-gray-900">운임 견적서</DialogTitle>
             <DialogDescription className="text-center text-sm text-gray-600">
@@ -401,7 +403,7 @@ export default function QuotationDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-xl max-h-[85vh] overflow-y-auto">
+      <DialogContent className="w-[600px] max-w-[90vw] max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-gray-900">
             <DollarSign className="h-5 w-5 text-blue-600" />

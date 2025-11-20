@@ -24,6 +24,8 @@ import {
   CostCalculationResult,
   CalculationHistory,
   HistoricalFreightSnapshot,
+  Quotation,
+  AgentCostBreakdown,
 } from '@/types/freight';
 import { createClient } from '@supabase/supabase-js';
 import { calculateCost } from './freight/freightCalculations';
@@ -198,6 +200,25 @@ interface FreightContextType {
   deleteCalculationHistory: (id: string) => Promise<void>;
   clearCalculationHistory: () => void;
   
+  // Quotations
+  quotations: Quotation[];
+  addQuotation: (quotation: {
+    breakdown: AgentCostBreakdown;
+    input: CostCalculationInput;
+    destinationName: string;
+    costTotal: number;
+    sellingPrice: number;
+    profit: number;
+    profitRate: number;
+    createdBy: string;
+    createdByUsername: string;
+    carrier?: string;
+    excludedCosts?: Record<string, boolean>;
+    notes?: string;
+  }) => Promise<void>;
+  deleteQuotation: (id: string) => Promise<void>;
+  loadQuotations: () => Promise<void>;
+  
   // Cost Calculation
   calculateCost: (input: CostCalculationInput) => CostCalculationResult | null;
   calculateFreightCost: (input: CostCalculationInput) => CostCalculationResult | null;
@@ -236,6 +257,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
   const [freightAuditLogs, setFreightAuditLogs] = useState<FreightAuditLog[]>([]);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [calculationHistory, setCalculationHistory] = useState<CalculationHistory[]>([]);
+  const [quotations, setQuotations] = useState<Quotation[]>([]);
 
   // Fetch app version from Supabase
   const fetchAppVersion = async () => {
@@ -259,6 +281,46 @@ export function FreightProvider({ children }: { children: ReactNode }) {
       }
     } catch (error) {
       console.error('Error fetching app version:', error);
+    }
+  };
+
+  // Load quotations from database
+  const loadQuotationsFromDB = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabaseClient
+        .from(TABLES.QUOTATIONS)
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const loadedQuotations: Quotation[] = data.map((item: Record<string, unknown>) => ({
+        id: item.id as string,
+        userId: item.user_id as string,
+        username: item.username as string,
+        pol: item.pol as string,
+        pod: item.pod as string,
+        destinationName: item.destination_name as string,
+        breakdown: item.breakdown as AgentCostBreakdown,
+        input: item.input as CostCalculationInput,
+        excludedCosts: item.excluded_costs as Record<string, boolean>,
+        costTotal: item.cost_total as number,
+        sellingPrice: item.selling_price as number,
+        profit: item.profit as number,
+        profitRate: item.profit_rate as number,
+        carrier: item.carrier as string | undefined,
+        notes: item.notes as string | undefined,
+        createdAt: item.created_at as string,
+        updatedAt: item.updated_at as string,
+      }));
+
+      setQuotations(loadedQuotations);
+      console.log('✅ Quotations loaded:', loadedQuotations.length);
+    } catch (error) {
+      console.error('Error loading quotations:', error);
     }
   };
 
@@ -328,6 +390,9 @@ export function FreightProvider({ children }: { children: ReactNode }) {
         setBorderCities(loadedBorderCities);
         setSystemSettings(loadedSystemSettings);
 
+        // Load quotations
+        await loadQuotationsFromDB();
+
         console.log('✅ All data loaded successfully from database');
         console.log('📊 Data counts:', {
           shippingLines: loadedShippingLines.length,
@@ -373,6 +438,93 @@ export function FreightProvider({ children }: { children: ReactNode }) {
   const deleteUser = (id: string) => {
     setUsers(users.filter(user => user.id !== id));
   };
+
+  // Quotation management
+  const addQuotation = async (quotation: {
+    breakdown: AgentCostBreakdown;
+    input: CostCalculationInput;
+    destinationName: string;
+    costTotal: number;
+    sellingPrice: number;
+    profit: number;
+    profitRate: number;
+    createdBy: string;
+    createdByUsername: string;
+    carrier?: string;
+    excludedCosts?: Record<string, boolean>;
+    notes?: string;
+  }) => {
+    try {
+      const { data, error } = await supabaseClient
+        .from(TABLES.QUOTATIONS)
+        .insert({
+          user_id: quotation.createdBy,
+          username: quotation.createdByUsername,
+          pol: quotation.input.pol,
+          pod: quotation.input.pod,
+          destination_name: quotation.destinationName,
+          breakdown: quotation.breakdown,
+          input: quotation.input,
+          excluded_costs: quotation.excludedCosts || {},
+          cost_total: quotation.costTotal,
+          selling_price: quotation.sellingPrice,
+          profit: quotation.profit,
+          profit_rate: quotation.profitRate,
+          carrier: quotation.carrier,
+          notes: quotation.notes,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      const newQuotation: Quotation = {
+        id: data.id,
+        userId: data.user_id,
+        username: data.username,
+        pol: data.pol,
+        pod: data.pod,
+        destinationName: data.destination_name,
+        breakdown: data.breakdown,
+        input: data.input,
+        excludedCosts: data.excluded_costs,
+        costTotal: data.cost_total,
+        sellingPrice: data.selling_price,
+        profit: data.profit,
+        profitRate: data.profit_rate,
+        carrier: data.carrier,
+        notes: data.notes,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at,
+      };
+
+      setQuotations([newQuotation, ...quotations]);
+      console.log('✅ Quotation added successfully');
+    } catch (error) {
+      console.error('Error adding quotation:', error);
+      throw error;
+    }
+  };
+
+  const deleteQuotation = async (id: string) => {
+    try {
+      const { error } = await supabaseClient
+        .from(TABLES.QUOTATIONS)
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setQuotations(quotations.filter(q => q.id !== id));
+      console.log('✅ Quotation deleted successfully');
+    } catch (error) {
+      console.error('Error deleting quotation:', error);
+      throw error;
+    }
+  };
+
+  // ... (keeping all other management functions unchanged for brevity - they remain the same as before)
+  // The file is too long to include everything, but all other functions remain identical
 
   // Rail Agent management
   const addRailAgent = async (agent: Omit<RailAgent, 'id' | 'createdAt'>) => {
@@ -2589,6 +2741,10 @@ export function FreightProvider({ children }: { children: ReactNode }) {
     addCalculationHistory: handleAddCalculationHistory,
     deleteCalculationHistory: handleDeleteCalculationHistory,
     clearCalculationHistory,
+    quotations,
+    addQuotation,
+    deleteQuotation,
+    loadQuotations: loadQuotationsFromDB,
     calculateCost: calculateFreightCost,
     calculateFreightCost,
     getHistoricalSnapshot: (date: string) => getHistoricalSnapshot(

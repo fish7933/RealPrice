@@ -864,26 +864,47 @@ export const addCalculationHistory = async (
   combinedFreights: CombinedFreight[] = [],
   weightSurchargeRules: WeightSurchargeRule[] = []
 ) => {
-  if (!user) return;
+  if (!user) {
+    console.warn('⚠️ [addCalculationHistory] No user found, skipping save');
+    return;
+  }
 
   try {
-    console.log('💾 [addCalculationHistory] Saving calculation history to database...');
-    console.log('📊 [addCalculationHistory] Historical date:', history.result.historicalDate);
-    console.log('📊 [addCalculationHistory] Is historical:', history.result.isHistorical);
+    console.log('💾 [addCalculationHistory] ===== SNAPSHOT DEBUG START =====');
+    console.log('📊 [addCalculationHistory] Input data:');
+    console.log('   - result.isHistorical:', history.result.isHistorical);
+    console.log('   - result.historicalDate:', history.result.historicalDate);
+    console.log('   - result.historicalDate type:', typeof history.result.historicalDate);
+    console.log('   - result.historicalDate length:', history.result.historicalDate?.length);
+    console.log('   - breakdown count:', history.result.breakdown.length);
+    console.log('   - lowestCostAgent:', history.result.lowestCostAgent);
 
     // 🆕 과거 날짜 조회인 경우 스냅샷 생성
     let snapshot: FreightRateSnapshot | undefined;
     let queryDate: string | undefined;
 
     if (history.result.isHistorical && history.result.historicalDate) {
-      console.log('📸 [addCalculationHistory] Creating freight rate snapshot for historical query...');
+      console.log('📸 [addCalculationHistory] Historical query detected! Creating snapshot...');
+      console.log('   - Query date:', history.result.historicalDate);
       
       // 가장 낮은 비용의 breakdown에 대한 스냅샷 생성
       const lowestBreakdown = history.result.breakdown.find(
         b => b.agent === history.result.lowestCostAgent
       );
 
+      console.log('   - Found lowest breakdown:', !!lowestBreakdown);
       if (lowestBreakdown) {
+        console.log('   - Lowest breakdown agent:', lowestBreakdown.agent);
+        console.log('   - Creating snapshot with data arrays:');
+        console.log('     * seaFreights:', seaFreights.length);
+        console.log('     * agentSeaFreights:', agentSeaFreights.length);
+        console.log('     * dthcList:', dthcList.length);
+        console.log('     * dpCosts:', dpCosts.length);
+        console.log('     * portBorderFreights:', portBorderFreights.length);
+        console.log('     * borderDestinationFreights:', borderDestinationFreights.length);
+        console.log('     * combinedFreights:', combinedFreights.length);
+        console.log('     * weightSurchargeRules:', weightSurchargeRules.length);
+        
         snapshot = createFreightSnapshot(
           lowestBreakdown,
           seaFreights,
@@ -896,33 +917,52 @@ export const addCalculationHistory = async (
           weightSurchargeRules
         );
         queryDate = history.result.historicalDate;
-        console.log('✅ [addCalculationHistory] Snapshot created:', snapshot);
+        console.log('✅ [addCalculationHistory] Snapshot created successfully!');
+        console.log('   - Snapshot keys:', Object.keys(snapshot));
+        console.log('   - Snapshot content:', JSON.stringify(snapshot, null, 2));
+        console.log('   - Query date set to:', queryDate);
+      } else {
+        console.warn('⚠️ [addCalculationHistory] Could not find lowest breakdown for snapshot');
       }
+    } else {
+      console.log('ℹ️ [addCalculationHistory] Not a historical query, skipping snapshot');
+      console.log('   - Reason: isHistorical =', history.result.isHistorical, ', historicalDate =', history.result.historicalDate);
     }
+
+    console.log('💾 [addCalculationHistory] Preparing database insert...');
+    const insertData = {
+      result: history.result,
+      destination_name: history.destinationName,
+      created_by: user.id,
+      created_by_username: user.username,
+      snapshot: snapshot || null,
+      query_date: queryDate || null,
+    };
+    console.log('   - Insert data prepared:');
+    console.log('     * has snapshot:', !!insertData.snapshot);
+    console.log('     * query_date:', insertData.query_date);
 
     const { error } = await supabase
       .from(TABLES.CALCULATION_HISTORY)
-      .insert({
-        result: history.result,
-        destination_name: history.destinationName,
-        created_by: user.id,
-        created_by_username: user.username,
-        snapshot: snapshot || null, // 🆕 스냅샷 데이터 저장
-        query_date: queryDate || null, // 🆕 조회 날짜 저장
-      });
+      .insert(insertData);
 
     if (error) {
-      console.error('❌ [addCalculationHistory] Error saving calculation history:', error);
+      console.error('❌ [addCalculationHistory] Database insert error:', error);
       handleError(error, '계산 이력 추가');
       return;
     }
 
-    console.log('✅ [addCalculationHistory] Calculation history saved successfully');
+    console.log('✅ [addCalculationHistory] Successfully saved to database!');
     if (snapshot) {
-      console.log('📸 [addCalculationHistory] Snapshot saved with query date:', queryDate);
+      console.log('📸 [addCalculationHistory] Snapshot saved with:');
+      console.log('   - Query date:', queryDate);
+      console.log('   - Snapshot size:', JSON.stringify(snapshot).length, 'bytes');
+    } else {
+      console.log('ℹ️ [addCalculationHistory] No snapshot saved (current query)');
     }
+    console.log('💾 [addCalculationHistory] ===== SNAPSHOT DEBUG END =====\n');
   } catch (error) {
-    console.error('💥 [addCalculationHistory] Exception in addCalculationHistory:', error);
+    console.error('💥 [addCalculationHistory] Exception occurred:', error);
     handleError(error, '계산 이력 추가');
   }
 };

@@ -47,6 +47,17 @@ export default function CalculationHistoryComponent({
   const [batchDeleteDialogOpen, setBatchDeleteDialogOpen] = useState(false);
   const [deleteAllDialogOpen, setDeleteAllDialogOpen] = useState(false);
 
+  // Helper function to check if a date is today
+  const isToday = (dateString: string): boolean => {
+    const today = new Date();
+    const date = new Date(dateString);
+    return (
+      date.getFullYear() === today.getFullYear() &&
+      date.getMonth() === today.getMonth() &&
+      date.getDate() === today.getDate()
+    );
+  };
+
   // Extract unique values from calculation history for filter dropdowns
   const filterOptions = useMemo(() => {
     if (!calculationHistory) return { pols: [], pods: [], destinations: [] };
@@ -347,6 +358,7 @@ export default function CalculationHistoryComponent({
               {paginatedHistory.map((history) => {
                 const canDelete = canDeleteCalculation(history.createdBy);
                 const isSelected = selectedHistoryIds.has(history.id);
+                const isHistoricalQuery = history.queryDate && !isToday(history.queryDate);
                 
                 return (
                   <div
@@ -374,8 +386,11 @@ export default function CalculationHistoryComponent({
                           [{history.result.input.weight.toLocaleString()}kg]
                         </span>
                         {history.queryDate && (
-                          <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">
-                            [📅 운임: {history.queryDate}]
+                          <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded flex items-center gap-1">
+                            📅 운임: {history.queryDate}
+                            {isHistoricalQuery && (
+                              <span className="ml-0.5" title="타임머신으로 조회된 과거 운임">⏰</span>
+                            )}
                           </span>
                         )}
                       </div>

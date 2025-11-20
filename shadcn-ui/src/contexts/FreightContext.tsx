@@ -215,6 +215,7 @@ interface FreightContextType {
     carrier?: string;
     excludedCosts?: Record<string, boolean>;
     notes?: string;
+    memo?: string;
   }) => Promise<void>;
   deleteQuotation: (id: string) => Promise<void>;
   updateQuotation: (id: string, updates: Partial<Quotation>) => Promise<void>;
@@ -473,6 +474,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
           profit: quotation.profit,
           profit_rate: quotation.profitRate,
           carrier: quotation.carrier,
+          memo: quotation.memo,
           notes: quotation.notes,
         })
         .select()
@@ -495,6 +497,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
         profit: data.profit,
         profitRate: data.profit_rate,
         carrier: data.carrier,
+        memo: data.memo,
         notes: data.notes,
         createdAt: data.created_at,
         updatedAt: data.updated_at,

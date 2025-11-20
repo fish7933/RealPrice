@@ -523,7 +523,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
       console.error('Error deleting quotation:', error);
       throw error;
     }
-
+  };
   const updateQuotation = async (id: string, updates: Partial<Quotation>) => {
     try {
       const { data, error } = await supabaseClient
@@ -565,7 +565,6 @@ export function FreightProvider({ children }: { children: ReactNode }) {
       console.error('Error updating quotation:', error);
       throw error;
     }
-  };
   };
 
   // ... (keeping all other management functions unchanged for brevity - they remain the same as before)

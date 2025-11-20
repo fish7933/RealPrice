@@ -19,7 +19,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { FileText, Search, ChevronLeft, ChevronRight, Trash2, Eye } from 'lucide-react';
+import { FileText, Search, ChevronLeft, ChevronRight, Trash2, Eye, X } from 'lucide-react';
 import { Quotation } from '@/types/freight';
 import { useToast } from '@/hooks/use-toast';
 import QuotationViewDialog from '@/components/calculator/QuotationViewDialog';
@@ -90,6 +90,14 @@ export default function QuotationHistory() {
     setCurrentPage(page);
   };
 
+  const handleResetFilters = () => {
+    setSearchTerm('');
+    setFilterDestination('all');
+    setCurrentPage(1);
+  };
+
+  const hasActiveFilters = searchTerm !== '' || filterDestination !== 'all';
+
   return (
     <div className="container mx-auto p-6 space-y-6">
       <Card className="border-gray-200 shadow-sm">
@@ -138,6 +146,16 @@ export default function QuotationHistory() {
                 ))}
               </SelectContent>
             </Select>
+            {hasActiveFilters && (
+              <Button
+                variant="outline"
+                onClick={handleResetFilters}
+                className="w-full sm:w-auto border-gray-300 hover:bg-gray-50"
+              >
+                <X className="h-4 w-4 mr-2" />
+                필터 초기화
+              </Button>
+            )}
           </div>
 
           {/* Results Summary */}

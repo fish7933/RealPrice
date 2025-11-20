@@ -37,14 +37,14 @@ export default function QuotationViewDialog({
 }: QuotationViewDialogProps) {
   const { toast } = useToast();
   const { updateQuotation } = useFreight();
-  const [isEditingMemo, setIsEditingMemo] = useState(false);
-  const [editedMemo, setEditedMemo] = useState(quotation.memo || '');
+  const [isEditingNote, setIsEditingNote] = useState(false);
+  const [editedNote, setEditedNote] = useState(quotation.note || '');
 
-  // Update editedMemo when quotation changes
+  // Update editedNote when quotation changes
   useEffect(() => {
-    setEditedMemo(quotation.memo || '');
-    setIsEditingMemo(false);
-  }, [quotation.id, quotation.memo]);
+    setEditedNote(quotation.note || '');
+    setIsEditingNote(false);
+  }, [quotation.id, quotation.note]);
 
   const handleExportExcel = () => {
     exportQuotationToExcel({
@@ -59,7 +59,7 @@ export default function QuotationViewDialog({
       createdAt: quotation.createdAt,
       excludedCosts: quotation.excludedCosts || {},
       carrier: quotation.carrier,
-      memo: quotation.memo,
+      note: quotation.note,
     });
 
     toast({
@@ -81,7 +81,7 @@ export default function QuotationViewDialog({
       createdAt: quotation.createdAt,
       excludedCosts: quotation.excludedCosts || {},
       carrier: quotation.carrier,
-      memo: quotation.memo,
+      note: quotation.note,
     });
 
     if (success) {
@@ -98,15 +98,15 @@ export default function QuotationViewDialog({
     }
   };
 
-  const handleEditMemo = () => {
-    setEditedMemo(quotation.memo || '');
-    setIsEditingMemo(true);
+  const handleEditNote = () => {
+    setEditedNote(quotation.note || '');
+    setIsEditingNote(true);
   };
 
-  const handleSaveMemo = async () => {
+  const handleSaveNote = async () => {
     try {
-      await updateQuotation(quotation.id, { memo: editedMemo });
-      setIsEditingMemo(false);
+      await updateQuotation(quotation.id, { note: editedNote });
+      setIsEditingNote(false);
       toast({
         title: '메모 저장 완료',
         description: '메모가 성공적으로 저장되었습니다.',
@@ -121,8 +121,8 @@ export default function QuotationViewDialog({
   };
 
   const handleCancelEdit = () => {
-    setEditedMemo(quotation.memo || '');
-    setIsEditingMemo(false);
+    setEditedNote(quotation.note || '');
+    setIsEditingNote(false);
   };
 
   const { breakdown, input, destinationName, excludedCosts = {} } = quotation;
@@ -256,15 +256,15 @@ export default function QuotationViewDialog({
             <p className="text-gray-600">* 일부 비용 항목이 제외되어 계산되었습니다.</p>
           )}
           
-          {/* Memo Section */}
+          {/* Note Section */}
           <div className="mt-2 pt-2 border-t border-gray-200">
             <div className="flex items-center justify-between mb-1">
               <Label className="text-xs font-semibold text-gray-700">메모</Label>
-              {!isEditingMemo && (
+              {!isEditingNote && (
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={handleEditMemo}
+                  onClick={handleEditNote}
                   className="h-6 px-2 text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50"
                 >
                   <Edit2 className="h-3 w-3 mr-1" />
@@ -273,17 +273,17 @@ export default function QuotationViewDialog({
               )}
             </div>
             
-            {isEditingMemo ? (
+            {isEditingNote ? (
               <div className="space-y-2">
                 <Textarea
-                  value={editedMemo}
-                  onChange={(e) => setEditedMemo(e.target.value)}
+                  value={editedNote}
+                  onChange={(e) => setEditedNote(e.target.value)}
                   className="text-sm min-h-[80px] resize-none"
                   maxLength={500}
                   placeholder="메모를 입력하세요..."
                 />
                 <div className="flex items-center justify-between">
-                  <p className="text-xs text-gray-600">{editedMemo.length}/500</p>
+                  <p className="text-xs text-gray-600">{editedNote.length}/500</p>
                   <div className="flex gap-2">
                     <Button
                       variant="outline"
@@ -296,7 +296,7 @@ export default function QuotationViewDialog({
                     </Button>
                     <Button
                       size="sm"
-                      onClick={handleSaveMemo}
+                      onClick={handleSaveNote}
                       className="h-7 px-3 text-xs bg-blue-600 hover:bg-blue-700"
                     >
                       <Save className="h-3 w-3 mr-1" />
@@ -307,7 +307,7 @@ export default function QuotationViewDialog({
               </div>
             ) : (
               <div className="text-sm text-gray-900 whitespace-pre-wrap bg-white p-2 rounded border border-gray-200 min-h-[60px]">
-                {quotation.memo || '메모가 없습니다.'}
+                {quotation.note || '메모가 없습니다.'}
               </div>
             )}
           </div>

@@ -23,7 +23,6 @@ import {
   CostCalculationInput,
   CostCalculationResult,
   CalculationHistory,
-  HistoricalFreightSnapshot,
   Quotation,
   AgentCostBreakdown,
 } from '@/types/freight';
@@ -215,7 +214,6 @@ interface FreightContextType {
     carrier?: string;
     excludedCosts?: Record<string, boolean>;
     notes?: string;
-    memo?: string;
   }) => Promise<void>;
   deleteQuotation: (id: string) => Promise<void>;
   updateQuotation: (id: string, updates: Partial<Quotation>) => Promise<void>;
@@ -315,7 +313,6 @@ export function FreightProvider({ children }: { children: ReactNode }) {
         profitRate: item.profit_rate as number,
         carrier: item.carrier as string | undefined,
         notes: item.notes as string | undefined,
-        memo: item.memo as string | undefined,
         createdAt: item.created_at as string,
         updatedAt: item.updated_at as string,
       }));
@@ -474,7 +471,6 @@ export function FreightProvider({ children }: { children: ReactNode }) {
           profit: quotation.profit,
           profit_rate: quotation.profitRate,
           carrier: quotation.carrier,
-          memo: quotation.memo,
           notes: quotation.notes,
         })
         .select()
@@ -497,7 +493,6 @@ export function FreightProvider({ children }: { children: ReactNode }) {
         profit: data.profit,
         profitRate: data.profit_rate,
         carrier: data.carrier,
-        memo: data.memo,
         notes: data.notes,
         createdAt: data.created_at,
         updatedAt: data.updated_at,
@@ -535,7 +530,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
       const { data, error } = await supabaseClient
         .from(TABLES.QUOTATIONS)
         .update({
-          memo: updates.memo,
+          notes: updates.notes,
           updated_at: new Date().toISOString(),
         })
         .eq('id', id)
@@ -555,7 +550,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
           if (q.id === id) {
             return {
               ...q,
-              memo: data.memo,
+              notes: data.notes,
               updatedAt: data.updated_at,
             };
           }
@@ -570,8 +565,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // ... (keeping all other management functions unchanged for brevity - they remain the same as before)
-  // The file is too long to include everything, but all other functions remain identical
+  // ... (keeping all other management functions - they are too long to include but remain unchanged)
 
   // Rail Agent management
   const addRailAgent = async (agent: Omit<RailAgent, 'id' | 'createdAt'>) => {
@@ -2172,7 +2166,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
           id,
           'update',
           detectChanges(oldRule as unknown as Record<string, unknown>, updatedRule as unknown as Record<string, unknown>),
-          updatedRule as unknown as Record<string, unknown>,
+          updatedFreight as unknown as Record<string, unknown>,
           user
         );
 

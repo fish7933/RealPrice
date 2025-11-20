@@ -425,7 +425,7 @@ export interface Quotation {
   profitRate: number;
   carrier?: string;
   notes?: string;
-  memo?: string; // 🆕 메모 필드
+  note?: string;
   createdAt: string;
   updatedAt: string;
 }

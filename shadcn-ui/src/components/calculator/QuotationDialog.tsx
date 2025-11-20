@@ -21,9 +21,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { DollarSign, FileSpreadsheet, TrendingUp, Eye, Copy } from 'lucide-react';
+import { DollarSign, FileSpreadsheet, TrendingUp, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { exportQuotationToExcel, copyQuotationToClipboard } from '@/utils/excelExport';
+import { exportQuotationToExcel } from '@/utils/excelExport';
 import type { ExcludedCosts } from './CostCalculatorWithTabs';
 
 interface QuotationDialogProps {
@@ -203,46 +203,6 @@ export default function QuotationDialog({
     });
   };
 
-  const handleCopyToClipboard = async () => {
-    if (!user) return;
-
-    if (sellingPrice <= 0) {
-      toast({
-        title: '오류',
-        description: '제시운임을 입력해주세요.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    const success = await copyQuotationToClipboard({
-      breakdown,
-      input,
-      destinationName,
-      costTotal,
-      sellingPrice,
-      profit,
-      profitRate,
-      createdByUsername: user.username,
-      createdAt: new Date().toISOString(),
-      excludedCosts,
-      carrier,
-    });
-
-    if (success) {
-      toast({
-        title: '복사 완료',
-        description: '견적서 데이터가 클립보드에 복사되었습니다. 엑셀에 붙여넣기(Ctrl+V)하세요.',
-      });
-    } else {
-      toast({
-        title: '복사 실패',
-        description: '클립보드 복사에 실패했습니다.',
-        variant: 'destructive',
-      });
-    }
-  };
-
   const handleBack = () => {
     setShowQuotationView(false);
   };
@@ -383,10 +343,6 @@ export default function QuotationDialog({
           <DialogFooter className="gap-2 flex-wrap">
             <Button variant="outline" onClick={handleBack} className="border-gray-300 hover:bg-gray-100">
               뒤로가기
-            </Button>
-            <Button variant="outline" onClick={handleCopyToClipboard} className="flex items-center gap-2 border-gray-300 hover:bg-gray-100">
-              <Copy className="h-4 w-4" />
-              클립보드 복사
             </Button>
             <Button variant="outline" onClick={handleExportExcel} className="flex items-center gap-2 border-gray-300 hover:bg-gray-100">
               <FileSpreadsheet className="h-4 w-4" />

@@ -88,8 +88,8 @@ export default function ShippingLineTable() {
         <div className="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-white/10 blur-2xl"></div>
         <div className="absolute bottom-0 left-0 -mb-4 -ml-4 h-24 w-24 rounded-full bg-white/10 blur-2xl"></div>
         <div className="relative flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <div className="p-1 bg-gray-200/80 backdrop-blur-sm rounded-lg">
+          <div className="flex items-start gap-2">
+            <div className="p-1 bg-gray-200/80 backdrop-blur-sm rounded-lg self-center">
               <Ship className="h-4 w-4" />
             </div>
             <div>

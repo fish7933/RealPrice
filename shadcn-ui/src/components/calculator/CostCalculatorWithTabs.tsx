@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useFreight } from '@/contexts/FreightContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { CostCalculationInput, CostCalculationResult, CalculationHistory, SeaFreight, AgentCostBreakdown } from '@/types/freight';
+import { CostCalculationInput, CostCalculationResult, CalculationHistory, SeaFreight, AgentCostBreakdown, OtherCost } from '@/types/freight';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -499,12 +499,27 @@ export default function CostCalculatorWithTabs() {
     localStorage.removeItem(STORAGE_KEY_CELL_EXCLUDED);
   };
 
+  // ✅ FIXED: Migrate old 'name' field to 'category' field for backward compatibility
+  const migrateOtherCosts = (otherCosts: OtherCost[] | { name?: string; category?: string; amount: number }[]): OtherCost[] => {
+    return otherCosts.map(cost => ({
+      category: ('category' in cost && cost.category) || ('name' in cost && cost.name) || '',  // Use 'category' if exists, fallback to 'name', then empty string
+      amount: cost.amount || 0
+    }));
+  };
+
   const handleLoadHistory = (history: CalculationHistory) => {
+    // ✅ FIXED: Migrate otherCosts from old 'name' field to new 'category' field
+    const migratedInput = {
+      ...history.result.input,
+      otherCosts: migrateOtherCosts(history.result.input.otherCosts || [])
+    };
+
     const updatedResult = {
       ...history.result,
+      input: migratedInput,  // ✅ Use migrated input
       breakdown: history.result.breakdown.map((b: AgentCostBreakdown) => ({
         ...b,
-        otherCosts: b.otherCosts || []
+        otherCosts: migrateOtherCosts(b.otherCosts || [])  // ✅ Migrate breakdown otherCosts too
       }))
     };
     
@@ -550,7 +565,7 @@ export default function CostCalculatorWithTabs() {
     
     setResult(updatedResult);
     setAllFreightsResult(null);
-    setInput(history.result.input);
+    setInput(migratedInput);  // ✅ Set migrated input
     setSortConfig({ key: 'total', direction: 'asc' });
     setActiveTab('filtered');
     

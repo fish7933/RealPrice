@@ -24,7 +24,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { ChevronLeft, ChevronRight, Trash2, Eye, CalendarIcon, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Trash2, Eye, CalendarIcon, X, RotateCcw } from 'lucide-react';
 import { Quotation } from '@/types/freight';
 import { useToast } from '@/hooks/use-toast';
 import QuotationViewDialog from './QuotationViewDialog';
@@ -113,6 +113,27 @@ export default function QuotationList() {
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const paginatedQuotations = filteredQuotations.slice(startIndex, endIndex);
+
+  const handleResetFilters = () => {
+    setFilterPOL('all');
+    setFilterPOD('all');
+    setFilterDestination('all');
+    setFilterCarrier('all');
+    setFilterRailAgent('all');
+    setFilterTruckAgent('all');
+    setDateRange({ from: undefined, to: undefined });
+    setCurrentPage(1);
+  };
+
+  const hasActiveFilters = 
+    filterPOL !== 'all' || 
+    filterPOD !== 'all' || 
+    filterDestination !== 'all' || 
+    filterCarrier !== 'all' || 
+    filterRailAgent !== 'all' || 
+    filterTruckAgent !== 'all' || 
+    dateRange.from !== undefined || 
+    dateRange.to !== undefined;
 
   const handleDelete = async (id: string) => {
     if (!window.confirm('이 견적서를 삭제하시겠습니까?')) return;
@@ -311,259 +332,279 @@ export default function QuotationList() {
 
   return (
     <div className="space-y-4">
-      {/* Filters - Single Row */}
-      <div className="flex flex-wrap items-center gap-2">
-        {/* Date Range Filter - Compact with Custom Calendar */}
-        <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
-          <PopoverTrigger asChild>
+      {/* Filters Section */}
+      <div className="p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg border border-gray-200 shadow-sm">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <div className="h-8 w-1 bg-blue-600 rounded-full"></div>
+            <h3 className="text-sm font-bold text-gray-900">검색 필터</h3>
+          </div>
+          {hasActiveFilters && (
             <Button
               variant="outline"
-              className="justify-start text-left font-normal h-8 text-xs px-3"
+              size="sm"
+              onClick={handleResetFilters}
+              className="h-8 text-xs border-gray-300 hover:bg-white hover:border-blue-500 transition-all"
             >
-              <CalendarIcon className="mr-1.5 h-3.5 w-3.5" />
-              {dateRange.from ? (
-                dateRange.to ? (
-                  <>
-                    {format(dateRange.from, 'MM/dd', { locale: ko })} - {format(dateRange.to, 'MM/dd', { locale: ko })}
-                  </>
-                ) : (
-                  format(dateRange.from, 'MM/dd', { locale: ko })
-                )
-              ) : (
-                <span>작성일</span>
-              )}
-              {(dateRange.from || dateRange.to) && (
-                <X 
-                  className="ml-1.5 h-3 w-3 hover:text-red-600" 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setDateRange({ from: undefined, to: undefined });
-                    setCurrentPage(1);
-                  }}
-                />
-              )}
+              <RotateCcw className="h-3.5 w-3.5 mr-1.5" />
+              필터 초기화
             </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <div className="bg-white rounded-lg shadow-lg border border-gray-300">
-              {/* Custom Compact Calendar */}
-              <div className="p-3">
-                {/* Month Navigation */}
-                <div className="flex items-center justify-between mb-3">
-                  <button
-                    onClick={previousMonth}
-                    className="h-6 w-6 bg-gray-200 hover:bg-gray-300 rounded transition-all border border-gray-300 flex items-center justify-center"
-                  >
-                    <ChevronLeft className="h-3.5 w-3.5 text-gray-700" />
-                  </button>
-                  <h3 className="text-sm font-bold text-gray-900">
-                    {monthName}
-                  </h3>
-                  <button
-                    onClick={nextMonth}
-                    className="h-6 w-6 bg-gray-200 hover:bg-gray-300 rounded transition-all border border-gray-300 flex items-center justify-center"
-                  >
-                    <ChevronRight className="h-3.5 w-3.5 text-gray-700" />
-                  </button>
-                </div>
+          )}
+        </div>
 
-                {/* Calendar Grid */}
-                <div className="w-full">
-                  {/* Week Days Header */}
-                  <div className="grid grid-cols-7 gap-0.5 mb-1">
-                    {weekDays.map((day, index) => (
-                      <div
-                        key={index}
-                        className="h-6 flex items-center justify-center text-gray-700 font-bold text-xs"
-                      >
-                        {day}
-                      </div>
-                    ))}
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Date Range Filter */}
+          <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className="justify-start text-left font-normal h-9 text-xs px-3 bg-white hover:bg-gray-50 border-gray-300 transition-all"
+              >
+                <CalendarIcon className="mr-1.5 h-3.5 w-3.5" />
+                {dateRange.from ? (
+                  dateRange.to ? (
+                    <>
+                      {format(dateRange.from, 'MM/dd', { locale: ko })} - {format(dateRange.to, 'MM/dd', { locale: ko })}
+                    </>
+                  ) : (
+                    format(dateRange.from, 'MM/dd', { locale: ko })
+                  )
+                ) : (
+                  <span>작성일</span>
+                )}
+                {(dateRange.from || dateRange.to) && (
+                  <X 
+                    className="ml-1.5 h-3 w-3 hover:text-red-600" 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDateRange({ from: undefined, to: undefined });
+                      setCurrentPage(1);
+                    }}
+                  />
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <div className="bg-white rounded-lg shadow-lg border border-gray-300">
+                {/* Custom Compact Calendar */}
+                <div className="p-3">
+                  {/* Month Navigation */}
+                  <div className="flex items-center justify-between mb-3">
+                    <button
+                      onClick={previousMonth}
+                      className="h-6 w-6 bg-gray-200 hover:bg-gray-300 rounded transition-all border border-gray-300 flex items-center justify-center"
+                    >
+                      <ChevronLeft className="h-3.5 w-3.5 text-gray-700" />
+                    </button>
+                    <h3 className="text-sm font-bold text-gray-900">
+                      {monthName}
+                    </h3>
+                    <button
+                      onClick={nextMonth}
+                      className="h-6 w-6 bg-gray-200 hover:bg-gray-300 rounded transition-all border border-gray-300 flex items-center justify-center"
+                    >
+                      <ChevronRight className="h-3.5 w-3.5 text-gray-700" />
+                    </button>
                   </div>
 
-                  {/* Days Grid */}
-                  <div className="grid grid-cols-7 gap-0.5">
-                    {days.map((day, index) => {
-                      if (!day) {
-                        return <div key={index} className="h-6 w-full" />;
-                      }
-
-                      const today = new Date();
-                      const isFutureDate = day > today;
-                      const isInRangeDate = isInRange(day);
-                      const isTodayDate = isToday(day);
-
-                      return (
-                        <button
+                  {/* Calendar Grid */}
+                  <div className="w-full">
+                    {/* Week Days Header */}
+                    <div className="grid grid-cols-7 gap-0.5 mb-1">
+                      {weekDays.map((day, index) => (
+                        <div
                           key={index}
-                          onClick={() => handleDateClick(day)}
-                          className={`
-                            h-6 w-full rounded font-semibold text-xs
-                            flex items-center justify-center
-                            transition-all duration-200
-                            ${isInRangeDate
-                              ? 'bg-blue-600 text-white shadow-md scale-105 border border-blue-700'
-                              : isTodayDate
-                              ? 'bg-orange-100 text-orange-900 border border-orange-400 font-bold'
-                              : isFutureDate
-                              ? 'text-gray-700 bg-gray-100 hover:bg-gray-200 hover:scale-105 border border-gray-300'
-                              : 'text-gray-700 bg-gray-50 hover:bg-gray-100 hover:scale-105 border border-gray-200'
-                            }
-                          `}
+                          className="h-6 flex items-center justify-center text-gray-700 font-bold text-xs"
                         >
-                          {day.getDate()}
-                        </button>
-                      );
-                    })}
+                          {day}
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Days Grid */}
+                    <div className="grid grid-cols-7 gap-0.5">
+                      {days.map((day, index) => {
+                        if (!day) {
+                          return <div key={index} className="h-6 w-full" />;
+                        }
+
+                        const today = new Date();
+                        const isFutureDate = day > today;
+                        const isInRangeDate = isInRange(day);
+                        const isTodayDate = isToday(day);
+
+                        return (
+                          <button
+                            key={index}
+                            onClick={() => handleDateClick(day)}
+                            className={`
+                              h-6 w-full rounded font-semibold text-xs
+                              flex items-center justify-center
+                              transition-all duration-200
+                              ${isInRangeDate
+                                ? 'bg-blue-600 text-white shadow-md scale-105 border border-blue-700'
+                                : isTodayDate
+                                ? 'bg-orange-100 text-orange-900 border border-orange-400 font-bold'
+                                : isFutureDate
+                                ? 'text-gray-700 bg-gray-100 hover:bg-gray-200 hover:scale-105 border border-gray-300'
+                                : 'text-gray-700 bg-gray-50 hover:bg-gray-100 hover:scale-105 border border-gray-200'
+                              }
+                            `}
+                          >
+                            {day.getDate()}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Legend */}
+                <div className="px-3 pb-3 space-y-1.5 text-xs">
+                  <div className="flex items-center gap-1.5 p-1.5 bg-gray-50 rounded border border-gray-200">
+                    <div className="w-3.5 h-3.5 rounded bg-gray-50 border border-gray-200 flex-shrink-0"></div>
+                    <span className="text-gray-800 font-semibold">선택 가능한 날짜</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 p-1.5 bg-gray-50 rounded border border-gray-200">
+                    <div className="w-3.5 h-3.5 rounded bg-blue-600 border border-blue-700 flex-shrink-0"></div>
+                    <span className="text-gray-800 font-semibold">선택된 날짜</span>
                   </div>
                 </div>
               </div>
+            </PopoverContent>
+          </Popover>
 
-              {/* Legend */}
-              <div className="px-3 pb-3 space-y-1.5 text-xs">
-                <div className="flex items-center gap-1.5 p-1.5 bg-gray-50 rounded border border-gray-200">
-                  <div className="w-3.5 h-3.5 rounded bg-gray-50 border border-gray-200 flex-shrink-0"></div>
-                  <span className="text-gray-800 font-semibold">선택 가능한 날짜</span>
-                </div>
-                <div className="flex items-center gap-1.5 p-1.5 bg-gray-50 rounded border border-gray-200">
-                  <div className="w-3.5 h-3.5 rounded bg-blue-600 border border-blue-700 flex-shrink-0"></div>
-                  <span className="text-gray-800 font-semibold">선택된 날짜</span>
-                </div>
-              </div>
-            </div>
-          </PopoverContent>
-        </Popover>
+          {/* POL Filter */}
+          <Select
+            value={filterPOL}
+            onValueChange={(value) => {
+              setFilterPOL(value);
+              setCurrentPage(1);
+            }}
+          >
+            <SelectTrigger className="h-9 text-xs w-[120px] bg-white border-gray-300">
+              <SelectValue placeholder="POL" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">전체 POL</SelectItem>
+              {pols.map((pol) => (
+                <SelectItem key={pol} value={pol}>
+                  {pol}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-        {/* POL Filter */}
-        <Select
-          value={filterPOL}
-          onValueChange={(value) => {
-            setFilterPOL(value);
-            setCurrentPage(1);
-          }}
-        >
-          <SelectTrigger className="h-8 text-xs w-[120px]">
-            <SelectValue placeholder="POL" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">전체 POL</SelectItem>
-            {pols.map((pol) => (
-              <SelectItem key={pol} value={pol}>
-                {pol}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          {/* POD Filter */}
+          <Select
+            value={filterPOD}
+            onValueChange={(value) => {
+              setFilterPOD(value);
+              setCurrentPage(1);
+            }}
+          >
+            <SelectTrigger className="h-9 text-xs w-[120px] bg-white border-gray-300">
+              <SelectValue placeholder="POD" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">전체 POD</SelectItem>
+              {pods.map((pod) => (
+                <SelectItem key={pod} value={pod}>
+                  {pod}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-        {/* POD Filter */}
-        <Select
-          value={filterPOD}
-          onValueChange={(value) => {
-            setFilterPOD(value);
-            setCurrentPage(1);
-          }}
-        >
-          <SelectTrigger className="h-8 text-xs w-[120px]">
-            <SelectValue placeholder="POD" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">전체 POD</SelectItem>
-            {pods.map((pod) => (
-              <SelectItem key={pod} value={pod}>
-                {pod}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          {/* Destination Filter */}
+          <Select
+            value={filterDestination}
+            onValueChange={(value) => {
+              setFilterDestination(value);
+              setCurrentPage(1);
+            }}
+          >
+            <SelectTrigger className="h-9 text-xs w-[140px] bg-white border-gray-300">
+              <SelectValue placeholder="목적지" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">전체 목적지</SelectItem>
+              {destinations.map((dest) => (
+                <SelectItem key={dest} value={dest}>
+                  {dest}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-        {/* Destination Filter */}
-        <Select
-          value={filterDestination}
-          onValueChange={(value) => {
-            setFilterDestination(value);
-            setCurrentPage(1);
-          }}
-        >
-          <SelectTrigger className="h-8 text-xs w-[140px]">
-            <SelectValue placeholder="목적지" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">전체 목적지</SelectItem>
-            {destinations.map((dest) => (
-              <SelectItem key={dest} value={dest}>
-                {dest}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          {/* Carrier Filter */}
+          <Select
+            value={filterCarrier}
+            onValueChange={(value) => {
+              setFilterCarrier(value);
+              setCurrentPage(1);
+            }}
+          >
+            <SelectTrigger className="h-9 text-xs w-[120px] bg-white border-gray-300">
+              <SelectValue placeholder="선사" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">전체 선사</SelectItem>
+              {carriers.map((carrier) => (
+                <SelectItem key={carrier} value={carrier}>
+                  {carrier}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-        {/* Carrier Filter */}
-        <Select
-          value={filterCarrier}
-          onValueChange={(value) => {
-            setFilterCarrier(value);
-            setCurrentPage(1);
-          }}
-        >
-          <SelectTrigger className="h-8 text-xs w-[120px]">
-            <SelectValue placeholder="선사" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">전체 선사</SelectItem>
-            {carriers.map((carrier) => (
-              <SelectItem key={carrier} value={carrier}>
-                {carrier}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          {/* Rail Agent Filter */}
+          <Select
+            value={filterRailAgent}
+            onValueChange={(value) => {
+              setFilterRailAgent(value);
+              setCurrentPage(1);
+            }}
+          >
+            <SelectTrigger className="h-9 text-xs w-[120px] bg-white border-gray-300">
+              <SelectValue placeholder="철도" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">전체 철도</SelectItem>
+              {railAgents.map((agent) => (
+                <SelectItem key={agent} value={agent}>
+                  {agent}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-        {/* Rail Agent Filter */}
-        <Select
-          value={filterRailAgent}
-          onValueChange={(value) => {
-            setFilterRailAgent(value);
-            setCurrentPage(1);
-          }}
-        >
-          <SelectTrigger className="h-8 text-xs w-[120px]">
-            <SelectValue placeholder="철도" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">전체 철도</SelectItem>
-            {railAgents.map((agent) => (
-              <SelectItem key={agent} value={agent}>
-                {agent}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        {/* Truck Agent Filter */}
-        <Select
-          value={filterTruckAgent}
-          onValueChange={(value) => {
-            setFilterTruckAgent(value);
-            setCurrentPage(1);
-          }}
-        >
-          <SelectTrigger className="h-8 text-xs w-[120px]">
-            <SelectValue placeholder="트럭" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">전체 트럭</SelectItem>
-            {truckAgents.map((agent) => (
-              <SelectItem key={agent} value={agent}>
-                {agent}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          {/* Truck Agent Filter */}
+          <Select
+            value={filterTruckAgent}
+            onValueChange={(value) => {
+              setFilterTruckAgent(value);
+              setCurrentPage(1);
+            }}
+          >
+            <SelectTrigger className="h-9 text-xs w-[120px] bg-white border-gray-300">
+              <SelectValue placeholder="트럭" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">전체 트럭</SelectItem>
+              {truckAgents.map((agent) => (
+                <SelectItem key={agent} value={agent}>
+                  {agent}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Action Buttons */}
       <div className="flex items-center justify-between">
-        <div className="text-xs text-gray-600">
+        <div className="text-xs text-gray-600 font-medium">
           총 {filteredQuotations.length}개의 견적서
           {selectedIds.size > 0 && ` (${selectedIds.size}개 선택됨)`}
         </div>

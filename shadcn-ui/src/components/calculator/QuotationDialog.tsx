@@ -79,10 +79,12 @@ export default function QuotationDialog({
     return undefined;
   };
 
-  // Calculate cost total with excluded costs
+  // ✅ FIXED: Calculate cost total with excluded costs INCLUDING localCharge and llocal
   const calculateCostTotal = () => {
     let total = 0;
     if (!excludedCosts.seaFreight) total += breakdown.seaFreight;
+    if (!excludedCosts.localCharge) total += breakdown.localCharge;  // ✅ NEW: Include localCharge
+    total += breakdown.llocal;  // ✅ NEW: Always include llocal (can be negative)
     if (!excludedCosts.dthc) total += breakdown.dthc;
     
     if (breakdown.isCombinedFreight) {
@@ -238,6 +240,12 @@ export default function QuotationDialog({
                       {input.pol}-{input.pod}
                     </TableHead>
                   )}
+                  {!excludedCosts.localCharge && breakdown.localCharge > 0 && (
+                    <TableHead className="border border-gray-200 font-bold text-center text-xs py-2 text-gray-900">LOCAL CHARGE</TableHead>
+                  )}
+                  {breakdown.llocal !== 0 && (
+                    <TableHead className="border border-gray-200 font-bold text-center text-xs py-2 text-gray-900">L.LOCAL</TableHead>
+                  )}
                   {!excludedCosts.dthc && (
                     <TableHead className="border border-gray-200 font-bold text-center text-xs py-2 text-gray-900">D/O FEE</TableHead>
                   )}
@@ -269,7 +277,7 @@ export default function QuotationDialog({
                     if (!excludedCosts[`other_${index}`]) {
                       return (
                         <TableHead key={index} className="border border-gray-200 font-bold text-center text-xs py-2 text-gray-900">
-                          {item.category}
+                          {item.category || '기타 비용'}
                         </TableHead>
                       );
                     }
@@ -286,43 +294,51 @@ export default function QuotationDialog({
                   <TableCell className="border border-gray-200 text-center text-xs py-2 text-gray-700">{carrier || ''}</TableCell>
                   <TableCell className="border border-gray-200 text-center text-xs py-2 text-gray-700">40'HQ</TableCell>
                   {!excludedCosts.seaFreight && (
-                    <TableCell className="border border-gray-200 text-center text-xs py-2 text-gray-700">{breakdown.seaFreight}</TableCell>
+                    <TableCell className="border border-gray-200 text-center text-xs py-2 text-gray-700">${breakdown.seaFreight.toLocaleString()}</TableCell>
+                  )}
+                  {!excludedCosts.localCharge && breakdown.localCharge > 0 && (
+                    <TableCell className="border border-gray-200 text-center text-xs py-2 text-gray-700">${breakdown.localCharge.toLocaleString()}</TableCell>
+                  )}
+                  {breakdown.llocal !== 0 && (
+                    <TableCell className={`border border-gray-200 text-center text-xs py-2 font-semibold ${breakdown.llocal < 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      ${breakdown.llocal.toLocaleString()}
+                    </TableCell>
                   )}
                   {!excludedCosts.dthc && (
-                    <TableCell className="border border-gray-200 text-center text-xs py-2 text-gray-700">{breakdown.dthc}</TableCell>
+                    <TableCell className="border border-gray-200 text-center text-xs py-2 text-gray-700">${breakdown.dthc.toLocaleString()}</TableCell>
                   )}
                   {!breakdown.isCombinedFreight && !excludedCosts.portBorder && (
-                    <TableCell className="border border-gray-200 text-center text-xs py-2 text-gray-700">{breakdown.portBorder}</TableCell>
+                    <TableCell className="border border-gray-200 text-center text-xs py-2 text-gray-700">${breakdown.portBorder.toLocaleString()}</TableCell>
                   )}
                   {!breakdown.isCombinedFreight && !excludedCosts.borderDestination && (
-                    <TableCell className="border border-gray-200 text-center text-xs py-2 text-gray-700">{breakdown.borderDestination}</TableCell>
+                    <TableCell className="border border-gray-200 text-center text-xs py-2 text-gray-700">${breakdown.borderDestination.toLocaleString()}</TableCell>
                   )}
                   {breakdown.isCombinedFreight && !excludedCosts.combinedFreight && (
-                    <TableCell className="border border-gray-200 text-center text-xs py-2 text-gray-700">{breakdown.combinedFreight}</TableCell>
+                    <TableCell className="border border-gray-200 text-center text-xs py-2 text-gray-700">${breakdown.combinedFreight.toLocaleString()}</TableCell>
                   )}
                   {!excludedCosts.weightSurcharge && breakdown.weightSurcharge > 0 && (
-                    <TableCell className="border border-gray-200 text-center text-xs py-2 text-gray-700">{breakdown.weightSurcharge}</TableCell>
+                    <TableCell className="border border-gray-200 text-center text-xs py-2 text-gray-700">${breakdown.weightSurcharge.toLocaleString()}</TableCell>
                   )}
                   {!excludedCosts.dp && breakdown.dp > 0 && (
-                    <TableCell className="border border-gray-200 text-center text-xs py-2 text-gray-700">{breakdown.dp}</TableCell>
+                    <TableCell className="border border-gray-200 text-center text-xs py-2 text-gray-700">${breakdown.dp.toLocaleString()}</TableCell>
                   )}
                   {!excludedCosts.domesticTransport && breakdown.domesticTransport > 0 && (
-                    <TableCell className="border border-gray-200 text-center text-xs py-2 text-gray-700">{breakdown.domesticTransport}</TableCell>
+                    <TableCell className="border border-gray-200 text-center text-xs py-2 text-gray-700">${breakdown.domesticTransport.toLocaleString()}</TableCell>
                   )}
                   {breakdown.otherCosts.map((item, index) => {
                     if (!excludedCosts[`other_${index}`]) {
                       return (
                         <TableCell key={index} className="border border-gray-200 text-center text-xs py-2 text-gray-700">
-                          {item.amount}
+                          ${item.amount.toLocaleString()}
                         </TableCell>
                       );
                     }
                     return null;
                   })}
-                  <TableCell className="border border-gray-200 text-center text-xs py-2 font-bold bg-blue-50 text-blue-700">{costTotal}</TableCell>
-                  <TableCell className="border border-gray-200 text-center text-xs py-2 font-bold bg-green-50 text-green-700">{sellingPrice}</TableCell>
+                  <TableCell className="border border-gray-200 text-center text-xs py-2 font-bold bg-blue-50 text-blue-700">${costTotal.toLocaleString()}</TableCell>
+                  <TableCell className="border border-gray-200 text-center text-xs py-2 font-bold bg-green-50 text-green-700">${sellingPrice.toLocaleString()}</TableCell>
                   <TableCell className={`border border-gray-200 text-center text-xs py-2 font-bold bg-yellow-50 ${profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {profit}
+                    ${profit.toLocaleString()}
                   </TableCell>
                 </TableRow>
               </TableBody>
@@ -424,53 +440,69 @@ export default function QuotationDialog({
                 <TableBody className="text-xs">
                   <TableRow className={excludedCosts.seaFreight ? 'opacity-50' : ''}>
                     <TableCell className="py-1 text-gray-700">해상운임</TableCell>
-                    <TableCell className="text-right py-1 text-gray-900">${excludedCosts.seaFreight ? 0 : breakdown.seaFreight}</TableCell>
+                    <TableCell className="text-right py-1 text-gray-900">${excludedCosts.seaFreight ? 0 : breakdown.seaFreight.toLocaleString()}</TableCell>
                     <TableCell className="text-center py-1 text-gray-700">{excludedCosts.seaFreight ? '제외' : '포함'}</TableCell>
                   </TableRow>
+                  {breakdown.localCharge > 0 && (
+                    <TableRow className={excludedCosts.localCharge ? 'opacity-50' : ''}>
+                      <TableCell className="py-1 text-gray-700">LOCAL CHARGE</TableCell>
+                      <TableCell className="text-right py-1 text-gray-900">${excludedCosts.localCharge ? 0 : breakdown.localCharge.toLocaleString()}</TableCell>
+                      <TableCell className="text-center py-1 text-gray-700">{excludedCosts.localCharge ? '제외' : '포함'}</TableCell>
+                    </TableRow>
+                  )}
+                  {breakdown.llocal !== 0 && (
+                    <TableRow>
+                      <TableCell className="py-1 text-gray-700">L.LOCAL</TableCell>
+                      <TableCell className={`text-right py-1 font-semibold ${breakdown.llocal < 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        ${breakdown.llocal.toLocaleString()}
+                      </TableCell>
+                      <TableCell className="text-center py-1 text-gray-700">항상 포함</TableCell>
+                    </TableRow>
+                  )}
                   <TableRow className={excludedCosts.dthc ? 'opacity-50' : ''}>
                     <TableCell className="py-1 text-gray-700">D/O (DTHC)</TableCell>
-                    <TableCell className="text-right py-1 text-gray-900">${excludedCosts.dthc ? 0 : breakdown.dthc}</TableCell>
+                    <TableCell className="text-right py-1 text-gray-900">${excludedCosts.dthc ? 0 : breakdown.dthc.toLocaleString()}</TableCell>
                     <TableCell className="text-center py-1 text-gray-700">{excludedCosts.dthc ? '제외' : '포함'}</TableCell>
                   </TableRow>
                   {breakdown.isCombinedFreight ? (
                     <TableRow className={excludedCosts.combinedFreight ? 'opacity-50' : ''}>
                       <TableCell className="py-1 text-gray-700">통합운임</TableCell>
-                      <TableCell className="text-right py-1 text-gray-900">${excludedCosts.combinedFreight ? 0 : breakdown.combinedFreight}</TableCell>
+                      <TableCell className="text-right py-1 text-gray-900">${excludedCosts.combinedFreight ? 0 : breakdown.combinedFreight.toLocaleString()}</TableCell>
                       <TableCell className="text-center py-1 text-gray-700">{excludedCosts.combinedFreight ? '제외' : '포함'}</TableCell>
                     </TableRow>
                   ) : (
                     <>
                       <TableRow className={excludedCosts.portBorder ? 'opacity-50' : ''}>
                         <TableCell className="py-1 text-gray-700">철도운임</TableCell>
-                        <TableCell className="text-right py-1 text-gray-900">${excludedCosts.portBorder ? 0 : breakdown.portBorder}</TableCell>
+                        <TableCell className="text-right py-1 text-gray-900">${excludedCosts.portBorder ? 0 : breakdown.portBorder.toLocaleString()}</TableCell>
                         <TableCell className="text-center py-1 text-gray-700">{excludedCosts.portBorder ? '제외' : '포함'}</TableCell>
                       </TableRow>
                       <TableRow className={excludedCosts.borderDestination ? 'opacity-50' : ''}>
                         <TableCell className="py-1 text-gray-700">트럭운임</TableCell>
-                        <TableCell className="text-right py-1 text-gray-900">${excludedCosts.borderDestination ? 0 : breakdown.borderDestination}</TableCell>
+                        <TableCell className="text-right py-1 text-gray-900">${excludedCosts.borderDestination ? 0 : breakdown.borderDestination.toLocaleString()}</TableCell>
                         <TableCell className="text-center py-1 text-gray-700">{excludedCosts.borderDestination ? '제외' : '포함'}</TableCell>
                       </TableRow>
                     </>
                   )}
                   <TableRow className={excludedCosts.weightSurcharge ? 'opacity-50' : ''}>
                     <TableCell className="py-1 text-gray-700">중량할증</TableCell>
-                    <TableCell className="text-right py-1 text-gray-900">${excludedCosts.weightSurcharge ? 0 : breakdown.weightSurcharge}</TableCell>
+                    <TableCell className="text-right py-1 text-gray-900">${excludedCosts.weightSurcharge ? 0 : breakdown.weightSurcharge.toLocaleString()}</TableCell>
                     <TableCell className="text-center py-1 text-gray-700">{excludedCosts.weightSurcharge ? '제외' : '포함'}</TableCell>
                   </TableRow>
                   <TableRow className={excludedCosts.dp ? 'opacity-50' : ''}>
                     <TableCell className="py-1 text-gray-700">DP</TableCell>
-                    <TableCell className="text-right py-1 text-gray-900">${excludedCosts.dp ? 0 : breakdown.dp}</TableCell>
+                    <TableCell className="text-right py-1 text-gray-900">${excludedCosts.dp ? 0 : breakdown.dp.toLocaleString()}</TableCell>
                     <TableCell className="text-center py-1 text-gray-700">{excludedCosts.dp ? '제외' : '포함'}</TableCell>
                   </TableRow>
                   <TableRow className={excludedCosts.domesticTransport ? 'opacity-50' : ''}>
                     <TableCell className="py-1 text-gray-700">국내운송료</TableCell>
-                    <TableCell className="text-right py-1 text-gray-900">${excludedCosts.domesticTransport ? 0 : breakdown.domesticTransport}</TableCell>
+                    <TableCell className="text-right py-1 text-gray-900">${excludedCosts.domesticTransport ? 0 : breakdown.domesticTransport.toLocaleString()}</TableCell>
                     <TableCell className="text-center py-1 text-gray-700">{excludedCosts.domesticTransport ? '제외' : '포함'}</TableCell>
                   </TableRow>
                   {breakdown.otherCosts.map((item, index) => (
                     <TableRow key={index} className={excludedCosts[`other_${index}`] ? 'opacity-50' : ''}>
-                      <TableCell className="py-1 text-gray-700">{item.category}</TableCell>
-                      <TableCell className="text-right py-1 text-gray-900">${excludedCosts[`other_${index}`] ? 0 : item.amount}</TableCell>
+                      <TableCell className="py-1 text-gray-700">{item.category || '기타 비용'}</TableCell>
+                      <TableCell className="text-right py-1 text-gray-900">${excludedCosts[`other_${index}`] ? 0 : item.amount.toLocaleString()}</TableCell>
                       <TableCell className="text-center py-1 text-gray-700">{excludedCosts[`other_${index}`] ? '제외' : '포함'}</TableCell>
                     </TableRow>
                   ))}

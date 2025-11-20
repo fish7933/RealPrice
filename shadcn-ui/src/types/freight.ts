@@ -267,8 +267,9 @@ export interface HistoricalFreightSnapshot {
 }
 
 // Calculation types
+// ✅ FIXED: Use 'category' instead of 'name' to match the rest of the codebase
 export interface OtherCost {
-  name: string;
+  category: string;  // Changed from 'name' to 'category'
   amount: number;
 }
 
@@ -282,6 +283,7 @@ export interface CostCalculationInput {
   selectedSeaFreightId?: string;
   historicalDate?: string;
   includeDP?: boolean;
+  localCharge?: number;  // ✅ NEW: Add localCharge to input
 }
 
 export interface AgentCostBreakdown {

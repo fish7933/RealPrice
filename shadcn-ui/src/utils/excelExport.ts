@@ -61,6 +61,16 @@ export const exportQuotationToExcel = (data: ExcelExportData) => {
     headers.push(`${data.input.pol}-${data.input.pod}`);
   }
   
+  // ✅ NEW: Add LOCAL CHARGE column if applicable
+  if (!data.excludedCosts.localCharge && data.breakdown.localCharge > 0) {
+    headers.push('LOCAL CHARGE');
+  }
+  
+  // ✅ NEW: Add L.LOCAL column if applicable
+  if (data.breakdown.llocal !== 0) {
+    headers.push('L.LOCAL');
+  }
+  
   if (!data.excludedCosts.dthc) {
     headers.push('D/O FEE');
   }
@@ -90,7 +100,7 @@ export const exportQuotationToExcel = (data: ExcelExportData) => {
     headers.push('국내운송');
   }
   
-  // Add other cost items with proper category names
+  // Add other cost items
   data.breakdown.otherCosts.forEach((item, index) => {
     if (!data.excludedCosts[`other_${index}`]) {
       headers.push(item.category || '기타 비용');
@@ -108,6 +118,16 @@ export const exportQuotationToExcel = (data: ExcelExportData) => {
   
   if (!data.excludedCosts.seaFreight) {
     dataRow.push(data.breakdown.seaFreight);
+  }
+  
+  // ✅ NEW: Add LOCAL CHARGE value
+  if (!data.excludedCosts.localCharge && data.breakdown.localCharge > 0) {
+    dataRow.push(data.breakdown.localCharge);
+  }
+  
+  // ✅ NEW: Add L.LOCAL value
+  if (data.breakdown.llocal !== 0) {
+    dataRow.push(data.breakdown.llocal);
   }
   
   if (!data.excludedCosts.dthc) {
@@ -260,6 +280,24 @@ export const exportQuotationToExcel = (data: ExcelExportData) => {
         cellStyle.numFmt = '"$"#,##0';
       }
 
+      // ✅ NEW: Special styling for L.LOCAL column (green if negative, red if positive)
+      if (header === 'L.LOCAL') {
+        const llocalValue = data.breakdown.llocal;
+        if (llocalValue < 0) {
+          cellStyle.font = {
+            sz: 10,
+            color: { rgb: '16A34A' }, // Green-600
+            bold: true
+          };
+        } else if (llocalValue > 0) {
+          cellStyle.font = {
+            sz: 10,
+            color: { rgb: 'DC2626' }, // Red-600
+            bold: true
+          };
+        }
+      }
+
       // Special styling for PROFIT column (red if negative)
       if (header === 'PROFIT' && data.profit < 0) {
         cellStyle.font = {
@@ -301,6 +339,16 @@ export const copyQuotationToClipboard = async (data: ExcelExportData): Promise<b
     
     if (!data.excludedCosts.seaFreight) {
       headers.push(`${data.input.pol}-${data.input.pod}`);
+    }
+    
+    // ✅ NEW: Add LOCAL CHARGE column
+    if (!data.excludedCosts.localCharge && data.breakdown.localCharge > 0) {
+      headers.push('LOCAL CHARGE');
+    }
+    
+    // ✅ NEW: Add L.LOCAL column
+    if (data.breakdown.llocal !== 0) {
+      headers.push('L.LOCAL');
     }
     
     if (!data.excludedCosts.dthc) {
@@ -349,6 +397,16 @@ export const copyQuotationToClipboard = async (data: ExcelExportData): Promise<b
     
     if (!data.excludedCosts.seaFreight) {
       dataRow.push(data.breakdown.seaFreight);
+    }
+    
+    // ✅ NEW: Add LOCAL CHARGE value
+    if (!data.excludedCosts.localCharge && data.breakdown.localCharge > 0) {
+      dataRow.push(data.breakdown.localCharge);
+    }
+    
+    // ✅ NEW: Add L.LOCAL value
+    if (data.breakdown.llocal !== 0) {
+      dataRow.push(data.breakdown.llocal);
     }
     
     if (!data.excludedCosts.dthc) {

@@ -57,7 +57,7 @@ export default function CostInputForm({
     }
     setInput({
       ...input,
-      otherCosts: [...input.otherCosts, { name: '', amount: 0 }]
+      otherCosts: [...input.otherCosts, { category: '', amount: 0 }]
     });
   };
 
@@ -69,10 +69,10 @@ export default function CostInputForm({
     });
   };
 
-  const handleOtherCostChange = (index: number, field: 'name' | 'amount', value: string | number) => {
+  const handleOtherCostChange = (index: number, field: 'category' | 'amount', value: string | number) => {
     const newOtherCosts = [...input.otherCosts];
-    if (field === 'name') {
-      newOtherCosts[index].name = value as string;
+    if (field === 'category') {
+      newOtherCosts[index].category = value as string;
     } else {
       newOtherCosts[index].amount = typeof value === 'number' ? value : parseFloat(value as string) || 0;
     }
@@ -175,7 +175,7 @@ export default function CostInputForm({
               <Package className="h-4 w-4 text-blue-600" />
               <span>DP 포함</span>
               {input.includeDP && dpCost > 0 && (
-                <span className="text-blue-600 font-bold">($${dpCost})</span>
+                <span className="text-blue-600 font-bold">(${dpCost})</span>
               )}
             </Label>
           </div>
@@ -229,14 +229,14 @@ export default function CostInputForm({
             {input.otherCosts.map((cost, index) => (
               <div key={index} className="flex items-end gap-2 p-3 bg-white rounded-lg border border-blue-200">
                 <div className="flex-1 space-y-1.5">
-                  <Label htmlFor={`other-cost-name-${index}`} className="text-xs font-semibold text-gray-900">
+                  <Label htmlFor={`other-cost-category-${index}`} className="text-xs font-semibold text-gray-900">
                     비용명
                   </Label>
                   <Input
-                    id={`other-cost-name-${index}`}
+                    id={`other-cost-category-${index}`}
                     type="text"
-                    value={cost.name}
-                    onChange={(e) => handleOtherCostChange(index, 'name', e.target.value)}
+                    value={cost.category}
+                    onChange={(e) => handleOtherCostChange(index, 'category', e.target.value)}
                     placeholder="예: 보험료, 검역비 등"
                     className="h-9 border-gray-300"
                   />

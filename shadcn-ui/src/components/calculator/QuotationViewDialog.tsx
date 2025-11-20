@@ -150,6 +150,12 @@ export default function QuotationViewDialog({
                     {input.pol}-{input.pod}
                   </TableHead>
                 )}
+                {!excludedCosts.localCharge && breakdown.localCharge > 0 && (
+                  <TableHead className="border border-gray-200 font-bold text-center text-xs py-2 text-gray-900">LOCAL CHARGE</TableHead>
+                )}
+                {breakdown.llocal !== 0 && (
+                  <TableHead className="border border-gray-200 font-bold text-center text-xs py-2 text-gray-900">L.LOCAL</TableHead>
+                )}
                 {!excludedCosts.dthc && (
                   <TableHead className="border border-gray-200 font-bold text-center text-xs py-2 text-gray-900">D/O FEE</TableHead>
                 )}
@@ -199,6 +205,14 @@ export default function QuotationViewDialog({
                 <TableCell className="border border-gray-200 text-center text-xs py-2 text-gray-700">40'HQ</TableCell>
                 {!excludedCosts.seaFreight && (
                   <TableCell className="border border-gray-200 text-center text-xs py-2 text-gray-700">${breakdown.seaFreight.toLocaleString()}</TableCell>
+                )}
+                {!excludedCosts.localCharge && breakdown.localCharge > 0 && (
+                  <TableCell className="border border-gray-200 text-center text-xs py-2 text-gray-700">${breakdown.localCharge.toLocaleString()}</TableCell>
+                )}
+                {breakdown.llocal !== 0 && (
+                  <TableCell className={`border border-gray-200 text-center text-xs py-2 font-semibold ${breakdown.llocal < 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    ${breakdown.llocal.toLocaleString()}
+                  </TableCell>
                 )}
                 {!excludedCosts.dthc && (
                   <TableCell className="border border-gray-200 text-center text-xs py-2 text-gray-700">${breakdown.dthc.toLocaleString()}</TableCell>

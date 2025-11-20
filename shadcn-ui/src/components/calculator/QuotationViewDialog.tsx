@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Quotation } from '@/types/freight';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -39,6 +39,12 @@ export default function QuotationViewDialog({
   const { updateQuotation } = useFreight();
   const [isEditingMemo, setIsEditingMemo] = useState(false);
   const [editedMemo, setEditedMemo] = useState(quotation.memo || '');
+
+  // Update editedMemo when quotation changes
+  useEffect(() => {
+    setEditedMemo(quotation.memo || '');
+    setIsEditingMemo(false);
+  }, [quotation.id, quotation.memo]);
 
   const handleExportExcel = () => {
     exportQuotationToExcel({

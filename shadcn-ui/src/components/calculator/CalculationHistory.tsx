@@ -14,7 +14,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Clock, TrendingDown, History, Trash2, Search, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Clock, TrendingDown, History, Trash2, Search, X, ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import { CalculationHistory as CalculationHistoryType } from '@/types/freight';
 import { ITEMS_PER_PAGE, FILTER_ALL_VALUE } from './types';
 
@@ -373,10 +373,10 @@ export default function CalculationHistoryComponent({
                         <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">
                           {history.result.input.weight.toLocaleString()}kg
                         </span>
-                        {history.result.isHistorical && (
-                          <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded flex items-center gap-1">
-                            <Clock className="h-3 w-3" />
-                            과거 운임
+                        {history.queryDate && (
+                          <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded flex items-center gap-1">
+                            <Calendar className="h-3 w-3" />
+                            운임: {history.queryDate}
                           </span>
                         )}
                       </div>

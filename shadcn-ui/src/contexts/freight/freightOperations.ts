@@ -870,63 +870,60 @@ export const addCalculationHistory = async (
   }
 
   try {
-    console.log('💾 [addCalculationHistory] ===== SNAPSHOT DEBUG START =====');
+    console.log('💾 [addCalculationHistory] ===== SNAPSHOT SAVE START =====');
     console.log('📊 [addCalculationHistory] Input data:');
     console.log('   - result.isHistorical:', history.result.isHistorical);
     console.log('   - result.historicalDate:', history.result.historicalDate);
-    console.log('   - result.historicalDate type:', typeof history.result.historicalDate);
-    console.log('   - result.historicalDate length:', history.result.historicalDate?.length);
     console.log('   - breakdown count:', history.result.breakdown.length);
     console.log('   - lowestCostAgent:', history.result.lowestCostAgent);
 
-    // 🆕 과거 날짜 조회인 경우 스냅샷 생성
+    // ✅ FIXED: 항상 스냅샷 생성 (과거/현재/미래 모두)
     let snapshot: FreightRateSnapshot | undefined;
-    let queryDate: string | undefined;
+    let queryDate: string;
 
-    if (history.result.isHistorical && history.result.historicalDate) {
-      console.log('📸 [addCalculationHistory] Historical query detected! Creating snapshot...');
-      console.log('   - Query date:', history.result.historicalDate);
-      
-      // 가장 낮은 비용의 breakdown에 대한 스냅샷 생성
-      const lowestBreakdown = history.result.breakdown.find(
-        b => b.agent === history.result.lowestCostAgent
-      );
-
-      console.log('   - Found lowest breakdown:', !!lowestBreakdown);
-      if (lowestBreakdown) {
-        console.log('   - Lowest breakdown agent:', lowestBreakdown.agent);
-        console.log('   - Creating snapshot with data arrays:');
-        console.log('     * seaFreights:', seaFreights.length);
-        console.log('     * agentSeaFreights:', agentSeaFreights.length);
-        console.log('     * dthcList:', dthcList.length);
-        console.log('     * dpCosts:', dpCosts.length);
-        console.log('     * portBorderFreights:', portBorderFreights.length);
-        console.log('     * borderDestinationFreights:', borderDestinationFreights.length);
-        console.log('     * combinedFreights:', combinedFreights.length);
-        console.log('     * weightSurchargeRules:', weightSurchargeRules.length);
-        
-        snapshot = createFreightSnapshot(
-          lowestBreakdown,
-          seaFreights,
-          agentSeaFreights,
-          dthcList,
-          dpCosts,
-          portBorderFreights,
-          borderDestinationFreights,
-          combinedFreights,
-          weightSurchargeRules
-        );
-        queryDate = history.result.historicalDate;
-        console.log('✅ [addCalculationHistory] Snapshot created successfully!');
-        console.log('   - Snapshot keys:', Object.keys(snapshot));
-        console.log('   - Snapshot content:', JSON.stringify(snapshot, null, 2));
-        console.log('   - Query date set to:', queryDate);
-      } else {
-        console.warn('⚠️ [addCalculationHistory] Could not find lowest breakdown for snapshot');
-      }
+    // 운임 적용 날짜 결정: historicalDate가 있으면 사용, 없으면 현재 날짜
+    if (history.result.historicalDate) {
+      queryDate = history.result.historicalDate;
+      console.log('📅 [addCalculationHistory] Using historical date:', queryDate);
     } else {
-      console.log('ℹ️ [addCalculationHistory] Not a historical query, skipping snapshot');
-      console.log('   - Reason: isHistorical =', history.result.isHistorical, ', historicalDate =', history.result.historicalDate);
+      queryDate = new Date().toISOString().split('T')[0]; // YYYY-MM-DD 형식
+      console.log('📅 [addCalculationHistory] Using current date:', queryDate);
+    }
+
+    // 가장 낮은 비용의 breakdown에 대한 스냅샷 생성
+    const lowestBreakdown = history.result.breakdown.find(
+      b => b.agent === history.result.lowestCostAgent
+    );
+
+    if (lowestBreakdown) {
+      console.log('📸 [addCalculationHistory] Creating snapshot for lowest cost agent:', lowestBreakdown.agent);
+      console.log('   - Data arrays available:');
+      console.log('     * seaFreights:', seaFreights.length);
+      console.log('     * agentSeaFreights:', agentSeaFreights.length);
+      console.log('     * dthcList:', dthcList.length);
+      console.log('     * dpCosts:', dpCosts.length);
+      console.log('     * portBorderFreights:', portBorderFreights.length);
+      console.log('     * borderDestinationFreights:', borderDestinationFreights.length);
+      console.log('     * combinedFreights:', combinedFreights.length);
+      console.log('     * weightSurchargeRules:', weightSurchargeRules.length);
+      
+      snapshot = createFreightSnapshot(
+        lowestBreakdown,
+        seaFreights,
+        agentSeaFreights,
+        dthcList,
+        dpCosts,
+        portBorderFreights,
+        borderDestinationFreights,
+        combinedFreights,
+        weightSurchargeRules
+      );
+      
+      console.log('✅ [addCalculationHistory] Snapshot created successfully!');
+      console.log('   - Snapshot keys:', Object.keys(snapshot));
+      console.log('   - Snapshot size:', JSON.stringify(snapshot).length, 'bytes');
+    } else {
+      console.warn('⚠️ [addCalculationHistory] Could not find lowest breakdown for snapshot');
     }
 
     console.log('💾 [addCalculationHistory] Preparing database insert...');
@@ -936,7 +933,7 @@ export const addCalculationHistory = async (
       created_by: user.id,
       created_by_username: user.username,
       snapshot: snapshot || null,
-      query_date: queryDate || null,
+      query_date: queryDate, // ✅ 항상 운임 적용 날짜 저장
     };
     console.log('   - Insert data prepared:');
     console.log('     * has snapshot:', !!insertData.snapshot);
@@ -953,14 +950,10 @@ export const addCalculationHistory = async (
     }
 
     console.log('✅ [addCalculationHistory] Successfully saved to database!');
-    if (snapshot) {
-      console.log('📸 [addCalculationHistory] Snapshot saved with:');
-      console.log('   - Query date:', queryDate);
-      console.log('   - Snapshot size:', JSON.stringify(snapshot).length, 'bytes');
-    } else {
-      console.log('ℹ️ [addCalculationHistory] No snapshot saved (current query)');
-    }
-    console.log('💾 [addCalculationHistory] ===== SNAPSHOT DEBUG END =====\n');
+    console.log('📸 [addCalculationHistory] Snapshot saved with:');
+    console.log('   - Freight application date (query_date):', queryDate);
+    console.log('   - Snapshot size:', snapshot ? JSON.stringify(snapshot).length : 0, 'bytes');
+    console.log('💾 [addCalculationHistory] ===== SNAPSHOT SAVE END =====\n');
   } catch (error) {
     console.error('💥 [addCalculationHistory] Exception occurred:', error);
     handleError(error, '계산 이력 추가');

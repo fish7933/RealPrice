@@ -177,16 +177,44 @@ export const calculateCost = (
     };
   };
 
-  const getDTHCByAgentAndRouteWithExpiry = (agent: string, pol: string, pod: string, isAgentSpecificSeaFreight: boolean): { value: number; expired: boolean } => {
-    const filtered = currentDthcList.filter((d) => d.agent === agent && d.pol === pol && d.pod === pod);
-    if (filtered.length === 0) return { value: 0, expired: false };
+  // ✅ FIXED: Updated to filter by carrier as well
+  const getDTHCByAgentAndRouteWithExpiry = (agent: string, pol: string, pod: string, carrier: string | undefined, isAgentSpecificSeaFreight: boolean): { value: number; expired: boolean } => {
+    console.log(`\n🔎 D/O(DTHC) 검색: agent="${agent}", pol="${pol}", pod="${pod}", carrier="${carrier}"`);
+    
+    // If no carrier specified, return 0
+    if (!carrier) {
+      console.log('   ⚠️ 선사 정보 없음, D/O(DTHC) = 0');
+      return { value: 0, expired: false };
+    }
+    
+    // ✅ FIXED: Filter by agent, pol, pod, AND carrier
+    const filtered = currentDthcList.filter((d) => 
+      d.agent === agent && 
+      d.pol === pol && 
+      d.pod === pod && 
+      d.carrier === carrier
+    );
+    
+    console.log(`   검색 결과 개수: ${filtered.length}`);
+    if (filtered.length > 0) {
+      console.log(`   검색된 D/O(DTHC):`, filtered[0]);
+    }
+    
+    if (filtered.length === 0) {
+      console.log(`   ❌ 해당 선사(${carrier})의 D/O(DTHC) 없음`);
+      return { value: 0, expired: false };
+    }
     
     const validDTHC = filtered.filter(d => isValidOnDate(d.validFrom, d.validTo, calculationDate));
     if (validDTHC.length > 0) {
-      return { value: isAgentSpecificSeaFreight ? 0 : validDTHC[0].amount, expired: false };
+      const dthcValue = isAgentSpecificSeaFreight ? 0 : validDTHC[0].amount;
+      console.log(`   ✅ 유효한 D/O(DTHC) 발견: ${dthcValue} (대리점 해상운임 사용: ${isAgentSpecificSeaFreight})`);
+      return { value: dthcValue, expired: false };
     }
     
-    return { value: isAgentSpecificSeaFreight ? 0 : filtered[0].amount, expired: true };
+    const dthcValue = isAgentSpecificSeaFreight ? 0 : filtered[0].amount;
+    console.log(`   ⚠️ 만료된 D/O(DTHC) 사용: ${dthcValue}`);
+    return { value: dthcValue, expired: true };
   };
 
   const getCombinedFreightWithExpiry = (agent: string, pol: string, pod: string, destinationId: string): { value: number | null; expired: boolean } => {
@@ -385,7 +413,8 @@ export const calculateCost = (
       }
     }
     
-    const dthcResult = getDTHCByAgentAndRouteWithExpiry(agentName, input.pol, input.pod, isAgentSpecific);
+    // ✅ FIXED: Pass carrier to DTHC lookup
+    const dthcResult = getDTHCByAgentAndRouteWithExpiry(agentName, input.pol, input.pod, seaFreightCarrier, isAgentSpecific);
     if (dthcResult.expired) expiredDetails.push('DTHC');
     
     const combinedResult = getCombinedFreightWithExpiry(agentName, input.pol, input.pod, input.destinationId);
@@ -541,7 +570,8 @@ export const calculateCost = (
       const cowinDpValue = dpCostData.value;
       if (dpCostData.expired && !cowinExpiredDetails.includes('DP')) cowinExpiredDetails.push('DP');
       
-      const cowinDthcResult = getDTHCByAgentAndRouteWithExpiry(agentName, input.pol, input.pod, isAgentSpecific);
+      // ✅ FIXED: Pass carrier to DTHC lookup for COWIN combination
+      const cowinDthcResult = getDTHCByAgentAndRouteWithExpiry(agentName, input.pol, input.pod, seaFreightCarrier, isAgentSpecific);
       
       const cowinTruckAgentCode = getTruckAgentCode('COWIN');
       

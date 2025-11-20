@@ -122,7 +122,9 @@ export interface DTHC {
   agent: string;
   pol: string;
   pod: string;
+  carrier: string; // ✅ FIXED: Added carrier field
   amount: number;
+  description?: string;
   validFrom: string;
   validTo: string;
   createdAt: string;
@@ -346,6 +348,7 @@ export interface FreightRateSnapshot {
     agent: string;
     pol: string;
     pod: string;
+    carrier: string;
     amount: number;
     validFrom: string;
     validTo: string;

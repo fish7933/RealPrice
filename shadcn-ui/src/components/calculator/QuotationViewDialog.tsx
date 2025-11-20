@@ -181,7 +181,7 @@ export default function QuotationViewDialog({
                   if (!excludedCosts[`other_${index}`]) {
                     return (
                       <TableHead key={index} className="border border-gray-200 font-bold text-center text-xs py-2 text-gray-900">
-                        {item.category}
+                        {item.category || '기타 비용'}
                       </TableHead>
                     );
                   }
@@ -198,43 +198,43 @@ export default function QuotationViewDialog({
                 <TableCell className="border border-gray-200 text-center text-xs py-2 text-gray-700">{quotation.carrier || ''}</TableCell>
                 <TableCell className="border border-gray-200 text-center text-xs py-2 text-gray-700">40'HQ</TableCell>
                 {!excludedCosts.seaFreight && (
-                  <TableCell className="border border-gray-200 text-center text-xs py-2 text-gray-700">{breakdown.seaFreight}</TableCell>
+                  <TableCell className="border border-gray-200 text-center text-xs py-2 text-gray-700">${breakdown.seaFreight.toLocaleString()}</TableCell>
                 )}
                 {!excludedCosts.dthc && (
-                  <TableCell className="border border-gray-200 text-center text-xs py-2 text-gray-700">{breakdown.dthc}</TableCell>
+                  <TableCell className="border border-gray-200 text-center text-xs py-2 text-gray-700">${breakdown.dthc.toLocaleString()}</TableCell>
                 )}
                 {!breakdown.isCombinedFreight && !excludedCosts.portBorder && (
-                  <TableCell className="border border-gray-200 text-center text-xs py-2 text-gray-700">{breakdown.portBorder}</TableCell>
+                  <TableCell className="border border-gray-200 text-center text-xs py-2 text-gray-700">${breakdown.portBorder.toLocaleString()}</TableCell>
                 )}
                 {!breakdown.isCombinedFreight && !excludedCosts.borderDestination && (
-                  <TableCell className="border border-gray-200 text-center text-xs py-2 text-gray-700">{breakdown.borderDestination}</TableCell>
+                  <TableCell className="border border-gray-200 text-center text-xs py-2 text-gray-700">${breakdown.borderDestination.toLocaleString()}</TableCell>
                 )}
                 {breakdown.isCombinedFreight && !excludedCosts.combinedFreight && (
-                  <TableCell className="border border-gray-200 text-center text-xs py-2 text-gray-700">{breakdown.combinedFreight}</TableCell>
+                  <TableCell className="border border-gray-200 text-center text-xs py-2 text-gray-700">${breakdown.combinedFreight.toLocaleString()}</TableCell>
                 )}
                 {!excludedCosts.weightSurcharge && breakdown.weightSurcharge > 0 && (
-                  <TableCell className="border border-gray-200 text-center text-xs py-2 text-gray-700">{breakdown.weightSurcharge}</TableCell>
+                  <TableCell className="border border-gray-200 text-center text-xs py-2 text-gray-700">${breakdown.weightSurcharge.toLocaleString()}</TableCell>
                 )}
                 {!excludedCosts.dp && breakdown.dp > 0 && (
-                  <TableCell className="border border-gray-200 text-center text-xs py-2 text-gray-700">{breakdown.dp}</TableCell>
+                  <TableCell className="border border-gray-200 text-center text-xs py-2 text-gray-700">${breakdown.dp.toLocaleString()}</TableCell>
                 )}
                 {!excludedCosts.domesticTransport && breakdown.domesticTransport > 0 && (
-                  <TableCell className="border border-gray-200 text-center text-xs py-2 text-gray-700">{breakdown.domesticTransport}</TableCell>
+                  <TableCell className="border border-gray-200 text-center text-xs py-2 text-gray-700">${breakdown.domesticTransport.toLocaleString()}</TableCell>
                 )}
                 {breakdown.otherCosts.map((item, index) => {
                   if (!excludedCosts[`other_${index}`]) {
                     return (
                       <TableCell key={index} className="border border-gray-200 text-center text-xs py-2 text-gray-700">
-                        {item.amount}
+                        ${item.amount.toLocaleString()}
                       </TableCell>
                     );
                   }
                   return null;
                 })}
-                <TableCell className="border border-gray-200 text-center text-xs py-2 font-bold bg-blue-50 text-blue-700">{quotation.costTotal}</TableCell>
-                <TableCell className="border border-gray-200 text-center text-xs py-2 font-bold bg-green-50 text-green-700">{quotation.sellingPrice}</TableCell>
+                <TableCell className="border border-gray-200 text-center text-xs py-2 font-bold bg-blue-50 text-blue-700">${quotation.costTotal.toLocaleString()}</TableCell>
+                <TableCell className="border border-gray-200 text-center text-xs py-2 font-bold bg-green-50 text-green-700">${quotation.sellingPrice.toLocaleString()}</TableCell>
                 <TableCell className={`border border-gray-200 text-center text-xs py-2 font-bold bg-yellow-50 ${quotation.profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {quotation.profit}
+                  ${quotation.profit.toLocaleString()}
                 </TableCell>
               </TableRow>
             </TableBody>

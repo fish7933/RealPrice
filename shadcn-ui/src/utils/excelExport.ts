@@ -14,6 +14,7 @@ export interface ExcelExportData {
   createdAt: string;
   excludedCosts: ExcludedCosts;
   carrier?: string;
+  note?: string;
 }
 
 interface CellStyle {
@@ -36,6 +37,7 @@ interface CellStyle {
     left: { style: string; color: { rgb: string } };
     right: { style: string; color: { rgb: string } };
   };
+  numFmt?: string;
 }
 
 export const exportQuotationToExcel = (data: ExcelExportData) => {
@@ -88,10 +90,10 @@ export const exportQuotationToExcel = (data: ExcelExportData) => {
     headers.push('국내운송');
   }
   
-  // Add other cost items
+  // Add other cost items with proper category names
   data.breakdown.otherCosts.forEach((item, index) => {
     if (!data.excludedCosts[`other_${index}`]) {
-      headers.push(item.category);
+      headers.push(item.category || '기타 비용');
     }
   });
   
@@ -253,6 +255,11 @@ export const exportQuotationToExcel = (data: ExcelExportData) => {
         border: borderStyle
       };
 
+      // Apply USD currency format to numeric columns (skip first 3 text columns)
+      if (col >= 3) {
+        cellStyle.numFmt = '"$"#,##0';
+      }
+
       // Special styling for PROFIT column (red if negative)
       if (header === 'PROFIT' && data.profit < 0) {
         cellStyle.font = {
@@ -269,9 +276,11 @@ export const exportQuotationToExcel = (data: ExcelExportData) => {
   // Add worksheet to workbook
   XLSX.utils.book_append_sheet(wb, ws, '운임 견적서');
 
-  // Generate filename
-  const dateStr = new Date().toISOString().split('T')[0].replace(/-/g, '');
-  const filename = `운임견적서_${data.breakdown.agent}_${data.destinationName}_${dateStr}.xlsx`;
+  // Generate filename with timestamp and creator name
+  const now = new Date();
+  const dateStr = now.toISOString().split('T')[0].replace(/-/g, '');
+  const timeStr = now.toTimeString().split(' ')[0].replace(/:/g, '');
+  const filename = `운임견적서_${data.destinationName}_${data.createdByUsername}_${dateStr}_${timeStr}.xlsx`;
 
   // Write file with cellStyles option
   XLSX.writeFile(wb, filename, { cellStyles: true });
@@ -325,7 +334,7 @@ export const copyQuotationToClipboard = async (data: ExcelExportData): Promise<b
     
     data.breakdown.otherCosts.forEach((item, index) => {
       if (!data.excludedCosts[`other_${index}`]) {
-        headers.push(item.category);
+        headers.push(item.category || '기타 비용');
       }
     });
     

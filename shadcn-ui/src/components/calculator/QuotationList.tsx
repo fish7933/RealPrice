@@ -25,7 +25,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { ChevronLeft, ChevronRight, Trash2, Eye, CalendarIcon } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Trash2, Eye, CalendarIcon, X } from 'lucide-react';
 import { Quotation } from '@/types/freight';
 import { useToast } from '@/hooks/use-toast';
 import QuotationViewDialog from './QuotationViewDialog';
@@ -232,27 +232,36 @@ export default function QuotationList() {
 
   return (
     <div className="space-y-4">
-      {/* Filters */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-        {/* Date Range Filter */}
+      {/* Filters - Single Row */}
+      <div className="flex flex-wrap items-center gap-2">
+        {/* Date Range Filter - Compact */}
         <Popover>
           <PopoverTrigger asChild>
             <Button
               variant="outline"
-              className="w-full justify-start text-left font-normal h-9 text-sm"
+              className="justify-start text-left font-normal h-8 text-xs px-3"
             >
-              <CalendarIcon className="mr-2 h-4 w-4" />
+              <CalendarIcon className="mr-1.5 h-3.5 w-3.5" />
               {dateRange.from ? (
                 dateRange.to ? (
                   <>
-                    {format(dateRange.from, 'yy.MM.dd', { locale: ko })} -{' '}
-                    {format(dateRange.to, 'yy.MM.dd', { locale: ko })}
+                    {format(dateRange.from, 'MM/dd', { locale: ko })} - {format(dateRange.to, 'MM/dd', { locale: ko })}
                   </>
                 ) : (
-                  format(dateRange.from, 'yy.MM.dd', { locale: ko })
+                  format(dateRange.from, 'MM/dd', { locale: ko })
                 )
               ) : (
-                <span>작성일 선택</span>
+                <span>작성일</span>
+              )}
+              {(dateRange.from || dateRange.to) && (
+                <X 
+                  className="ml-1.5 h-3 w-3 hover:text-red-600" 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDateRange({ from: undefined, to: undefined });
+                    setCurrentPage(1);
+                  }}
+                />
               )}
             </Button>
           </PopoverTrigger>
@@ -265,21 +274,8 @@ export default function QuotationList() {
                 setCurrentPage(1);
               }}
               locale={ko}
-              numberOfMonths={2}
+              numberOfMonths={1}
             />
-            <div className="p-3 border-t">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setDateRange({ from: undefined, to: undefined });
-                  setCurrentPage(1);
-                }}
-                className="w-full"
-              >
-                날짜 초기화
-              </Button>
-            </div>
           </PopoverContent>
         </Popover>
 
@@ -291,7 +287,7 @@ export default function QuotationList() {
             setCurrentPage(1);
           }}
         >
-          <SelectTrigger className="h-9 text-sm">
+          <SelectTrigger className="h-8 text-xs w-[120px]">
             <SelectValue placeholder="POL" />
           </SelectTrigger>
           <SelectContent>
@@ -312,7 +308,7 @@ export default function QuotationList() {
             setCurrentPage(1);
           }}
         >
-          <SelectTrigger className="h-9 text-sm">
+          <SelectTrigger className="h-8 text-xs w-[120px]">
             <SelectValue placeholder="POD" />
           </SelectTrigger>
           <SelectContent>
@@ -333,7 +329,7 @@ export default function QuotationList() {
             setCurrentPage(1);
           }}
         >
-          <SelectTrigger className="h-9 text-sm">
+          <SelectTrigger className="h-8 text-xs w-[140px]">
             <SelectValue placeholder="목적지" />
           </SelectTrigger>
           <SelectContent>
@@ -354,7 +350,7 @@ export default function QuotationList() {
             setCurrentPage(1);
           }}
         >
-          <SelectTrigger className="h-9 text-sm">
+          <SelectTrigger className="h-8 text-xs w-[120px]">
             <SelectValue placeholder="선사" />
           </SelectTrigger>
           <SelectContent>
@@ -375,7 +371,7 @@ export default function QuotationList() {
             setCurrentPage(1);
           }}
         >
-          <SelectTrigger className="h-9 text-sm">
+          <SelectTrigger className="h-8 text-xs w-[120px]">
             <SelectValue placeholder="철도" />
           </SelectTrigger>
           <SelectContent>
@@ -396,7 +392,7 @@ export default function QuotationList() {
             setCurrentPage(1);
           }}
         >
-          <SelectTrigger className="h-9 text-sm">
+          <SelectTrigger className="h-8 text-xs w-[120px]">
             <SelectValue placeholder="트럭" />
           </SelectTrigger>
           <SelectContent>

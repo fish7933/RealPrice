@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Dialog,
   DialogContent,
@@ -47,12 +48,14 @@ export default function QuotationDialog({
   const { user } = useAuth();
   const { toast } = useToast();
   const [sellingPrice, setSellingPrice] = useState<number>(0);
+  const [memo, setMemo] = useState<string>('');
   const [showQuotationView, setShowQuotationView] = useState(false);
 
   // Reset state when dialog closes
   useEffect(() => {
     if (!open) {
       setSellingPrice(0);
+      setMemo('');
       setShowQuotationView(false);
     }
   }, [open]);
@@ -139,6 +142,7 @@ export default function QuotationDialog({
       createdByUsername: user.username,
       carrier,
       excludedCosts,
+      memo,
     });
 
     toast({
@@ -195,6 +199,7 @@ export default function QuotationDialog({
       createdAt: new Date().toISOString(),
       excludedCosts,
       carrier,
+      memo,
     });
 
     toast({
@@ -337,6 +342,12 @@ export default function QuotationDialog({
             <p className="text-gray-600">* 운임은 시장 상황에 따라 변동될 수 있습니다.</p>
             {Object.values(excludedCosts).some(v => v) && (
               <p className="text-gray-600">* 일부 비용 항목이 제외되어 계산되었습니다.</p>
+            )}
+            {memo && (
+              <div className="mt-2 pt-2 border-t border-gray-200">
+                <p className="font-semibold text-gray-700 mb-1">메모:</p>
+                <p className="text-gray-900 whitespace-pre-wrap">{memo}</p>
+              </div>
             )}
           </div>
 
@@ -488,6 +499,22 @@ export default function QuotationDialog({
                 className="text-sm h-9"
               />
               <p className="text-xs text-gray-600">고객에게 제시할 운임을 입력하세요 (USD)</p>
+            </div>
+
+            {/* Memo Input */}
+            <div className="space-y-1">
+              <Label htmlFor="memo" className="text-xs font-semibold text-gray-900">
+                메모 (선택사항)
+              </Label>
+              <Textarea
+                id="memo"
+                placeholder="견적서에 대한 메모를 입력하세요..."
+                value={memo}
+                onChange={(e) => setMemo(e.target.value)}
+                className="text-sm min-h-[80px] resize-none"
+                maxLength={500}
+              />
+              <p className="text-xs text-gray-600">최대 500자까지 입력 가능합니다 ({memo.length}/500)</p>
             </div>
 
             {/* Profit Calculation - Compact */}

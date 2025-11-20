@@ -647,8 +647,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
         'create',
         detectChanges(null, newFreight as unknown as Record<string, unknown>),
         newFreight as unknown as Record<string, unknown>,
-        user,
-        newFreight.version || 1
+        user
       );
 
       // Reload audit logs
@@ -758,8 +757,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
           'update',
           detectChanges(oldFreight as unknown as Record<string, unknown>, updatedFreight as unknown as Record<string, unknown>),
           updatedFreight as unknown as Record<string, unknown>,
-          user,
-          updatedFreight.version || 1
+          user
         );
 
         // Reload audit logs
@@ -796,8 +794,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
           'delete',
           [],
           freight as unknown as Record<string, unknown>,
-          user,
-          freight.version || 1
+          user
         );
 
         // Reload audit logs
@@ -855,8 +852,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
         'create',
         detectChanges(null, newFreight as unknown as Record<string, unknown>),
         newFreight as unknown as Record<string, unknown>,
-        user,
-        newFreight.version || 1
+        user
       );
 
       // Reload audit logs
@@ -918,8 +914,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
           'update',
           detectChanges(oldFreight as unknown as Record<string, unknown>, updatedFreight as unknown as Record<string, unknown>),
           updatedFreight as unknown as Record<string, unknown>,
-          user,
-          updatedFreight.version || 1
+          user
         );
 
         // Reload audit logs
@@ -954,8 +949,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
           'delete',
           [],
           freight as unknown as Record<string, unknown>,
-          user,
-          freight.version || 1
+          user
         );
 
         // Reload audit logs
@@ -1011,8 +1005,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
         'create',
         detectChanges(null, newDTHC as unknown as Record<string, unknown>),
         newDTHC as unknown as Record<string, unknown>,
-        user,
-        newDTHC.version || 1
+        user
       );
 
       // Reload audit logs
@@ -1072,8 +1065,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
           'update',
           detectChanges(oldDTHC as unknown as Record<string, unknown>, updatedDTHC as unknown as Record<string, unknown>),
           updatedDTHC as unknown as Record<string, unknown>,
-          user,
-          updatedDTHC.version || 1
+          user
         );
 
         // Reload audit logs
@@ -1108,8 +1100,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
           'delete',
           [],
           dthc as unknown as Record<string, unknown>,
-          user,
-          dthc.version || 1
+          user
         );
 
         // Reload audit logs
@@ -1159,8 +1150,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
         'create',
         detectChanges(null, newCost as unknown as Record<string, unknown>),
         newCost as unknown as Record<string, unknown>,
-        user,
-        newCost.version || 1
+        user
       );
 
       // Reload audit logs
@@ -1214,8 +1204,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
           'update',
           detectChanges(oldCost as unknown as Record<string, unknown>, updatedCost as unknown as Record<string, unknown>),
           updatedCost as unknown as Record<string, unknown>,
-          user,
-          updatedCost.version || 1
+          user
         );
 
         // Reload audit logs
@@ -1250,8 +1239,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
           'delete',
           [],
           cost as unknown as Record<string, unknown>,
-          user,
-          cost.version || 1
+          user
         );
 
         // Reload audit logs
@@ -1314,8 +1302,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
         'create',
         detectChanges(null, newFreight as unknown as Record<string, unknown>),
         newFreight as unknown as Record<string, unknown>,
-        user,
-        newFreight.version || 1
+        user
       );
 
       // Reload audit logs
@@ -1379,8 +1366,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
           'update',
           detectChanges(oldFreight as unknown as Record<string, unknown>, updatedFreight as unknown as Record<string, unknown>),
           updatedFreight as unknown as Record<string, unknown>,
-          user,
-          updatedFreight.version || 1
+          user
         );
 
         // Reload audit logs
@@ -1419,8 +1405,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
           'delete',
           [],
           freight as unknown as Record<string, unknown>,
-          user,
-          freight.version || 1
+          user
         );
 
         // Reload audit logs
@@ -1486,8 +1471,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
         'create',
         detectChanges(null, newFreight as unknown as Record<string, unknown>),
         newFreight as unknown as Record<string, unknown>,
-        user,
-        newFreight.version || 1
+        user
       );
       
       // Reload audit logs
@@ -1550,8 +1534,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
           'update',
           detectChanges(oldFreight as unknown as Record<string, unknown>, updatedFreight as unknown as Record<string, unknown>),
           updatedFreight as unknown as Record<string, unknown>,
-          user,
-          updatedFreight.version || 1
+          user
         );
         
         // Reload audit logs
@@ -1596,8 +1579,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
           'delete',
           [],
           freight as unknown as Record<string, unknown>,
-          user,
-          freight.version || 1
+          user
         );
         
         // Reload audit logs
@@ -1647,8 +1629,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
         'create',
         detectChanges(null, newFreight as unknown as Record<string, unknown>),
         newFreight as unknown as Record<string, unknown>,
-        user,
-        newFreight.version || 1
+        user
       );
 
       // Reload audit logs
@@ -1705,8 +1686,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
           'update',
           detectChanges(oldFreight as unknown as Record<string, unknown>, updatedFreight as unknown as Record<string, unknown>),
           updatedFreight as unknown as Record<string, unknown>,
-          user,
-          updatedFreight.version || 1
+          user
         );
 
         // Reload audit logs
@@ -1741,8 +1721,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
           'delete',
           [],
           freight as unknown as Record<string, unknown>,
-          user,
-          freight.version || 1
+          user
         );
 
         // Reload audit logs
@@ -1804,8 +1783,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
               'create',
               detectChanges(null, newFreight as unknown as Record<string, unknown>),
               newFreight as unknown as Record<string, unknown>,
-              user,
-              op.data.version
+              user
             );
             
             console.log('✅ [BATCH] Freight added with audit log:', newFreight.id);
@@ -1851,8 +1829,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
               'update',
               detectChanges(oldFreight as unknown as Record<string, unknown>, updatedFreight as unknown as Record<string, unknown>),
               updatedFreight as unknown as Record<string, unknown>,
-              user,
-              op.updates.version
+              user
             );
             
             console.log('✅ [BATCH] Freight updated with audit log:', op.id);
@@ -1878,8 +1855,7 @@ export function FreightProvider({ children }: { children: ReactNode }) {
               'delete',
               [],
               freight as unknown as Record<string, unknown>,
-              user,
-              freight.version
+              user
             );
             
             console.log('✅ [BATCH] Freight deleted with audit log:', op.id);
@@ -1937,13 +1913,12 @@ export function FreightProvider({ children }: { children: ReactNode }) {
 
       // ✅ Create audit log for add operation
       await createAuditLog(
-        'weightSurchargeRule',
+        'weightSurcharge',
         newRule.id,
         'create',
         detectChanges(null, newRule as unknown as Record<string, unknown>),
         newRule as unknown as Record<string, unknown>,
-        user,
-        newRule.version || 1
+        user
       );
 
       // Reload audit logs
@@ -1994,13 +1969,12 @@ export function FreightProvider({ children }: { children: ReactNode }) {
         };
 
         await createAuditLog(
-          'weightSurchargeRule',
+          'weightSurcharge',
           id,
           'update',
           detectChanges(oldRule as unknown as Record<string, unknown>, updatedRule as unknown as Record<string, unknown>),
           updatedRule as unknown as Record<string, unknown>,
-          user,
-          updatedRule.version || 1
+          user
         );
 
         // Reload audit logs
@@ -2030,13 +2004,12 @@ export function FreightProvider({ children }: { children: ReactNode }) {
       // ✅ Create audit log for delete operation
       if (rule) {
         await createAuditLog(
-          'weightSurchargeRule',
+          'weightSurcharge',
           id,
           'delete',
           [],
           rule as unknown as Record<string, unknown>,
-          user,
-          rule.version || 1
+          user
         );
 
         // Reload audit logs
@@ -2428,7 +2401,19 @@ export function FreightProvider({ children }: { children: ReactNode }) {
 
   // Calculation History management
   const handleAddCalculationHistory = async (history: Omit<CalculationHistory, 'id' | 'timestamp'>) => {
-    await addCalculationHistoryOp(history, user);
+    // 🆕 Pass all freight data arrays to addCalculationHistoryOp for snapshot creation
+    await addCalculationHistoryOp(
+      history,
+      user,
+      seaFreights,
+      agentSeaFreights,
+      dthcList,
+      dpCosts,
+      portBorderFreights,
+      borderDestinationFreights,
+      combinedFreights,
+      weightSurchargeRules
+    );
     // Reload calculation history after adding
     const loadedHistory = await loadCalculationHistory();
     setCalculationHistory(loadedHistory);

@@ -318,6 +318,83 @@ export interface CostCalculationResult {
   historicalDate?: string;
 }
 
+// 🆕 스냅샷 데이터 타입 - 과거 조회 결과 저장용
+export interface FreightRateSnapshot {
+  seaFreight?: {
+    id: string;
+    carrier: string;
+    pol: string;
+    pod: string;
+    rate: number;
+    localCharge?: number;
+    validFrom: string;
+    validTo: string;
+  };
+  agentSeaFreight?: {
+    id: string;
+    agent: string;
+    carrier?: string;
+    pol: string;
+    pod: string;
+    rate: number;
+    llocal?: number;
+    validFrom: string;
+    validTo: string;
+  };
+  dthc?: {
+    id: string;
+    agent: string;
+    pol: string;
+    pod: string;
+    amount: number;
+    validFrom: string;
+    validTo: string;
+  };
+  portBorder?: {
+    id: string;
+    agent: string;
+    pol: string;
+    pod: string;
+    rate: number;
+    validFrom: string;
+    validTo: string;
+  };
+  borderDestination?: {
+    id: string;
+    agent: string;
+    destinationId: string;
+    rate: number;
+    validFrom: string;
+    validTo: string;
+  };
+  combinedFreight?: {
+    id: string;
+    agent: string;
+    pol: string;
+    pod: string;
+    destinationId: string;
+    rate: number;
+    validFrom: string;
+    validTo: string;
+  };
+  weightSurcharge?: {
+    id: string;
+    agent: string;
+    minWeight: number;
+    maxWeight: number;
+    surcharge: number;
+    validFrom: string;
+    validTo: string;
+  };
+  dpCost?: {
+    id: string;
+    port: string;
+    amount: number;
+    validFrom: string;
+    validTo: string;
+  };
+}
+
 export interface CalculationHistory {
   id: string;
   timestamp: string;
@@ -325,6 +402,10 @@ export interface CalculationHistory {
   result: CostCalculationResult;
   userId?: string;
   username?: string;
+  // 🆕 스냅샷 데이터 - 과거 날짜 조회시에만 저장됨
+  snapshot?: FreightRateSnapshot;
+  // 🆕 조회 날짜 - 과거 날짜 조회시 해당 날짜 저장
+  queryDate?: string;
 }
 
 // Local charge types

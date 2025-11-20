@@ -5,7 +5,7 @@ import { CostCalculationInput, CostCalculationResult, CalculationHistory, SeaFre
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Calculator, Save, Clock, Info, History } from 'lucide-react';
+import { Calculator, Camera, Clock, Info, History } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import QuotationDialog from './QuotationDialog';
 import TimeMachineDialog from './TimeMachineDialog';
@@ -749,9 +749,13 @@ export default function CostCalculatorWithTabs() {
                   )}
                 </CardDescription>
               </div>
-              <Button onClick={handleSaveResult} variant="outline" className="flex items-center gap-2">
-                <Save className="h-4 w-4" />
-                결과 저장
+              <Button 
+                onClick={handleSaveResult} 
+                variant="outline" 
+                className="flex items-center gap-2 shadow-md hover:shadow-lg transition-shadow"
+              >
+                <Camera className="h-4 w-4" />
+                조회결과 스냅샷
               </Button>
             </div>
           </CardHeader>

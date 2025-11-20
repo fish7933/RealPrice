@@ -21,6 +21,8 @@ import {
   BorderCity,
   SystemSetting,
   User,
+  FreightRateSnapshot,
+  AgentCostBreakdown,
 } from '@/types/freight';
 
 // Create audit log helper - REMOVED version parameter
@@ -693,16 +695,211 @@ export const deleteAgentSeaFreight = async (id: string, agentSeaFreights: AgentS
   }
 };
 
+// 🆕 스냅샷 생성 헬퍼 함수
+const createFreightSnapshot = (
+  breakdown: AgentCostBreakdown,
+  seaFreights: SeaFreight[],
+  agentSeaFreights: AgentSeaFreight[],
+  dthcList: DTHC[],
+  dpCosts: DPCost[],
+  portBorderFreights: PortBorderFreight[],
+  borderDestinationFreights: BorderDestinationFreight[],
+  combinedFreights: CombinedFreight[],
+  weightSurchargeRules: WeightSurchargeRule[]
+): FreightRateSnapshot => {
+  const snapshot: FreightRateSnapshot = {};
+
+  // 해상운임 스냅샷
+  if (breakdown.seaFreightId) {
+    const seaFreight = seaFreights.find(f => f.id === breakdown.seaFreightId);
+    if (seaFreight) {
+      snapshot.seaFreight = {
+        id: seaFreight.id,
+        carrier: seaFreight.carrier,
+        pol: seaFreight.pol,
+        pod: seaFreight.pod,
+        rate: seaFreight.rate,
+        localCharge: seaFreight.localCharge,
+        validFrom: seaFreight.validFrom,
+        validTo: seaFreight.validTo,
+      };
+    }
+  }
+
+  // 운송사별 해상운임 스냅샷
+  if (breakdown.isAgentSpecificSeaFreight) {
+    const agentSeaFreight = agentSeaFreights.find(
+      f => f.agent === breakdown.railAgent
+    );
+    if (agentSeaFreight) {
+      snapshot.agentSeaFreight = {
+        id: agentSeaFreight.id,
+        agent: agentSeaFreight.agent,
+        carrier: agentSeaFreight.carrier,
+        pol: agentSeaFreight.pol,
+        pod: agentSeaFreight.pod,
+        rate: agentSeaFreight.rate,
+        llocal: agentSeaFreight.llocal,
+        validFrom: agentSeaFreight.validFrom,
+        validTo: agentSeaFreight.validTo,
+      };
+    }
+  }
+
+  // DTHC 스냅샷
+  if (breakdown.dthc > 0) {
+    const dthc = dthcList.find(d => d.agent === breakdown.railAgent);
+    if (dthc) {
+      snapshot.dthc = {
+        id: dthc.id,
+        agent: dthc.agent,
+        pol: dthc.pol,
+        pod: dthc.pod,
+        amount: dthc.amount,
+        validFrom: dthc.validFrom,
+        validTo: dthc.validTo,
+      };
+    }
+  }
+
+  // 통합운임 또는 분리운임 스냅샷
+  if (breakdown.isCombinedFreight) {
+    const combinedFreight = combinedFreights.find(
+      f => f.agent === breakdown.railAgent
+    );
+    if (combinedFreight) {
+      snapshot.combinedFreight = {
+        id: combinedFreight.id,
+        agent: combinedFreight.agent,
+        pol: combinedFreight.pol,
+        pod: combinedFreight.pod,
+        destinationId: combinedFreight.destinationId,
+        rate: combinedFreight.rate,
+        validFrom: combinedFreight.validFrom,
+        validTo: combinedFreight.validTo,
+      };
+    }
+  } else {
+    // 철도운임 스냅샷
+    if (breakdown.portBorder > 0) {
+      const portBorder = portBorderFreights.find(
+        f => f.agent === breakdown.railAgent
+      );
+      if (portBorder) {
+        snapshot.portBorder = {
+          id: portBorder.id,
+          agent: portBorder.agent,
+          pol: portBorder.pol,
+          pod: portBorder.pod,
+          rate: portBorder.rate,
+          validFrom: portBorder.validFrom,
+          validTo: portBorder.validTo,
+        };
+      }
+    }
+
+    // 트럭운임 스냅샷
+    if (breakdown.borderDestination > 0) {
+      const borderDest = borderDestinationFreights.find(
+        f => f.agent === breakdown.truckAgent
+      );
+      if (borderDest) {
+        snapshot.borderDestination = {
+          id: borderDest.id,
+          agent: borderDest.agent,
+          destinationId: borderDest.destinationId,
+          rate: borderDest.rate,
+          validFrom: borderDest.validFrom,
+          validTo: borderDest.validTo,
+        };
+      }
+    }
+  }
+
+  // 중량할증 스냅샷
+  if (breakdown.weightSurcharge > 0) {
+    const weightRule = weightSurchargeRules.find(
+      r => r.agent === breakdown.truckAgent
+    );
+    if (weightRule) {
+      snapshot.weightSurcharge = {
+        id: weightRule.id,
+        agent: weightRule.agent,
+        minWeight: weightRule.minWeight,
+        maxWeight: weightRule.maxWeight,
+        surcharge: weightRule.surcharge,
+        validFrom: weightRule.validFrom,
+        validTo: weightRule.validTo,
+      };
+    }
+  }
+
+  // DP 비용 스냅샷
+  if (breakdown.dp > 0) {
+    const dpCost = dpCosts.find(d => d.port);
+    if (dpCost) {
+      snapshot.dpCost = {
+        id: dpCost.id,
+        port: dpCost.port,
+        amount: dpCost.amount,
+        validFrom: dpCost.validFrom,
+        validTo: dpCost.validTo,
+      };
+    }
+  }
+
+  return snapshot;
+};
+
 // Calculation History Operations
 export const addCalculationHistory = async (
   history: Omit<CalculationHistory, 'id' | 'createdAt'>,
-  user: User | null
+  user: User | null,
+  seaFreights: SeaFreight[] = [],
+  agentSeaFreights: AgentSeaFreight[] = [],
+  dthcList: DTHC[] = [],
+  dpCosts: DPCost[] = [],
+  portBorderFreights: PortBorderFreight[] = [],
+  borderDestinationFreights: BorderDestinationFreight[] = [],
+  combinedFreights: CombinedFreight[] = [],
+  weightSurchargeRules: WeightSurchargeRule[] = []
 ) => {
   if (!user) return;
 
   try {
-    console.log('💾 Saving calculation history to database...', history);
-    
+    console.log('💾 [addCalculationHistory] Saving calculation history to database...');
+    console.log('📊 [addCalculationHistory] Historical date:', history.result.historicalDate);
+    console.log('📊 [addCalculationHistory] Is historical:', history.result.isHistorical);
+
+    // 🆕 과거 날짜 조회인 경우 스냅샷 생성
+    let snapshot: FreightRateSnapshot | undefined;
+    let queryDate: string | undefined;
+
+    if (history.result.isHistorical && history.result.historicalDate) {
+      console.log('📸 [addCalculationHistory] Creating freight rate snapshot for historical query...');
+      
+      // 가장 낮은 비용의 breakdown에 대한 스냅샷 생성
+      const lowestBreakdown = history.result.breakdown.find(
+        b => b.agent === history.result.lowestCostAgent
+      );
+
+      if (lowestBreakdown) {
+        snapshot = createFreightSnapshot(
+          lowestBreakdown,
+          seaFreights,
+          agentSeaFreights,
+          dthcList,
+          dpCosts,
+          portBorderFreights,
+          borderDestinationFreights,
+          combinedFreights,
+          weightSurchargeRules
+        );
+        queryDate = history.result.historicalDate;
+        console.log('✅ [addCalculationHistory] Snapshot created:', snapshot);
+      }
+    }
+
     const { error } = await supabase
       .from(TABLES.CALCULATION_HISTORY)
       .insert({
@@ -710,17 +907,22 @@ export const addCalculationHistory = async (
         destination_name: history.destinationName,
         created_by: user.id,
         created_by_username: user.username,
+        snapshot: snapshot || null, // 🆕 스냅샷 데이터 저장
+        query_date: queryDate || null, // 🆕 조회 날짜 저장
       });
 
     if (error) {
-      console.error('❌ Error saving calculation history:', error);
+      console.error('❌ [addCalculationHistory] Error saving calculation history:', error);
       handleError(error, '계산 이력 추가');
       return;
     }
 
-    console.log('✅ Calculation history saved successfully');
+    console.log('✅ [addCalculationHistory] Calculation history saved successfully');
+    if (snapshot) {
+      console.log('📸 [addCalculationHistory] Snapshot saved with query date:', queryDate);
+    }
   } catch (error) {
-    console.error('💥 Exception in addCalculationHistory:', error);
+    console.error('💥 [addCalculationHistory] Exception in addCalculationHistory:', error);
     handleError(error, '계산 이력 추가');
   }
 };

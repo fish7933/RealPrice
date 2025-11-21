@@ -150,7 +150,7 @@ export default function CostCalculatorWithTabs() {
             setHistoricalDate(parsedResult.historicalDate);
           }
         } catch (e) {
-          console.error('Failed to parse saved result:', e);
+          // Silent error handling
         }
       }
       
@@ -159,7 +159,7 @@ export default function CostCalculatorWithTabs() {
           const parsedExcluded = JSON.parse(savedExcluded);
           setExcludedCosts(parsedExcluded);
         } catch (e) {
-          console.error('Failed to parse saved excluded costs:', e);
+          // Silent error handling
         }
       }
 
@@ -168,29 +168,23 @@ export default function CostCalculatorWithTabs() {
           const parsedCellExcluded = JSON.parse(savedCellExcluded);
           setCellExclusions(parsedCellExcluded);
         } catch (e) {
-          console.error('Failed to parse saved cell exclusions:', e);
+          // Silent error handling
         }
       }
     }
   }, [user?.id]);
 
-  // ✅ FIXED: Sea freight options with historical date support
+  // Sea freight options with historical date support
   useEffect(() => {
-    console.log('🔍 [useEffect] Sea freight options update triggered');
-    console.log('   POL:', input.pol, 'POD:', input.pod, 'Historical Date:', historicalDate);
-    
     if (input.pol && input.pod) {
-      // ✅ Pass historicalDate to getSeaFreightOptions
       const options = getSeaFreightOptions(input.pol, input.pod, historicalDate || undefined);
-      console.log(`   📦 Found ${options.length} sea freight options for date: ${historicalDate || 'current'}`);
-      
       setSeaFreightOptions(options);
       setSelectedSeaFreightIds(new Set());
     } else {
       setSeaFreightOptions([]);
       setSelectedSeaFreightIds(new Set());
     }
-  }, [input.pol, input.pod, historicalDate, getSeaFreightOptions]); // ✅ Added historicalDate to dependencies
+  }, [input.pol, input.pod, historicalDate, getSeaFreightOptions]);
 
   // Save result to localStorage
   useEffect(() => {
@@ -224,36 +218,26 @@ export default function CostCalculatorWithTabs() {
       return;
     }
 
-    // ✅ FIXED: Show dialog only if there are multiple general sea freight options
+    // Show dialog only if there are multiple general sea freight options
     if (seaFreightOptions.length > 1 && selectedSeaFreightIds.size === 0) {
       setShowSeaFreightDialog(true);
       return;
     }
 
-    // ✅ FIXED: Prepare sea freight IDs for calculation
-    // - If user selected specific freights, use those
-    // - If there's only one general sea freight, use it
-    // - If there are no general sea freights, pass empty array (calculation will use agent sea freight)
+    // Prepare sea freight IDs for calculation
     const seaFreightIdsToCalculate = selectedSeaFreightIds.size > 0 
       ? Array.from(selectedSeaFreightIds)
       : seaFreightOptions.length === 1 
         ? [seaFreightOptions[0].id]
         : [];
 
-    console.log(`\n🔍 ===== 계산 시작 =====`);
-    console.log(`   일반 해상운임 옵션: ${seaFreightOptions.length}개`);
-    console.log(`   선택된 일반 해상운임: ${seaFreightIdsToCalculate.length}개`);
-    console.log(`   대리점 해상운임 사용 가능 여부: 계산 로직에서 자동 판단`);
-
     const allBreakdowns: AgentCostBreakdown[] = [];
     
-    // ✅ FIXED: If no general sea freight, try calculation without it (will use agent sea freight if available)
+    // If no general sea freight, try calculation without it (will use agent sea freight if available)
     if (seaFreightIdsToCalculate.length === 0) {
-      console.log(`   ⚠️ 일반 해상운임 없음 - 대리점 해상운임으로 계산 시도`);
-      
       const calculationInput = {
         ...input,
-        selectedSeaFreightId: undefined, // No general sea freight selected
+        selectedSeaFreightId: undefined,
         historicalDate: historicalDate || undefined,
       };
 
@@ -280,7 +264,7 @@ export default function CostCalculatorWithTabs() {
     }
 
     if (allBreakdowns.length === 0) {
-      // ✅ NEW: Clear previous results when there are no new results
+      // Clear previous results when there are no new results
       setResult(null);
       setAllFreightsResult(null);
       setFullBreakdown([]);
@@ -290,7 +274,6 @@ export default function CostCalculatorWithTabs() {
       const destinationName = destination?.name || input.destinationId;
       const missingRates: string[] = [];
       
-      // ✅ IMPROVED: Better error message
       missingRates.push(`${input.pol} → ${input.pod} 항로의 해상운임 (일반 또는 대리점)`);
       
       if (input.includeDP) {
@@ -372,7 +355,6 @@ export default function CostCalculatorWithTabs() {
     setExcludedCosts(resetExcluded);
     setCellExclusions({});
 
-    // ✅ IMPROVED: Better success message
     const usedAgentSeaFreight = filteredBreakdown.some(b => b.isAgentSpecificSeaFreight);
     const freightTypeMsg = usedAgentSeaFreight 
       ? '대리점 해상운임' 
@@ -499,16 +481,15 @@ export default function CostCalculatorWithTabs() {
     localStorage.removeItem(STORAGE_KEY_CELL_EXCLUDED);
   };
 
-  // ✅ FIXED: Migrate old 'name' field to 'category' field for backward compatibility
+  // Migrate old 'name' field to 'category' field for backward compatibility
   const migrateOtherCosts = (otherCosts: OtherCost[] | { name?: string; category?: string; amount: number }[]): OtherCost[] => {
     return otherCosts.map(cost => ({
-      category: ('category' in cost && cost.category) || ('name' in cost && cost.name) || '',  // Use 'category' if exists, fallback to 'name', then empty string
+      category: ('category' in cost && cost.category) || ('name' in cost && cost.name) || '',
       amount: cost.amount || 0
     }));
   };
 
   const handleLoadHistory = (history: CalculationHistory) => {
-    // ✅ FIXED: Migrate otherCosts from old 'name' field to new 'category' field
     const migratedInput = {
       ...history.result.input,
       otherCosts: migrateOtherCosts(history.result.input.otherCosts || [])
@@ -516,10 +497,10 @@ export default function CostCalculatorWithTabs() {
 
     const updatedResult = {
       ...history.result,
-      input: migratedInput,  // ✅ Use migrated input
+      input: migratedInput,
       breakdown: history.result.breakdown.map((b: AgentCostBreakdown) => ({
         ...b,
-        otherCosts: migrateOtherCosts(b.otherCosts || [])  // ✅ Migrate breakdown otherCosts too
+        otherCosts: migrateOtherCosts(b.otherCosts || [])
       }))
     };
     
@@ -565,7 +546,7 @@ export default function CostCalculatorWithTabs() {
     
     setResult(updatedResult);
     setAllFreightsResult(null);
-    setInput(migratedInput);  // ✅ Set migrated input
+    setInput(migratedInput);
     setSortConfig({ key: 'total', direction: 'asc' });
     setActiveTab('filtered');
     

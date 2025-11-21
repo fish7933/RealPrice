@@ -413,7 +413,7 @@ export interface CalculationHistory {
   queryDate?: string;
 }
 
-// 🆕 견적서 타입
+// 🆕 견적서 타입 - ✅ FIXED: Remove duplicate 'note' field, only keep 'notes'
 export interface Quotation {
   id: string;
   userId: string;
@@ -429,8 +429,7 @@ export interface Quotation {
   profit: number;
   profitRate: number;
   carrier?: string;
-  notes?: string;
-  note?: string;
+  notes?: string;  // ✅ Only 'notes' field (matches database column)
   createdAt: string;
   updatedAt: string;
 }

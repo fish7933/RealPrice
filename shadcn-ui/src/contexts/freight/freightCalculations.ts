@@ -244,7 +244,7 @@ export const calculateCost = (
     return { value: filtered[0].rate, expired: true };
   };
 
-  // ✅ FIXED: Return null for "no data" vs 0 for "data exists with value 0"
+  // ✅ FIXED: Return null for "no data" vs actual value (including 0) for "data exists"
   const getBorderDestinationRateWithExpiry = (agent: string, destinationId: string): { value: number | null; expired: boolean } => {
     console.log(`\n🔎 트럭운임 검색: agent="${agent}", destinationId="${destinationId}"`);
     
@@ -287,7 +287,8 @@ export const calculateCost = (
     return { value: filtered[0].surcharge, expired: true };
   };
 
-  const getPortBorderRateWithExpiry = (agent: string, pod: string): { value: number; expired: boolean } => {
+  // ✅ FIXED: Return null for "no data" vs actual value (including 0) for "data exists"
+  const getPortBorderRateWithExpiry = (agent: string, pod: string): { value: number | null; expired: boolean } => {
     console.log(`\n🔎 철도운임 검색: agent="${agent}", pod="${pod}"`);
     
     const filtered = currentPortBorderFreights.filter(
@@ -297,11 +298,12 @@ export const calculateCost = (
     console.log(`   검색 결과 개수: ${filtered.length}`);
     if (filtered.length > 0) {
       console.log(`   검색된 철도운임:`, filtered[0]);
+      console.log(`   📊 Rate 값: ${filtered[0].rate} (타입: ${typeof filtered[0].rate})`);
     }
     
     if (filtered.length === 0) {
-      console.log('   ❌ 철도운임 없음');
-      return { value: 0, expired: false };
+      console.log('   ❌ 철도운임 데이터 없음 (null 반환)');
+      return { value: null, expired: false };
     }
     
     const validFreights = filtered.filter(f => isValidOnDate(f.validFrom, f.validTo, calculationDate));
@@ -437,18 +439,18 @@ export const calculateCost = (
     const ownTruckResult = getBorderDestinationRateWithExpiry(agentName, input.destinationId);
     
     const hasCombined = combinedResult.value !== null && combinedResult.value > 0;
-    // ✅ FIXED: Check if truck data exists (not null), regardless of value
-    const hasSeparate = railResult.value > 0 && ownTruckResult.value !== null;
+    // ✅ FIXED: Check if rail and truck data exist (not null), regardless of value
+    const hasSeparate = railResult.value !== null && ownTruckResult.value !== null;
     
     console.log(`\n📊 경로 옵션 확인:`);
     console.log(`   - 통합운임 존재: ${hasCombined} (값: ${combinedResult.value})`);
-    console.log(`   - 철도운임 존재: ${railResult.value > 0} (값: ${railResult.value})`);
+    console.log(`   - 철도운임 존재: ${railResult.value !== null} (값: ${railResult.value})`);
     console.log(`   - 트럭운임 존재: ${ownTruckResult.value !== null} (값: ${ownTruckResult.value})`);
     console.log(`   - 분리운임 가능: ${hasSeparate}`);
     
     // ✅ FIXED: Check if agent has ONLY agent sea freight with NO inland freight options
     // An agent should be skipped ONLY if it has agent sea freight but NO combined freight AND NO rail freight
-    const hasOnlyAgentSeaFreight = isAgentSpecific && !hasCombined && railResult.value === 0;
+    const hasOnlyAgentSeaFreight = isAgentSpecific && !hasCombined && railResult.value === null;
     
     if (hasOnlyAgentSeaFreight) {
       console.log(`\n⚠️ ${agentName}는 대리점 해상운임만 있고 통합운임/철도운임이 없습니다.`);
@@ -531,7 +533,8 @@ export const calculateCost = (
       const separateDpValue = dpCostData.value;
       if (dpCostData.expired) separateExpiredDetails.push('DP');
       
-      // ✅ FIXED: Use 0 if ownTruckResult.value is null (data exists but value is 0)
+      // ✅ FIXED: Use 0 if values are null (data exists but value is 0)
+      const railValue = railResult.value ?? 0;
       const truckValue = ownTruckResult.value ?? 0;
       
       // NEW LOGIC: L.LOCAL is added directly to total (negative L.LOCAL reduces total, positive L.LOCAL increases total)
@@ -539,7 +542,7 @@ export const calculateCost = (
         seaFreightRate +
         seaFreightLocalCharge +
         dthcResult.value +
-        railResult.value +
+        railValue +
         truckValue +
         weightSurchargeResult.value +
         separateDpValue +
@@ -548,7 +551,7 @@ export const calculateCost = (
         seaFreightLLocal; // Add L.LOCAL directly (negative reduces, positive increases)
 
       console.log(`\n💰 분리운임 계산 완료:`);
-      console.log(`   총액 = ${seaFreightRate} + ${seaFreightLocalCharge} + ${dthcResult.value} + ${railResult.value} + ${truckValue} + ${weightSurchargeResult.value} + ${separateDpValue} + ${totalOtherCosts} + ${input.domesticTransport} + ${seaFreightLLocal}`);
+      console.log(`   총액 = ${seaFreightRate} + ${seaFreightLocalCharge} + ${dthcResult.value} + ${railValue} + ${truckValue} + ${weightSurchargeResult.value} + ${separateDpValue} + ${totalOtherCosts} + ${input.domesticTransport} + ${seaFreightLLocal}`);
       console.log(`   총액 = ${total}`);
       console.log(`   ⭐ L.LOCAL: ${seaFreightLLocal >= 0 ? '+' : ''}${seaFreightLLocal}`);
 
@@ -566,7 +569,7 @@ export const calculateCost = (
         seaFreightCarrierCode,
         isAgentSpecificSeaFreight: isAgentSpecific,
         dthc: dthcResult.value,
-        portBorder: railResult.value,
+        portBorder: railValue,
         borderDestination: truckValue,
         combinedFreight: 0,
         isCombinedFreight: false,
@@ -583,7 +586,7 @@ export const calculateCost = (
     }
 
     // Add rail + COWIN truck combination if COWIN truck exists and rail exists
-    if (cowinTruck && cowinTruck.rate > 0 && railResult.value > 0) {
+    if (cowinTruck && cowinTruck.rate > 0 && railResult.value !== null) {
       const cowinExpiredDetails = [...expiredDetails];
       if (railResult.expired) cowinExpiredDetails.push('철도운임');
       const cowinTruckExpired = !isValidOnDate(cowinTruck.validFrom, cowinTruck.validTo, calculationDate);
@@ -601,12 +604,15 @@ export const calculateCost = (
       
       const cowinTruckAgentCode = getTruckAgentCode('COWIN');
       
+      // ✅ FIXED: Use 0 if railResult.value is null
+      const railValue = railResult.value ?? 0;
+      
       // NEW LOGIC: L.LOCAL is added directly to total (negative L.LOCAL reduces total, positive L.LOCAL increases total)
       const total =
         seaFreightRate +
         seaFreightLocalCharge +
         cowinDthcResult.value +
-        railResult.value +
+        railValue +
         cowinTruck.rate +
         weightSurchargeResult.value +
         cowinDpValue +
@@ -615,7 +621,7 @@ export const calculateCost = (
         seaFreightLLocal; // Add L.LOCAL directly (negative reduces, positive increases)
 
       console.log(`\n💰 COWIN 조합 계산 완료:`);
-      console.log(`   총액 = ${seaFreightRate} + ${seaFreightLocalCharge} + ${cowinDthcResult.value} + ${railResult.value} + ${cowinTruck.rate} + ${weightSurchargeResult.value} + ${cowinDpValue} + ${totalOtherCosts} + ${input.domesticTransport} + ${seaFreightLLocal}`);
+      console.log(`   총액 = ${seaFreightRate} + ${seaFreightLocalCharge} + ${cowinDthcResult.value} + ${railValue} + ${cowinTruck.rate} + ${weightSurchargeResult.value} + ${cowinDpValue} + ${totalOtherCosts} + ${input.domesticTransport} + ${seaFreightLLocal}`);
       console.log(`   총액 = ${total}`);
       console.log(`   ⭐ L.LOCAL: ${seaFreightLLocal >= 0 ? '+' : ''}${seaFreightLLocal}`);
 
@@ -633,7 +639,7 @@ export const calculateCost = (
         seaFreightCarrierCode,
         isAgentSpecificSeaFreight: isAgentSpecific,
         dthc: cowinDthcResult.value,
-        portBorder: railResult.value,
+        portBorder: railValue,
         borderDestination: cowinTruck.rate,
         combinedFreight: 0,
         isCombinedFreight: false,

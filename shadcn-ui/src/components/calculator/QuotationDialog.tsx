@@ -152,7 +152,8 @@ export default function QuotationDialog({
       description: '견적서가 저장되었습니다.',
     });
 
-    onOpenChange(false);
+    // ✅ CHANGED: Don't close the dialog after saving, keep it open for other actions
+    // onOpenChange(false);
   };
 
   const handleViewQuotation = () => {

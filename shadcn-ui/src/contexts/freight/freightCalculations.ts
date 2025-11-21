@@ -15,9 +15,10 @@ import {
   TruckAgent,
   ShippingLine,
   HistoricalFreightSnapshot,
+  MissingFreightInfo,
 } from '@/types/freight';
 
-// Cost Calculation with expired rate tracking
+// Cost Calculation with expired rate tracking and missing freight detection
 export const calculateCost = (
   input: CostCalculationInput,
   seaFreights: SeaFreight[],
@@ -34,6 +35,9 @@ export const calculateCost = (
   snapshot: HistoricalFreightSnapshot | null
 ): CostCalculationResult | null => {
   const calculationDate = input.historicalDate || new Date().toISOString().split('T')[0];
+  
+  // 🆕 Track missing freights
+  const missingFreights: MissingFreightInfo[] = [];
 
   console.log('🔍 ===== 원가 계산 시작 =====');
   console.log('📍 경로:', input.pol, '→', input.pod, '→ 목적지:', input.destinationId);
@@ -76,7 +80,7 @@ export const calculateCost = (
   }
   console.log('🔍 ===== 데이터 진단 완료 =====\n');
 
-  // ✅ NEW: Check if there are ANY valid sea freight rates (general or agent-specific) for this route
+  // ✅ Check if there are ANY valid sea freight rates (general or agent-specific) for this route
   const hasValidGeneralSeaFreight = currentSeaFreights.some(f => 
     f.pol === input.pol && 
     f.pod === input.pod && 
@@ -93,14 +97,17 @@ export const calculateCost = (
   console.log(`📋 유효한 일반 해상운임: ${hasValidGeneralSeaFreight ? '✅ 있음' : '❌ 없음'}`);
   console.log(`📋 유효한 대리점 해상운임: ${hasValidAgentSeaFreight ? '✅ 있음' : '❌ 없음'}`);
 
-  // ✅ NEW: If no valid sea freight rates exist, return null to exclude from results
+  // 🆕 Track missing sea freight
   if (!hasValidGeneralSeaFreight && !hasValidAgentSeaFreight) {
-    console.log('\n❌ 조회 날짜에 유효한 해상운임이 없어 계산을 중단합니다.');
-    console.log('🔍 ===== 원가 계산 완료 (결과 없음) =====\n');
-    return null;
+    console.log('\n❌ 조회 날짜에 유효한 해상운임이 없습니다.');
+    missingFreights.push({
+      type: 'seaFreight',
+      route: `${input.pol} → ${input.pod}`,
+      message: `해상운임이 등록되지 않았습니다`
+    });
+  } else {
+    console.log('✅ 유효한 해상운임이 존재하여 계산을 진행합니다.');
   }
-
-  console.log('✅ 유효한 해상운임이 존재하여 계산을 진행합니다.');
   console.log('🔍 ===== 해상운임 유효성 검사 완료 =====\n');
 
   // Helper function to get agent code
@@ -347,6 +354,46 @@ export const calculateCost = (
   );
   
   console.log('\n📋 처리할 대리점 목록:', railAgentsWithFreight);
+  
+  // 🆕 Check for missing rail and truck freights
+  const hasAnyRailFreight = railAgentsFromPortBorder.length > 0;
+  const hasAnyCombinedFreight = railAgentsFromCombined.length > 0;
+  
+  // Check if there's any truck freight for the destination
+  const hasAnyTruckFreight = currentBorderDestinationFreights.some(f => 
+    f.destinationId === input.destinationId
+  );
+  
+  console.log(`\n🔍 ===== 내륙운임 확인 =====`);
+  console.log(`📋 철도운임 존재: ${hasAnyRailFreight ? '✅ 있음' : '❌ 없음'}`);
+  console.log(`📋 통합운임 존재: ${hasAnyCombinedFreight ? '✅ 있음' : '❌ 없음'}`);
+  console.log(`📋 트럭운임 존재: ${hasAnyTruckFreight ? '✅ 있음' : '❌ 없음'}`);
+  
+  // Track missing inland freights
+  if (!hasAnyRailFreight && !hasAnyCombinedFreight) {
+    missingFreights.push({
+      type: 'railFreight',
+      route: `${input.pol} → ${input.pod}`,
+      message: `철도운임이 등록되지 않았습니다`
+    });
+  }
+  
+  if (!hasAnyTruckFreight && !hasAnyCombinedFreight) {
+    missingFreights.push({
+      type: 'truckFreight',
+      route: `${input.pod} → 목적지`,
+      message: `트럭운임이 등록되지 않았습니다`
+    });
+  }
+  
+  if (!hasAnyCombinedFreight && hasAnyRailFreight && hasAnyTruckFreight) {
+    // This is OK - we have separate rail and truck
+    console.log('✅ 분리운임(철도+트럭)으로 계산 가능');
+  } else if (hasAnyCombinedFreight) {
+    console.log('✅ 통합운임으로 계산 가능');
+  }
+  
+  console.log('🔍 ===== 내륙운임 확인 완료 =====\n');
   
   const cowinTruck = currentBorderDestinationFreights.find(f => 
     f.agent === 'COWIN' && 
@@ -656,9 +703,21 @@ export const calculateCost = (
     }
   });
 
+  // 🆕 Return result with missing freight info even if breakdown is empty
   if (breakdown.length === 0) {
     console.log('\n❌ Breakdown이 비어있음!');
-    return null;
+    console.log('🔍 ===== 원가 계산 완료 (결과 없음) =====\n');
+    
+    // Return result with missing freight information
+    return {
+      input,
+      breakdown: [],
+      lowestCostAgent: '',
+      lowestCost: 0,
+      isHistorical: !!input.historicalDate,
+      historicalDate: input.historicalDate,
+      missingFreights: missingFreights.length > 0 ? missingFreights : undefined,
+    };
   }
 
   console.log('\n\n📊 ===== 최종 Breakdown =====');
@@ -691,5 +750,6 @@ export const calculateCost = (
     lowestCost: lowestCostBreakdown.total,
     isHistorical: !!input.historicalDate,
     historicalDate: input.historicalDate,
+    missingFreights: missingFreights.length > 0 ? missingFreights : undefined,
   };
 };

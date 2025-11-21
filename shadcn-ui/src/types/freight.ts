@@ -313,6 +313,13 @@ export interface AgentCostBreakdown {
   expiredRateDetails?: string[];
 }
 
+// 🆕 운임 누락 정보 타입
+export interface MissingFreightInfo {
+  type: 'seaFreight' | 'railFreight' | 'truckFreight' | 'combinedFreight';
+  route: string;  // e.g., "인천 → 다강" or "다강 → 우루무치"
+  message: string;
+}
+
 export interface CostCalculationResult {
   input: CostCalculationInput;
   breakdown: AgentCostBreakdown[];
@@ -320,6 +327,8 @@ export interface CostCalculationResult {
   lowestCost: number;
   isHistorical: boolean;
   historicalDate?: string;
+  // 🆕 운임 누락 정보
+  missingFreights?: MissingFreightInfo[];
 }
 
 // 🆕 스냅샷 데이터 타입 - 과거 조회 결과 저장용

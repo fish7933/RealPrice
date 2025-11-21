@@ -204,13 +204,30 @@ export default function CostResultTable({
             <AlertDescription className="text-red-900">
               <strong>운임 조합이 없습니다</strong>
               <div className="mt-2 space-y-1 text-sm">
-                {input.includeDP ? (
+                {resultData.missingFreights && resultData.missingFreights.length > 0 ? (
                   <>
-                    <div>• <strong>철도운임</strong>: {input.pol} → {input.pod} → KASHGAR 경로의 철도운임이 등록되지 않았습니다</div>
-                    <div>• <strong>트럭운임</strong>: KASHGAR → {getDestinationName(input.destinationId)} 경로의 트럭운임이 등록되지 않았습니다</div>
+                    {resultData.missingFreights.map((missing, index) => (
+                      <div key={index}>
+                        • <strong>
+                          {missing.type === 'seaFreight' && '해상운임'}
+                          {missing.type === 'railFreight' && '철도운임'}
+                          {missing.type === 'truckFreight' && '트럭운임'}
+                          {missing.type === 'combinedFreight' && '통합운임'}
+                        </strong>: {missing.route} 경로의 {missing.message}
+                      </div>
+                    ))}
                   </>
                 ) : (
-                  <div>• <strong>철도+트럭 통합운임</strong>: {input.pol} → {input.pod} → {getDestinationName(input.destinationId)} 경로의 철도+트럭 통합운임이 등록되지 않았습니다</div>
+                  <>
+                    {input.includeDP ? (
+                      <>
+                        <div>• <strong>철도운임</strong>: {input.pol} → {input.pod} 경로의 철도운임이 등록되지 않았습니다</div>
+                        <div>• <strong>트럭운임</strong>: {input.pod} → {getDestinationName(input.destinationId)} 경로의 트럭운임이 등록되지 않았습니다</div>
+                      </>
+                    ) : (
+                      <div>• <strong>철도+트럭 통합운임</strong>: {input.pol} → {input.pod} → {getDestinationName(input.destinationId)} 경로의 철도+트럭 통합운임이 등록되지 않았습니다</div>
+                    )}
+                  </>
                 )}
                 <div className="mt-2 text-blue-700">관리자 대시보드에서 해당 운임을 먼저 등록해주세요.</div>
               </div>

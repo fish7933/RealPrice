@@ -24,7 +24,7 @@ interface CostResultTableProps {
   onToggleCostExclusion: (costType: string) => void;
   onToggleCellExclusion: (agentIndex: number, costType: string) => void;
   onSort: (key: 'agent' | 'rail' | 'truck' | 'total') => void;
-  onCreateQuotation: (breakdown: AgentCostBreakdown) => void;
+  onCreateQuotation: (breakdown: AgentCostBreakdown, mergedExcludedCosts: ExcludedCosts) => void;
   getDestinationName: (destinationId: string) => string;
 }
 
@@ -162,6 +162,21 @@ export default function CostResultTable({
 
   const isExpired = (breakdown: AgentCostBreakdown, field: string) => {
     return breakdown.expiredRateDetails?.includes(field) || false;
+  };
+
+  // ✅ NEW: Create merged excludedCosts that includes cell-level exclusions for a specific breakdown
+  const getMergedExcludedCosts = (agentIndex: number): ExcludedCosts => {
+    const merged: ExcludedCosts = { ...excludedCosts };
+    
+    // Merge cell-level exclusions for this specific agent
+    const cellExclusionsForAgent = cellExclusions[agentIndex] || {};
+    Object.keys(cellExclusionsForAgent).forEach(key => {
+      if (cellExclusionsForAgent[key]) {
+        merged[key] = true;
+      }
+    });
+    
+    return merged;
   };
 
   const renderResultTable = (resultData: CostCalculationResult, showDpColumn: boolean = false) => {
@@ -369,7 +384,7 @@ export default function CostResultTable({
                         >
                           <div className="flex flex-col items-center gap-1">
                             <Plus className="h-4 w-4" />
-                            <span className="text-xs">{item.name || `기타${index + 1}`}</span>
+                            <span className="text-xs">{item.category || `기타${index + 1}`}</span>
                           </div>
                         </TableHead>
                       ))}
@@ -695,7 +710,7 @@ export default function CostResultTable({
                               {isLowest ? (
                                 <Button
                                   size="sm"
-                                  onClick={() => onCreateQuotation(breakdown)}
+                                  onClick={() => onCreateQuotation(breakdown, getMergedExcludedCosts(originalIndex))}
                                   className="h-8 w-8 p-0 bg-blue-600 hover:bg-blue-700 text-white border-2 border-blue-700 shadow-sm hover:shadow-md transition-all duration-200"
                                   title="견적서 생성"
                                 >
@@ -705,7 +720,7 @@ export default function CostResultTable({
                                 <Button
                                   size="sm"
                                   variant="ghost"
-                                  onClick={() => onCreateQuotation(breakdown)}
+                                  onClick={() => onCreateQuotation(breakdown, getMergedExcludedCosts(originalIndex))}
                                   className="h-8 w-8 p-0 hover:bg-gray-100 transition-colors"
                                   title="견적서 생성"
                                 >

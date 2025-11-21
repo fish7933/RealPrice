@@ -64,6 +64,17 @@ export default function CostCalculatorWithTabs() {
   const [selectedSeaFreightIds, setSelectedSeaFreightIds] = useState<Set<string>>(new Set());
   const [quotationDialogOpen, setQuotationDialogOpen] = useState(false);
   const [selectedBreakdown, setSelectedBreakdown] = useState<AgentCostBreakdown | null>(null);
+  const [selectedExcludedCosts, setSelectedExcludedCosts] = useState<ExcludedCosts>({
+    seaFreight: false,
+    localCharge: false,
+    dthc: false,
+    portBorder: false,
+    borderDestination: false,
+    combinedFreight: false,
+    weightSurcharge: false,
+    dp: false,
+    domesticTransport: false,
+  });
   const [timeMachineOpen, setTimeMachineOpen] = useState(false);
   const [historicalDate, setHistoricalDate] = useState<string>('');
   const [fullBreakdown, setFullBreakdown] = useState<AgentCostBreakdown[]>([]);
@@ -587,8 +598,9 @@ export default function CostCalculatorWithTabs() {
     });
   };
 
-  const handleCreateQuotation = (breakdown: AgentCostBreakdown) => {
+  const handleCreateQuotation = (breakdown: AgentCostBreakdown, mergedExcludedCosts: ExcludedCosts) => {
     setSelectedBreakdown(breakdown);
+    setSelectedExcludedCosts(mergedExcludedCosts);
     setQuotationDialogOpen(true);
   };
 
@@ -841,7 +853,7 @@ export default function CostCalculatorWithTabs() {
           breakdown={selectedBreakdown}
           input={result.input}
           destinationName={getDestinationName(result.input.destinationId)}
-          excludedCosts={excludedCosts}
+          excludedCosts={selectedExcludedCosts}
         />
       )}
 

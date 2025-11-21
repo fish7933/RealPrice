@@ -389,21 +389,27 @@ export const calculateCost = (
   
   console.log('\n📋 처리할 대리점 목록:', railAgentsWithFreight);
   
-  // 🆕 Check for missing rail and truck freights
+  // 🆕 FIXED: Check for missing rail and truck freights - only check data existence, not calculation success
   const hasAnyRailFreight = railAgentsFromPortBorder.length > 0;
   const hasAnyCombinedFreight = railAgentsFromCombined.length > 0;
   
-  // Check if there's any truck freight for the destination
-  const hasAnyTruckFreight = currentBorderDestinationFreights.some(f => 
+  // ✅ FIXED: Check if there's any truck freight data for the destination
+  // This checks if the data exists in the database, regardless of whether it will be used in calculations
+  const truckFreightsForDestination = currentBorderDestinationFreights.filter(f => 
     f.destinationId === input.destinationId
   );
+  const hasAnyTruckFreight = truckFreightsForDestination.length > 0;
   
-  console.log(`\n🔍 ===== 내륙운임 확인 =====`);
-  console.log(`📋 철도운임 존재: ${hasAnyRailFreight ? '✅ 있음' : '❌ 없음'}`);
-  console.log(`📋 통합운임 존재: ${hasAnyCombinedFreight ? '✅ 있음' : '❌ 없음'}`);
-  console.log(`📋 트럭운임 존재: ${hasAnyTruckFreight ? '✅ 있음' : '❌ 없음'}`);
+  console.log(`\n🔍 ===== 내륙운임 데이터 존재 확인 =====`);
+  console.log(`📋 철도운임 데이터 존재: ${hasAnyRailFreight ? '✅ 있음' : '❌ 없음'}`);
+  console.log(`📋 통합운임 데이터 존재: ${hasAnyCombinedFreight ? '✅ 있음' : '❌ 없음'}`);
+  console.log(`📋 트럭운임 데이터 존재: ${hasAnyTruckFreight ? '✅ 있음' : '❌ 없음'}`);
+  if (hasAnyTruckFreight) {
+    console.log(`   트럭운임 데이터 상세:`, truckFreightsForDestination.map(f => `${f.agent}: ${f.rate}`));
+  }
   
-  // Track missing inland freights
+  // ✅ FIXED: Only add missing freight warnings if the data truly doesn't exist
+  // Don't warn about missing data if it exists but wasn't used due to other constraints (like missing sea freight)
   if (!hasAnyRailFreight && !hasAnyCombinedFreight) {
     missingFreights.push({
       type: 'railFreight',
@@ -412,6 +418,9 @@ export const calculateCost = (
     });
   }
   
+  // ✅ CRITICAL FIX: Only warn about missing truck freight if:
+  // 1. No truck freight data exists for this destination, AND
+  // 2. No combined freight exists (combined freight includes truck portion)
   if (!hasAnyTruckFreight && !hasAnyCombinedFreight) {
     missingFreights.push({
       type: 'truckFreight',
@@ -427,7 +436,7 @@ export const calculateCost = (
     console.log('✅ 통합운임으로 계산 가능');
   }
   
-  console.log('🔍 ===== 내륙운임 확인 완료 =====\n');
+  console.log('🔍 ===== 내륙운임 데이터 확인 완료 =====\n');
   
   const cowinTruck = currentBorderDestinationFreights.find(f => 
     f.agent === 'COWIN' && 

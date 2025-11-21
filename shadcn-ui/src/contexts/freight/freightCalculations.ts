@@ -52,7 +52,12 @@ export const calculateCost = (
   const currentBorderDestinationFreights = getDataSource(borderDestinationFreights, snapshot?.borderDestinationFreights);
   const currentWeightSurchargeRules = getDataSource(weightSurchargeRules, snapshot?.weightSurchargeRules);
 
-  // Check if there are ANY valid sea freight rates (general or agent-specific) for this route
+  // ============================================================
+  // COMPREHENSIVE UPFRONT VALIDATION - Check ALL missing data
+  // ============================================================
+  console.log('🔍 [calculateFreightCost] 운임 데이터 검증 시작...');
+  
+  // 1. Check sea freight
   const hasValidGeneralSeaFreight = currentSeaFreights.some(f => 
     f.pol === input.pol && 
     f.pod === input.pod && 
@@ -65,7 +70,8 @@ export const calculateCost = (
     isValidOnDate(f.validFrom, f.validTo, calculationDate)
   );
 
-  // When DP is included, MUST have general sea freight
+  let hasSeaFreight = false;
+  
   if (input.includeDP) {
     if (!hasValidGeneralSeaFreight) {
       const sqlQuery = `-- 일반 해상운임 조회 쿼리
@@ -75,7 +81,7 @@ WHERE pol = '${input.pol}'
   AND valid_from <= '${calculationDate}'
   AND valid_to >= '${calculationDate}';`;
       
-      console.log('❌ 누락된 운임 데이터 발견!');
+      console.log('\n❌ 누락된 운임 데이터 발견!');
       console.log('📍 경로:', `${input.pol} → ${input.pod}`);
       console.log('📋 필요한 데이터: 일반 해상운임 (DP 포함 모드)');
       console.log('\n🔍 데이터 확인 SQL 쿼리:');
@@ -86,19 +92,10 @@ WHERE pol = '${input.pol}'
         route: `${input.pol} → ${input.pod}`,
         message: `일반 해상운임이 등록되지 않았습니다 (DP 포함 모드에서는 일반 해상운임 필수)`
       });
-      
-      return {
-        input,
-        breakdown: [],
-        lowestCostAgent: '',
-        lowestCost: 0,
-        isHistorical: !!input.historicalDate,
-        historicalDate: input.historicalDate,
-        missingFreights,
-      };
+    } else {
+      hasSeaFreight = true;
     }
   } else {
-    // DP 미포함 모드: 일반 해상운임 또는 대리점 해상운임 중 하나만 있어도 OK
     if (!hasValidGeneralSeaFreight && !hasValidAgentSeaFreight) {
       const generalSeaFreightQuery = `-- 일반 해상운임 조회 쿼리
 SELECT * FROM app_741545ec66_sea_freights 
@@ -114,7 +111,7 @@ WHERE pol = '${input.pol}'
   AND valid_from <= '${calculationDate}'
   AND valid_to >= '${calculationDate}';`;
       
-      console.log('❌ 누락된 운임 데이터 발견!');
+      console.log('\n❌ 누락된 운임 데이터 발견!');
       console.log('📍 경로:', `${input.pol} → ${input.pod}`);
       console.log('📋 필요한 데이터: 일반 해상운임 또는 대리점 해상운임');
       console.log('\n🔍 일반 해상운임 확인 SQL:');
@@ -127,8 +124,133 @@ WHERE pol = '${input.pol}'
         route: `${input.pol} → ${input.pod}`,
         message: `해상운임이 등록되지 않았습니다`
       });
+    } else {
+      hasSeaFreight = true;
     }
   }
+
+  // 2. Check rail and truck freight (only if we need to continue checking)
+  // Get all potential agents from the data
+  const railAgentsFromPortBorder = currentPortBorderFreights
+    .filter(f => f.pol === input.pol && f.pod === input.pod)
+    .map(f => f.agent);
+  
+  const railAgentsFromCombined = currentCombinedFreights
+    .filter(f => f.pol === input.pol && f.pod === input.pod && f.destinationId === input.destinationId)
+    .map(f => f.agent);
+  
+  const railAgentsFromAgentSeaFreight = input.includeDP 
+    ? [] 
+    : currentAgentSeaFreights
+        .filter(f => f.pol === input.pol && f.pod === input.pod)
+        .map(f => f.agent);
+  
+  const allAgentNames = [...new Set([...railAgentsFromPortBorder, ...railAgentsFromCombined, ...railAgentsFromAgentSeaFreight])];
+  
+  // Check if we have ANY valid freight combinations
+  const hasCombinedFreight = currentCombinedFreights.some(f => 
+    f.pol === input.pol && 
+    f.pod === input.pod && 
+    f.destinationId === input.destinationId &&
+    isValidOnDate(f.validFrom, f.validTo, calculationDate)
+  );
+  
+  const hasRailFreight = currentPortBorderFreights.some(f => 
+    f.pol === input.pol && 
+    f.pod === input.pod &&
+    isValidOnDate(f.validFrom, f.validTo, calculationDate)
+  );
+  
+  const hasTruckFreight = currentBorderDestinationFreights.some(f => 
+    f.destinationId === input.destinationId &&
+    isValidOnDate(f.validFrom, f.validTo, calculationDate)
+  );
+
+  // If no agents found at all, check what's missing
+  if (allAgentNames.length === 0 || (!hasCombinedFreight && (!hasRailFreight || !hasTruckFreight))) {
+    // Check combined freight
+    if (!hasCombinedFreight) {
+      const combinedSqlQuery = `-- 통합운임 조회 쿼리
+SELECT * FROM app_741545ec66_combined_freights 
+WHERE pol = '${input.pol}'
+  AND pod = '${input.pod}'
+  AND destination_id = '${input.destinationId}'
+  AND valid_from <= '${calculationDate}'
+  AND valid_to >= '${calculationDate}';`;
+      
+      console.log('\n❌ 통합운임 데이터 없음');
+      console.log('📍 경로:', `${input.pol} → ${input.pod} → 목적지ID: ${input.destinationId}`);
+      console.log('🔍 데이터 확인 SQL:');
+      console.log(combinedSqlQuery);
+      
+      missingFreights.push({
+        type: 'combinedFreight',
+        route: `${input.pol} → ${input.pod} → ${input.destinationId}`,
+        message: `통합운임이 등록되지 않았습니다`
+      });
+    }
+    
+    // Check rail freight (only if combined is missing)
+    if (!hasCombinedFreight && !hasRailFreight) {
+      const railSqlQuery = `-- 철도운임 조회 쿼리
+SELECT * FROM app_741545ec66_port_border_freights 
+WHERE pol = '${input.pol}'
+  AND pod = '${input.pod}'
+  AND valid_from <= '${calculationDate}'
+  AND valid_to >= '${calculationDate}';`;
+      
+      console.log('\n❌ 철도운임 데이터 없음');
+      console.log('📍 경로:', `${input.pol} → ${input.pod}`);
+      console.log('🔍 데이터 확인 SQL:');
+      console.log(railSqlQuery);
+      
+      missingFreights.push({
+        type: 'railFreight',
+        route: `${input.pol} → ${input.pod}`,
+        message: `철도운임이 등록되지 않았습니다`
+      });
+    }
+    
+    // Check truck freight (only if combined is missing)
+    if (!hasCombinedFreight && !hasTruckFreight) {
+      const truckSqlQuery = `-- 트럭운임 조회 쿼리
+SELECT * FROM app_741545ec66_border_destination_freights 
+WHERE destination_id = '${input.destinationId}'
+  AND valid_from <= '${calculationDate}'
+  AND valid_to >= '${calculationDate}';`;
+      
+      console.log('\n❌ 트럭운임 데이터 없음');
+      console.log('📍 목적지ID:', input.destinationId);
+      console.log('🔍 데이터 확인 SQL:');
+      console.log(truckSqlQuery);
+      
+      missingFreights.push({
+        type: 'truckFreight',
+        route: `목적지: ${input.destinationId}`,
+        message: `트럭운임이 등록되지 않았습니다`
+      });
+    }
+  }
+
+  // If there are any missing freights, return early with all missing info
+  if (missingFreights.length > 0) {
+    console.log('\n⚠️ 총', missingFreights.length, '개의 운임 데이터가 누락되었습니다.');
+    return {
+      input,
+      breakdown: [],
+      lowestCostAgent: '',
+      lowestCost: 0,
+      isHistorical: !!input.historicalDate,
+      historicalDate: input.historicalDate,
+      missingFreights,
+    };
+  }
+
+  console.log('✅ 모든 필수 운임 데이터 검증 완료\n');
+
+  // ============================================================
+  // PROCEED WITH CALCULATION (all validation passed)
+  // ============================================================
 
   // Helper function to get agent code
   const getRailAgentCode = (agentName: string): string | undefined => {
@@ -221,20 +343,6 @@ WHERE pol = '${input.pol}'
     );
     
     if (filtered.length === 0) {
-      const sqlQuery = `-- 통합운임 조회 쿼리
-SELECT * FROM app_741545ec66_combined_freights 
-WHERE agent = '${agent}'
-  AND pol = '${pol}'
-  AND pod = '${pod}'
-  AND destination_id = '${destinationId}'
-  AND valid_from <= '${calculationDate}'
-  AND valid_to >= '${calculationDate}';`;
-      
-      console.log(`\n❌ [${agent}] 통합운임 데이터 없음`);
-      console.log('📍 경로:', `${pol} → ${pod} → 목적지ID: ${destinationId}`);
-      console.log('🔍 데이터 확인 SQL:');
-      console.log(sqlQuery);
-      
       return { value: null, expired: false };
     }
     
@@ -252,18 +360,6 @@ WHERE agent = '${agent}'
     );
     
     if (filtered.length === 0) {
-      const sqlQuery = `-- 트럭운임 조회 쿼리
-SELECT * FROM app_741545ec66_border_destination_freights 
-WHERE agent = '${agent}'
-  AND destination_id = '${destinationId}'
-  AND valid_from <= '${calculationDate}'
-  AND valid_to >= '${calculationDate}';`;
-      
-      console.log(`\n❌ [${agent}] 트럭운임 데이터 없음`);
-      console.log('📍 목적지ID:', destinationId);
-      console.log('🔍 데이터 확인 SQL:');
-      console.log(sqlQuery);
-      
       return { value: null, expired: false };
     }
     
@@ -295,19 +391,6 @@ WHERE agent = '${agent}'
     );
     
     if (filtered.length === 0) {
-      const sqlQuery = `-- 철도운임 조회 쿼리
-SELECT * FROM app_741545ec66_port_border_freights 
-WHERE agent = '${agent}'
-  AND pol = '${pol}'
-  AND pod = '${pod}'
-  AND valid_from <= '${calculationDate}'
-  AND valid_to >= '${calculationDate}';`;
-      
-      console.log(`\n❌ [${agent}] 철도운임 데이터 없음`);
-      console.log('📍 경로:', `${pol} → ${pod}`);
-      console.log('🔍 데이터 확인 SQL:');
-      console.log(sqlQuery);
-      
       return { value: null, expired: false };
     }
     
@@ -323,25 +406,6 @@ WHERE agent = '${agent}'
   const dpCostData = getDPCostWithExpiry(input.pol);
   const totalOtherCosts = input.otherCosts.reduce((sum, item) => sum + item.amount, 0);
 
-  // Filter rail agents by BOTH pol AND pod
-  const railAgentsFromPortBorder = currentPortBorderFreights
-    .filter(f => f.pol === input.pol && f.pod === input.pod)
-    .map(f => f.agent);
-  
-  const railAgentsFromCombined = currentCombinedFreights
-    .filter(f => f.pol === input.pol && f.pod === input.pod && f.destinationId === input.destinationId)
-    .map(f => f.agent);
-  
-  // When DP is included, do NOT collect agents from agent sea freight
-  const railAgentsFromAgentSeaFreight = input.includeDP 
-    ? [] 
-    : currentAgentSeaFreights
-        .filter(f => f.pol === input.pol && f.pod === input.pod)
-        .map(f => f.agent);
-  
-  // Merge all three sources and get unique agents
-  const allAgentNames = [...new Set([...railAgentsFromPortBorder, ...railAgentsFromCombined, ...railAgentsFromAgentSeaFreight])];
-  
   // Verify agents exist in railAgents list
   const railAgentsWithFreight = allAgentNames.filter(agentName => 
     railAgents.find(ra => ra.name === agentName)

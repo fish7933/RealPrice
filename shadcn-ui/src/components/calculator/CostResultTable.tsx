@@ -202,10 +202,11 @@ export default function CostResultTable({
           <Alert variant="destructive" className="border-red-300 bg-red-50">
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription className="text-red-900">
-              <strong>운임 조합이 없습니다</strong>
+              <strong>선택한 경로에 대한 운임 조합이 없습니다.</strong>
               <div className="mt-2 space-y-1 text-sm">
                 {resultData.missingFreights && resultData.missingFreights.length > 0 ? (
                   <>
+                    <div className="font-semibold mb-1">누락된 운임:</div>
                     {resultData.missingFreights.map((missing, index) => (
                       <div key={index}>
                         • <strong>
@@ -213,21 +214,12 @@ export default function CostResultTable({
                           {missing.type === 'railFreight' && '철도운임'}
                           {missing.type === 'truckFreight' && '트럭운임'}
                           {missing.type === 'combinedFreight' && '통합운임'}
-                        </strong>: {missing.route} 경로의 {missing.message}
+                        </strong>: {missing.message}
                       </div>
                     ))}
                   </>
                 ) : (
-                  <>
-                    {input.includeDP ? (
-                      <>
-                        <div>• <strong>철도운임</strong>: {input.pol} → {input.pod} 경로의 철도운임이 등록되지 않았습니다</div>
-                        <div>• <strong>트럭운임</strong>: {input.pod} → {getDestinationName(input.destinationId)} 경로의 트럭운임이 등록되지 않았습니다</div>
-                      </>
-                    ) : (
-                      <div>• <strong>철도+트럭 통합운임</strong>: {input.pol} → {input.pod} → {getDestinationName(input.destinationId)} 경로의 철도+트럭 통합운임이 등록되지 않았습니다</div>
-                    )}
-                  </>
+                  <div>운임 데이터를 확인할 수 없습니다. 콘솔 로그를 확인하세요.</div>
                 )}
                 <div className="mt-2 text-blue-700">관리자 대시보드에서 해당 운임을 먼저 등록해주세요.</div>
               </div>

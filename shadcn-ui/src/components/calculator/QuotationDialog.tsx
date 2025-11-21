@@ -51,6 +51,7 @@ export default function QuotationDialog({
   const [notes, setNotes] = useState<string>('');
   const [showQuotationView, setShowQuotationView] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [hasSaved, setHasSaved] = useState(false);
 
   // Reset state when dialog closes
   useEffect(() => {
@@ -59,6 +60,7 @@ export default function QuotationDialog({
       setNotes('');
       setShowQuotationView(false);
       setIsSaving(false);
+      setHasSaved(false);
     }
   }, [open]);
 
@@ -158,8 +160,8 @@ export default function QuotationDialog({
         description: '견적서가 저장되었습니다.',
       });
 
-      // Don't close the dialog after saving, keep it open for other actions
-      // onOpenChange(false);
+      // ✅ FIXED: 저장 완료 후 버튼 비활성화 상태 유지
+      setHasSaved(true);
     } catch (error) {
       console.error('Error saving quotation:', error);
       toast({
@@ -167,8 +169,6 @@ export default function QuotationDialog({
         description: '견적서 저장에 실패했습니다.',
         variant: 'destructive',
       });
-    } finally {
-      // ✅ Re-enable button after save completes
       setIsSaving(false);
     }
   };
@@ -393,12 +393,18 @@ export default function QuotationDialog({
               <FileSpreadsheet className="h-4 w-4" />
               엑셀 다운로드
             </Button>
-            <Button onClick={handleSave} disabled={isSaving} className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">
+            <Button 
+              onClick={handleSave} 
+              disabled={isSaving || hasSaved} 
+              className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
               {isSaving ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                   저장 중...
                 </>
+              ) : hasSaved ? (
+                '저장 완료'
               ) : (
                 '저장'
               )}

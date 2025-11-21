@@ -19,7 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { FileSpreadsheet, Copy, Edit2, Save, X } from 'lucide-react';
+import { FileSpreadsheet, Copy, Save, X, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useFreight } from '@/contexts/FreightContext';
 import { exportQuotationToExcel, copyQuotationToClipboard } from '@/utils/excelExport';
@@ -39,10 +39,13 @@ export default function QuotationViewDialog({
   const { updateQuotation } = useFreight();
   const [isEditingNote, setIsEditingNote] = useState(false);
   const [editedNote, setEditedNote] = useState(quotation.notes || '');
+  const [isSaving, setIsSaving] = useState(false);
+  const [currentNotes, setCurrentNotes] = useState(quotation.notes || '');
 
-  // Update editedNote when quotation changes
+  // Update editedNote and currentNotes when quotation changes
   useEffect(() => {
     setEditedNote(quotation.notes || '');
+    setCurrentNotes(quotation.notes || '');
     setIsEditingNote(false);
   }, [quotation.id, quotation.notes]);
 
@@ -59,7 +62,7 @@ export default function QuotationViewDialog({
       createdAt: quotation.createdAt,
       excludedCosts: quotation.excludedCosts || {},
       carrier: quotation.carrier,
-      note: quotation.notes,
+      note: currentNotes,
     });
 
     toast({
@@ -81,7 +84,7 @@ export default function QuotationViewDialog({
       createdAt: quotation.createdAt,
       excludedCosts: quotation.excludedCosts || {},
       carrier: quotation.carrier,
-      note: quotation.notes,
+      note: currentNotes,
     });
 
     if (success) {
@@ -98,30 +101,41 @@ export default function QuotationViewDialog({
     }
   };
 
-  const handleEditNote = () => {
-    setEditedNote(quotation.notes || '');
-    setIsEditingNote(true);
+  // ✅ FIXED: 텍스트 박스 클릭 시 바로 수정 모드로 전환
+  const handleNoteClick = () => {
+    if (!isEditingNote) {
+      setEditedNote(currentNotes);
+      setIsEditingNote(true);
+    }
   };
 
   const handleSaveNote = async () => {
+    setIsSaving(true);
     try {
       await updateQuotation(quotation.id, { notes: editedNote });
+      
+      // ✅ FIXED: 로컬 상태 즉시 업데이트
+      setCurrentNotes(editedNote);
       setIsEditingNote(false);
+      
       toast({
         title: '메모 저장 완료',
         description: '메모가 성공적으로 저장되었습니다.',
       });
     } catch (error) {
+      console.error('Error saving note:', error);
       toast({
         title: '메모 저장 실패',
         description: '메모 저장에 실패했습니다.',
         variant: 'destructive',
       });
+    } finally {
+      setIsSaving(false);
     }
   };
 
   const handleCancelEdit = () => {
-    setEditedNote(quotation.notes || '');
+    setEditedNote(currentNotes);
     setIsEditingNote(false);
   };
 
@@ -274,17 +288,6 @@ export default function QuotationViewDialog({
           <div className="mt-2 pt-2 border-t border-gray-200">
             <div className="flex items-center justify-between mb-1">
               <Label className="text-xs font-semibold text-gray-700">메모</Label>
-              {!isEditingNote && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleEditNote}
-                  className="h-6 px-2 text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                >
-                  <Edit2 className="h-3 w-3 mr-1" />
-                  수정
-                </Button>
-              )}
             </div>
             
             {isEditingNote ? (
@@ -295,6 +298,7 @@ export default function QuotationViewDialog({
                   className="text-sm min-h-[80px] resize-none"
                   maxLength={500}
                   placeholder="메모를 입력하세요..."
+                  autoFocus
                 />
                 <div className="flex items-center justify-between">
                   <p className="text-xs text-gray-600">{editedNote.length}/500</p>
@@ -303,6 +307,7 @@ export default function QuotationViewDialog({
                       variant="outline"
                       size="sm"
                       onClick={handleCancelEdit}
+                      disabled={isSaving}
                       className="h-7 px-3 text-xs border-gray-300 hover:bg-gray-100"
                     >
                       <X className="h-3 w-3 mr-1" />
@@ -311,17 +316,30 @@ export default function QuotationViewDialog({
                     <Button
                       size="sm"
                       onClick={handleSaveNote}
-                      className="h-7 px-3 text-xs bg-blue-600 hover:bg-blue-700"
+                      disabled={isSaving}
+                      className="h-7 px-3 text-xs bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
                     >
-                      <Save className="h-3 w-3 mr-1" />
-                      저장
+                      {isSaving ? (
+                        <>
+                          <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                          저장 중...
+                        </>
+                      ) : (
+                        <>
+                          <Save className="h-3 w-3 mr-1" />
+                          저장
+                        </>
+                      )}
                     </Button>
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="text-sm text-gray-900 whitespace-pre-wrap bg-white p-2 rounded border border-gray-200 min-h-[60px]">
-                {quotation.notes || '메모가 없습니다.'}
+              <div 
+                onClick={handleNoteClick}
+                className="text-sm text-gray-900 whitespace-pre-wrap bg-white p-2 rounded border border-gray-200 min-h-[60px] cursor-text hover:border-blue-400 transition-colors"
+              >
+                {currentNotes || '메모를 입력하려면 클릭하세요...'}
               </div>
             )}
           </div>

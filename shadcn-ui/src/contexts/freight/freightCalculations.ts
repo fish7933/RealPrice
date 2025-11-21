@@ -41,6 +41,7 @@ export const calculateCost = (
 
   console.log('🔍 ===== 원가 계산 시작 =====');
   console.log('📍 경로:', input.pol, '→', input.pod, '→ 목적지:', input.destinationId);
+  console.log('📍 DP 포함 여부:', input.includeDP ? '✅ DP 포함' : '❌ DP 미포함');
   console.log('📦 전체 대리점 해상운임 데이터:', agentSeaFreights);
 
   const getDataSource = <T,>(current: T[], historical: T[] | undefined): T[] => {
@@ -97,16 +98,43 @@ export const calculateCost = (
   console.log(`📋 유효한 일반 해상운임: ${hasValidGeneralSeaFreight ? '✅ 있음' : '❌ 없음'}`);
   console.log(`📋 유효한 대리점 해상운임: ${hasValidAgentSeaFreight ? '✅ 있음' : '❌ 없음'}`);
 
-  // 🆕 Track missing sea freight
-  if (!hasValidGeneralSeaFreight && !hasValidAgentSeaFreight) {
-    console.log('\n❌ 조회 날짜에 유효한 해상운임이 없습니다.');
-    missingFreights.push({
-      type: 'seaFreight',
-      route: `${input.pol} → ${input.pod}`,
-      message: `해상운임이 등록되지 않았습니다`
-    });
+  // 🆕 CRITICAL FIX: When DP is included, MUST have general sea freight
+  // Agent-specific sea freight alone is NOT sufficient for DP-included calculations
+  if (input.includeDP) {
+    console.log('\n🔍 DP 포함 모드: 일반 해상운임 필수 확인');
+    if (!hasValidGeneralSeaFreight) {
+      console.log('❌ DP 포함 모드에서는 일반 해상운임이 필수입니다.');
+      console.log('   대리점 해상운임만 있는 경우는 조회 결과에 포함되지 않습니다.');
+      missingFreights.push({
+        type: 'seaFreight',
+        route: `${input.pol} → ${input.pod}`,
+        message: `일반 해상운임이 등록되지 않았습니다 (DP 포함 모드에서는 일반 해상운임 필수)`
+      });
+      
+      console.log('🔍 ===== 원가 계산 완료 (결과 없음) =====\n');
+      return {
+        input,
+        breakdown: [],
+        lowestCostAgent: '',
+        lowestCost: 0,
+        isHistorical: !!input.historicalDate,
+        historicalDate: input.historicalDate,
+        missingFreights,
+      };
+    }
+    console.log('✅ 일반 해상운임이 존재하여 계산을 진행합니다.');
   } else {
-    console.log('✅ 유효한 해상운임이 존재하여 계산을 진행합니다.');
+    // DP 미포함 모드: 일반 해상운임 또는 대리점 해상운임 중 하나만 있어도 OK
+    if (!hasValidGeneralSeaFreight && !hasValidAgentSeaFreight) {
+      console.log('\n❌ 조회 날짜에 유효한 해상운임이 없습니다.');
+      missingFreights.push({
+        type: 'seaFreight',
+        route: `${input.pol} → ${input.pod}`,
+        message: `해상운임이 등록되지 않았습니다`
+      });
+    } else {
+      console.log('✅ 유효한 해상운임이 존재하여 계산을 진행합니다.');
+    }
   }
   console.log('🔍 ===== 해상운임 유효성 검사 완료 =====\n');
 
@@ -336,14 +364,20 @@ export const calculateCost = (
     .filter(f => f.pol === input.pol && f.pod === input.pod && f.destinationId === input.destinationId)
     .map(f => f.agent);
   
-  // ✅ NEW: Also collect agents from agent sea freight
-  const railAgentsFromAgentSeaFreight = currentAgentSeaFreights
-    .filter(f => f.pol === input.pol && f.pod === input.pod)
-    .map(f => f.agent);
+  // 🆕 CRITICAL FIX: When DP is included, do NOT collect agents from agent sea freight
+  // Agent-specific sea freight should only be used when DP is NOT included
+  const railAgentsFromAgentSeaFreight = input.includeDP 
+    ? [] 
+    : currentAgentSeaFreights
+        .filter(f => f.pol === input.pol && f.pod === input.pod)
+        .map(f => f.agent);
   
   console.log('\n📋 철도운임 대리점 (POL+POD 필터링 적용):', railAgentsFromPortBorder);
   console.log('📋 통합운임 대리점 (POL+POD 필터링 적용):', railAgentsFromCombined);
   console.log('📋 대리점 해상운임 대리점 (POL+POD 필터링 적용):', railAgentsFromAgentSeaFreight);
+  if (input.includeDP) {
+    console.log('⚠️ DP 포함 모드: 대리점 해상운임 대리점은 제외됨');
+  }
   
   // ✅ FIXED: Merge all three sources and get unique agents
   const allAgentNames = [...new Set([...railAgentsFromPortBorder, ...railAgentsFromCombined, ...railAgentsFromAgentSeaFreight])];
@@ -407,7 +441,14 @@ export const calculateCost = (
     
     const expiredDetails: string[] = [];
     
-    const agentSeaResult = getAgentSeaFreightWithExpiry(agentName, input.pol, input.pod);
+    // 🆕 CRITICAL FIX: When DP is included, do NOT use agent-specific sea freight
+    const agentSeaResult = input.includeDP 
+      ? { value: null, expired: false }
+      : getAgentSeaFreightWithExpiry(agentName, input.pol, input.pod);
+    
+    if (input.includeDP && agentSeaResult.value === null) {
+      console.log('⚠️ DP 포함 모드: 대리점 해상운임은 사용하지 않음');
+    }
     
     let seaFreightRate = 0;
     let seaFreightLocalCharge = 0;
@@ -418,7 +459,7 @@ export const calculateCost = (
     let isAgentSpecific = false;
     let seaFreightExpired = false;
 
-    if (agentSeaResult.value !== null) {
+    if (agentSeaResult.value !== null && !input.includeDP) {
       console.log(`\n✅ 대리점 해상운임 적용!`);
       seaFreightRate = agentSeaResult.value;
       seaFreightLocalCharge = agentSeaResult.localCharge || 0;

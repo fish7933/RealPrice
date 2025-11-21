@@ -22,7 +22,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { DollarSign, FileSpreadsheet, TrendingUp, Eye } from 'lucide-react';
+import { DollarSign, FileSpreadsheet, TrendingUp, Eye, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { exportQuotationToExcel } from '@/utils/excelExport';
 import type { ExcludedCosts } from './CostCalculatorWithTabs';
@@ -50,6 +50,7 @@ export default function QuotationDialog({
   const [sellingPrice, setSellingPrice] = useState<number>(0);
   const [notes, setNotes] = useState<string>('');
   const [showQuotationView, setShowQuotationView] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   // Reset state when dialog closes
   useEffect(() => {
@@ -57,6 +58,7 @@ export default function QuotationDialog({
       setSellingPrice(0);
       setNotes('');
       setShowQuotationView(false);
+      setIsSaving(false);
     }
   }, [open]);
 
@@ -132,28 +134,43 @@ export default function QuotationDialog({
       });
     }
 
-    await addQuotation({
-      breakdown,
-      input,
-      destinationName,
-      costTotal,
-      sellingPrice,
-      profit,
-      profitRate,
-      createdBy: user.id,
-      createdByUsername: user.username,
-      carrier,
-      excludedCosts,
-      notes,
-    });
+    // ✅ Disable button during save
+    setIsSaving(true);
 
-    toast({
-      title: '저장 완료',
-      description: '견적서가 저장되었습니다.',
-    });
+    try {
+      await addQuotation({
+        breakdown,
+        input,
+        destinationName,
+        costTotal,
+        sellingPrice,
+        profit,
+        profitRate,
+        createdBy: user.id,
+        createdByUsername: user.username,
+        carrier,
+        excludedCosts,
+        notes,
+      });
 
-    // Don't close the dialog after saving, keep it open for other actions
-    // onOpenChange(false);
+      toast({
+        title: '저장 완료',
+        description: '견적서가 저장되었습니다.',
+      });
+
+      // Don't close the dialog after saving, keep it open for other actions
+      // onOpenChange(false);
+    } catch (error) {
+      console.error('Error saving quotation:', error);
+      toast({
+        title: '저장 실패',
+        description: '견적서 저장에 실패했습니다.',
+        variant: 'destructive',
+      });
+    } finally {
+      // ✅ Re-enable button after save completes
+      setIsSaving(false);
+    }
   };
 
   const handleViewQuotation = () => {
@@ -376,8 +393,15 @@ export default function QuotationDialog({
               <FileSpreadsheet className="h-4 w-4" />
               엑셀 다운로드
             </Button>
-            <Button onClick={handleSave} className="bg-blue-600 hover:bg-blue-700">
-              저장
+            <Button onClick={handleSave} disabled={isSaving} className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">
+              {isSaving ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  저장 중...
+                </>
+              ) : (
+                '저장'
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>

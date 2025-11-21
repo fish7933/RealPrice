@@ -136,7 +136,7 @@ export default function QuotationDialog({
       });
     }
 
-    // ✅ Disable button during save
+    // ✅ Start saving
     setIsSaving(true);
 
     try {
@@ -160,7 +160,8 @@ export default function QuotationDialog({
         description: '견적서가 저장되었습니다.',
       });
 
-      // ✅ FIXED: 저장 완료 후 버튼 비활성화 상태 유지
+      // ✅ FIXED: 저장 완료 후 isSaving을 false로 설정하고 hasSaved를 true로 설정
+      setIsSaving(false);
       setHasSaved(true);
     } catch (error) {
       console.error('Error saving quotation:', error);

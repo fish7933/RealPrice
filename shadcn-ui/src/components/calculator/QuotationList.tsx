@@ -34,7 +34,7 @@ import { ko } from 'date-fns/locale';
 const ITEMS_PER_PAGE = 10;
 
 export default function QuotationList() {
-  const { quotations, deleteQuotation } = useFreight();
+  const { quotations, deleteQuotation, loadQuotations } = useFreight();
   const { user } = useAuth();
   const { toast } = useToast();
   
@@ -145,6 +145,10 @@ export default function QuotationList() {
         newSet.delete(id);
         return newSet;
       });
+      
+      // ✅ FIXED: Reload quotations after delete to refresh UI
+      await loadQuotations();
+      
       toast({
         title: '삭제 완료',
         description: '견적서가 삭제되었습니다.',
@@ -184,6 +188,10 @@ export default function QuotationList() {
       console.log('✅ [handleBulkDelete] All deletions completed');
       
       setSelectedIds(new Set());
+      
+      // ✅ FIXED: Reload quotations after bulk delete to refresh UI
+      await loadQuotations();
+      
       toast({
         title: '삭제 완료',
         description: `${deletePromises.length}개의 견적서가 삭제되었습니다.`,
@@ -223,6 +231,10 @@ export default function QuotationList() {
       console.log('✅ [handleDeleteAll] All deletions completed');
       
       setSelectedIds(new Set());
+      
+      // ✅ FIXED: Reload quotations after delete all to refresh UI
+      await loadQuotations();
+      
       toast({
         title: '삭제 완료',
         description: `${deletePromises.length}개의 견적서가 삭제되었습니다.`,

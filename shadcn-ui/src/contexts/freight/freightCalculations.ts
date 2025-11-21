@@ -389,28 +389,34 @@ export const calculateCost = (
   
   console.log('\n📋 처리할 대리점 목록:', railAgentsWithFreight);
   
-  // 🆕 FIXED: Check for missing rail and truck freights - only check data existence, not calculation success
-  const hasAnyRailFreight = railAgentsFromPortBorder.length > 0;
-  const hasAnyCombinedFreight = railAgentsFromCombined.length > 0;
-  
-  // ✅ FIXED: Check if there's any truck freight data for the destination
-  // This checks if the data exists in the database, regardless of whether it will be used in calculations
-  const truckFreightsForDestination = currentBorderDestinationFreights.filter(f => 
-    f.destinationId === input.destinationId
+  // 🆕 CRITICAL FIX: Check for missing rail and truck freights WITH validity date check
+  const hasAnyValidRailFreight = currentPortBorderFreights.some(f => 
+    f.pol === input.pol && 
+    f.pod === input.pod && 
+    isValidOnDate(f.validFrom, f.validTo, calculationDate)
   );
-  const hasAnyTruckFreight = truckFreightsForDestination.length > 0;
   
-  console.log(`\n🔍 ===== 내륙운임 데이터 존재 확인 =====`);
-  console.log(`📋 철도운임 데이터 존재: ${hasAnyRailFreight ? '✅ 있음' : '❌ 없음'}`);
-  console.log(`📋 통합운임 데이터 존재: ${hasAnyCombinedFreight ? '✅ 있음' : '❌ 없음'}`);
-  console.log(`📋 트럭운임 데이터 존재: ${hasAnyTruckFreight ? '✅ 있음' : '❌ 없음'}`);
-  if (hasAnyTruckFreight) {
-    console.log(`   트럭운임 데이터 상세:`, truckFreightsForDestination.map(f => `${f.agent}: ${f.rate}`));
-  }
+  const hasAnyValidCombinedFreight = currentCombinedFreights.some(f => 
+    f.pol === input.pol && 
+    f.pod === input.pod && 
+    f.destinationId === input.destinationId && 
+    isValidOnDate(f.validFrom, f.validTo, calculationDate)
+  );
   
-  // ✅ FIXED: Only add missing freight warnings if the data truly doesn't exist
-  // Don't warn about missing data if it exists but wasn't used due to other constraints (like missing sea freight)
-  if (!hasAnyRailFreight && !hasAnyCombinedFreight) {
+  // ✅ CRITICAL FIX: Check if there's any VALID truck freight data for the destination
+  // This checks if VALID data exists (within validity period), not just any data
+  const hasAnyValidTruckFreight = currentBorderDestinationFreights.some(f => 
+    f.destinationId === input.destinationId && 
+    isValidOnDate(f.validFrom, f.validTo, calculationDate)
+  );
+  
+  console.log(`\n🔍 ===== 내륙운임 유효 데이터 확인 =====`);
+  console.log(`📋 유효한 철도운임 존재: ${hasAnyValidRailFreight ? '✅ 있음' : '❌ 없음'}`);
+  console.log(`📋 유효한 통합운임 존재: ${hasAnyValidCombinedFreight ? '✅ 있음' : '❌ 없음'}`);
+  console.log(`📋 유효한 트럭운임 존재: ${hasAnyValidTruckFreight ? '✅ 있음' : '❌ 없음'}`);
+  
+  // ✅ CRITICAL FIX: Only add missing freight warnings if VALID data doesn't exist
+  if (!hasAnyValidRailFreight && !hasAnyValidCombinedFreight) {
     missingFreights.push({
       type: 'railFreight',
       route: `${input.pol} → ${input.pod}`,
@@ -419,9 +425,9 @@ export const calculateCost = (
   }
   
   // ✅ CRITICAL FIX: Only warn about missing truck freight if:
-  // 1. No truck freight data exists for this destination, AND
-  // 2. No combined freight exists (combined freight includes truck portion)
-  if (!hasAnyTruckFreight && !hasAnyCombinedFreight) {
+  // 1. No VALID truck freight data exists for this destination, AND
+  // 2. No VALID combined freight exists (combined freight includes truck portion)
+  if (!hasAnyValidTruckFreight && !hasAnyValidCombinedFreight) {
     missingFreights.push({
       type: 'truckFreight',
       route: `${input.pod} → 목적지`,
@@ -429,10 +435,10 @@ export const calculateCost = (
     });
   }
   
-  if (!hasAnyCombinedFreight && hasAnyRailFreight && hasAnyTruckFreight) {
+  if (!hasAnyValidCombinedFreight && hasAnyValidRailFreight && hasAnyValidTruckFreight) {
     // This is OK - we have separate rail and truck
     console.log('✅ 분리운임(철도+트럭)으로 계산 가능');
-  } else if (hasAnyCombinedFreight) {
+  } else if (hasAnyValidCombinedFreight) {
     console.log('✅ 통합운임으로 계산 가능');
   }
   

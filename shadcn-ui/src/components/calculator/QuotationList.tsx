@@ -72,6 +72,13 @@ export default function QuotationList() {
     return null;
   }).filter(Boolean))).sort();
 
+  // Helper function to truncate memo text
+  const truncateMemo = (memo: string | undefined, maxLength: number = 30) => {
+    if (!memo) return '-';
+    if (memo.length <= maxLength) return memo;
+    return memo.substring(0, maxLength) + '...';
+  };
+
   // Filter quotations
   const filteredQuotations = quotations.filter(quotation => {
     const matchesPOL = filterPOL === 'all' || quotation.pol === filterPOL;
@@ -689,13 +696,14 @@ export default function QuotationList() {
               <TableHead className="text-right h-9 text-xs font-semibold text-gray-900">제시운임</TableHead>
               <TableHead className="text-right h-9 text-xs font-semibold text-gray-900">이윤</TableHead>
               <TableHead className="text-right h-9 text-xs font-semibold text-gray-900">이윤율</TableHead>
+              <TableHead className="h-9 text-xs font-semibold text-gray-900 max-w-[200px]">메모</TableHead>
               <TableHead className="text-center h-9 text-xs font-semibold text-gray-900">작업</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {paginatedQuotations.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={13} className="text-center py-6 text-sm text-gray-500">
+                <TableCell colSpan={14} className="text-center py-6 text-sm text-gray-500">
                   검색 결과가 없습니다.
                 </TableCell>
               </TableRow>
@@ -740,6 +748,9 @@ export default function QuotationList() {
                   </TableCell>
                   <TableCell className={`text-right py-2 text-xs font-medium ${quotation.profitRate >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                     {quotation.profitRate.toFixed(2)}%
+                  </TableCell>
+                  <TableCell className="py-2 text-xs text-gray-600 max-w-[200px] truncate" title={quotation.notes || ''}>
+                    {truncateMemo(quotation.notes)}
                   </TableCell>
                   <TableCell className="text-center py-2">
                     <div className="flex items-center justify-center gap-1">

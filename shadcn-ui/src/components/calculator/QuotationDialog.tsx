@@ -241,7 +241,7 @@ export default function QuotationDialog({
                     </TableHead>
                   )}
                   {!excludedCosts.localCharge && breakdown.localCharge > 0 && (
-                    <TableHead className="border border-gray-200 font-bold text-center text-xs py-2 text-gray-900">LOCAL CHARGE</TableHead>
+                    <TableHead className="border border-gray-200 font-bold text-center text-xs py-2 text-gray-900">L.LOCAL</TableHead>
                   )}
                   {breakdown.llocal !== 0 && (
                     <TableHead className="border border-gray-200 font-bold text-center text-xs py-2 text-gray-900">L.LOCAL</TableHead>
@@ -271,7 +271,7 @@ export default function QuotationDialog({
                     <TableHead className="border border-gray-200 font-bold text-center text-xs py-2 text-gray-900">DP</TableHead>
                   )}
                   {!excludedCosts.domesticTransport && breakdown.domesticTransport > 0 && (
-                    <TableHead className="border border-gray-200 font-bold text-center text-xs py-2 text-gray-900">국내운송</TableHead>
+                    <TableHead className="border border-gray-200 font-bold text-center text-xs py-2 text-gray-900">국내 비용</TableHead>
                   )}
                   {breakdown.otherCosts.map((item, index) => {
                     if (!excludedCosts[`other_${index}`]) {
@@ -445,7 +445,7 @@ export default function QuotationDialog({
                   </TableRow>
                   {breakdown.localCharge > 0 && (
                     <TableRow className={excludedCosts.localCharge ? 'opacity-50' : ''}>
-                      <TableCell className="py-1 text-gray-700">LOCAL CHARGE</TableCell>
+                      <TableCell className="py-1 text-gray-700">L.LOCAL</TableCell>
                       <TableCell className="text-right py-1 text-gray-900">${excludedCosts.localCharge ? 0 : breakdown.localCharge.toLocaleString()}</TableCell>
                       <TableCell className="text-center py-1 text-gray-700">{excludedCosts.localCharge ? '제외' : '포함'}</TableCell>
                     </TableRow>
@@ -495,7 +495,7 @@ export default function QuotationDialog({
                     <TableCell className="text-center py-1 text-gray-700">{excludedCosts.dp ? '제외' : '포함'}</TableCell>
                   </TableRow>
                   <TableRow className={excludedCosts.domesticTransport ? 'opacity-50' : ''}>
-                    <TableCell className="py-1 text-gray-700">국내운송료</TableCell>
+                    <TableCell className="py-1 text-gray-700">국내 비용</TableCell>
                     <TableCell className="text-right py-1 text-gray-900">${excludedCosts.domesticTransport ? 0 : breakdown.domesticTransport.toLocaleString()}</TableCell>
                     <TableCell className="text-center py-1 text-gray-700">{excludedCosts.domesticTransport ? '제외' : '포함'}</TableCell>
                   </TableRow>

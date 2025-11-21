@@ -61,9 +61,9 @@ export const exportQuotationToExcel = (data: ExcelExportData) => {
     headers.push(`${data.input.pol}-${data.input.pod}`);
   }
   
-  // ✅ NEW: Add LOCAL CHARGE column if applicable
+  // ✅ UPDATED: Changed "LOCAL CHARGE" to "L.LOCAL"
   if (!data.excludedCosts.localCharge && data.breakdown.localCharge > 0) {
-    headers.push('LOCAL CHARGE');
+    headers.push('L.LOCAL');
   }
   
   // ✅ NEW: Add L.LOCAL column if applicable
@@ -96,8 +96,9 @@ export const exportQuotationToExcel = (data: ExcelExportData) => {
     headers.push('DP');
   }
   
+  // ✅ UPDATED: Changed "국내운송" to "국내 비용"
   if (!data.excludedCosts.domesticTransport && data.breakdown.domesticTransport > 0) {
-    headers.push('국내운송');
+    headers.push('국내 비용');
   }
   
   // Add other cost items
@@ -341,9 +342,9 @@ export const copyQuotationToClipboard = async (data: ExcelExportData): Promise<b
       headers.push(`${data.input.pol}-${data.input.pod}`);
     }
     
-    // ✅ NEW: Add LOCAL CHARGE column
+    // ✅ UPDATED: Changed "LOCAL CHARGE" to "L.LOCAL"
     if (!data.excludedCosts.localCharge && data.breakdown.localCharge > 0) {
-      headers.push('LOCAL CHARGE');
+      headers.push('L.LOCAL');
     }
     
     // ✅ NEW: Add L.LOCAL column
@@ -376,8 +377,9 @@ export const copyQuotationToClipboard = async (data: ExcelExportData): Promise<b
       headers.push('DP');
     }
     
+    // ✅ UPDATED: Changed "국내운송" to "국내 비용"
     if (!data.excludedCosts.domesticTransport && data.breakdown.domesticTransport > 0) {
-      headers.push('국내운송');
+      headers.push('국내 비용');
     }
     
     data.breakdown.otherCosts.forEach((item, index) => {

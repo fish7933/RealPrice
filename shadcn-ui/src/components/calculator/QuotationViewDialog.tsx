@@ -151,7 +151,7 @@ export default function QuotationViewDialog({
                   </TableHead>
                 )}
                 {!excludedCosts.localCharge && breakdown.localCharge > 0 && (
-                  <TableHead className="border border-gray-200 font-bold text-center text-xs py-2 text-gray-900">LOCAL CHARGE</TableHead>
+                  <TableHead className="border border-gray-200 font-bold text-center text-xs py-2 text-gray-900">L.LOCAL</TableHead>
                 )}
                 {breakdown.llocal !== 0 && (
                   <TableHead className="border border-gray-200 font-bold text-center text-xs py-2 text-gray-900">L.LOCAL</TableHead>
@@ -181,7 +181,7 @@ export default function QuotationViewDialog({
                   <TableHead className="border border-gray-200 font-bold text-center text-xs py-2 text-gray-900">DP</TableHead>
                 )}
                 {!excludedCosts.domesticTransport && breakdown.domesticTransport > 0 && (
-                  <TableHead className="border border-gray-200 font-bold text-center text-xs py-2 text-gray-900">국내운송</TableHead>
+                  <TableHead className="border border-gray-200 font-bold text-center text-xs py-2 text-gray-900">국내 비용</TableHead>
                 )}
                 {breakdown.otherCosts.map((item, index) => {
                   if (!excludedCosts[`other_${index}`]) {

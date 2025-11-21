@@ -424,11 +424,12 @@ export const calculateCost = (
     const hasCombined = combinedResult.value !== null && combinedResult.value > 0;
     const hasSeparate = railResult.value > 0 && ownTruckResult.value > 0;
     
-    // ✅ NEW: Check if agent has ONLY agent sea freight (no rail/combined freight)
-    const hasOnlyAgentSeaFreight = isAgentSpecific && !hasCombined && !hasSeparate;
+    // ✅ FIXED: Check if agent has ONLY agent sea freight with NO inland freight options
+    // An agent should be skipped ONLY if it has agent sea freight but NO combined freight AND NO rail freight
+    const hasOnlyAgentSeaFreight = isAgentSpecific && !hasCombined && railResult.value === 0;
     
     if (hasOnlyAgentSeaFreight) {
-      console.log(`\n⚠️ ${agentName}는 대리점 해상운임만 있고 철도/통합운임이 없습니다.`);
+      console.log(`\n⚠️ ${agentName}는 대리점 해상운임만 있고 통합운임/철도운임이 없습니다.`);
       console.log(`   이 대리점은 계산에서 제외됩니다.`);
       return; // Skip this agent
     }

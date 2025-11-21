@@ -150,6 +150,7 @@ export default function QuotationList() {
         description: '견적서가 삭제되었습니다.',
       });
     } catch (error) {
+      console.error('Error deleting quotation:', error);
       toast({
         title: '삭제 실패',
         description: '견적서 삭제에 실패했습니다.',
@@ -171,14 +172,24 @@ export default function QuotationList() {
     if (!window.confirm(`선택한 ${selectedIds.size}개의 견적서를 삭제하시겠습니까?`)) return;
 
     try {
-      const deletePromises = Array.from(selectedIds).map(id => deleteQuotation(id));
+      console.log('🗑️ [handleBulkDelete] Starting bulk delete for IDs:', Array.from(selectedIds));
+      
+      const deletePromises = Array.from(selectedIds).map(id => {
+        console.log('🗑️ [handleBulkDelete] Deleting ID:', id);
+        return deleteQuotation(id);
+      });
+      
       await Promise.all(deletePromises);
+      
+      console.log('✅ [handleBulkDelete] All deletions completed');
+      
       setSelectedIds(new Set());
       toast({
         title: '삭제 완료',
         description: `${deletePromises.length}개의 견적서가 삭제되었습니다.`,
       });
     } catch (error) {
+      console.error('❌ [handleBulkDelete] Error during bulk delete:', error);
       toast({
         title: '삭제 실패',
         description: '일부 견적서 삭제에 실패했습니다.',
@@ -200,14 +211,24 @@ export default function QuotationList() {
     if (!window.confirm(`필터링된 ${filteredQuotations.length}개의 견적서를 모두 삭제하시겠습니까?`)) return;
 
     try {
-      const deletePromises = filteredQuotations.map(q => deleteQuotation(q.id));
+      console.log('🗑️ [handleDeleteAll] Starting delete all for filtered quotations');
+      
+      const deletePromises = filteredQuotations.map(q => {
+        console.log('🗑️ [handleDeleteAll] Deleting ID:', q.id);
+        return deleteQuotation(q.id);
+      });
+      
       await Promise.all(deletePromises);
+      
+      console.log('✅ [handleDeleteAll] All deletions completed');
+      
       setSelectedIds(new Set());
       toast({
         title: '삭제 완료',
         description: `${deletePromises.length}개의 견적서가 삭제되었습니다.`,
       });
     } catch (error) {
+      console.error('❌ [handleDeleteAll] Error during delete all:', error);
       toast({
         title: '삭제 실패',
         description: '일부 견적서 삭제에 실패했습니다.',

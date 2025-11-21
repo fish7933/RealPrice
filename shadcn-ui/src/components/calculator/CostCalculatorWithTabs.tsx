@@ -797,8 +797,8 @@ export default function CostCalculatorWithTabs() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <History className="h-5 w-5" />
-              저장된 조회 결과 기록 ({calculationHistory.length}개)
+              <Camera className="h-5 w-5" />
+              스냅샷 리스트 ({calculationHistory.length}개)
             </CardTitle>
             <CardDescription>
               기록을 클릭하면 입력 폼과 조회 결과가 자동으로 채워집니다

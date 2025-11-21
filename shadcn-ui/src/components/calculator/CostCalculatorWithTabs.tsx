@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useFreight } from '@/contexts/FreightContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { CostCalculationInput, CostCalculationResult, CalculationHistory, SeaFreight, AgentCostBreakdown, OtherCost } from '@/types/freight';
+import { CostCalculationInput, CostCalculationResult, CalculationHistory, SeaFreight, AgentCostBreakdown, OtherCost, MissingFreightInfo } from '@/types/freight';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -243,6 +243,7 @@ export default function CostCalculatorWithTabs() {
         : [];
 
     const allBreakdowns: AgentCostBreakdown[] = [];
+    let collectedMissingFreights: MissingFreightInfo[] = [];
     
     // If no general sea freight, try calculation without it (will use agent sea freight if available)
     if (seaFreightIdsToCalculate.length === 0) {
@@ -256,6 +257,10 @@ export default function CostCalculatorWithTabs() {
       
       if (calculationResult) {
         allBreakdowns.push(...calculationResult.breakdown);
+        // ✅ Collect missing freights from the first calculation
+        if (calculationResult.missingFreights && calculationResult.missingFreights.length > 0) {
+          collectedMissingFreights = calculationResult.missingFreights;
+        }
       }
     } else {
       // Calculate with selected general sea freight options
@@ -270,6 +275,10 @@ export default function CostCalculatorWithTabs() {
         
         if (calculationResult) {
           allBreakdowns.push(...calculationResult.breakdown);
+          // ✅ Collect missing freights from each calculation (use first non-empty result)
+          if (collectedMissingFreights.length === 0 && calculationResult.missingFreights && calculationResult.missingFreights.length > 0) {
+            collectedMissingFreights = calculationResult.missingFreights;
+          }
         }
       });
     }
@@ -316,6 +325,8 @@ export default function CostCalculatorWithTabs() {
       lowestCostAgent: lowestAgent,
       isHistorical: !!historicalDate,
       historicalDate: historicalDate || undefined,
+      // ✅ PRESERVE missing freights data
+      missingFreights: collectedMissingFreights.length > 0 ? collectedMissingFreights : undefined,
     };
 
     setResult(combinedResult);

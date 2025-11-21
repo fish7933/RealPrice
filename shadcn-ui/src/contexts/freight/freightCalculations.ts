@@ -486,7 +486,8 @@ export const calculateCost = (
     const railResult = getPortBorderRateWithExpiry(agentName, input.pol, input.pod);
     const ownTruckResult = getBorderDestinationRateWithExpiry(agentName, input.destinationId);
     
-    const hasCombined = combinedResult.value !== null && combinedResult.value > 0;
+    // ✅ CRITICAL FIX: Accept rate=0 as valid data for combined freight
+    const hasCombined = combinedResult.value !== null;
     // ✅ FIXED: Check if rail and truck data exist (not null), regardless of value
     const hasSeparate = railResult.value !== null && ownTruckResult.value !== null;
     

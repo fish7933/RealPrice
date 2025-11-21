@@ -561,8 +561,6 @@ export default function CostResultTable({
                           >
                             {breakdown.isCombinedFreight ? (
                               <span className="text-gray-500">-</span>
-                            ) : breakdown.portBorder === 0 ? (
-                              <span className="text-amber-600 text-xs font-semibold">없음</span>
                             ) : (
                               <div className="flex items-center justify-end gap-1">
                                 <span className={isExpired(breakdown, '철도운임') ? 'text-red-600 font-bold' : ''}>
@@ -589,8 +587,6 @@ export default function CostResultTable({
                           >
                             {breakdown.isCombinedFreight ? (
                               <span className="text-gray-500">-</span>
-                            ) : breakdown.borderDestination === 0 ? (
-                              <span className="text-amber-600 text-xs font-semibold">없음</span>
                             ) : (
                               <div className="flex items-center justify-end gap-1">
                                 <span className={isExpired(breakdown, '트럭운임') ? 'text-red-600 font-bold' : ''}>

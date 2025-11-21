@@ -274,30 +274,7 @@ export default function CostCalculatorWithTabs() {
       });
     }
 
-    if (allBreakdowns.length === 0) {
-      // Clear previous results when there are no new results
-      setResult(null);
-      setAllFreightsResult(null);
-      setFullBreakdown([]);
-      localStorage.removeItem(STORAGE_KEY_RESULT);
-      
-      const destination = getDestinationById(input.destinationId);
-      const destinationName = destination?.name || input.destinationId;
-      const missingRates: string[] = [];
-      
-      missingRates.push(`${input.pol} → ${input.pod} 항로의 해상운임 (일반 또는 대리점)`);
-      
-      if (input.includeDP) {
-        missingRates.push(`${input.pol} → ${input.pod} → ${destinationName} 경로의 철도운임 (POD → KASHGAR)`);
-        missingRates.push(`${destinationName} 목적지의 트럭운임 (KASHGAR → 최종목적지)`);
-      } else {
-        missingRates.push(`${input.pol} → ${input.pod} → ${destinationName} 경로의 철도+트럭 통합운임`);
-      }
-      
-      setError(`선택한 경로에 대한 운임 조합이 없습니다.\n\n누락된 운임:\n• ${missingRates.join('\n• ')}\n\n관리자 대시보드에서 해당 운임을 먼저 등록해주세요.`);
-      return;
-    }
-
+    // ✅ ALWAYS show results section, even with 0 results
     const uniqueAllBreakdowns = deduplicateBreakdowns(allBreakdowns);
     setFullBreakdown(uniqueAllBreakdowns);
 
@@ -335,7 +312,7 @@ export default function CostCalculatorWithTabs() {
     const combinedResult: CostCalculationResult = {
       input,
       breakdown: filteredBreakdown,
-      lowestCost,
+      lowestCost: filteredBreakdown.length > 0 ? lowestCost : 0,
       lowestCostAgent: lowestAgent,
       isHistorical: !!historicalDate,
       historicalDate: historicalDate || undefined,
@@ -738,7 +715,7 @@ export default function CostCalculatorWithTabs() {
         </CardContent>
       </Card>
 
-      {(result || allFreightsResult) && (
+      {result && (
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">

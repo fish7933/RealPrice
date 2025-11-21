@@ -83,11 +83,12 @@ export default function QuotationDialog({
     return undefined;
   };
 
-  // Calculate cost total with excluded costs INCLUDING localCharge and llocal
+  // Calculate cost total with excluded costs
   const calculateCostTotal = () => {
     let total = 0;
     if (!excludedCosts.seaFreight) total += breakdown.seaFreight;
     if (!excludedCosts.localCharge) total += breakdown.localCharge;
+    // ✅ FIXED: llocal should always be included in cost calculation (it's a discount/surcharge)
     total += breakdown.llocal;
     if (!excludedCosts.dthc) total += breakdown.dthc;
     
@@ -260,7 +261,7 @@ export default function QuotationDialog({
                     </TableHead>
                   )}
                   {!excludedCosts.localCharge && breakdown.localCharge > 0 && (
-                    <TableHead className="border border-gray-200 font-bold text-center text-xs py-2 text-gray-900">L.LOCAL</TableHead>
+                    <TableHead className="border border-gray-200 font-bold text-center text-xs py-2 text-gray-900">LOCAL</TableHead>
                   )}
                   {breakdown.llocal !== 0 && (
                     <TableHead className="border border-gray-200 font-bold text-center text-xs py-2 text-gray-900">L.LOCAL</TableHead>
@@ -477,7 +478,7 @@ export default function QuotationDialog({
                   </TableRow>
                   {breakdown.localCharge > 0 && (
                     <TableRow className={excludedCosts.localCharge ? 'opacity-50' : ''}>
-                      <TableCell className="py-1 text-gray-700">L.LOCAL</TableCell>
+                      <TableCell className="py-1 text-gray-700">LOCAL</TableCell>
                       <TableCell className="text-right py-1 text-gray-900">${excludedCosts.localCharge ? 0 : breakdown.localCharge.toLocaleString()}</TableCell>
                       <TableCell className="text-center py-1 text-gray-700">{excludedCosts.localCharge ? '제외' : '포함'}</TableCell>
                     </TableRow>

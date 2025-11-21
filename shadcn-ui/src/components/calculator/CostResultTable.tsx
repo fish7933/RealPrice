@@ -199,32 +199,75 @@ export default function CostResultTable({
         )}
 
         {resultData.breakdown.length === 0 && (
-          <Alert variant="destructive" className="border-red-300 bg-red-50">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertDescription className="text-red-900">
-              <strong>선택한 경로에 대한 운임 조합이 없습니다.</strong>
-              <div className="mt-2 space-y-1 text-sm">
-                {resultData.missingFreights && resultData.missingFreights.length > 0 ? (
-                  <>
-                    <div className="font-semibold mb-1">누락된 운임:</div>
-                    {resultData.missingFreights.map((missing, index) => (
-                      <div key={index}>
-                        • <strong>
-                          {missing.type === 'seaFreight' && '해상운임'}
-                          {missing.type === 'railFreight' && '철도운임'}
-                          {missing.type === 'truckFreight' && '트럭운임'}
-                          {missing.type === 'combinedFreight' && '통합운임'}
-                        </strong>: {missing.message}
-                      </div>
-                    ))}
-                  </>
-                ) : (
-                  <div>운임 데이터를 확인할 수 없습니다. 콘솔 로그를 확인하세요.</div>
-                )}
-                <div className="mt-2 text-blue-700">관리자 대시보드에서 해당 운임을 먼저 등록해주세요.</div>
+          <>
+            <Alert variant="destructive" className="border-red-300 bg-red-50">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription className="text-red-900">
+                <strong>선택한 경로에 대한 운임 조합이 없습니다.</strong>
+                <div className="mt-2 space-y-1 text-sm">
+                  {resultData.missingFreights && resultData.missingFreights.length > 0 ? (
+                    <>
+                      <div className="font-semibold mb-1">누락된 운임:</div>
+                      {resultData.missingFreights.map((missing, index) => (
+                        <div key={index}>
+                          • <strong>
+                            {missing.type === 'seaFreight' && '해상운임'}
+                            {missing.type === 'railFreight' && '철도운임'}
+                            {missing.type === 'truckFreight' && '트럭운임'}
+                            {missing.type === 'combinedFreight' && '통합운임'}
+                          </strong>: {missing.message}
+                        </div>
+                      ))}
+                    </>
+                  ) : (
+                    <div>운임 데이터를 확인할 수 없습니다. 콘솔 로그를 확인하세요.</div>
+                  )}
+                  <div className="mt-2 text-blue-700">관리자 대시보드에서 해당 운임을 먼저 등록해주세요.</div>
+                </div>
+              </AlertDescription>
+            </Alert>
+
+            {/* ✅ NEW: Show missing freight combinations info below the alert */}
+            <div className="p-4 bg-amber-50 rounded-lg border-2 border-amber-300 shadow-sm space-y-3">
+              <div className="flex items-center gap-2">
+                <Info className="h-5 w-5 text-amber-600" />
+                <p className="text-amber-900 font-bold text-base">
+                  누락된 운임 조합 상세 정보
+                </p>
               </div>
-            </AlertDescription>
-          </Alert>
+              <div className="pl-7 space-y-2 text-sm text-amber-900">
+                <p className="font-semibold">
+                  경로: <span className="font-normal">{input.pol} → {input.pod} → {getDestinationName(input.destinationId)}</span>
+                </p>
+                <p className="font-semibold">
+                  조건: <span className="font-normal">{input.includeDP ? 'DP 포함 (철도+트럭 분리)' : 'DP 미포함 (철도+트럭 통합)'}</span>
+                </p>
+                <div className="mt-3 pt-3 border-t border-amber-300">
+                  <p className="font-semibold mb-2">필요한 운임 데이터:</p>
+                  <ul className="space-y-1.5 ml-4">
+                    {resultData.missingFreights && resultData.missingFreights.length > 0 ? (
+                      resultData.missingFreights.map((missing, index) => (
+                        <li key={index} className="flex items-start gap-2">
+                          <span className="text-amber-600 font-bold">•</span>
+                          <div>
+                            <span className="font-semibold">
+                              {missing.type === 'seaFreight' && '해상운임'}
+                              {missing.type === 'railFreight' && '철도운임 (POD → KASHGAR)'}
+                              {missing.type === 'truckFreight' && '트럭운임 (KASHGAR → 최종목적지)'}
+                              {missing.type === 'combinedFreight' && '통합운임 (POD → 최종목적지)'}
+                            </span>
+                            <div className="text-xs text-amber-800 mt-0.5">{missing.message}</div>
+                          </div>
+                        </li>
+                      ))
+                    ) : (
+                      <li className="text-amber-800">운임 데이터 정보를 확인할 수 없습니다.</li>
+                    )}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </>
         )}
 
         {resultData.breakdown.length > 0 && (

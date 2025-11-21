@@ -38,13 +38,13 @@ export default function QuotationViewDialog({
   const { toast } = useToast();
   const { updateQuotation } = useFreight();
   const [isEditingNote, setIsEditingNote] = useState(false);
-  const [editedNote, setEditedNote] = useState(quotation.note || '');
+  const [editedNote, setEditedNote] = useState(quotation.notes || '');
 
   // Update editedNote when quotation changes
   useEffect(() => {
-    setEditedNote(quotation.note || '');
+    setEditedNote(quotation.notes || '');
     setIsEditingNote(false);
-  }, [quotation.id, quotation.note]);
+  }, [quotation.id, quotation.notes]);
 
   const handleExportExcel = () => {
     exportQuotationToExcel({
@@ -59,7 +59,7 @@ export default function QuotationViewDialog({
       createdAt: quotation.createdAt,
       excludedCosts: quotation.excludedCosts || {},
       carrier: quotation.carrier,
-      note: quotation.note,
+      note: quotation.notes,
     });
 
     toast({
@@ -81,7 +81,7 @@ export default function QuotationViewDialog({
       createdAt: quotation.createdAt,
       excludedCosts: quotation.excludedCosts || {},
       carrier: quotation.carrier,
-      note: quotation.note,
+      note: quotation.notes,
     });
 
     if (success) {
@@ -99,13 +99,13 @@ export default function QuotationViewDialog({
   };
 
   const handleEditNote = () => {
-    setEditedNote(quotation.note || '');
+    setEditedNote(quotation.notes || '');
     setIsEditingNote(true);
   };
 
   const handleSaveNote = async () => {
     try {
-      await updateQuotation(quotation.id, { note: editedNote });
+      await updateQuotation(quotation.id, { notes: editedNote });
       setIsEditingNote(false);
       toast({
         title: '메모 저장 완료',
@@ -121,7 +121,7 @@ export default function QuotationViewDialog({
   };
 
   const handleCancelEdit = () => {
-    setEditedNote(quotation.note || '');
+    setEditedNote(quotation.notes || '');
     setIsEditingNote(false);
   };
 
@@ -321,7 +321,7 @@ export default function QuotationViewDialog({
               </div>
             ) : (
               <div className="text-sm text-gray-900 whitespace-pre-wrap bg-white p-2 rounded border border-gray-200 min-h-[60px]">
-                {quotation.note || '메모가 없습니다.'}
+                {quotation.notes || '메모가 없습니다.'}
               </div>
             )}
           </div>

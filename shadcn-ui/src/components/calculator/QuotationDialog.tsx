@@ -48,14 +48,14 @@ export default function QuotationDialog({
   const { user } = useAuth();
   const { toast } = useToast();
   const [sellingPrice, setSellingPrice] = useState<number>(0);
-  const [note, setNote] = useState<string>('');
+  const [notes, setNotes] = useState<string>('');
   const [showQuotationView, setShowQuotationView] = useState(false);
 
   // Reset state when dialog closes
   useEffect(() => {
     if (!open) {
       setSellingPrice(0);
-      setNote('');
+      setNotes('');
       setShowQuotationView(false);
     }
   }, [open]);
@@ -79,12 +79,12 @@ export default function QuotationDialog({
     return undefined;
   };
 
-  // ✅ FIXED: Calculate cost total with excluded costs INCLUDING localCharge and llocal
+  // Calculate cost total with excluded costs INCLUDING localCharge and llocal
   const calculateCostTotal = () => {
     let total = 0;
     if (!excludedCosts.seaFreight) total += breakdown.seaFreight;
-    if (!excludedCosts.localCharge) total += breakdown.localCharge;  // ✅ NEW: Include localCharge
-    total += breakdown.llocal;  // ✅ NEW: Always include llocal (can be negative)
+    if (!excludedCosts.localCharge) total += breakdown.localCharge;
+    total += breakdown.llocal;
     if (!excludedCosts.dthc) total += breakdown.dthc;
     
     if (breakdown.isCombinedFreight) {
@@ -144,7 +144,7 @@ export default function QuotationDialog({
       createdByUsername: user.username,
       carrier,
       excludedCosts,
-      note,
+      notes,
     });
 
     toast({
@@ -152,7 +152,7 @@ export default function QuotationDialog({
       description: '견적서가 저장되었습니다.',
     });
 
-    // ✅ CHANGED: Don't close the dialog after saving, keep it open for other actions
+    // Don't close the dialog after saving, keep it open for other actions
     // onOpenChange(false);
   };
 
@@ -202,7 +202,7 @@ export default function QuotationDialog({
       createdAt: new Date().toISOString(),
       excludedCosts,
       carrier,
-      note,
+      note: notes,
     });
 
     toast({
@@ -360,10 +360,10 @@ export default function QuotationDialog({
             {Object.values(excludedCosts).some(v => v) && (
               <p className="text-gray-600">* 일부 비용 항목이 제외되어 계산되었습니다.</p>
             )}
-            {note && (
+            {notes && (
               <div className="mt-2 pt-2 border-t border-gray-200">
                 <p className="font-semibold text-gray-700 mb-1">메모:</p>
-                <p className="text-gray-900 whitespace-pre-wrap">{note}</p>
+                <p className="text-gray-900 whitespace-pre-wrap">{notes}</p>
               </div>
             )}
           </div>
@@ -536,18 +536,18 @@ export default function QuotationDialog({
 
             {/* Note Input */}
             <div className="space-y-1">
-              <Label htmlFor="note" className="text-xs font-semibold text-gray-900">
+              <Label htmlFor="notes" className="text-xs font-semibold text-gray-900">
                 메모 (선택사항)
               </Label>
               <Textarea
-                id="note"
+                id="notes"
                 placeholder="견적서에 대한 메모를 입력하세요..."
-                value={note}
-                onChange={(e) => setNote(e.target.value)}
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
                 className="text-sm min-h-[80px] resize-none"
                 maxLength={500}
               />
-              <p className="text-xs text-gray-600">최대 500자까지 입력 가능합니다 ({note.length}/500)</p>
+              <p className="text-xs text-gray-600">최대 500자까지 입력 가능합니다 ({notes.length}/500)</p>
             </div>
 
             {/* Profit Calculation - Compact */}

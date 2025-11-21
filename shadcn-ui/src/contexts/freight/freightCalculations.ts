@@ -389,61 +389,6 @@ export const calculateCost = (
   
   console.log('\n📋 처리할 대리점 목록:', railAgentsWithFreight);
   
-  // 🆕 CRITICAL FIX: Check for missing rail and truck freights WITH validity date check
-  const hasAnyValidRailFreight = currentPortBorderFreights.some(f => 
-    f.pol === input.pol && 
-    f.pod === input.pod && 
-    isValidOnDate(f.validFrom, f.validTo, calculationDate)
-  );
-  
-  const hasAnyValidCombinedFreight = currentCombinedFreights.some(f => 
-    f.pol === input.pol && 
-    f.pod === input.pod && 
-    f.destinationId === input.destinationId && 
-    isValidOnDate(f.validFrom, f.validTo, calculationDate)
-  );
-  
-  // ✅ CRITICAL FIX: Check if there's any VALID truck freight data for the destination
-  // This checks if VALID data exists (within validity period), not just any data
-  const hasAnyValidTruckFreight = currentBorderDestinationFreights.some(f => 
-    f.destinationId === input.destinationId && 
-    isValidOnDate(f.validFrom, f.validTo, calculationDate)
-  );
-  
-  console.log(`\n🔍 ===== 내륙운임 유효 데이터 확인 =====`);
-  console.log(`📋 유효한 철도운임 존재: ${hasAnyValidRailFreight ? '✅ 있음' : '❌ 없음'}`);
-  console.log(`📋 유효한 통합운임 존재: ${hasAnyValidCombinedFreight ? '✅ 있음' : '❌ 없음'}`);
-  console.log(`📋 유효한 트럭운임 존재: ${hasAnyValidTruckFreight ? '✅ 있음' : '❌ 없음'}`);
-  
-  // ✅ CRITICAL FIX: Only add missing freight warnings if VALID data doesn't exist
-  if (!hasAnyValidRailFreight && !hasAnyValidCombinedFreight) {
-    missingFreights.push({
-      type: 'railFreight',
-      route: `${input.pol} → ${input.pod}`,
-      message: `철도운임이 등록되지 않았습니다`
-    });
-  }
-  
-  // ✅ CRITICAL FIX: Only warn about missing truck freight if:
-  // 1. No VALID truck freight data exists for this destination, AND
-  // 2. No VALID combined freight exists (combined freight includes truck portion)
-  if (!hasAnyValidTruckFreight && !hasAnyValidCombinedFreight) {
-    missingFreights.push({
-      type: 'truckFreight',
-      route: `${input.pod} → 목적지`,
-      message: `트럭운임이 등록되지 않았습니다`
-    });
-  }
-  
-  if (!hasAnyValidCombinedFreight && hasAnyValidRailFreight && hasAnyValidTruckFreight) {
-    // This is OK - we have separate rail and truck
-    console.log('✅ 분리운임(철도+트럭)으로 계산 가능');
-  } else if (hasAnyValidCombinedFreight) {
-    console.log('✅ 통합운임으로 계산 가능');
-  }
-  
-  console.log('🔍 ===== 내륙운임 데이터 확인 완료 =====\n');
-  
   const cowinTruck = currentBorderDestinationFreights.find(f => 
     f.agent === 'COWIN' && 
     f.destinationId === input.destinationId

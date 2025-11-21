@@ -7,7 +7,7 @@ import {
   Ship, Train, Truck, Weight, Package, Star, FileText, DollarSign, 
   Info, ArrowUp, ArrowDown, Merge, TrendingDown, AlertTriangle, 
   FileSpreadsheet, Sparkles, Trophy, Zap, Plus, Hash, Calculator,
-  AlertCircle, Database, MapPin
+  AlertCircle
 } from 'lucide-react';
 import { CostCalculationResult, AgentCostBreakdown, CostCalculationInput } from '@/types/freight';
 import { ExcludedCosts, CellExclusions, SortConfig } from './types';
@@ -200,136 +200,52 @@ export default function CostResultTable({
         )}
 
         {resultData.breakdown.length === 0 && (
-          <div className="relative overflow-hidden rounded-xl border-2 border-amber-400 bg-gradient-to-br from-amber-50 via-orange-50 to-amber-100 shadow-lg">
-            {/* Decorative background pattern */}
-            <div className="absolute inset-0 opacity-5">
-              <div className="absolute top-0 left-0 w-32 h-32 bg-amber-500 rounded-full -translate-x-16 -translate-y-16"></div>
-              <div className="absolute bottom-0 right-0 w-40 h-40 bg-orange-500 rounded-full translate-x-20 translate-y-20"></div>
-            </div>
-
-            <div className="relative p-6 space-y-5">
-              {/* Header Section */}
-              <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center shadow-md">
-                  <AlertCircle className="h-8 w-8 text-white" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-xl font-bold text-amber-900 mb-1">
-                    운임 조합을 찾을 수 없습니다
-                  </h3>
-                  <p className="text-amber-800 text-sm">
-                    선택하신 경로에 대한 운임 데이터가 등록되어 있지 않습니다.
-                  </p>
-                </div>
+          <div className="rounded-lg border-2 border-amber-400 bg-gradient-to-br from-amber-50 to-orange-50 p-3 shadow">
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-amber-400 to-orange-500 rounded-lg flex items-center justify-center">
+                <AlertCircle className="h-5 w-5 text-white" />
               </div>
-
-              {/* Route Information Card */}
-              <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4 border border-amber-200 shadow-sm">
-                <div className="flex items-center gap-2 mb-3">
-                  <MapPin className="h-5 w-5 text-amber-600" />
-                  <span className="font-bold text-amber-900">조회 경로 정보</span>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-sm font-bold text-amber-900 mb-1.5">
+                  운임 조합을 찾을 수 없습니다
+                </h3>
+                <div className="text-xs text-amber-800 mb-2">
+                  <span className="font-semibold">경로:</span> {input.pol} → {input.pod} → {getDestinationName(input.destinationId)} 
+                  <span className="ml-2">({input.includeDP ? 'DP 포함' : 'DP 미포함'})</span>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                  <div className="flex items-center gap-2">
-                    <span className="text-amber-700 font-semibold">출발항:</span>
-                    <span className="text-amber-900 font-bold">{input.pol}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-amber-700 font-semibold">중국항:</span>
-                    <span className="text-amber-900 font-bold">{input.pod}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-amber-700 font-semibold">최종목적지:</span>
-                    <span className="text-amber-900 font-bold">{getDestinationName(input.destinationId)}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-amber-700 font-semibold">운송 조건:</span>
-                    <span className="text-amber-900 font-bold">
-                      {input.includeDP ? 'DP 포함 (철도+트럭 분리)' : 'DP 미포함 (철도+트럭 통합)'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Missing Freight Details */}
-              {resultData.missingFreights && resultData.missingFreights.length > 0 && (
-                <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4 border border-amber-200 shadow-sm">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Database className="h-5 w-5 text-amber-600" />
-                    <span className="font-bold text-amber-900">누락된 운임 데이터</span>
-                  </div>
-                  <div className="space-y-3">
+                {resultData.missingFreights && resultData.missingFreights.length > 0 && (
+                  <div className="space-y-1">
                     {resultData.missingFreights.map((missing, index) => {
                       const getFreightIcon = (type: string) => {
                         switch(type) {
-                          case 'seaFreight': return <Ship className="h-5 w-5 text-cyan-600" />;
-                          case 'railFreight': return <Train className="h-5 w-5 text-blue-600" />;
-                          case 'truckFreight': return <Truck className="h-5 w-5 text-green-600" />;
-                          case 'combinedFreight': return <Merge className="h-5 w-5 text-purple-600" />;
-                          default: return <AlertCircle className="h-5 w-5 text-amber-600" />;
+                          case 'seaFreight': return <Ship className="h-3.5 w-3.5 text-cyan-600" />;
+                          case 'railFreight': return <Train className="h-3.5 w-3.5 text-blue-600" />;
+                          case 'truckFreight': return <Truck className="h-3.5 w-3.5 text-green-600" />;
+                          case 'combinedFreight': return <Merge className="h-3.5 w-3.5 text-purple-600" />;
+                          default: return <AlertCircle className="h-3.5 w-3.5 text-amber-600" />;
                         }
                       };
 
                       const getFreightLabel = (type: string) => {
                         switch(type) {
-                          case 'seaFreight': return '해상운임';
-                          case 'railFreight': return '철도운임';
-                          case 'truckFreight': return '트럭운임';
-                          case 'combinedFreight': return '통합운임';
+                          case 'seaFreight': return '해상';
+                          case 'railFreight': return '철도';
+                          case 'truckFreight': return '트럭';
+                          case 'combinedFreight': return '통합';
                           default: return '운임';
                         }
                       };
 
-                      const getFreightBgColor = (type: string) => {
-                        switch(type) {
-                          case 'seaFreight': return 'bg-cyan-50 border-cyan-200';
-                          case 'railFreight': return 'bg-blue-50 border-blue-200';
-                          case 'truckFreight': return 'bg-green-50 border-green-200';
-                          case 'combinedFreight': return 'bg-purple-50 border-purple-200';
-                          default: return 'bg-gray-50 border-gray-200';
-                        }
-                      };
-
                       return (
-                        <div 
-                          key={index} 
-                          className={`flex items-start gap-3 p-3 rounded-lg border ${getFreightBgColor(missing.type)}`}
-                        >
-                          <div className="flex-shrink-0 mt-0.5">
-                            {getFreightIcon(missing.type)}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="font-bold text-gray-900 mb-1">
-                              {getFreightLabel(missing.type)}
-                            </div>
-                            <div className="text-sm text-gray-700 break-words">
-                              {missing.message}
-                            </div>
-                          </div>
+                        <div key={index} className="flex items-start gap-1.5 text-xs">
+                          {getFreightIcon(missing.type)}
+                          <span className="font-semibold text-gray-900">{getFreightLabel(missing.type)}:</span>
+                          <span className="text-gray-700 flex-1">{missing.message}</span>
                         </div>
                       );
                     })}
                   </div>
-                </div>
-              )}
-
-              {/* Action Required Section */}
-              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 border-2 border-blue-300 shadow-sm">
-                <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0">
-                    <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
-                      <Info className="h-6 w-6 text-white" />
-                    </div>
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-bold text-blue-900 mb-2">다음 단계</h4>
-                    <div className="space-y-1.5 text-sm text-blue-800">
-                      <p>• 관리자 대시보드에서 누락된 운임 데이터를 등록해주세요</p>
-                      <p>• 등록 후 다시 조회하시면 운임 조합이 표시됩니다</p>
-                      <p>• 운임 등록에 대한 문의사항은 시스템 관리자에게 연락하세요</p>
-                    </div>
-                  </div>
-                </div>
+                )}
               </div>
             </div>
           </div>

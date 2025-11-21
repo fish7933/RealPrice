@@ -68,6 +68,19 @@ export const calculateCost = (
   // When DP is included, MUST have general sea freight
   if (input.includeDP) {
     if (!hasValidGeneralSeaFreight) {
+      const sqlQuery = `-- 일반 해상운임 조회 쿼리
+SELECT * FROM app_741545ec66_sea_freights 
+WHERE pol = '${input.pol}' 
+  AND pod = '${input.pod}'
+  AND valid_from <= '${calculationDate}'
+  AND valid_to >= '${calculationDate}';`;
+      
+      console.log('❌ 누락된 운임 데이터 발견!');
+      console.log('📍 경로:', `${input.pol} → ${input.pod}`);
+      console.log('📋 필요한 데이터: 일반 해상운임 (DP 포함 모드)');
+      console.log('\n🔍 데이터 확인 SQL 쿼리:');
+      console.log(sqlQuery);
+      
       missingFreights.push({
         type: 'seaFreight',
         route: `${input.pol} → ${input.pod}`,
@@ -87,6 +100,28 @@ export const calculateCost = (
   } else {
     // DP 미포함 모드: 일반 해상운임 또는 대리점 해상운임 중 하나만 있어도 OK
     if (!hasValidGeneralSeaFreight && !hasValidAgentSeaFreight) {
+      const generalSeaFreightQuery = `-- 일반 해상운임 조회 쿼리
+SELECT * FROM app_741545ec66_sea_freights 
+WHERE pol = '${input.pol}' 
+  AND pod = '${input.pod}'
+  AND valid_from <= '${calculationDate}'
+  AND valid_to >= '${calculationDate}';`;
+
+      const agentSeaFreightQuery = `-- 대리점 해상운임 조회 쿼리
+SELECT * FROM app_741545ec66_agent_sea_freights 
+WHERE pol = '${input.pol}' 
+  AND pod = '${input.pod}'
+  AND valid_from <= '${calculationDate}'
+  AND valid_to >= '${calculationDate}';`;
+      
+      console.log('❌ 누락된 운임 데이터 발견!');
+      console.log('📍 경로:', `${input.pol} → ${input.pod}`);
+      console.log('📋 필요한 데이터: 일반 해상운임 또는 대리점 해상운임');
+      console.log('\n🔍 일반 해상운임 확인 SQL:');
+      console.log(generalSeaFreightQuery);
+      console.log('\n🔍 대리점 해상운임 확인 SQL:');
+      console.log(agentSeaFreightQuery);
+      
       missingFreights.push({
         type: 'seaFreight',
         route: `${input.pol} → ${input.pod}`,
@@ -186,6 +221,20 @@ export const calculateCost = (
     );
     
     if (filtered.length === 0) {
+      const sqlQuery = `-- 통합운임 조회 쿼리
+SELECT * FROM app_741545ec66_combined_freights 
+WHERE agent = '${agent}'
+  AND pol = '${pol}'
+  AND pod = '${pod}'
+  AND destination_id = '${destinationId}'
+  AND valid_from <= '${calculationDate}'
+  AND valid_to >= '${calculationDate}';`;
+      
+      console.log(`\n❌ [${agent}] 통합운임 데이터 없음`);
+      console.log('📍 경로:', `${pol} → ${pod} → 목적지ID: ${destinationId}`);
+      console.log('🔍 데이터 확인 SQL:');
+      console.log(sqlQuery);
+      
       return { value: null, expired: false };
     }
     
@@ -203,6 +252,18 @@ export const calculateCost = (
     );
     
     if (filtered.length === 0) {
+      const sqlQuery = `-- 트럭운임 조회 쿼리
+SELECT * FROM app_741545ec66_border_destination_freights 
+WHERE agent = '${agent}'
+  AND destination_id = '${destinationId}'
+  AND valid_from <= '${calculationDate}'
+  AND valid_to >= '${calculationDate}';`;
+      
+      console.log(`\n❌ [${agent}] 트럭운임 데이터 없음`);
+      console.log('📍 목적지ID:', destinationId);
+      console.log('🔍 데이터 확인 SQL:');
+      console.log(sqlQuery);
+      
       return { value: null, expired: false };
     }
     
@@ -234,6 +295,19 @@ export const calculateCost = (
     );
     
     if (filtered.length === 0) {
+      const sqlQuery = `-- 철도운임 조회 쿼리
+SELECT * FROM app_741545ec66_port_border_freights 
+WHERE agent = '${agent}'
+  AND pol = '${pol}'
+  AND pod = '${pod}'
+  AND valid_from <= '${calculationDate}'
+  AND valid_to >= '${calculationDate}';`;
+      
+      console.log(`\n❌ [${agent}] 철도운임 데이터 없음`);
+      console.log('📍 경로:', `${pol} → ${pod}`);
+      console.log('🔍 데이터 확인 SQL:');
+      console.log(sqlQuery);
+      
       return { value: null, expired: false };
     }
     

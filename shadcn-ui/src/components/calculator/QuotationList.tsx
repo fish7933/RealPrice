@@ -79,6 +79,12 @@ export default function QuotationList() {
     return memo.substring(0, maxLength) + '...';
   };
 
+  // Helper function to format date and time
+  const formatDateTime = (dateString: string) => {
+    const date = new Date(dateString);
+    return format(date, 'yyyy-MM-dd HH:mm', { locale: ko });
+  };
+
   // Filter quotations
   const filteredQuotations = quotations.filter(quotation => {
     const matchesPOL = filterPOL === 'all' || quotation.pol === filterPOL;
@@ -685,7 +691,7 @@ export default function QuotationList() {
                   onCheckedChange={handleSelectAll}
                 />
               </TableHead>
-              <TableHead className="h-9 text-xs font-semibold text-gray-900">작성일</TableHead>
+              <TableHead className="h-9 text-xs font-semibold text-gray-900">작성일시</TableHead>
               <TableHead className="h-9 text-xs font-semibold text-gray-900">POL</TableHead>
               <TableHead className="h-9 text-xs font-semibold text-gray-900">POD</TableHead>
               <TableHead className="h-9 text-xs font-semibold text-gray-900">목적지</TableHead>
@@ -717,7 +723,7 @@ export default function QuotationList() {
                     />
                   </TableCell>
                   <TableCell className="py-2 text-xs text-gray-700">
-                    {new Date(quotation.createdAt).toLocaleDateString('ko-KR')}
+                    {formatDateTime(quotation.createdAt)}
                   </TableCell>
                   <TableCell className="py-2 text-xs text-gray-700">
                     {quotation.pol}

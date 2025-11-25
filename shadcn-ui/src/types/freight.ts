@@ -3,7 +3,7 @@ export interface User {
   id: string;
   username: string;
   password: string;
-  role: 'superadmin' | 'admin' | 'user';
+  role: 'superadmin' | 'admin' | 'viewer';  // ✅ FIXED: Changed 'user' to 'viewer'
   createdAt: string;
   displayName?: string;
   email?: string;

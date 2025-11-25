@@ -50,7 +50,7 @@ export interface User {
   password_hash: string;
   name: string;
   position?: string;
-  role: 'superadmin' | 'admin' | 'viewer';
+  role: 'superadmin' | 'admin' | 'viewer' | 'user';  // ✅ Added 'user' for backward compatibility
   created_by?: string;
   created_at: string;
   updated_at: string;

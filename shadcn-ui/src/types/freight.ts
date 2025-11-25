@@ -3,7 +3,7 @@ export interface User {
   id: string;
   username: string;
   password: string;
-  role: 'superadmin' | 'admin' | 'viewer' | 'user';  // ✅ Added 'user' for backward compatibility
+  role: 'superadmin' | 'admin' | 'viewer';
   createdAt: string;
   displayName?: string;
   email?: string;

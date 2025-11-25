@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useFreight } from '@/contexts/FreightContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -27,6 +28,7 @@ type PortType = 'POL' | 'POD';
 
 export default function PortTable() {
   const { toast } = useToast();
+  const { user } = useAuth();
   const { ports, addPort, updatePort, deletePort } = useFreight();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingPort, setEditingPort] = useState<Port | null>(null);
@@ -36,6 +38,9 @@ export default function PortTable() {
     country: '',
     description: '',
   });
+
+  // Check if user is admin or superadmin
+  const isAdmin = user?.role === 'admin' || user?.role === 'superadmin';
 
   const handleAdd = () => {
     setEditingPort(null);
@@ -108,14 +113,16 @@ export default function PortTable() {
               <p className="text-xs text-gray-600">선적포트(POL)와 양하포트(POD)를 관리합니다</p>
             </div>
           </div>
-          <Button 
-            onClick={handleAdd}
-            size="sm"
-            className="bg-gray-200/80 backdrop-blur-sm hover:bg-gray-300/80 text-gray-900 border border-gray-400 h-7 text-xs"
-          >
-            <Plus className="h-3 w-3 mr-1" />
-            추가
-          </Button>
+          {isAdmin && (
+            <Button 
+              onClick={handleAdd}
+              size="sm"
+              className="bg-gray-200/80 backdrop-blur-sm hover:bg-gray-300/80 text-gray-900 border border-gray-400 h-7 text-xs"
+            >
+              <Plus className="h-3 w-3 mr-1" />
+              추가
+            </Button>
+          )}
         </div>
       </div>
 
@@ -134,13 +141,13 @@ export default function PortTable() {
                 <TableHead className="h-10 text-sm text-gray-900 font-extrabold whitespace-nowrap">포트명</TableHead>
                 <TableHead className="h-10 text-sm text-gray-900 font-extrabold whitespace-nowrap">국가</TableHead>
                 <TableHead className="h-10 text-sm text-gray-900 font-extrabold whitespace-nowrap">설명</TableHead>
-                <TableHead className="h-9 text-xs text-right text-gray-900 font-bold whitespace-nowrap">작업</TableHead>
+                {isAdmin && <TableHead className="h-9 text-xs text-right text-gray-900 font-bold whitespace-nowrap">작업</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
               {polPorts.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center py-12">
+                  <TableCell colSpan={isAdmin ? 4 : 3} className="text-center py-12">
                     <div className="flex flex-col items-center gap-2 text-gray-700">
                       <Ship className="h-12 w-12 opacity-20" />
                       <p className="text-sm">등록된 선적포트가 없습니다</p>
@@ -160,26 +167,28 @@ export default function PortTable() {
                     </TableCell>
                     <TableCell className="py-3 text-sm text-gray-600 whitespace-nowrap">{port.country}</TableCell>
                     <TableCell className="py-3 text-sm text-gray-600 whitespace-nowrap">{port.description || '-'}</TableCell>
-                    <TableCell className="py-2 text-right whitespace-nowrap">
-                      <div className="flex justify-end gap-1">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleEdit(port)}
-                          className="h-6 px-2 text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-300"
-                        >
-                          <Pencil className="h-3 w-3" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDelete(port.id)}
-                          className="h-6 w-6 p-0 hover:bg-blue-50 transition-colors duration-150 hover:text-red-700"
-                        >
-                          <Trash2 className="h-3 w-3 text-red-600" />
-                        </Button>
-                      </div>
-                    </TableCell>
+                    {isAdmin && (
+                      <TableCell className="py-2 text-right whitespace-nowrap">
+                        <div className="flex justify-end gap-1">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleEdit(port)}
+                            className="h-6 px-2 text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-300"
+                          >
+                            <Pencil className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDelete(port.id)}
+                            className="h-6 w-6 p-0 hover:bg-blue-50 transition-colors duration-150 hover:text-red-700"
+                          >
+                            <Trash2 className="h-3 w-3 text-red-600" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    )}
                   </TableRow>
                 ))
               )}
@@ -203,13 +212,13 @@ export default function PortTable() {
                 <TableHead className="h-10 text-sm text-gray-900 font-extrabold whitespace-nowrap">포트명</TableHead>
                 <TableHead className="h-10 text-sm text-gray-900 font-extrabold whitespace-nowrap">국가</TableHead>
                 <TableHead className="h-10 text-sm text-gray-900 font-extrabold whitespace-nowrap">설명</TableHead>
-                <TableHead className="h-9 text-xs text-right text-gray-900 font-bold whitespace-nowrap">작업</TableHead>
+                {isAdmin && <TableHead className="h-9 text-xs text-right text-gray-900 font-bold whitespace-nowrap">작업</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
               {podPorts.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center py-12">
+                  <TableCell colSpan={isAdmin ? 4 : 3} className="text-center py-12">
                     <div className="flex flex-col items-center gap-2 text-gray-700">
                       <Globe className="h-12 w-12 opacity-20" />
                       <p className="text-sm">등록된 양하포트가 없습니다</p>
@@ -229,26 +238,28 @@ export default function PortTable() {
                     </TableCell>
                     <TableCell className="py-3 text-sm text-gray-600 whitespace-nowrap">{port.country}</TableCell>
                     <TableCell className="py-3 text-sm text-gray-600 whitespace-nowrap">{port.description || '-'}</TableCell>
-                    <TableCell className="py-2 text-right whitespace-nowrap">
-                      <div className="flex justify-end gap-1">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleEdit(port)}
-                          className="h-6 px-2 text-xs bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-300"
-                        >
-                          <Pencil className="h-3 w-3" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDelete(port.id)}
-                          className="h-6 w-6 p-0 hover:bg-blue-50 transition-colors duration-150 hover:text-red-700"
-                        >
-                          <Trash2 className="h-3 w-3 text-red-600" />
-                        </Button>
-                      </div>
-                    </TableCell>
+                    {isAdmin && (
+                      <TableCell className="py-2 text-right whitespace-nowrap">
+                        <div className="flex justify-end gap-1">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleEdit(port)}
+                            className="h-6 px-2 text-xs bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-300"
+                          >
+                            <Pencil className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDelete(port.id)}
+                            className="h-6 w-6 p-0 hover:bg-blue-50 transition-colors duration-150 hover:text-red-700"
+                          >
+                            <Trash2 className="h-3 w-3 text-red-600" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    )}
                   </TableRow>
                 ))
               )}

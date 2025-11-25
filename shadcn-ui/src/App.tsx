@@ -104,7 +104,7 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-// Dashboard Route - redirects based on role
+// Dashboard Route - all authenticated users can access AdminDashboard (view-only for viewer/user roles)
 function DashboardRoute() {
   const { user, loading } = useAuth();
   
@@ -117,11 +117,9 @@ function DashboardRoute() {
     return <Navigate to="/login" replace />;
   }
   
-  if (user.role === 'admin' || user.role === 'superadmin') {
-    return <AdminDashboard />;
-  }
-  
-  return <UserDashboard />;
+  // ✅ All authenticated users can access AdminDashboard
+  // viewer/user roles will have read-only access (no add/edit/delete buttons)
+  return <AdminDashboard />;
 }
 
 function AppRoutes() {

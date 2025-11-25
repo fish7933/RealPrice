@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Auth Test</title>
+</head>
+<body>
+    <h1>Auth Context Test</h1>
+    <div id="result"></div>
+    <script>
+        // Check if user data exists in localStorage
+        const keys = Object.keys(localStorage);
+        const supabaseKeys = keys.filter(k => k.includes('supabase'));
+        
+        document.getElementById('result').innerHTML = `
+            <h2>LocalStorage Keys:</h2>
+            <pre>${JSON.stringify(supabaseKeys, null, 2)}</pre>
+            <h2>Auth Token:</h2>
+            <pre>${localStorage.getItem('sb-lcubxwvkoqkhsvzstbay-auth-token')}</pre>
+        `;
+    </script>
+</body>
+</html>

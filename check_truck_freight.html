@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>트럭운임 데이터 확인</title>
+</head>
+<body>
+    <h1>트럭운임 데이터 확인</h1>
+    <pre id="output"></pre>
+    <script>
+        const output = document.getElementById('output');
+        let result = '=== 로컬 스토리지 트럭운임 데이터 ===\n\n';
+        
+        // Get all localStorage data
+        const borderDestinationFreights = localStorage.getItem('borderDestinationFreights');
+        const destinations = localStorage.getItem('destinations');
+        
+        if (destinations) {
+            const destData = JSON.parse(destinations);
+            result += '목적지 목록:\n';
+            destData.forEach(d => {
+                result += `  - ${d.name} (ID: ${d.id})\n`;
+            });
+            result += '\n';
+        }
+        
+        if (borderDestinationFreights) {
+            const freightData = JSON.parse(borderDestinationFreights);
+            result += `총 트럭운임 데이터 개수: ${freightData.length}\n\n`;
+            
+            // Find KASHGAR(FINAL) destination ID
+            const kashgarDest = destData?.find(d => d.name.includes('KASHGAR') && d.name.includes('FINAL'));
+            if (kashgarDest) {
+                result += `KASHGAR(FINAL) ID: ${kashgarDest.id}\n\n`;
+                
+                const kashgarFreights = freightData.filter(f => f.destinationId === kashgarDest.id);
+                result += `KASHGAR(FINAL) 트럭운임 개수: ${kashgarFreights.length}\n\n`;
+                
+                if (kashgarFreights.length > 0) {
+                    result += 'KASHGAR(FINAL) 트럭운임 상세:\n';
+                    kashgarFreights.forEach(f => {
+                        result += `  대리점: ${f.agent}\n`;
+                        result += `  운임: ${f.rate}\n`;
+                        result += `  유효기간: ${f.validFrom} ~ ${f.validTo}\n`;
+                        result += `  ---\n`;
+                    });
+                } else {
+                    result += 'KASHGAR(FINAL) 트럭운임 데이터가 없습니다.\n';
+                }
+            } else {
+                result += 'KASHGAR(FINAL) 목적지를 찾을 수 없습니다.\n';
+            }
+        } else {
+            result += '트럭운임 데이터가 로컬 스토리지에 없습니다.\n';
+        }
+        
+        output.textContent = result;
+        console.log(result);
+    </script>
+</body>
+</html>

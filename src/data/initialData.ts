@@ -1,0 +1,752 @@
+import { SeaFreight, AgentSeaFreight, PortBorderFreight, BorderDestinationFreight, WeightSurchargeRule, User, Destination, RailAgent, TruckAgent, DTHC, CombinedFreight, DPCost } from '@/types/freight';
+
+// Helper function to get default validity period (today to 1 month later)
+const getDefaultValidity = () => {
+  const today = new Date();
+  const oneMonthLater = new Date(today);
+  oneMonthLater.setMonth(oneMonthLater.getMonth() + 1);
+  
+  return {
+    validFrom: today.toISOString().split('T')[0],
+    validTo: oneMonthLater.toISOString().split('T')[0],
+  };
+};
+
+// Default Users with new role system
+export const defaultUsers: User[] = [
+  {
+    id: 'superadmin_1',
+    username: 'superadmin',
+    password: 'super123',
+    name: '최고관리자',
+    position: '대표이사',
+    role: 'superadmin',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'admin_1',
+    username: 'admin',
+    password: 'admin123',
+    name: '관리자',
+    position: '부장',
+    role: 'admin',
+    createdBy: 'superadmin_1',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'viewer_1',
+    username: 'viewer',
+    password: 'viewer123',
+    name: '일반사용자',
+    position: '사원',
+    role: 'viewer',
+    createdBy: 'admin_1',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+];
+
+// Initial Rail Agents (철도 운송사)
+export const initialRailAgents: RailAgent[] = [
+  {
+    id: 'rail_1',
+    name: '하버링크',
+    description: '철도 운송 대리점',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'rail_2',
+    name: 'WJ',
+    description: '철도 운송 대리점',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'rail_3',
+    name: 'LB',
+    description: '철도 운송 대리점',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'rail_4',
+    name: '시노트란스',
+    description: '철도 운송 대리점',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+];
+
+// Initial Truck Agents (트럭 운송사)
+export const initialTruckAgents: TruckAgent[] = [
+  {
+    id: 'truck_1',
+    name: 'COWIN',
+    description: '트럭 운송 전문 업체',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'truck_2',
+    name: '하버링크',
+    description: '철도 + 트럭 운송',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'truck_3',
+    name: 'WJ',
+    description: '철도 + 트럭 운송',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'truck_4',
+    name: 'LB',
+    description: '철도 + 트럭 운송',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'truck_5',
+    name: '시노트란스',
+    description: '철도 + 트럭 운송',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+];
+
+// Initial Destinations (최종목적지)
+export const initialDestinations: Destination[] = [
+  {
+    id: 'dest_1',
+    name: 'OSH',
+    description: '오시 (키르기스스탄)',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'dest_2',
+    name: 'BISHKEK',
+    description: '비슈케크 (키르기스스탄 수도)',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'dest_3',
+    name: 'ANDIJAN',
+    description: '안디잔 (우즈베키스탄)',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+];
+
+// Initial Sea Freight Data (해상운임) - Allow multiple entries for same route
+export const initialSeaFreights: SeaFreight[] = [
+  {
+    id: '1',
+    pol: '부산',
+    pod: '청도',
+    rate: 420,
+    carrier: '흥아',
+    version: 1,
+    ...getDefaultValidity(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: '2',
+    pol: '부산',
+    pod: '천진',
+    rate: 420,
+    carrier: '흥아',
+    version: 1,
+    ...getDefaultValidity(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: '3',
+    pol: '부산',
+    pod: '연운',
+    rate: 420,
+    carrier: '흥아',
+    version: 1,
+    ...getDefaultValidity(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: '8',
+    pol: '부산',
+    pod: '다강',
+    rate: 200,
+    carrier: '흥아',
+    note: 'CC',
+    version: 1,
+    ...getDefaultValidity(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: '4',
+    pol: '인천',
+    pod: '청도',
+    rate: 580,
+    carrier: 'SITC',
+    note: '하버링크CC',
+    version: 1,
+    ...getDefaultValidity(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: '5',
+    pol: '인천',
+    pod: '천진',
+    rate: 790,
+    carrier: '두우',
+    version: 1,
+    ...getDefaultValidity(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: '6',
+    pol: '인천',
+    pod: '연운',
+    rate: 490,
+    version: 1,
+    ...getDefaultValidity(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: '7',
+    pol: '인천',
+    pod: '다강',
+    rate: 200,
+    note: 'CC',
+    version: 1,
+    ...getDefaultValidity(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+];
+
+// Initial Agent-Specific Sea Freight Data (대리점별 해상운임)
+export const initialAgentSeaFreights: AgentSeaFreight[] = [
+  {
+    id: '1',
+    agent: '하버링크',
+    pol: '인천',
+    pod: '청도',
+    rate: 580,
+    carrier: 'SITC',
+    note: '하버링크 지정 운임',
+    version: 1,
+    ...getDefaultValidity(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: '2',
+    agent: 'WJ',
+    pol: '부산',
+    pod: '청도',
+    rate: 420,
+    carrier: '흥아',
+    note: 'WJ 지정 운임',
+    version: 1,
+    ...getDefaultValidity(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: '3',
+    agent: 'LB',
+    pol: '부산',
+    pod: '청도',
+    rate: 420,
+    carrier: '흥아',
+    note: 'LB 지정 운임',
+    version: 1,
+    ...getDefaultValidity(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: '4',
+    agent: '시노트란스',
+    pol: '부산',
+    pod: '청도',
+    rate: 420,
+    carrier: '흥아',
+    note: '시노트란스 지정 운임',
+    version: 1,
+    ...getDefaultValidity(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+];
+
+// Initial D/O(DTHC) Data (대리점 + 출발항 + 도착항별)
+export const initialDTHCList: DTHC[] = [
+  // 하버링크 - 부산
+  {
+    id: 'dthc_1',
+    agent: '하버링크',
+    pol: '부산',
+    pod: '청도',
+    amount: 100,
+    description: '하버링크 부산→청도 D/O(DTHC)',
+    version: 1,
+    ...getDefaultValidity(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'dthc_2',
+    agent: '하버링크',
+    pol: '부산',
+    pod: '천진',
+    amount: 105,
+    description: '하버링크 부산→천진 D/O(DTHC)',
+    version: 1,
+    ...getDefaultValidity(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'dthc_3',
+    agent: '하버링크',
+    pol: '부산',
+    pod: '연운',
+    amount: 102,
+    description: '하버링크 부산→연운 D/O(DTHC)',
+    version: 1,
+    ...getDefaultValidity(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'dthc_15',
+    agent: '하버링크',
+    pol: '부산',
+    pod: '다강',
+    amount: 108,
+    description: '하버링크 부산→다강 D/O(DTHC)',
+    version: 1,
+    ...getDefaultValidity(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  // 하버링크 - 인천
+  {
+    id: 'dthc_4',
+    agent: '하버링크',
+    pol: '인천',
+    pod: '청도',
+    amount: 110,
+    description: '하버링크 인천→청도 D/O(DTHC)',
+    version: 1,
+    ...getDefaultValidity(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'dthc_5',
+    agent: '하버링크',
+    pol: '인천',
+    pod: '천진',
+    amount: 115,
+    description: '하버링크 인천→천진 D/O(DTHC)',
+    version: 1,
+    ...getDefaultValidity(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'dthc_6',
+    agent: '하버링크',
+    pol: '인천',
+    pod: '연운',
+    amount: 112,
+    description: '하버링크 인천→연운 D/O(DTHC)',
+    version: 1,
+    ...getDefaultValidity(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'dthc_7',
+    agent: '하버링크',
+    pol: '인천',
+    pod: '다강',
+    amount: 108,
+    description: '하버링크 인천→다강 D/O(DTHC)',
+    version: 1,
+    ...getDefaultValidity(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  // WJ - 부산
+  {
+    id: 'dthc_8',
+    agent: 'WJ',
+    pol: '부산',
+    pod: '청도',
+    amount: 110,
+    description: 'WJ 부산→청도 D/O(DTHC)',
+    version: 1,
+    ...getDefaultValidity(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'dthc_9',
+    agent: 'WJ',
+    pol: '부산',
+    pod: '천진',
+    amount: 112,
+    description: 'WJ 부산→천진 D/O(DTHC)',
+    version: 1,
+    ...getDefaultValidity(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'dthc_10',
+    agent: 'WJ',
+    pol: '부산',
+    pod: '연운',
+    amount: 111,
+    description: 'WJ 부산→연운 D/O(DTHC)',
+    version: 1,
+    ...getDefaultValidity(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'dthc_16',
+    agent: 'WJ',
+    pol: '부산',
+    pod: '다강',
+    amount: 113,
+    description: 'WJ 부산→다강 D/O(DTHC)',
+    version: 1,
+    ...getDefaultValidity(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  // WJ - 인천
+  {
+    id: 'dthc_11',
+    agent: 'WJ',
+    pol: '인천',
+    pod: '청도',
+    amount: 115,
+    description: 'WJ 인천→청도 D/O(DTHC)',
+    version: 1,
+    ...getDefaultValidity(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'dthc_12',
+    agent: 'WJ',
+    pol: '인천',
+    pod: '천진',
+    amount: 118,
+    description: 'WJ 인천→천진 D/O(DTHC)',
+    version: 1,
+    ...getDefaultValidity(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'dthc_13',
+    agent: 'WJ',
+    pol: '인천',
+    pod: '연운',
+    amount: 116,
+    description: 'WJ 인천→연운 D/O(DTHC)',
+    version: 1,
+    ...getDefaultValidity(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'dthc_14',
+    agent: 'WJ',
+    pol: '인천',
+    pod: '다강',
+    amount: 113,
+    description: 'WJ 인천→다강 D/O(DTHC)',
+    version: 1,
+    ...getDefaultValidity(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+];
+
+// Initial DP Costs (출발항별 DP 비용)
+export const initialDPCosts: DPCost[] = [
+  {
+    id: 'dp_1',
+    port: '부산',
+    amount: 150,
+    description: 'Disposal Container (부산)',
+    version: 1,
+    ...getDefaultValidity(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'dp_2',
+    port: '인천',
+    amount: 180,
+    description: 'Disposal Container (인천)',
+    version: 1,
+    ...getDefaultValidity(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+];
+
+// Initial Combined Freight Data (통합 운임)
+export const initialCombinedFreights: CombinedFreight[] = [
+  {
+    id: 'combined_1',
+    agent: '하버링크',
+    pod: '청도',
+    destinationId: 'dest_1', // OSH
+    rate: 4550,
+    description: '청도→OSH 통합 운임',
+    version: 1,
+    ...getDefaultValidity(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+];
+
+// Initial Port Border Freight Data (철도운임 - 중국항 → KASHGAR)
+// 🆕 NEW: Dynamic structure - one record per agent-pod combination
+export const initialPortBorderFreights: PortBorderFreight[] = [
+  // 하버링크
+  {
+    id: 'pb_1',
+    agent: '하버링크',
+    pod: '청도',
+    rate: 2550,
+    version: 1,
+    ...getDefaultValidity(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'pb_2',
+    agent: '하버링크',
+    pod: '천진',
+    rate: 2500,
+    version: 1,
+    ...getDefaultValidity(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'pb_3',
+    agent: '하버링크',
+    pod: '연운',
+    rate: 2600,
+    version: 1,
+    ...getDefaultValidity(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'pb_4',
+    agent: '하버링크',
+    pod: '다강',
+    rate: 2700,
+    version: 1,
+    ...getDefaultValidity(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  // WJ
+  {
+    id: 'pb_5',
+    agent: 'WJ',
+    pod: '청도',
+    rate: 2050,
+    version: 1,
+    ...getDefaultValidity(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'pb_6',
+    agent: 'WJ',
+    pod: '천진',
+    rate: 2100,
+    version: 1,
+    ...getDefaultValidity(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'pb_7',
+    agent: 'WJ',
+    pod: '연운',
+    rate: 2150,
+    version: 1,
+    ...getDefaultValidity(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'pb_8',
+    agent: 'WJ',
+    pod: '다강',
+    rate: 2200,
+    version: 1,
+    ...getDefaultValidity(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  // LB
+  {
+    id: 'pb_9',
+    agent: 'LB',
+    pod: '청도',
+    rate: 2300,
+    version: 1,
+    ...getDefaultValidity(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'pb_10',
+    agent: 'LB',
+    pod: '천진',
+    rate: 2350,
+    version: 1,
+    ...getDefaultValidity(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'pb_11',
+    agent: 'LB',
+    pod: '연운',
+    rate: 2400,
+    version: 1,
+    ...getDefaultValidity(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'pb_12',
+    agent: 'LB',
+    pod: '다강',
+    rate: 2450,
+    version: 1,
+    ...getDefaultValidity(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  // 시노트란스
+  {
+    id: 'pb_13',
+    agent: '시노트란스',
+    pod: '청도',
+    rate: 2200,
+    version: 1,
+    ...getDefaultValidity(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'pb_14',
+    agent: '시노트란스',
+    pod: '천진',
+    rate: 2250,
+    version: 1,
+    ...getDefaultValidity(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'pb_15',
+    agent: '시노트란스',
+    pod: '연운',
+    rate: 2300,
+    version: 1,
+    ...getDefaultValidity(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'pb_16',
+    agent: '시노트란스',
+    pod: '다강',
+    rate: 2350,
+    version: 1,
+    ...getDefaultValidity(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+];
+
+// Initial Border Destination Freight Data (국경목적지운임)
+export const initialBorderDestinationFreights: BorderDestinationFreight[] = [
+  // 하버링크
+  { id: '1', agent: '하버링크', destinationId: 'dest_1', rate: 2000, version: 1, ...getDefaultValidity(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: '2', agent: '하버링크', destinationId: 'dest_2', rate: 2000, version: 1, ...getDefaultValidity(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: '3', agent: '하버링크', destinationId: 'dest_3', rate: 2000, version: 1, ...getDefaultValidity(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  
+  // WJ
+  { id: '4', agent: 'WJ', destinationId: 'dest_1', rate: 2050, version: 1, ...getDefaultValidity(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: '5', agent: 'WJ', destinationId: 'dest_2', rate: 2050, version: 1, ...getDefaultValidity(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: '6', agent: 'WJ', destinationId: 'dest_3', rate: 2050, version: 1, ...getDefaultValidity(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  
+  // LB
+  { id: '7', agent: 'LB', destinationId: 'dest_1', rate: 2080, version: 1, ...getDefaultValidity(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: '8', agent: 'LB', destinationId: 'dest_2', rate: 2080, version: 1, ...getDefaultValidity(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: '9', agent: 'LB', destinationId: 'dest_3', rate: 2080, version: 1, ...getDefaultValidity(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  
+  // 시노트란스
+  { id: '10', agent: '시노트란스', destinationId: 'dest_1', rate: 1900, version: 1, ...getDefaultValidity(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: '11', agent: '시노트란스', destinationId: 'dest_2', rate: 1950, version: 1, ...getDefaultValidity(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: '12', agent: '시노트란스', destinationId: 'dest_3', rate: 2000, version: 1, ...getDefaultValidity(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  
+  // COWIN
+  { id: '13', agent: 'COWIN', destinationId: 'dest_1', rate: 1950, version: 1, ...getDefaultValidity(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: '14', agent: 'COWIN', destinationId: 'dest_2', rate: 1850, version: 1, ...getDefaultValidity(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: '15', agent: 'COWIN', destinationId: 'dest_3', rate: 1650, version: 1, ...getDefaultValidity(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+];
+
+// Initial Weight Surcharge Rules (중량할증)
+export const initialWeightSurchargeRules: WeightSurchargeRule[] = [
+  // 하버링크
+  { id: '1', agent: '하버링크', minWeight: 0, maxWeight: 1000, surcharge: 0, version: 1, ...getDefaultValidity(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: '2', agent: '하버링크', minWeight: 1001, maxWeight: 2000, surcharge: 50, version: 1, ...getDefaultValidity(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: '3', agent: '하버링크', minWeight: 2001, maxWeight: 3000, surcharge: 100, version: 1, ...getDefaultValidity(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: '4', agent: '하버링크', minWeight: 3001, maxWeight: 999999, surcharge: 150, version: 1, ...getDefaultValidity(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  
+  // WJ
+  { id: '5', agent: 'WJ', minWeight: 0, maxWeight: 999999, surcharge: 33, version: 1, ...getDefaultValidity(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  
+  // LB
+  { id: '6', agent: 'LB', minWeight: 0, maxWeight: 999999, surcharge: 43, version: 1, ...getDefaultValidity(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  
+  // 시노트란스
+  { id: '7', agent: '시노트란스', minWeight: 0, maxWeight: 999999, surcharge: 80, version: 1, ...getDefaultValidity(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  
+  // COWIN
+  { id: '8', agent: 'COWIN', minWeight: 0, maxWeight: 999999, surcharge: 180, version: 1, ...getDefaultValidity(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+];

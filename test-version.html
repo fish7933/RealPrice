@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Version Test</title>
+</head>
+<body>
+    <h1>Sea Freight Version Test</h1>
+    <div id="output"></div>
+    <script>
+        const data = localStorage.getItem('freight_sea');
+        const seaFreights = data ? JSON.parse(data) : [];
+        
+        const output = document.getElementById('output');
+        output.innerHTML = '<h2>Current Sea Freights:</h2>';
+        
+        if (seaFreights.length === 0) {
+            output.innerHTML += '<p>No sea freight data found</p>';
+        } else {
+            seaFreights.forEach(f => {
+                output.innerHTML += `
+                    <div style="border: 1px solid #ccc; padding: 10px; margin: 10px 0;">
+                        <strong>ID:</strong> ${f.id}<br>
+                        <strong>Route:</strong> ${f.pol} → ${f.pod}<br>
+                        <strong>Carrier:</strong> ${f.carrier || 'N/A'}<br>
+                        <strong>Rate:</strong> $${f.rate}<br>
+                        <strong>Version:</strong> v${f.version || 1}<br>
+                        <strong>Valid From:</strong> ${f.validFrom}<br>
+                        <strong>Valid To:</strong> ${f.validTo}<br>
+                        <strong>Updated At:</strong> ${f.updatedAt}
+                    </div>
+                `;
+            });
+        }
+        
+        console.log('Sea Freights:', seaFreights);
+    </script>
+</body>
+</html>

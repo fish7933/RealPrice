@@ -509,6 +509,8 @@ WHERE destination_id = '${input.destinationId}'
       const weightSurchargeResult = getWeightSurchargeWithExpiry(agentName, input.weight);
       if (weightSurchargeResult.expired) combinedExpiredDetails.push('중량할증');
       
+      // FIX: When includeDP is true, combined freight should NOT include DP
+      // Combined freight already includes all costs from port to destination
       const combinedDpValue = 0;
       
       const total =
@@ -559,8 +561,10 @@ WHERE destination_id = '${input.destinationId}'
       const weightSurchargeResult = getWeightSurchargeWithExpiry(agentName, input.weight);
       if (weightSurchargeResult.expired) separateExpiredDetails.push('중량할증');
       
-      const separateDpValue = dpCostData.value;
-      if (dpCostData.expired) separateExpiredDetails.push('DP');
+      // FIX: When includeDP is true, separate freight (rail + truck) SHOULD include DP
+      // When includeDP is false, DP should be 0
+      const separateDpValue = input.includeDP ? dpCostData.value : 0;
+      if (input.includeDP && dpCostData.expired) separateExpiredDetails.push('DP');
       
       const railValue = railResult.value ?? 0;
       const truckValue = ownTruckResult.value ?? 0;
@@ -615,8 +619,10 @@ WHERE destination_id = '${input.destinationId}'
       const weightSurchargeResult = getWeightSurchargeWithExpiry('COWIN', input.weight);
       if (weightSurchargeResult.expired) cowinExpiredDetails.push('중량할증');
       
-      const cowinDpValue = dpCostData.value;
-      if (dpCostData.expired && !cowinExpiredDetails.includes('DP')) cowinExpiredDetails.push('DP');
+      // FIX: When includeDP is true, COWIN combination SHOULD include DP
+      // When includeDP is false, DP should be 0
+      const cowinDpValue = input.includeDP ? dpCostData.value : 0;
+      if (input.includeDP && dpCostData.expired && !cowinExpiredDetails.includes('DP')) cowinExpiredDetails.push('DP');
       
       const cowinDthcResult = getDTHCByAgentAndRouteWithExpiry(agentName, input.pol, input.pod, seaFreightCarrier, isAgentSpecific);
       
